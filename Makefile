@@ -21,6 +21,9 @@ URL_PATH_GRAFANA           := "http://grafana.$(DNSMASQ_DOMAIN)"
 URL_PATH_ALERTMANAGER      := "http://alertmanager.$(DNSMASQ_DOMAIN)"
 URL_PATH_DASHBOARD         := "http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/"
 
+# rsync -avz --exclude 'README.md' --exclude '*.log' --exclude '.git' --exclude '.vscode' --exclude '.vagrant' ~/dev/bossjones/boss-ansible-role-rsyslogd/.[^.]* ~/dev/bossjones/bosslab-playbooks
+# rsync -avz --exclude 'README.md' --exclude '*.log' --exclude '.git' --exclude '.vscode' --exclude '.vagrant' ~/dev/bossjones/boss-ansible-role-rsyslogd/* ~/dev/bossjones/bosslab-playbooks
+
 # SOURCE: https://github.com/wk8838299/bullcoin/blob/8182e2f19c1f93c9578a2b66de6a9cce0506d1a7/LMN/src/makefile.osx
 HAVE_BREW=$(shell brew --prefix >/dev/null 2>&1; echo $$? )
 
