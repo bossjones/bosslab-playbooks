@@ -24,7 +24,9 @@ URL_PATH_DASHBOARD         := "http://localhost:8001/api/v1/namespaces/kube-syst
 # SOURCE: https://github.com/wk8838299/bullcoin/blob/8182e2f19c1f93c9578a2b66de6a9cce0506d1a7/LMN/src/makefile.osx
 HAVE_BREW=$(shell brew --prefix >/dev/null 2>&1; echo $$? )
 
-.PHONY: list help
+.PHONY: list help default all check fail-when-git-dirty
+
+.PHONY: FORCE_MAKE
 
 PR_SHA                := $(shell git rev-parse HEAD)
 
@@ -65,17 +67,38 @@ MAKE := make
 
 list_allowed_args := product ip command role tier
 
+default: all
+
+all: galaxy
+
+check: all fail-when-git-dirty
+
+fail-when-git-dirty:
+	git diff --quiet && git diff --cached --quiet
+
+galaxy: galaxy/requirements
+	@echo 'You need to `git add` all files in order for this script to pick up the changes!'
+
+galaxy/requirements: galaxy/requirements.yml
+
+galaxy/requirements.yml: scripts/get_all_referenced_roles FORCE_MAKE
+ifeq (${DETECTED_OS}, Darwin)
+	"$<" | gsed --regexp-extended 's/^(.*)$$/- src: \1\n/' > "$@"
+else
+	"$<" | sed --regexp-extended 's/^(.*)$$/- src: \1\n/' > "$@"
+endif
+
 list:
 	@$(MAKE) -qp | awk -F':' '/^[a-zA-Z0-9][^$#\/\t=]*:([^=]|$$)/ {split($$1,A,/ /);for(i in A)print A[i]}' | sort
 
 download-roles:
-	ansible-galaxy install -r requirements.yml --roles-path ./roles/
+	ansible-galaxy install -r galaxy/requirements.yml --roles-path ./roles/
 
 download-roles-global:
-	ansible-galaxy install -r requirements.yml --roles-path=/etc/ansible/roles
+	ansible-galaxy install -r galaxy/requirements.yml --roles-path=/etc/ansible/roles
 
 download-roles-global-force:
-	ansible-galaxy install --force -r requirements.yml --roles-path=/etc/ansible/roles
+	ansible-galaxy install --force -r galaxy/requirements.yml --roles-path=/etc/ansible/roles
 
 raw:
 	$(call check_defined, product, Please set product)
@@ -117,11 +140,18 @@ bootstrap:
 travis:
 	tox
 
-pip-tools-osx:
-	ARCHFLAGS="-arch x86_64" LDFLAGS="-L/usr/local/opt/openssl/lib" CFLAGS="-I/usr/local/opt/openssl/include" pip install pip-tools pipdeptree
-
+.PHONY: pip-tools
 pip-tools:
+ifeq (${DETECTED_OS}, Darwin)
+	ARCHFLAGS="-arch x86_64" LDFLAGS="-L/usr/local/opt/openssl/lib" CFLAGS="-I/usr/local/opt/openssl/include" pip install pip-tools pipdeptree
+else
 	pip install pip-tools pipdeptree
+endif
+
+
+.PHONY: pip-tools-osx
+.PHONY: pip-tools-osx
+pip-tools-osx: pip-tools
 
 .PHONY: pip-compile-upgrade-all
 pip-compile-upgrade-all: pip-tools
