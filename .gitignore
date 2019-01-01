@@ -3,7 +3,8 @@
 .DS_Store
 
 
-
+.vscode
+*.swp
 **/.*.swp
 **/.ropeproject
 **/.cache

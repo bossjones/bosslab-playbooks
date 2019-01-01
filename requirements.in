@@ -5,3 +5,8 @@ pyaml
 autopep8
 mitogen
 yamllint
+ansigenome
+pylint
+isort
+jinja2-cli[yaml]
+autopep8

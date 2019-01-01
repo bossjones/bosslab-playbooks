@@ -1,9 +1,47 @@
 [defaults]
-#remote_user=vagrant
-become=true
-become_method=sudo
+
+roles_path     = ./:./roles:/etc/ansible/roles
+inventory      = inventory.ini
+nocows=True
+retry_files_enabled = False
+# stdout_callback = debug
+callback_whitelist = actionable, profile_tasks, profile_roles, skippy, debug, unixy, actionable
 stdout_callback = debug
 
-[ssh_connection]
-ssh_args = -C -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -F ./ssh_config 
+# NOTE: Enabling pipelining reduces the number of SSH operations required to execute a module on the remote server, by executing many ansible modules without actual file transfer. This can result in a very significant performance improvement when enabled, however when using “sudo:” operations you must first disable ‘requiretty’ in /etc/sudoers on all managed hosts.
 pipelining = True
+
+become = True
+host_key_checking = False
+deprecation_warnings = False
+# callback_whitelist = profile_tasks
+
+# SOURCE: https://dzone.com/articles/speed-up-ansible
+# internal_poll_interval = 0.001
+
+# SOURCE: https://chrisbergeron.com/2018/06/08/ansible_performance_tuning/
+poll_interval = 5
+
+# fact_caching            = jsonfile
+# fact_caching_connection = _cache/.ansible_fact_cache
+# 86400 is 1day
+# 2 minutes
+# fact_caching_timeout = 120
+
+# SOURCE: https://docs.ansible.com/ansible/2.4/intro_configuration.html
+# gathering = explicit
+
+# Try out mitogen
+strategy_plugins = /Users/malcolm/.pyenv/versions/ansible25/lib/python2.7/site-packages/ansible_mitogen/plugins/strategy
+# strategy = mitogen_linear
+
+[ssh_connection]
+# NOTE: Occasionally users may be managing a remote system that doesn’t have SFTP enabled. If set to True, we can cause scp to be used to transfer remote files instead here's really no reason to change this unless problems are encountered, and then there’s also no real drawback to managing the switch. Most environments support SFTP by default and this doesn’t usually need to be changed.
+scp_if_ssh = False
+
+# ssh_args = -o ForwardAgent=yes
+host_key_checking = False
+# ssh_args = -C -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ForwardAgent=yes -o PasswordAuthentication=no -o ControlPath=~/.ansible/cp/ansible-ssh-%h-%p-%r -F ./ssh_config
+ssh_args = -C -o PreferredAuthentications=publickey -o ControlMaster=auto -o ControlPersist=30m -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ForwardAgent=yes -o PasswordAuthentication=no -o ControlPath=~/.ansible/cp/ansible-ssh-%h-%p-%r -F ./ssh_config
+pipelining = True
+
