@@ -1,7 +1,0 @@
----
-- hosts: all
-  roles:
-    - role: boss-ansible-role-debug
-      bossjones__user: vagrant
-      bossjones__group: vagrant
-
