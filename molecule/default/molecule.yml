@@ -1,0 +1,66 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+lint:
+  name: yamllint
+  enabled: False
+platforms:
+  # source: https://blog.opsfactory.rocks/testing-ansible-roles-with-molecule-97ceca46736a
+  # source: https://github.com/solita/docker-systemd
+  # source: https://github.com/solita/docker-systemd-ssh/blob/master/Dockerfile
+  #
+  - name: debug-xenial
+    image: solita/ubuntu-systemd
+    image_version: latest
+    privileged: True
+  # - name: fedora-01
+  #   image: bossjones/fedora24-systemd-ansible:latest
+  #   privileged: True
+  #   command: /usr/sbin/init
+  #   # run_opts: "--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
+  #   # init: /usr/lib/systemd/systemd
+  #   groups:
+  #     - fedora
+  # TODO: USE THESES
+  # SOURCE: https://zapier.com/engineering/ansible-molecule/
+  #   - name: centos7
+  #   image: retr0h/centos7-systemd-ansible
+  #   image_version: latest
+  #   privileged: True
+  # - name: consul-ubuntu-16.04
+  #   image: solita/ubuntu-systemd
+  #   image_version: latest
+  #   privileged: True
+  # - name: consul-ubuntu-14.04
+  #   image: ubuntu-upstart
+  #   image_version: latest
+  #   privileged: True
+provisioner:
+  name: ansible
+  lint:
+    name: ansible-lint
+    enabled: False
+    # EANSIBLE0013 should not be raised for shell tasks that use globs.
+    options:
+      x: ANSIBLE0013
+verifier:
+  name: testinfra
+  options:
+    verbose: True
+  lint:
+    name: flake8
+    enabled: False
+scenario:
+  name: default
+  test_sequence:
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - lint
+    - side_effect
+    - verify
+    - destroy

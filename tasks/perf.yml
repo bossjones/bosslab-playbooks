@@ -1,0 +1,178 @@
+# TODO: https://security.stackexchange.com/questions/43205/nf-conntrack-table-full-dropping-packet/43220#43220
+# TODO: https://github.com/Oefenweb/ansible-conntrack/blob/master/tests/vagrant.yml
+
+# SOURCE: https://github.com/esl/amoc/blob/master/ansible/roles/prepare/tasks/main.yml
+
+- name: increase filedescriptor limit in sysctl
+  sysctl: name="fs.file-max" value="{{boss__nfs__sysctl_fileno}}" sysctl_set=yes state=present reload=yes
+
+# maximize number of file watches
+
+# Increasing the size of the input and output queues allows more data to be transferred via NFS. Effectively, you are increasing the size of buffers that can store data. The more data that can be stored in memory, the faster NFS can process it (i.e., more data is queued up). The NFS server NFS daemons share the same socket input and output queues, so if the queues are larger, all of the NFS daemons have more buffer and can send and receive data much faster.
+
+# For the input queue, the two values you want to modify are /proc/sys/net/core/rmem_default (the default size of the read queue in bytes) and /proc/sys/net/core/rmem_max (the maximum size of the read queue in bytes). These values are fairly easy to modify:
+
+# SOURCE: http://www.admin-magazine.com/HPC/Articles/Useful-NFS-Options-for-Tuning-and-Management
+- name: increase read buffer sizes to 256KiB
+  sysctl: name="net.core.rmem_default" value="262144" sysctl_set=yes state=present reload=yes
+
+- name: increase read buffer sizes to 256KiB
+  sysctl: name="net.core.rmem_max" value="262144" sysctl_set=yes state=present reload=yes
+
+- name: increase write buffer sizes to 256KiB
+  sysctl: name="net.core.wmem_default" value="262144" sysctl_set=yes state=present reload=yes
+
+- name: increase write buffer sizes to 256KiB
+  sysctl: name="net.core.wmem_max" value="262144" sysctl_set=yes state=present reload=yes
+
+# FIXME: I don't think this worked
+# https://linuxconfig.org/how-to-enable-jumbo-frames-in-linux
+- name: How To Enable Jumbo Frames In Linux - mtu 9000
+  shell: |
+    for i in $(ip a l  | grep 'mtu 1500' | awk -F':' '{print $2}'); do
+      ip link set $i mtu 9000
+    done
+  become: '{{ item }}'
+  args:
+    executable: /bin/bash
+  with_items:
+    - true  # Run as vagrant
+  tags:
+  - mtu
+
+# function mtu_update {
+#   INTERFACE="$(echo ${1} | awk -F'@' '{print $1}')"
+#   MTU="$2"
+#   echo -e "interface: ${INTERFACE} set: ${MTU}"
+#   ip link set dev ${INTERFACE} mtu ${MTU}
+# }
+
+# net.core.rmem_default
+# echo 262144 > /proc/sys/net/core/rmem_default
+# echo 262144 > /proc/sys/net/core/rmem_max
+
+# echo 262144 > /proc/sys/net/core/wmem_default
+# echo 262144 > /proc/sys/net/core/wmem_max
+
+- name: increase ipv4 local port range in sysctl
+  sysctl: name="net.ipv4.ip_local_port_range" value="1024 65535" sysctl_set=yes state=present reload=yes
+
+- name: increase ipv4 syn backlog
+  sysctl: name="net.ipv4.tcp_max_syn_backlog" value="40000" sysctl_set=yes state=present reload=yes
+
+- name: increase maximum number of backlogged sockets
+  sysctl: name="net.core.somaxconn" value="40000" sysctl_set=yes state=present reload=yes
+
+- name: enable selective tcp ack
+  sysctl: name="net.ipv4.tcp_sack" value="1" sysctl_set=yes state=present reload=yes
+
+- name: enable tcp window scaling
+  sysctl: name="net.ipv4.tcp_window_scaling" value="1" sysctl_set=yes state=present reload=yes
+
+- name: decrease fin-wait-2 timeout
+  sysctl: name="net.ipv4.tcp_fin_timeout" value="15" sysctl_set=yes state=present reload=yes
+
+- name: decrease keepalive interval
+  sysctl: name="net.ipv4.tcp_keepalive_intvl" value="60" sysctl_set=yes state=present reload=yes
+
+- name: decrease keepalive probes
+  sysctl: name="net.ipv4.tcp_keepalive_probes" value="5" sysctl_set=yes state=present reload=yes
+
+- name: decrease keepalive timeout after successful transfer
+  sysctl: name="net.ipv4.tcp_keepalive_time" value="180" sysctl_set=yes state=present reload=yes
+
+- name: enable time-wait reuse
+  sysctl: name="net.ipv4.tcp_tw_reuse" value="1" sysctl_set=yes state=present reload=yes
+
+- name: enable moderate receiver buffer
+  sysctl: name="net.ipv4.tcp_moderate_rcvbuf" value="1" sysctl_set=yes state=present reload=yes
+
+- name: increase default read buffer
+  sysctl: name="net.core.rmem_default" value="8388608" sysctl_set=yes state=present reload=yes
+
+- name: increase default write buffer
+  sysctl: name="net.core.wmem_default" value="8388608" sysctl_set=yes state=present reload=yes
+
+- name: increase max read buffer
+  sysctl: name="net.core.rmem_max" value="134217728" sysctl_set=yes state=present reload=yes
+
+- name: increase max write buffer
+  sysctl: name="net.core.wmem_max" value="134217728" sysctl_set=yes state=present reload=yes
+
+- name: increase tcp buffer size
+  sysctl: name="net.ipv4.tcp_mem" value="134217728 134217728 134217728" sysctl_set=yes state=present reload=yes
+
+- name: increase tcp read buffer size
+  sysctl: name="net.ipv4.tcp_rmem" value="4096 277750 134217728" sysctl_set=yes state=present reload=yes
+
+- name: increase tcp write buffer size
+  sysctl: name="net.ipv4.tcp_wmem" value="4096 277750 134217728" sysctl_set=yes state=present reload=yes
+
+- name: increase maximum interface backlog
+  sysctl: name="net.core.netdev_max_backlog" value="300000" sysctl_set=yes state=present reload=yes
+
+# In ansible playbooks, handlers (such as to restart a service) normally happen at the end of a run. If you need ansible to run a handler between two tasks, there is "flush_handlers".
+- name: flush handlers
+  meta: flush_handlers
+
+# We can also try this
+
+# SOURCE: https://github.com/rcarmo/ansible-rancher/blob/master/roles/base/tasks/main.yml
+# - name: system tuning
+#   shell: sysctl -w "{{ item }}"
+#   with_items:
+#     # maximize number of file watches
+#     - fs.inotify.max_user_watches=100000
+#     # swap only to avoid out of memory
+#     - vm.swappiness=0
+#     # tweak filesystem page cache flushing
+#     - vm.dirty_ratio=80
+#     - vm.dirty_background_ratio=80
+#     - vm.dirty_expire_centisecs=12000
+#     # allowed local port range
+#     - net.ipv4.ip_local_port_range=2000 65535
+#     # number of times SYNACKs for passive TCP connections
+#     - net.ipv4.tcp_synack_retries=2
+#     # decrease the time default value for tcp_fin_timeout connection
+#     - net.ipv4.tcp_fin_timeout=15
+#     # decrease the time default value for connections to keep alive
+#     - net.ipv4.tcp_keepalive_time=300
+#     - net.ipv4.tcp_keepalive_probes=5
+#     - net.ipv4.tcp_keepalive_intvl=15
+#     # default Socket Receive Buffer
+#     - net.core.rmem_default=31457280
+#     # maximum Socket Receive Buffer
+#     - net.core.rmem_max=12582912
+#     # default Socket Send Buffer
+#     - net.core.wmem_default=31457280
+#     # maximum Socket Send Buffer
+#     - net.core.wmem_max=12582912
+#     # number of incoming connections
+#     - net.core.somaxconn=4096
+#     # number of incoming connections backlog
+#     - net.core.netdev_max_backlog=65536
+#     # maximum amount of option memory buffers
+#     - net.core.optmem_max=25165824
+#     # maximum total buffer-space
+#     # measured in pages (4096 bytes)
+#     - net.ipv4.tcp_mem=65536 131072 262144
+#     - net.ipv4.udp_mem=65536 131072 262144
+#     # read-buffer space
+#     - net.ipv4.tcp_rmem=8192 87380 16777216
+#     - net.ipv4.udp_rmem_min=16384
+#     # increase the write-buffer-space
+#     - net.ipv4.tcp_wmem=8192 65536 16777216
+#     - net.ipv4.udp_wmem_min=16384
+#     # increase the tcp-time-wait buckets pool size to prevent simple DOS attacks
+#     - net.ipv4.tcp_max_tw_buckets=1440000
+#     - net.ipv4.tcp_tw_recycle=1
+#     - net.ipv4.tcp_tw_reuse=1
+#     # protect Against TCP Time-Wait
+#     - net.ipv4.tcp_rfc1337=1
+#     # disable slow start
+#     - net.ipv4.tcp_slow_start_after_idle=0
+#     # allow reuse of TIME_WAIT sockets
+#     - net.ipv4.tcp_tw_reuse=1
+#   sudo: yes
+#   tags:
+#     - configuration

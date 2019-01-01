@@ -1,0 +1,39 @@
+---
+# SOURCE: https://github.com/chrisruffalo/ansible-gluster/blob/44a082f34a56dc22c439fc3a60a5fa3b2460565d/roles/gluster-server/tasks/facts.yml
+- block:
+  - name: Set system architecture for AMD64/x86_64
+    set_fact:
+      sys_arch: "amd64"
+    when: ansible_architecture is match("x86_64") or (ansible_architecture | lower) is match("amd64")
+
+  - name: Set system architecture for i386/x86
+    set_fact:
+      sys_arch: "386"
+    when: ansible_architecture is match("i386")
+
+  - name: Set system architecture for ARM64
+    set_fact:
+      sys_arch: "arm64"
+    when: ansible_architecture is match("arm64")
+
+  - name: Set system architecture for ARMv7
+    set_fact:
+      sys_arch: "armv7"
+    when: ansible_architecture is match("armv7.+")
+
+  - name: Set system architecture for ARMv6
+    set_fact:
+      sys_arch: "armv6"
+    when: ansible_architecture is match("armv6.+")
+
+  - name: Set system architecture for ARMv5
+    set_fact:
+      sys_arch: "armv5"
+    when: ansible_architecture is match("armv5.+")
+
+  - name: Set system architecture for ansible var boss__kubernetes__kubeadm__apt_arch
+    set_fact:
+      boss__kubernetes__kubeadm__apt_arch: "{{sys_arch}}"
+
+  tags:
+  - always

@@ -1,0 +1,79 @@
+---
+# tasks file for boss-ansible-role-rsyslogd
+
+- name: remove bleeding edge rsyslog repo for Ubuntu
+
+  # Add repo
+  apt_repository:
+    repo: 'ppa:adiscon/v8-stable'
+    state: 'absent'
+    update_cache: yes
+    # filename: google-chrome
+  ignore_errors: yes
+  failed_when: False
+  # when: ((ansible_distribution == 'Ubuntu') and
+  #         ansible_lsb.id != ansible_lsb.id and
+  #         boss__rsyslogd__rsyslog_force_remove_before_provision|bool
+  #       )
+  when: boss__rsyslogd__rsyslog_force_remove_before_provision is defined and boss__rsyslogd__rsyslog_force_remove_before_provision
+  notify:
+    - Restart rsyslogd
+
+
+# Add specified repository into sources list using specified filename.
+- name: remove bleeding edge rsyslog repo for Ubuntu 2 times ppa:adiscon/v8-stable
+  apt_repository:
+    state: absent
+    update_cache: yes
+    filename: rsyslog-v8-stable.list
+  ignore_errors: yes
+  failed_when: False
+  when: boss__rsyslogd__rsyslog_install_bleeding_edge is defined and boss__rsyslogd__rsyslog_install_bleeding_edge
+  notify:
+    - Restart rsyslogd
+
+# - name: Remove all rsyslog packages
+#   apt:
+#     name: '{{ item }}'
+#     state: 'absent'
+#   with_flattened:
+#     - '{{ boss__rsyslogd__rsyslog_base_packages }}'
+#     - '{{ boss__rsyslogd__rsyslog_tls_packages if boss__rsyslogd__rsyslog_pki|bool else [] }}'
+#     - '{{ boss__rsyslogd__rsyslog_default_packages }}'
+#     - '{{ boss__rsyslogd__rsyslog_bleeding_edge_packages }}'
+#   ignore_errors: yes
+#   when: ((ansible_distribution == 'Ubuntu') and
+#           ansible_lsb.id != ansible_lsb.id and
+#           boss__rsyslogd__rsyslog_force_remove_before_provision|bool
+#         )
+#   notify:
+#     - Restart rsyslogd
+
+- name: "apt-get install -y ca-certificates"
+  shell: |
+    apt-get install -y ca-certificates
+  become: yes
+  ignore_errors: yes
+  when: boss__rsyslogd__rsyslog_force_remove_before_provision is defined and boss__rsyslogd__rsyslog_force_remove_before_provision
+  notify:
+    - Restart rsyslogd
+
+
+- name: "apt-get remove -y rsyslog*"
+  shell: |
+    apt-get remove -y {{ item }}
+  become: yes
+  with_flattened:
+    - '{{ boss__rsyslogd__rsyslog_base_packages | difference(boss__rsyslogd__rsyslog_mandatory_packages) | default(None) | string or default(omit) }}'
+    - '{{ boss__rsyslogd__rsyslog_tls_packages if boss__rsyslogd__rsyslog_pki|bool else boss__rsyslogd__rsyslog_tls_packages | difference(boss__rsyslogd__rsyslog_mandatory_packages) | default(None) | string or default(omit) }}'
+    - '{{ boss__rsyslogd__rsyslog_default_packages | difference(boss__rsyslogd__rsyslog_mandatory_packages) | default(None) | string or default(omit) }}'
+    - '{{ boss__rsyslogd__rsyslog_bleeding_edge_packages | difference(boss__rsyslogd__rsyslog_mandatory_packages) | default(None) | string or default(omit) }}'
+  ignore_errors: yes
+  failed_when: False
+  # when: ((ansible_distribution == 'Ubuntu') and
+  #         ansible_lsb.id != ansible_lsb.id and
+  #         boss__rsyslogd__rsyslog_force_remove_before_provision|bool
+  #       )
+  when: boss__rsyslogd__rsyslog_force_remove_before_provision is defined and boss__rsyslogd__rsyslog_force_remove_before_provision
+  notify:
+    - Restart rsyslogd

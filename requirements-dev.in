@@ -1,0 +1,3 @@
+docker-py
+molecule==2.18.1
+ansible>=2.5,<2.6

@@ -1,0 +1,286 @@
+---
+
+- hosts: servers
+  gather_facts: True
+  become: yes
+  become_method: sudo
+  tags:
+    - netdata_registry
+  vars:
+    netdata_registry_enabled: False
+    netdata_registry_to_announce: "http://{{ netdata_stream_master_node }}:{{ netdata_default_port }}"
+    pri_domain_name: scarlett-office.local
+    netdata_stream_enabled: True
+    # You can generate API keys, with the linux command: uuidgen
+    netdata_stream_api_key: 3402645b-2dbd-40d7-b748-21f564813f2f
+    # NOTE this is graphite server
+    netdata_stream_master_node: '192.168.50.105'
+    nginx_listen_port: 8080
+  roles:
+    - role: ansible-netdata
+    - role: ansible-motd
+    - role: ansible-logrotate
+      # defaults file for ansible-logrotate
+      # Defines if you want your log files compressed
+      logrotate_compress: false
+
+      # packages drop log rotation information into this directory
+      logrotate_conf_dir: '/etc/logrotate.d/'
+
+      logrotate_config: true
+
+      logrotate_configs:
+        - name: 'netdata'
+          compress: true
+          copytruncate: false
+          create:
+            mode: '640'
+            owner: 'netdata'
+            group: 'netdata'
+          delaycompress: true
+          logs:
+            - '/var/log/netdata/*.log'
+          # If the log file is missing, go on to the next one without
+          # issuing an error message.
+          missingok: true
+          # Do not rotate the log if it is empty
+          notifempty: true
+          postrotate:
+            - '/bin/kill -HUP `pidof netdata 2>/dev/null` 2>/dev/null || true'
+          rotate: '14'
+          rotation: 'daily'
+          sharedscripts: true
+        - name: 'nginx'
+          compress: true
+          copytruncate: false
+          create:
+            mode: '664'
+            owner: 'www-data'
+            group: 'adm'
+          delaycompress: true
+          logs:
+            - '/var/log/nginx/*.log'
+          # If the log file is missing, go on to the next one without
+          # issuing an error message.
+          missingok: true
+          # Do not rotate the log if it is empty
+          notifempty: true
+          postrotate:
+            - '[ ! -f /var/run/nginx.pid ] || kill -HUP `cat /var/run/nginx.pid`'
+          rotate: '20'
+          rotation: 'daily'
+          sharedscripts: true
+
+
+      # create new (empty) log files after rotating old ones
+      logrotate_create_new: true
+
+      logrotate_default_backlogs_rotate: '4'
+
+      logroate_default_configs:
+        - 'apt'
+        - 'dpkg'
+        - 'rsyslog'
+        - 'ufw'
+
+      # Defines the default rotate schedule
+      # hourly | daily | weekly | monthly
+      logrotate_default_rotate: 'daily'
+
+      # Defines if logrotate configs defined in logroate_default_configs
+      # should be removed or not
+      logrotate_remove_default_configs: false
+
+  tasks:
+
+    - name: "create /etc/nginx/sites-available/netdata"
+      copy:
+        content: |
+
+          log_format netdata '$remote_addr - $remote_user [$time_local] '
+            '"$request" $status $body_bytes_sent '
+            '$request_length $request_time '
+            '"$http_referer" "$http_user_agent"';
+
+          access_log /var/log/nginx/netdata.access.log;
+          error_log /var/log/nginx/netdata.error.log;
+
+          upstream netdata {
+              server 127.0.0.1:19999;
+              keepalive 1024;
+          }
+
+          server {
+              listen *:8081;
+              # the virtual host name of this
+              underscores_in_headers on;
+
+              # max upload size
+              client_max_body_size 75M;   # adjust to taste
+
+              location / {
+                  proxy_set_header X-Forwarded-Host $host;
+                  proxy_set_header X-Forwarded-Server $host;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_pass http://netdata;
+                  proxy_http_version 1.1;
+                  proxy_pass_request_headers on;
+                  proxy_set_header Connection "keep-alive";
+                  proxy_store off;
+                  gzip on;
+                  gzip_proxied any;
+                  gzip_types *;
+
+              }
+
+          }
+
+
+        dest: "/etc/nginx/sites-available/netdata"
+        owner: "root"
+        group: "root"
+        mode: 0644
+
+    - name: 'Create symlink for /etc/nginx/sites-enabled/netdata'
+      file:
+        src: "/etc/nginx/sites-available/netdata"
+        dest: "/etc/nginx/sites-enabled/netdata"
+        state: link
+
+
+    - name: 'delete symlink for /etc/nginx/sites-enabled/default'
+      file:
+        dest: "/etc/nginx/sites-enabled/default"
+        state: absent
+
+    - name: "get line of global"
+      shell: 'grep -n "\[global\]" /etc/netdata/netdata.conf | cut -d: -f1'
+      become: yes
+      register: global_linenumber
+
+    - name: "sed disconnect idle web clients after seconds = 3600"
+      shell: |
+        file /opt/netdata.lock
+      register: netdata_lock
+      become: yes
+
+    - name: "sed bind socket to IP = 127.0.0.1"
+      shell: |
+        sed -i '{{global_linenumber.stdout}}a\        bind socket to IP = 127.0.0.1' /etc/netdata/netdata.conf
+      become: yes
+      when: netdata_lock.stdout.find("No such file or directory") != -1
+
+    - name: "sed disconnect idle web clients after seconds = 3600"
+      shell: |
+        sed -i '{{global_linenumber.stdout}}a\        disconnect idle web clients after seconds = 3600' /etc/netdata/netdata.conf
+      become: yes
+      when: netdata_lock.stdout.find("No such file or directory") != -1
+
+    - name: "sed enable web responses gzip compression = no"
+      shell: |
+        sed -i '{{global_linenumber.stdout}}a\        enable web responses gzip compression = no' /etc/netdata/netdata.conf
+      become: yes
+      when: netdata_lock.stdout.find("No such file or directory") != -1
+
+    - name: "file limits /etc/security/limits.d/nginx.conf"
+      copy:
+        content: |
+          nginx   soft    nofile  10000
+          nginx   hard    nofile  30000
+        dest: "/etc/security/limits.d/nginx.conf"
+        owner: "root"
+        group: "root"
+        mode: 0644
+
+    - name: "file limits /etc/security/limits.d/netdata.conf"
+      copy:
+        content: |
+          netdata   soft    nofile  10000
+          netdata   hard    nofile  30000
+        dest: "/etc/security/limits.d/netdata.conf"
+        owner: "root"
+        group: "root"
+        mode: 0644
+
+    - name: "Create directory: /etc/systemd/system/netdata.service.d"
+      file:
+        path: "/etc/systemd/system/netdata.service.d"
+        state: directory
+        owner: "root"
+        group: "root"
+
+    - name: "Create directory: /etc/systemd/system/nginx.service.d"
+      file:
+        path: "/etc/systemd/system/nginx.service.d"
+        state: directory
+        owner: "root"
+        group: "root"
+
+
+    - name: "file limits /etc/systemd/system/nginx.service.d/limits.conf"
+      copy:
+        content: |
+          [Service]
+          LimitMEMLOCK=infinity
+          LimitNOFILE=30000
+          LimitNPROC=infinity
+          LimitCORE=infinity
+        dest: "/etc/systemd/system/nginx.service.d/limits.conf"
+        owner: "root"
+        group: "root"
+        mode: 0644
+
+    - name: "file limits /etc/systemd/system/netdata.service.d/limits.conf"
+      copy:
+        content: |
+          [Service]
+          LimitMEMLOCK=infinity
+          LimitNOFILE=30000
+          LimitNPROC=infinity
+          LimitCORE=infinity
+        dest: "/etc/systemd/system/netdata.service.d/limits.conf"
+        owner: "root"
+        group: "root"
+        mode: 0644
+
+    - name: reload systemd configuration
+      become: yes
+      command: systemctl daemon-reload
+
+    # Restart service and ensure it is enabled
+    - name: start and enable nginx
+      become: yes
+      service: name=nginx state=restarted enabled=yes
+
+    - name: start and enable netdata
+      become: yes
+      service: name=netdata state=restarted enabled=yes
+
+    - name: updatedb
+      shell: 'updatedb'
+      become: yes
+      register: updatedb
+
+    - name: Add backend block
+      blockinfile:
+        path: /etc/netdata/netdata.conf
+        block: |
+          [backend]
+                  enabled = yes
+                  data source = average
+                  type = graphite
+                  destination = 192.168.50.105:2003
+                  prefix = netdata
+                  # hostname = graphite-master1
+                  update every = 10
+                  buffer on failures = 10
+                  timeout ms = 20000
+                  send charts matching = *
+                  send hosts matching = localhost *
+                  send names instead of ids = yes
+      register: backend_block_added
+
+    - name: start and enable netdata
+      become: yes
+      service: name=netdata state=restarted enabled=yes
+      when: backend_block_added|changed

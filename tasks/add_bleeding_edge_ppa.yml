@@ -1,0 +1,58 @@
+---
+
+- name: 'Add an apt key by id from a keyserver - apt-key adv --keyserver keyserver.ubuntu.com --recv-keys AB1C1EF6EDB5746803FE13E00F6DD8135234BF2B FOR ppa:adiscon/v8-stable'
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: AB1C1EF6EDB5746803FE13E00F6DD8135234BF2B
+    state: present
+
+  # - name: install rvm for base user
+  #   shell: |
+  #     gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB;
+  #   args:
+  #     executable: /bin/bash
+  #     creates: '$HOME/.rvm'
+  #   register: rvm_install_global
+  #   changed_when: false
+  #   ignore_errors: yes
+  #   failed_when: false
+  #   check_mode: no
+  #   become: yes
+  #   become_user: "{{bossjones__user}}"
+
+# gpg --keyserver keyserver.ubuntu.com --recv-keys AB1C1EF6EDB5746803FE13E00F6DD8135234BF2B
+
+# - name: Install bleeding edge rsyslog repo for Ubuntu
+
+#   # Add repo
+#   apt_repository:
+#     repo: 'ppa:adiscon/v8-stable'
+#     state: '{{ "present" if boss__rsyslogd__rsyslog_install_bleeding_edge|bool else "absent" }}'
+#     update_cache: yes
+#   # when: ((ansible_distribution == 'Ubuntu') and
+#   #         ansible_lsb.id != ansible_lsb.id and
+#   #         boss__rsyslogd__rsyslog_install_bleeding_edge|bool
+#   #       )
+#   when: boss__rsyslogd__rsyslog_install_bleeding_edge is defined and boss__rsyslogd__rsyslog_install_bleeding_edge
+#   notify:
+#     - Restart rsyslogd
+
+
+# Add specified repository into sources list using specified filename.
+- name: "ADD {{item}} to /etc/apt/sources.list.d/rsyslog-v8-stable.list.list ppa:adiscon/v8-stable"
+  apt_repository:
+    repo: "{{item}}"
+    state: present
+    update_cache: yes
+    filename: rsyslog-v8-stable.list
+  when: boss__rsyslogd__rsyslog_install_bleeding_edge is defined and boss__rsyslogd__rsyslog_install_bleeding_edge
+  notify:
+    - Restart rsyslogd
+  with_items:
+  - "deb http://ppa.launchpad.net/adiscon/v8-stable/ubuntu {{ansible_distribution_release}} main"
+  - "deb-src http://ppa.launchpad.net/adiscon/v8-stable/ubuntu {{ansible_distribution_release}} main"
+
+- name: Update cache for Ubuntu
+
+  # Update apt cache
+  apt: update_cache=yes

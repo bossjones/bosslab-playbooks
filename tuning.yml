@@ -1,0 +1,20 @@
+- hosts: nodes
+  name: (nodes) - kernel tuning and perf
+  gather_facts: True
+  become: yes
+  become_method: sudo
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  vars:
+    boss__ntp__timezone: 'America/New_York'
+  tags:
+    - nodes
+    - install
+    - master_install
+
+  roles:
+    - role: ../
+      task: perf
+      boss__nfs__master_node_ip: '192.168.50.108'
+      boss__nfs__nfs_interface: 'enp0s8'
+      # boss__nfs__nfs_interface: 'enp0s3'

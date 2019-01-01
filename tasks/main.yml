@@ -1,0 +1,20 @@
+---
+
+- name: "remove_before_provision.yml"
+  include_tasks: "remove_before_provision.yml"
+  # when: boss__rsyslogd__rsyslog_force_remove_before_provision|bool
+  when: boss__rsyslogd__rsyslog_force_remove_before_provision is defined and boss__rsyslogd__rsyslog_force_remove_before_provision
+
+- name: "add_bleeding_edge_ppa.yml"
+  include_tasks: "add_bleeding_edge_ppa.yml"
+  # when: ((ansible_distribution == 'Ubuntu') and
+  #         ansible_lsb.id != ansible_lsb.id and
+  #         boss__rsyslogd__rsyslog_install_bleeding_edge|bool
+  #       )
+  when: boss__rsyslogd__rsyslog_install_bleeding_edge is defined and boss__rsyslogd__rsyslog_install_bleeding_edge
+
+- name: "{{boss__rsyslogd__default_task}}.yml"
+  include_tasks: "{{boss__rsyslogd__default_task}}.yml"
+
+- name: "debugging_tools.yml"
+  include_tasks: "debugging_tools.yml"

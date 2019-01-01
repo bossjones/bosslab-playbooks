@@ -1,0 +1,35 @@
+# https://gist.github.com/gnarf/b103e77f37236ca72d8e
+:vms:
+  rsyslogd-master-01:
+    :hostname: "rsyslogd-master-01"
+    :ip: "192.168.50.108"
+    :ram: 2048
+    :cpu: 2
+    :box: "ubuntu/xenial64"
+    :id: 10
+
+  rsyslogd-worker-01:
+    :hostname: "rsyslogd-worker-01"
+    :ip: "192.168.50.109"
+    :ram: 2048
+    :cpu: 2
+    :box: "ubuntu/xenial64"
+    :id: 11
+
+:groups:
+  rsyslogd-master-01:
+    - rsyslogd-master-01
+  slaves:
+    - rsyslogd-worker-01
+  agents:
+    - rsyslogd-worker-01
+  servers:
+    - rsyslogd-master-01
+    - rsyslogd-worker-01
+  kubernetes-rsyslogd-master-01:
+    - rsyslogd-master-01
+  kubernetes-workers:
+    - rsyslogd-worker-01
+  kubernetes:
+    - rsyslogd-master-01
+    - rsyslogd-worker-01

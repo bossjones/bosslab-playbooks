@@ -1,0 +1,1135 @@
+##############################################################################
+# Install prereqs for perf/tools
+##############################################################################
+# # no_log: true
+- hosts: servers
+  vars:
+    go_version: "1.10"
+  gather_facts: True
+  become: yes
+  become_method: sudo
+  tags:
+    - prereqs
+    - perf
+    - perf_tools
+    - tools
+    - servers
+  pre_tasks:
+
+  - name: Set system architecture for AMD64/x86_64
+    set_fact:
+      sys_arch: "amd64"
+    when: ansible_architecture is match("x86_64") or (ansible_architecture | lower) is match("amd64")
+
+  - name: Set system architecture for i386/x86
+    set_fact:
+      sys_arch: "386"
+    when: ansible_architecture is match("i386")
+
+  - name: Set system architecture for ARM64
+    set_fact:
+      sys_arch: "arm64"
+    when: ansible_architecture is match("arm64")
+
+  - name: Set system architecture for ARMv7
+    set_fact:
+      sys_arch: "armv7"
+    when: ansible_architecture is match("armv7.+")
+
+  - name: Set system architecture for ARMv6
+    set_fact:
+      sys_arch: "armv6"
+    when: ansible_architecture is match("armv6.+")
+
+  - name: Set system architecture for ARMv5
+    set_fact:
+      sys_arch: "armv5"
+    when: ansible_architecture is match("armv5.+")
+
+  - name: Set system architecture for ansible var apt_arch
+    set_fact:
+      apt_arch: "{{sys_arch}}"
+
+  - name: Upgrade all packages to the latest version
+    apt:
+      name: "*"
+      state: latest
+      force_apt_get: yes
+      update_cache: yes
+      cache_valid_time: 86400 #One day
+    become: '{{ item }}'
+    with_items:
+      - true  # Run as root
+
+  - name: install go
+    unarchive:
+      src: 'https://storage.googleapis.com/golang/go{{ go_version }}.linux-{{ sys_arch }}.tar.gz'
+      remote_src: yes
+      dest: /usr/local
+      mode: 0777
+      creates: /usr/local/go/bin/go
+
+  # export PATH=$PATH:/usr/local/go/bin:${HOME}/go/bin
+  - name: set go env. vars. and add go to path
+    blockinfile:
+      dest: '$HOME/.bashrc'
+      block: |
+        export PATH=$PATH:/usr/local/go/bin
+        export GOPATH=$HOME
+      state: present
+      create: yes
+      mode: 0644
+    become: '{{ item }}'
+    with_items:
+      - true  # Run as root
+      - false # Run as SSH user
+
+  # - name: source ~/.bashrc from ~/.bash_profile
+  #   lineinfile:
+  #     dest: '$HOME/.bash_profile'
+  #     line: '[ -r $HOME/.bashrc ] && source $HOME/.bashrc'
+  #     state: present
+  #     create: yes
+  #     mode: 0644
+  #   become: '{{ item }}'
+  #   with_items:
+  #     - true  # Run as root
+  #     - false # Run as SSH user
+
+  - name: set fact env_go
+    set_fact:
+      env_go: '{{ env_go |default({}) | combine ({"PATH" : "/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/usr/local/go/bin"  }) | combine ({"GOPATH" :"$HOME"}) }}'
+
+  # # NOTE: fast way to switch between clusters and namespaces in kubectl
+  # - name: install kubens - fast way to switch between clusters and namespaces in kubectl
+  #   shell: |
+  #     curl -L 'https://raw.githubusercontent.com/ahmetb/kubectx/master/kubens' > /usr/local/bin/kubens
+  #     chmod +x /usr/local/bin/kubens
+  #   become: yes
+  #   become_method: sudo
+  #   args:
+  #     executable: /bin/bash
+  #     creates: /usr/local/bin/kubens
+
+  - name: install fzy - A better fuzzy finder
+    shell: |
+      curl -L 'https://github.com/jhawthorn/fzy/releases/download/0.9/fzy_0.9-1_amd64.deb' > /usr/local/src/fzy_0.9-1_amd64.deb
+      apt install -y /usr/local/src/fzy_0.9-1_amd64.deb
+    become: yes
+    become_method: sudo
+    args:
+      executable: /bin/bash
+      creates: /usr/bin/fzy
+
+#   wget https://github.com/jhawthorn/fzy/releases/download/0.9/fzy_0.9-1_amd64.deb
+# $ sudo dpkg -i fzy_0.9-1_amd64.deb
+
+  - name: "Install ubuntu-make"
+    package:
+      name: "{{ item }}"
+      state: present
+    with_items:
+        - ubuntu-make
+
+  - name: "Install prereq tools"
+    package:
+      name: "{{ item }}"
+      state: present
+    with_items:
+        - nethogs
+        - ccze
+        - htop
+        - silversearcher-ag
+        - netcat
+        - nmap
+        - netperf
+        - ngrep
+        - unzip
+        - nload
+        - jq
+        - ncdu
+        - traceroute
+        - sysstat
+        # - ssldump
+        # - sslsplit
+        - conntrack
+        # NOTE: RUN THIS GUY
+        - mtr
+        - tmux
+        # SOURCE: https://www.tecmint.com/test-network-throughput-in-linux/
+        - iperf3
+        # SOURCE: https://www.tecmint.com/tcpflow-analyze-debug-network-traffic-in-linux/
+        - tcpflow
+        # SOURCE: https://www.tecmint.com/linux-network-bandwidth-monitoring-tools/
+        - iftop
+        - procps
+        - dstat
+        - ifstat
+        - tcpstat
+        - atop
+        - iotop
+        - itop
+        - latencytop
+        - ntop
+        - tiptop
+        - sntop
+        - virt-top
+        - jnettop
+        - kerneltop
+        - logtop
+        - nicstat
+        - xclip
+        - perf-tools-unstable
+        - bonnie++
+        - gnuplot
+        - iozone3
+        - tree
+
+# TODO: For consideration
+# root@rsyslogd-master-01:~# apt-cache search top | grep "top - .*"
+# gir1.2-freedesktop - Introspection data for some FreeDesktop components
+# libunity-scopes-json-def-desktop - binding to get places into the launcher - desktop def file
+# powertop - diagnose issues with power consumption and management
+# sound-theme-freedesktop - freedesktop.org sound theme
+# ubuntu-desktop - The Ubuntu desktop system
+# unity-control-center-faces - utilities to configure the GNOME desktop - faces images
+# apachetop - Realtime Apache monitoring tool
+# atop - Monitor for system resources and process activity
+# autopilot-desktop - Autopilot support for the ubuntu Desktop platform
+# cinnamon-control-center-dbg - utilities to configure the Cinnamon desktop - debug symbols
+# ctop - Command line / text based Linux Containers monitoring tool
+# djvulibre-desktop - Desktop support for the DjVu image format
+# dnstop - console tool to analyze DNS traffic
+# edubuntu-desktop - educational desktop for Ubuntu
+# gambas3-gb-desktop - Gambas Portland project compatibility component
+# gir1.2-mate-desktop - GObject introspection data for the mate-desktop library
+# gkrelltop - Top three intensive processes plugin for gkrellm
+# gnome-hwp-support-dbg - HWP document integration for GNOME desktop - debugging symbols
+# gosa-desktop - Desktop integration for GOsa²
+# grdesktop - GNOME frontend for the rdesktop client
+# gtk-recordmydesktop - Graphical frontend for recordMyDesktop screencast tool
+# hatop - interactive ncurses client for haproxy
+# htop - interactive processes viewer
+# iftop - displays bandwidth usage information on an network interface
+# iotop - simple top-like I/O monitor
+# itop - simple top-like interrupt load monitor
+# j4-dmenu-desktop - faster replacement for i3-dmenu-desktop
+# jnettop - View hosts/ports taking up the most network traffic
+# kerneltop - shows Linux kernel function usage in a style like top
+# kubuntu-desktop - Kubuntu Plasma Desktop/Netbook system
+# kubuntu-settings-desktop - Settings and artwork for the Kubuntu (Desktop)
+# latencytop - A tool for developers to visualize system latencies
+# live-image-gnome-desktop - live-build configuration for the GNOME desktop live images
+# live-image-kde-desktop - live-build configuration for the KDE live images
+# live-image-lxde-desktop - live-build configuration for the LXDE desktop live images
+# live-image-xfce-desktop - live-build configuration for the Xfce desktop live images
+# logtop - real time log line rate analyzer
+# lttngtop - LTTng 2.0 Top-like trace reader and analyzer
+# lua-bitop - fast bit manipulation library for the Lua language
+# lubuntu-desktop - Lubuntu Desktop environment
+# matchbox-desktop - desktop application launcher for resource-limited systems
+# mate-desktop - Library with common API for various MATE modules
+# mir-graphics-drivers-desktop - Display server for Ubuntu - desktop driver metapackage
+# mytop - top like query monitor for MySQL
+# neurodebian-desktop - neuroscience-oriented distribution - desktop integration
+# ntop - display network usage in web browser
+# numatop - NUMA runtime observation tool
+# open-vm-tools-desktop - Open VMware Tools for virtual machines hosted on VMware (GUI)
+# pgtop - PostgreSQL performance monitoring tool akin to top
+# plasma-desktop - Tools and widgets for the desktop
+# plasma-look-and-feel-org-kde-breezedark-desktop - Dark Breeze look-and-feel for Plasma
+# plasma-mediacenter-dbg - multimedia center for KDE desktop - debugging symbols
+# ptop - transitional dummy package
+# qtmir-desktop - Qt platform abstraction (QPA) plugin for a Mir server (desktop)
+# qtop - windowed version of the console top command
+# qtubuntu-desktop - Qt plugins for Ubuntu Platform API (desktop)
+# radeontop - Utility to show Radeon GPU utilization
+# razorqt-desktop - Desktop component for Razor-qt desktop environment
+# rdesktop - RDP client for Windows NT/2000 Terminal Server and Windows Servers
+# recordmydesktop - Captures audio-video data of a Linux desktop session
+# ros-desktop - Robot OS desktop metapackage
+# ruby-treetop - Ruby-based text parsing and interpretation DSL
+# sntop - A curses-based utility that polls hosts to determine connectivity
+# starpu-top - Task scheduler for heterogeneous multicore machines - top
+# tiptop - performance monitoring tool for Linux
+# treetop - Ruby-based text parsing and interpretation (command-line utility)
+# ubuntu-application-api3-desktop - Implementation of the Platform API for Ubuntu Desktop
+# ubuntu-gnome-desktop - The Ubuntu GNOME metapackage
+# ubuntu-mate-cloudtop - Ubuntu MATE - reduced desktop for terminal server deployment
+# ubuntu-mate-desktop - Ubuntu MATE - full desktop
+# ubuntu-pocket-desktop - Ubuntu touch pocket desktop system
+# ubuntukylin-desktop - The Ubuntu Kylin desktop system
+# ubuntustudio-desktop - Ubuntu Studio Desktop Package
+# utop - improved OCaml toplevel
+# virt-top - show stats of virtualized domains
+# wmtop - dockapp that displays 3 top memory or CPU using processes
+# xrestop - X11 server resource usage monitor
+# xubuntu-desktop - Xubuntu desktop system
+# yubioath-desktop - Graphical interface for displaying OATH codes with a Yubikey
+# mythbuntu-desktop - The Mythbuntu standalone system
+# root@rsyslogd-master-01:~#
+
+
+
+  # SOURCE: https://gist.github.com/kometchtech/c5681b2a70b30c99bf7e834ffb3abba5
+  - name: "Install dnsperf prereqs"
+    package:
+      name: "{{ item }}"
+      state: present
+    with_items:
+        - bind9utils
+        - libbind-dev
+        - libkrb5-dev
+        - libssl-dev
+        - libcap-dev
+        - libxml2-dev
+        - geoip-bin
+        - libgeoip-dev
+        - build-essential
+        - curl
+        # REQUIRED: https://www.tecmint.com/hegemon-system-monitoring-tool-for-linux/
+        - libsensors4-dev
+
+  - name: "Install python-deps"
+    package:
+      name: "{{ item }}"
+      state: present
+    with_items:
+        - python3-dev
+        - python-dev
+        - python3-pip
+        - python-pip
+
+  - name: check if /usr/bin/sysdig exists
+    stat:
+      path: /usr/bin/sysdig
+    register: sysdig_result
+    failed_when: false
+    changed_when: false
+    tags:
+      - slow
+
+  - name: "SYSDIG: curl -s https://s3.amazonaws.com/download.draios.com/stable/install-sysdig | sudo bash ONLY if it is not installed already"
+    shell: |
+      bash -lc "curl -s https://s3.amazonaws.com/download.draios.com/stable/install-sysdig | sudo bash"
+    args:
+      executable: /bin/bash
+    when: not sysdig_result.stat.exists
+    tags:
+      - slow
+
+  # MORE TOOLS FROM: https://medium.com/@jonyeezs/my-minimal-over-powered-linux-setup-guide-710931efb75b
+
+  - name: install fzf for root and default user
+    shell: |
+      git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+      ~/.fzf/install --all
+    become: '{{ item }}'
+    args:
+      executable: /bin/bash
+      creates: '$HOME/.fzf'
+    with_items:
+      - true  # Run as root
+      - false
+    tags:
+    - fzf
+
+
+  - name: install fzf for root and default user
+    shell: |
+      git clone https://github.com/b4b4r07/enhancd ~/.enhancd
+    become: '{{ item }}'
+    args:
+      executable: /bin/bash
+      creates: '$HOME/.enhancd'
+    with_items:
+      - true  # Run as root
+      - false
+    tags:
+    - enhanced
+
+# $ echo 'source ~/.enhancd/init.sh' >> ~/.zshrc
+# $ echo 'ENHANCD_FILTER=fzy:fzf; export ENHANCD_FILTER' >> ~/.zshrc
+# $ echo "ENHANCD_HOOK_AFTER_CD='ls -A';export ENHANCD_HOOK_AFTER_CD" >> ~/.zshrc
+
+  - name: source ~/.enhancd/init.sh to root/ssh user bashrc
+    lineinfile:
+      path: '$HOME/.bashrc'
+      line: 'source ~/.enhancd/init.sh'
+      create: yes
+    become: '{{ item }}'
+    with_items:
+      - true  # Run as root
+      - false # Run as SSH user
+
+
+  - name: "ENHANCD_FILTER=fzy:fzf; export ENHANCD_FILTER to root/ssh user bashrc"
+    lineinfile:
+      path: '$HOME/.bashrc'
+      line: 'ENHANCD_FILTER=fzy:fzf; export ENHANCD_FILTER'
+      create: yes
+    become: '{{ item }}'
+    with_items:
+      - true  # Run as root
+      - false # Run as SSH user
+
+  - name: "ENHANCD_HOOK_AFTER_CD='ls -A';export ENHANCD_HOOK_AFTER_CD to root/ssh user bashrc"
+    lineinfile:
+      path: '$HOME/.bashrc'
+      line: "ENHANCD_HOOK_AFTER_CD='ls -A';export ENHANCD_HOOK_AFTER_CD"
+      create: yes
+    become: '{{ item }}'
+    with_items:
+      - true  # Run as root
+      - false # Run as SSH user
+
+  - name: install tldr - Simplified and community-driven man pages
+    shell: |
+      curl -L 'https://raw.githubusercontent.com/raylee/tldr/master/tldr' > /usr/local/bin/tldr
+      chmod +x /usr/local/bin/tldr
+    become: yes
+    become_method: sudo
+    args:
+      executable: /bin/bash
+      creates: /usr/local/bin/tldr
+
+  - name: install gkill - Interactice process killer for Linux and macOS
+    shell: |
+      curl -L 'https://github.com/heppu/gkill/releases/download/v1.0.2/gkill-linux-amd64' > /usr/local/bin/gkill
+      chmod +x /usr/local/bin/gkill
+    become: yes
+    become_method: sudo
+    args:
+      executable: /bin/bash
+      creates: /usr/local/bin/gkill
+
+  # https://github.com/heppu/gkill/releases/download/v1.0.2/gkill-linux-amd64
+
+  - name: install grv - GRV — Git Repository Viewer
+    shell: |
+      curl -L 'https://github.com/rgburke/grv/releases/download/v0.1.2/grv_v0.1.2_linux64' > /usr/local/bin/grv
+      chmod +x /usr/local/bin/grv
+    become: yes
+    become_method: sudo
+    args:
+      executable: /bin/bash
+      creates: /usr/local/bin/grv
+
+  - name: Add repositories
+    apt_repository:
+      repo: 'ppa:dawidd0811/neofetch'
+      state: present
+      update_cache: yes
+    when: ansible_os_family == "Debian"
+
+  - name: "Install neofetch"
+    package:
+      name: "{{ item }}"
+      state: present
+    with_items:
+        - neofetch
+
+  - name: install tmux bash completion
+    shell: |
+      curl -L 'https://raw.githubusercontent.com/Bash-it/bash-it/master/completion/available/tmux.completion.bash' > /etc/bash_completion.d/tmux ;
+    become: yes
+    become_method: sudo
+    args:
+      executable: /bin/bash
+      creates: /etc/bash_completion.d/tmux
+
+  # https://raw.githubusercontent.com/Bash-it/bash-it/master/completion/available/tmux.completion.bash
+
+  # $ sudo add-apt-repository ppa:dawidd0811/neofetch
+  # $ sudo apt update && sudo apt install neofetch
+
+  # Dockly
+  # If you use Docker, here’s one for you. You get to see all your containers, their health and as well their logs. Check out their repo for a gif demo.
+  # npm install -g dockly
+
+  # env_go
+  # ALL THESE TOOLS CAME FROM: https://medium.com/@jonyeezs/my-minimal-over-powered-linux-setup-guide-710931efb75b
+
+  ##############################################################################
+  # Install osquery
+  ##############################################################################
+  # $ export OSQUERY_KEY=1484120AC4E9F8A1A577AEEE97A80C63C9D8B80B
+  # $ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $OSQUERY_KEY
+  # $ sudo add-apt-repository 'deb [arch=amd64] https://pkg.osquery.io/deb deb main'
+  # $ sudo apt update
+  # $ sudo apt install osquery
+
+
+  # SOURCE: https://medium.com/@jonyeezs/my-minimal-over-powered-linux-setup-guide-710931efb75b
+  # $ git clone https://github.com/b4b4r07/enhancd ~/.enhancd
+  # $ echo 'source ~/.enhancd/init.sh' >> ~/.bashrc
+  # $ echo 'ENHANCD_FILTER=fzy:fzf; export ENHANCD_FILTER' >> ~/.bashrc
+  # $ echo "ENHANCD_HOOK_AFTER_CD='ls -A';export ENHANCD_HOOK_AFTER_CD" >> ~/.bashrc
+
+  - name: Install cheat
+    pip:
+      name: "cheat"
+
+  - name: install ~/.cheat for root and default user
+    shell: |
+      git clone https://github.com/bossjones/boss-cheatsheets ~/.cheat
+    become: '{{ item }}'
+    args:
+      executable: /bin/bash
+      creates: '$HOME/.cheat'
+    with_items:
+      - true  # Run as root
+      - false
+    tags:
+    - cheat
+
+  - name: autocomplete ~/.cheat for root and default user
+    shell: |
+      curl 'https://raw.githubusercontent.com/chrisallenlane/cheat/master/cheat/autocompletion/cheat.bash' > /etc/bash_completion.d/cheat ;
+    become: '{{ item }}'
+    args:
+      executable: /bin/bash
+      creates: '/etc/bash_completion.d/cheat'
+    with_items:
+      - true  # Run as root
+    tags:
+    - cheat
+
+  - name: Install cheat
+    pip:
+      name: "cheat"
+
+  # https://github.com/nodesource/distributions/blob/master/README.md
+  - name: install node version v11.4.0
+    shell: |
+      curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash -
+      apt-get install -y nodejs
+      apt-get install -y gcc g++ make
+      npm install gtop -g
+    become: '{{ item }}'
+    args:
+      executable: /bin/bash
+      creates: '/usr/bin/npm'
+    with_items:
+      - true  # Run as root
+    tags:
+    - node
+    - npm
+
+#  npm install -g docker-loghose
+# npm install -g docker-enter
+
+# TODO: Install
+
+
+# SOURCE: https://github.com/iovisor/bcc/blob/master/INSTALL.md
+
+# perf tools
+# bcc
+
+# FIXME: https://github.com/pypa/pip/issues/5240
+# curl https://bootstrap.pypa.io/get-pip.py | python3
+# pip2 install --upgrade pip
+
+
+  # https://github.com/nodesource/distributions/blob/master/README.md
+  - name: Install latest python pip for python3 and python2
+    shell: |
+      curl https://bootstrap.pypa.io/get-pip.py | python3
+      pip2 install --upgrade pip
+    become: '{{ item }}'
+    args:
+      executable: /bin/bash
+    with_items:
+      - true  # Run as root
+    ignore_errors: yes
+    tags:
+    - pip
+    - python-pip
+
+  - name: "create /usr/local/bin/GlancesAutoInstall.sh"
+    copy:
+      content: |
+        #!/usr/bin/env bash
+        #
+        # GlancesAutoInstall script
+        # Version: MASTER branch
+        # Author:  Nicolas Hennion (aka) Nicolargo
+        #
+
+        # Execute a command as root (or sudo)
+        do_with_root() {
+            # already root? "Just do it" (tm).
+            if [[ `whoami` = 'root' ]]; then
+                $*
+            elif [[ -x /bin/sudo || -x /usr/bin/sudo ]]; then
+                echo "sudo $*"
+                sudo $*
+            else
+                echo "Glances requires root privileges to install."
+                echo "Please run this script as root."
+                exit 1
+            fi
+        }
+
+        # Detect distribution name
+        if [[ `which lsb_release 2>/dev/null` ]]; then
+            # lsb_release available
+            distrib_name=`lsb_release -is`
+        else
+            # lsb_release not available
+            lsb_files=`find /etc -type f -maxdepth 1 \( ! -wholename /etc/os-release ! -wholename /etc/lsb-release -wholename /etc/\*release -o -wholename /etc/\*version \) 2> /dev/null`
+            for file in $lsb_files; do
+                if [[ $file =~ /etc/(.*)[-_] ]]; then
+                    distrib_name=${BASH_REMATCH[1]}
+                    break
+                else
+                    echo "Sorry, GlancesAutoInstall script is not compliant with your system."
+                    echo "Please read: https://github.com/nicolargo/glances#installation"
+                    exit 1
+                fi
+            done
+        fi
+
+        echo "Detected system:" $distrib_name
+
+        shopt -s nocasematch
+        # Let's do the installation
+        if [[ $distrib_name == "ubuntu" || $distrib_name == "LinuxMint" || $distrib_name == "debian" || $distrib_name == "Raspbian" ]]; then
+            # Ubuntu/Debian variants
+
+            # Set non interactive mode
+            set -eo pipefail
+            export DEBIAN_FRONTEND=noninteractive
+
+            # Make sure the package repository is up to date
+            do_with_root apt-get -y --force-yes update
+
+            # Install prerequirements
+            do_with_root apt-get install -y --force-yes python-pip python-dev gcc lm-sensors wireless-tools
+
+        elif [[ $distrib_name == "oracle" ]]; then
+            # Oracle EL 7, should work on 6 as well
+
+            # Enable repo
+            do_with_root yum -y install yum-utils
+            do_with_root yum-config-manager --enablerepo ol`. /etc/os-release; echo $VERSION | cut -d. -f1`_software_collections
+
+            # Install prerequirements
+            do_with_root yum -y install python27-python-pip python27-python-devel gcc lm_sensors wireless-tools
+
+            # Create glances script
+            GLANCES_BIN=/usr/bin/glances
+            echo "#!/bin/bash" > $GLANCES_BIN
+            echo ". /opt/rh/python27/enable" >> $GLANCES_BIN
+            echo "glances" >> $GLANCES_BIN
+            chmod +x $GLANCES_BIN
+
+            # Load Python27 env
+            . /opt/rh/python27/enable
+
+        elif [[ $distrib_name == "centminmod" ]]; then
+            # /CentOS min based
+
+            # Install prerequirements
+            do_with_root yum -y install python-devel gcc lm_sensors wireless-tools
+            do_with_root wget -O- https://bootstrap.pypa.io/get-pip.py | python && $(which pip) install -U pip && ln -s $(which pip) /usr/bin/pip
+
+        elif [[ $distrib_name == "arch" ]]; then
+            # Arch support
+
+            # Headers not needed for Arch, shipped with regular python packages
+            do_with_root pacman -S python-pip lm_sensors wireless_tools --noconfirm
+
+        else
+            # Unsupported system
+            echo "Sorry, GlancesAutoInstall script is not compliant with your system."
+            echo "Please read: https://github.com/nicolargo/glances#installation"
+            exit 1
+
+        fi
+        shopt -u nocasematch
+
+        echo "Install dependancies"
+
+        # Glances issue #922: Do not install PySensors (SENSORS)
+        DEPS="setuptools glances[action,batinfo,browser,cpuinfo,chart,docker,export,folders,gpu,ip,raid,snmp,web,wifi]"
+
+        # Install libs
+        do_with_root pip install --upgrade pip
+        do_with_root pip install $DEPS
+
+        # Install or ugrade Glances from the Pipy repository
+        if [[ -x /usr/local/bin/glances || -x /usr/bin/glances ]]; then
+            echo "Upgrade Glances and dependancies"
+            # Upgrade libs
+            do_with_root pip install --upgrade $DEPS
+            do_with_root pip install --upgrade glances
+        else
+            echo "Install Glances"
+            # Install Glances
+            do_with_root pip install glances
+        fi
+
+      dest: "/usr/local/bin/GlancesAutoInstall.sh"
+      owner: "root"
+      group: "root"
+      mode: 0755
+
+  - name: Install glances full suite
+    shell: |
+      bash GlancesAutoInstall.sh
+    become: '{{ item }}'
+    args:
+      executable: /bin/bash
+      creates: /usr/local/bin/glances
+    with_items:
+      - true  # Run as root
+    ignore_errors: yes
+    tags:
+    - glances
+
+# sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4052245BD4284CDD
+# echo "deb https://repo.iovisor.org/apt/$(lsb_release -cs) $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/iovisor.list
+# sudo apt-get update
+# sudo apt-get install bcc-tools libbcc-examples linux-headers-$(uname -r)
+
+  - name: 'Add an apt key by id from a keyserver - apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4052245BD4284CDD'
+    apt_key:
+      keyserver: keyserver.ubuntu.com
+      id: 4052245BD4284CDD
+      state: present
+
+  # Add specified repository into sources list using specified filename.
+  - name: add bcc repo on xenial
+    apt_repository:
+      repo: deb https://repo.iovisor.org/apt/{{ansible_distribution_release}} {{ansible_distribution_release}} main
+      state: present
+      update_cache: yes
+      filename: iovisor.list
+    when: ansible_os_family == "Debian"
+
+  # - name: Add repositories
+  #   apt_repository:
+  #     repo: 'ppa:dawidd0811/neofetch'
+  #     state: present
+  #     update_cache: yes
+  #   when: ansible_os_family == "Debian"
+
+  - name: 'uname -r'
+    shell: uname -r
+    ignore_errors: yes
+    failed_when: false
+    changed_when: false
+    register: uname_result
+
+  - debug: msg="{{ uname_result.stdout }}"
+
+  - name: "Install bcc"
+    package:
+      name: "{{ item }}"
+      state: present
+    with_items:
+        - bcc-tools
+        - libbcc-examples
+        - "linux-headers-{{ uname_result.stdout }}"
+        # NOTE: These are required for perf to work
+        # SOURCE: http://www.brendangregg.com/perf.html#Prerequisites
+        # SOURCE: https://github.com/brendangregg/perf-tools
+        # SOURCE: http://www.brendangregg.com/HeatMaps/latency.html
+        - "linux-tools-{{ uname_result.stdout }}"
+        - "linux-cloud-tools-{{ uname_result.stdout }}"
+        - linux-tools-generic
+        - linux-cloud-tools-generic
+
+  - name: git clone https://github.com/bossjones/tmux-config.git
+    shell: |
+      git clone https://github.com/bossjones/tmux-config.git ~/tmux-config || (cd ~/tmux-config ; git pull)
+      ~/tmux-config/install.sh
+      chdir=$HOME
+    become: '{{ item }}'
+    args:
+      executable: /bin/bash
+      creates: '$HOME/tmux-config'
+    with_items:
+      - true  # Run as vagrant
+      - false  # Run as vagrant
+    tags:
+    - tmux
+    - tmux-config
+
+  - name: Add bcc-tools to path
+    lineinfile:
+      path: '$HOME/.bashrc'
+      line: 'export PATH="/usr/share/bcc/tools:$PATH"'
+      create: yes
+    become: '{{ item }}'
+    with_items:
+      - true  # Run as root
+      - false # Run as SSH user
+
+
+  # - name: locale setup
+  #   shell: |
+  #     locale-gen en_US.UTF-8
+  #     dpkg-reconfigure locales
+  #     update-locale {{ item }}
+  #   with_items:
+  #     - LANGUAGE="en_US.UTF-8"
+  #     - LANG="en_US.UTF-8"
+  #     - LC_ALL="en_US.UTF-8"
+  #   become: yes
+  #   tags:
+  #     - configuration
+
+
+  - name: "create /usr/local/bin/nfs-benchmark.sh"
+    copy:
+      content: |
+        #!/usr/bin/env bash
+        #
+        # nfs-benchmark script
+        # Version: MASTER branch
+        # Author:  Bossjones
+        #
+
+        i=1
+        until [ $i -gt 100 ]
+        do
+          echo "Running bonne++ $i of 100."
+          echo ""
+          echo "-----------------------------------------------------"
+          bonnie++ -d /mnt/publicdata/ -s 2048 -r 1024 -u 65534 -g 65534
+          echo ""
+          echo ""
+          i=$(( i+1 ))
+        done
+
+
+
+      dest: "/usr/local/bin/nfs-benchmark.sh"
+      owner: "root"
+      group: "root"
+      mode: 0755
+
+
+  - name: "create /usr/local/bin/nfsstat-top.sh"
+    copy:
+      content: |
+        #!/usr/bin/env bash
+        #
+        # OPTIONS: https://linux.die.net/man/8/nfsstat
+        # nfsstat-top script
+        # Version: MASTER branch
+        # Author:  Bossjones
+        #
+
+        watch "nfsstat -o all -234"
+
+
+
+      dest: "/usr/local/bin/nfsstat-top.sh"
+      owner: "root"
+      group: "root"
+      mode: 0755
+
+
+  - name: "create /usr/local/bin/nfsstat-report.sh"
+    copy:
+      content: |
+        #!/usr/bin/env bash
+        #
+        # OPTIONS: https://linux.die.net/man/8/nfsstat
+        # nfsstat-report script
+        # Version: MASTER branch
+        # Author:  Bossjones
+        #
+
+        echo "nfsstat-report"
+        echo ""
+        echo "[Show information about mounted NFS filesystems]"
+        echo "-----------------------------------------------------"
+        nfsstat -m | ccze -A
+        echo ""
+        echo ""
+        echo "[Show all information about all versions of NFS]"
+        echo "-----------------------------------------------------"
+        nfsstat -o all -234 | ccze -A
+
+
+
+
+      dest: "/usr/local/bin/nfsstat-report.sh"
+      owner: "root"
+      group: "root"
+      mode: 0755
+
+
+  - name: "create /usr/local/bin/iozone-benchmark.sh"
+    copy:
+      content: |
+        #!/usr/bin/env bash
+        #
+        # OPTIONS: https://linux.die.net/man/8/nfsstat
+        # iozone-benchmark script
+        # Version: MASTER branch
+        # Author:  Bossjones
+        #
+
+        # SOURCE: http://nfs.sourceforge.net/nfs-howto/ar01s05.html
+        # the benchmark should take 2-3 hours at most, but of course you will need to run it for each value of rsize and wsize that is of interest. The web site gives full documentation of the parameters, but the specific options used above are:
+
+        # -a: Full automatic mode, which tests file sizes of 64K to 512M, using record sizes of 4K to 16M
+        # -R: Generate report in excel spreadsheet form (The "surface plot" option for graphs is best)
+        # -c: Include the file close time in the tests, which will pick up the NFS version 3 commit time
+        # -U: Use the given mount point to unmount and remount between tests; it clears out caches
+        # -f: When using unmount, you have to locate the test file in the mounted file system
+
+
+        echo "iozone-benchmark"
+        echo ""
+        echo "[ONLY RUN THIS ON CLIENT MACHINES NOT THE NFS SERVER]"
+        echo "-----------------------------------------------------"
+        time iozone -a -R -c -U /mnt/publicdata -f /mnt/publicdata/testfile > /var/log/iozone-benchmark-logfile
+        echo ""
+        echo ""
+
+      dest: "/usr/local/bin/iozone-benchmark.sh"
+      owner: "root"
+      group: "root"
+      mode: 0755
+
+  - name: source $HOME/.rvm/scripts/rvm to root/ssh user bashrc
+    lineinfile:
+      path: '$HOME/.bashrc'
+      line: 'source $HOME/.rvm/scripts/rvm'
+      create: yes
+    become: '{{ item }}'
+    with_items:
+      - true  # Run as root
+      - false # Run as SSH user
+
+  - name: source $HOME/.rvm/scripts/rvm to root/ssh user bashrc
+    lineinfile:
+      path: '$HOME/.bash_profile'
+      line: 'source $HOME/.rvm/scripts/rvm'
+      create: yes
+    become: '{{ item }}'
+    with_items:
+      - true  # Run as root
+      - false # Run as SSH user
+
+  - name: autocomplete rvm
+    lineinfile:
+      path: '$HOME/.bash_profile'
+      line: '[[ -r $rvm_path/scripts/completion ]] && . $rvm_path/scripts/completion'
+      create: yes
+    become: '{{ item }}'
+    with_items:
+      - true  # Run as root
+      - false # Run as SSH user
+
+  - name: autocomplete rvm
+    lineinfile:
+      path: '$HOME/.bashrc'
+      line: '[[ -r $rvm_path/scripts/completion ]] && . $rvm_path/scripts/completion'
+      create: yes
+    become: '{{ item }}'
+    with_items:
+      - true  # Run as root
+      - false # Run as SSH user
+
+  # \curl -sSL https://get.rvm.io | bash -s stable --ruby=jruby --gems=rails,puma
+  # curl -sSL https://get.rvm.io | bash -s stable --ruby
+  # \curl -sSL https://get.rvm.io | bash -s stable --with-default-gems="tmuxinator bundler"
+
+  - name: install rvm for base user
+    shell: |
+      gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB;
+      \curl -sSL https://get.rvm.io | bash -s stable --ruby=2.4.2 --gems=tmuxinator,bundler;
+    args:
+      executable: /bin/bash
+      creates: '$HOME/.rvm'
+    register: rvm_install_global
+    changed_when: false
+    ignore_errors: yes
+    failed_when: false
+    check_mode: no
+    become: yes
+    become_user: "{{bossjones__user}}"
+
+  # source $HOME/.rvm/scripts/rvm
+
+  # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+  # export PATH="$PATH:$HOME/.rvm/bin"
+
+  - name: install gems for rvm version
+    shell: $SHELL -lc "rvm use {{boss__tools__ruby_version}} --default; gem install {{item}}"
+    args:
+      executable: /bin/bash
+      creates: '{{ ansible_user_dir }}/.rvm/gems/ruby-{{ boss__tools__ruby_version }}/bin/bundler'
+    register: rvm_install_global
+    changed_when: false
+    ignore_errors: yes
+    environment:
+      PATH: "{{ ansible_user_dir }}/.rvm/gems/ruby-{{ boss__tools__ruby_version }}/bin:\
+              {{ ansible_user_dir }}/.rvm/gems/ruby-{{ boss__tools__ruby_version }}@global/bin:\
+              {{ ansible_user_dir }}/.rvm/rubies/ruby-{{ boss__tools__ruby_version }}/bin:\
+              {{ ansible_user_dir }}/.rvm/bin:\
+              {{ lookup('env', 'PATH') }}"
+    failed_when: false
+    check_mode: no
+    with_items:
+      - tmuxinator
+      - bundler
+    become: yes
+    become_user: "{{bossjones__user}}"
+
+
+
+# Mount config options
+# root@rsyslogd-worker-01:~# nfsstat -m
+# /mnt/publicdata from 192.168.50.108:/mnt/publicdata
+#  Flags:	rw,noatime,vers=4.0,rsize=262144,wsize=262144,namlen=255,acregmin=1800,acregmax=1800,acdirmin=1800,acdirmax=1800,hard,proto=tcp,port=0,timeo=600,retrans=2,sec=sys,clientaddr=192.168.50.109,local_lock=none,addr=192.168.50.108
+
+  # # SOURCE: https://github.com/bossjones/boss-ansible-homelab/blob/be5127249f978d841e8987886ffd4c5076be816f/vagrant_playbook.yml
+  # - name: debian | Installing Pre-Reqs
+  #   apt:
+  #     name: "{{ item }}"
+  #     state: present
+  #   become: True
+  #   with_items:
+  #     - peco
+  #     - atop
+  #     - bash
+  #     - bash-completion
+  #     - binutils-dev
+  #     - bison
+  #     - bridge-utils
+  #     - build-essential
+  #     - ca-certificates
+  #     - ccze
+  #     - dstat
+  #     - elfutils
+  #     - file
+  #     - flex
+  #     - git
+  #     - htop
+  #     - iftop
+  #     - iotop
+  #     - iperf
+  #     - iperf3
+  #     - iproute
+  #     - lsof
+  #     - ltrace
+  #     - make
+  #     - mercurial
+  #     - mtr
+  #     - net-tools
+  #     - ngrep
+  #     - nmap
+  #     - ntpdate
+  #     - perf-tools-unstable
+  #     - perl
+  #     - procps
+  #     - psmisc
+  #     - pv
+  #     - python-dev
+  #     - ruby2.3
+  #     - socat
+  #     - strace
+  #     - sysstat
+  #     - tar
+  #     - tcpdump
+  #     - tree
+  #     - vim
+  #     - wget
+  #     - mlocate
+  #     - ncdu
+  #     - fonts-symbola
+  #     - ttf-ancient-fonts-symbola
+  #     - ttf-ancient-fonts
+  #     - software-properties-common
+  #     # NOTE: How to performance test NFS share
+  #     # SOURCE: https://serverfault.com/questions/324438/measure-benchmark-the-speed-latency-of-file-access-on-a-mounted-nfs-share
+  #     - bonnie++
+# vagrant@rsyslogd-worker-01:~$ history
+#     1  neofetch
+#     2  exit
+#     3  cd $HOME
+#     4  git clone https://github.com/bossjones/tmux-config.git || (cd ~/tmux-config ; git pull)
+#     5  cd $HOME
+#     6  ./tmux-config/install.sh
+#     7  sudo apt-get install byoub
+#     8  sudo apt-get install byou
+#     9  gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
+#    10  sudo apt-get install ctags -y
+#    11  sudo apt-get install curl -y
+#    12  \curl -sSL https://get.rvm.io | bash -s stable --gems="bundler tmuxinator" --with-default-gems="pry bundler ruby-debug-ide debase rcodetools rubocop fastri htmlbeautifier hirb gem-ctags excon pry-doc tmuxinator solargraph"
+#    13  source /home/vagrant/.rvm/scripts/rvm
+#    14  rvm install -l
+#    15  cho progress-bar >> ~/.curlrc
+#    16  echo progress-bar >> ~/.curlrc
+#    17  rvm install 2.4.2
+#    18  rvm use 2.4.2 --default
+#    19  gem install tmuxinator
+#    20  git clone https://github.com/bossjones/linux-dotfiles ~/.dotfiles
+#    21  cp -a ~/.dotfiles/runcom/.tmuxinator ~/.tmxinator
+#    22  v ~/.tmxinator ~/.tmuxinator
+#    23  mv ~/.tmxinator ~/.tmuxinator
+#    24  tmuxinator start work
+#    25  sudo apt-get install neofetch
+#    26  sudo apt-cache search neofetch
+#    27  sudo add-apt-repository ppa:dawidd0811/neofetch
+#    28  sudo apt update && sudo apt install neofetch
+#    29  tmuxinator start work
+#    30  neofetch
+#    31  sudo apt-get install xclip -y
+#    32  sudo apt-get instll ccze -y
+#    33  sudo apt-get install ccze -y
+#    34  sudo su -
+#    35  exit
+#    36  rvm ls
+#    37  history
+
+  roles:
+   - role: ansible-goss-install
+     # == Detail about Goss binary files in GitHub ==
+     # https://github.com/aelsabbahy/goss/releases/
+     goss_version: v0.3.6
+     goss_arch: amd64
+     goss_dst_dir: /usr/local/bin
+     goss_dst_dir_mode: 0755
+     goss_sha256sum: 53dd1156ab66f2c4275fd847372e6329d895cfb2f0bcbec5f86c1c4df7236dde
+     goss_bin_filename: goss-linux-{{ goss_arch }}
+     goss_bin_symlink: goss
+     goss_url: "https://github.com/aelsabbahy/goss/releases/download/{{ goss_version }}/{{ goss_bin_filename }}"
+
+     # == Variables related with file system ==
+     goss_create_dst_dir: True
+     tags:
+      - goss
+
+# - hosts: nodes
+#   name: (nodes) - Install and configure rvm
+#   gather_facts: True
+#   become: no
+#   become_method: sudo
+#   environment:
+#     DEBIAN_FRONTEND: noninteractive
+#   tags:
+#     - ruby
+#     - nodes
+#     - servers
+#     - rvm
+#     - install
+#     - node_install
+#   roles:
+#   - role: rvm.ruby
+#     become: False
+#     vars:
+#       become: False
+#       rvm1_rubies: ['ruby-2.4.2']
+#       rvm1_user: "{{ ansible_user_id }}"
+#       rvm1_install_flags: '--auto-dotfiles --user-install'
+#       rvm1_install_path: "{{ ansible_user_dir }}/.rvm"

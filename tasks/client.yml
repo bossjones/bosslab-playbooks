@@ -1,0 +1,275 @@
+---
+# tasks file for boss-ansible-role-rsyslogd
+
+- name: Install required packages
+  apt:
+    name: '{{ item }}'
+    state: 'present'
+    install_recommends: False
+  with_flattened:
+    - '{{ boss__rsyslogd__rsyslog_base_packages }}'
+    - '{{ boss__rsyslogd__rsyslog_tls_packages if boss__rsyslogd__rsyslog_pki|bool else [] }}'
+    - '{{ boss__rsyslogd__rsyslog_packages }}'
+  when: boss__rsyslogd__rsyslog_enabled|bool
+
+- name: Create required system group
+  group:
+    name: '{{ boss__rsyslogd__rsyslog_group }}'
+    state: 'present'
+    system: True
+  when: boss__rsyslogd__rsyslog_unprivileged|bool and boss__rsyslogd__rsyslog_group != 'root'
+
+- name: Create required system user
+  user:
+    name: '{{ boss__rsyslogd__rsyslog_user }}'
+    group: '{{ boss__rsyslogd__rsyslog_group }}'
+    home: '{{ boss__rsyslogd__rsyslog_home }}'
+    shell: '/bin/false'
+    state: 'present'
+    createhome: False
+    system: True
+  when: boss__rsyslogd__rsyslog_unprivileged|bool and boss__rsyslogd__rsyslog_user != 'root'
+
+- name: Fix directory permissions if needed
+  file:
+    path: '/var/spool/rsyslog'
+    owner: '{{ boss__rsyslogd__rsyslog_user }}'
+    group: '{{ boss__rsyslogd__rsyslog_file_group }}'
+    mode: '0700'
+  register: boss__rsyslogd__rsyslog_register_unprivileged_files
+  when: boss__rsyslogd__rsyslog_unprivileged|bool and boss__rsyslogd__rsyslog_user != 'root'
+
+- name: Update directory and file permissions
+  shell: |
+    [ ! -d {{ boss__rsyslogd__rsyslog_home }} ] || ( [ "$(stat -c '%G' {{ boss__rsyslogd__rsyslog_home }})" = "{{ boss__rsyslogd__rsyslog_group }}" ] || ( chown -v root:{{ boss__rsyslogd__rsyslog_group }} {{ boss__rsyslogd__rsyslog_home }} ; chmod -v 775 {{ boss__rsyslogd__rsyslog_home }} ) )
+    for i in {{ boss__rsyslogd__rsyslog_default_logfiles | join(" ") }} ; do
+      [ ! -f ${i} ] || ( [ "$(stat -c '%U' ${i})" = "{{ boss__rsyslogd__rsyslog_file_owner }}" ] || chown -v {{ boss__rsyslogd__rsyslog_file_owner }}:{{ boss__rsyslogd__rsyslog_file_group }} ${i} )
+    done
+  register: boss__rsyslogd__rsyslog_register_file_permissions
+  when: boss__rsyslogd__rsyslog_unprivileged|bool
+  changed_when: boss__rsyslogd__rsyslog_register_file_permissions.stdout != ''
+  notify:
+    - Restart rsyslogd
+
+- name: Divert main rsyslog configuration
+  command: dpkg-divert --quiet --local --divert /etc/rsyslog.conf.dpkg-divert --rename /etc/rsyslog.conf
+  args:
+    creates: '/etc/rsyslog.conf.dpkg-divert'
+  # boss__rsyslogd__rsyslog_enabled
+  when: boss__rsyslogd__rsyslog_enabled|bool
+  # when: rsyslog__enabled|bool
+  notify:
+    - Restart rsyslogd
+
+
+- name: Generate main rsyslog configuration
+  template:
+    src: 'etc/rsyslog.conf.j2'
+    dest: '/etc/rsyslog.conf'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify:
+    - Restart rsyslogd
+  when: boss__rsyslogd__rsyslog_enabled|bool
+
+- name: Revert the default configuration file
+  shell: rm -f /etc/rsyslog.conf ; dpkg-divert --quiet --local --rename --remove /etc/rsyslog.conf
+  args:
+    removes: '/etc/rsyslog.conf.dpkg-divert'
+    warn: False
+  when: not boss__rsyslogd__rsyslog_enabled|bool
+
+
+- name: Divert the custom rsyslog configuration
+  environment:
+    LC_ALL: 'C'
+  command: dpkg-divert --local --divert /etc/rsyslog.d/{{ item.divert_to | d(item.filename + ".dpkg-divert") }} --rename /etc/rsyslog.d/{{ item.filename }}
+  args:
+    creates: '/etc/rsyslog.d/{{ item.divert_to | d(item.filename + ".dpkg-divert") }}'
+  register: boss__rsyslogd__rsyslog_register_divert_rules
+  with_flattened:
+    - '{{ rsyslog_pools | d([]) }}'
+    - '{{ boss__rsyslogd__rsyslog_default_rules }}'
+    - '{{ boss__rsyslogd__rsyslog_rules }}'
+    - '{{ boss__rsyslogd__rsyslog_group_rules }}'
+    - '{{ boss__rsyslogd__rsyslog_host_rules }}'
+    - '{{ boss__rsyslogd__rsyslog_dependent_rules }}'
+  when: (boss__rsyslogd__rsyslog_enabled|bool and item.filename|d() and
+         (item.state is undefined or item.state != 'absent') and
+         (item.divert|d() and item.divert|bool))
+  changed_when: boss__rsyslogd__rsyslog_register_divert_rules.stdout.startswith("Adding 'local diversion of ")
+  notify:
+    - Restart rsyslogd
+
+- name: Generate rsyslog configuration rules
+  template:
+    src: 'etc/rsyslog.d/rules.conf.j2'
+    dest: '/etc/rsyslog.d/{{ item.filename | d((item.weight if item.weight|d() else boss__rsyslogd__rsyslog_weight_map[item.type|d("rules")]) + "-" + (item.name|d("rules")) + "." + (item.suffix |d ("conf"))) }}'
+    owner: '{{ item.owner | d("root") }}'
+    group: '{{ item.group | d("root") }}'
+    mode:  '{{ item.mode  | d("0644") }}'
+  with_flattened:
+    - '{{ rsyslog_pools | d([]) }}'
+    - '{{ boss__rsyslogd__rsyslog_default_rules }}'
+    - '{{ boss__rsyslogd__rsyslog_rules }}'
+    - '{{ boss__rsyslogd__rsyslog_group_rules }}'
+    - '{{ boss__rsyslogd__rsyslog_host_rules }}'
+    - '{{ boss__rsyslogd__rsyslog_dependent_rules }}'
+  when: (boss__rsyslogd__rsyslog_enabled|bool and (item.filename|d() or item.name|d()) and
+         (item.state is undefined or item.state != 'absent') and
+         (item.options|d() or item.sections|d()))
+  notify:
+    - Restart rsyslogd
+
+- name: Remove custom config files when requested
+  file:
+    path: '/etc/rsyslog.d/{{ item.filename | d((item.weight if item.weight|d() else boss__rsyslogd__rsyslog_weight_map[item.type|d("rules")]) + "-" + (item.name|d("rules")) + "." + (item.suffix | d("conf"))) }}'
+    state: 'absent'
+  with_flattened:
+    - '{{ rsyslog_pools | d([]) }}'
+    - '{{ boss__rsyslogd__rsyslog_default_rules }}'
+    - '{{ boss__rsyslogd__rsyslog_rules }}'
+    - '{{ boss__rsyslogd__rsyslog_group_rules }}'
+    - '{{ boss__rsyslogd__rsyslog_host_rules }}'
+    - '{{ boss__rsyslogd__rsyslog_dependent_rules }}'
+  when: (not boss__rsyslogd__rsyslog_enabled|bool or
+         ((item.filename|d() or item.name|d()) and
+          (item.state|d() and item.state == 'absent')) and
+         (item.options|d() or item.sections|d())) and
+        (item.divert is undefined or not item.divert|bool)
+  notify:
+    - Restart rsyslogd
+
+
+# FIXME: Added today 10/30/2018
+- name: Remove custom config files when requested
+  file:
+    path: '/etc/rsyslog.d/{{ item.filename | d((item.weight if item.weight|d() else boss__rsyslogd__rsyslog_weight_map[item.type|d("rules")]) + "-" + (item.name|d("rules")) + "." + (item.suffix | d("conf"))) }}'
+    state: 'absent'
+  with_flattened:
+    - '{{ rsyslog_pools | d([]) }}'
+    - '{{ boss__rsyslogd__rsyslog_default_rules }}'
+    - '{{ boss__rsyslogd__rsyslog_rules }}'
+    - '{{ boss__rsyslogd__rsyslog_group_rules }}'
+    - '{{ boss__rsyslogd__rsyslog_host_rules }}'
+    - '{{ boss__rsyslogd__rsyslog_dependent_rules }}'
+  when: (not boss__rsyslogd__rsyslog_enabled|bool or
+         ((item.filename|d() or item.name|d()) and
+          (item.state|d() and item.state == 'absent')) and
+         (item.options|d() or item.sections|d())) and
+        (item.divert is undefined or not item.divert|bool)
+  notify:
+    - Restart rsyslogd
+
+- name: Revert original rsyslog config rules
+  shell: rm -f /etc/rsyslog.d/{{ item.filename }} ; dpkg-divert --quiet --local --rename --remove /etc/rsyslog.d/{{ item.filename }}
+  args:
+    removes: '/etc/rsyslog.d/{{ item.divert_to | d(item.filename + ".dpkg-divert") }}'
+    warn: False
+  with_flattened:
+    - '{{ rsyslog_pools | d([]) }}'
+    - '{{ boss__rsyslogd__rsyslog_default_rules }}'
+    - '{{ boss__rsyslogd__rsyslog_rules }}'
+    - '{{ boss__rsyslogd__rsyslog_group_rules }}'
+    - '{{ boss__rsyslogd__rsyslog_host_rules }}'
+    - '{{ boss__rsyslogd__rsyslog_dependent_rules }}'
+  when: ((not boss__rsyslogd__rsyslog_enabled|bool or
+          (item.filename|d() and (item.state|d() and item.state == 'absent'))) and
+         (item.divert|d() and item.divert|bool))
+  notify:
+    - Restart rsyslogd
+
+
+# ------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+
+# Make sure systemd template is up to date
+- name: Ensure systemd directory exists
+  file:
+    path: "/etc/systemd/system"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+
+- name: Ensure /etc/default directory exists
+  file:
+    path: "/etc/default"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+
+- name: Generate /etc/default/rsyslog file
+  template:
+    src: "etc/default/rsyslog.j2"
+    dest: "/etc/default/rsyslog"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  notify:
+  - Restart rsyslogd
+  register: boss__rsyslogd__rsyslog_etc_default_rsyslog
+
+- name: Ensure /etc/systemd/system/rsyslog.service.d directory exists
+  file:
+    path: "/etc/systemd/system/rsyslog.service.d"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+
+- name: Generate systemd unit file
+  template:
+    src: "etc/systemd/system/rsyslog.service.j2"
+    dest: "/etc/systemd/system/rsyslog.service"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  notify:
+  - Restart rsyslogd
+  register:  boss__rsyslogd__rsyslog_register_systemd_service
+
+- name: Configure custom systemd unit file override
+  template:
+    src: "etc/systemd/system/rsyslog.service.d/limits.conf.j2"
+    dest: "/etc/systemd/system/rsyslog.service.d/limits.conf"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  notify:
+  - Restart rsyslogd
+  register: boss__rsyslogd__rsyslog_register_limits_override
+
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: true
+  when: ( boss__rsyslogd__rsyslog_register_conf_file|default() and
+          boss__rsyslogd__rsyslog_register_conf_file is changed)
+         or (boss__rsyslogd__rsyslog_register_limits_override|default() and
+         boss__rsyslogd__rsyslog_register_limits_override is changed)
+  notify:
+  - Restart rsyslogd
+
+# SOURCE: https://raymii.org/s/tutorials/Ansible_-_Only_if_a_file_exists_or_does_not_exist.html
+- name: stat /etc/systemd/system/rsyslog.service
+  stat: path=/etc/systemd/system/rsyslog.service
+  register: rsyslog_systemd_unit_file
+  changed_when: False
+
+- name: dump /etc/systemd/system/rsyslog.service
+  command: 'cat /etc/systemd/system/rsyslog.service'
+  when: rsyslog_systemd_unit_file.stat.exists == True
+  changed_when: False
+
+- name: Ensure rsyslog is running and enabled on boot.
+  service: "name={{  boss__rsyslogd__rsyslog_daemon }} state=started enabled=yes"
+
+
+# In ansible playbooks, handlers (such as to restart a service) normally happen at the end of a run. If you need ansible to run a handler between two tasks, there is "flush_handlers".
+- name: flush handlers
+  meta: flush_handlers

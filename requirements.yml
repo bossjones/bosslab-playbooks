@@ -1,0 +1,22 @@
+---
+- src: geerlingguy.pip
+- src: https://github.com/bossjones/ansible-goss-install
+- src: https://github.com/bossjones/boss-ansible-role-bootstrap
+- src: https://github.com/bossjones/boss-ansible-role-core
+- src: https://github.com/bossjones/boss-ansible-role-debug
+- src: https://github.com/bossjones/boss-ansible-role-docker
+- src: https://github.com/bossjones/boss-ansible-role-environment
+- src: https://github.com/bossjones/boss-ansible-role-etckeeper
+- src: https://github.com/bossjones/boss-ansible-role-fact
+- src: https://github.com/bossjones/boss-ansible-role-journald
+- src: https://github.com/bossjones/boss-ansible-role-ntp
+- src: https://github.com/bossjones/boss-ansible-role-timezone
+- src: https://github.com/bossjones/boss-ansible-role-tools
+- src: https://github.com/bossjones/boss-ansible-role-update-hosts
+- src: https://www.github.com/mrlesmithjr/ansible-logrotate
+- src: https://www.github.com/mrlesmithjr/ansible-motd
+- src: https://www.github.com/mrlesmithjr/ansible-netdata.git
+- src: https://www.github.com/mrlesmithjr/ansible-nginx.git
+- src: https://www.github.com/mrlesmithjr/ansible-ntp.git
+- src: https://www.github.com/mrlesmithjr/ansible-timezone.git
+- src: rvm.ruby

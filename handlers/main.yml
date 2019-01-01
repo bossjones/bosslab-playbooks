@@ -1,0 +1,7 @@
+---
+# handlers file for boss-ansible-role-rsyslogd
+
+- name: Restart rsyslogd
+  service:
+    name: 'rsyslog'
+    state: 'restarted'

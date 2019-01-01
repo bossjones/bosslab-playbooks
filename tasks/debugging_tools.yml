@@ -1,0 +1,425 @@
+---
+- name: "create /usr/local/bin/rsyslogd-nc-debug-tcp.sh"
+  copy:
+    content: |
+      #!/usr/bin/env bash
+      #
+      # rsyslogd-nc-debug-tcp script
+      # Version: MASTER branch
+      # Author:  Bossjones
+      #
+      # -k      Forces nc to stay listening for another connection after its current connection is completed.  It is an error to use
+      #        this option without the -l option.
+
+      # -l      Used to specify that nc should listen for an incoming connection rather than initiate a connection to a remote host.
+      #        It is an error to use this option in conjunction with the -p, -s, or -z options.  Additionally, any timeouts speci‐
+      #        fied with the -w option are ignored.
+      # SOURCE: http://redsymbol.net/articles/bash-exit-traps/
+
+      function finish {
+          # re-start service
+          echo "rsyslogd-nc-debug-tcp: [finish]"
+          echo ""
+          echo "[Starting up rsyslog now that we're finished debugging]"
+          echo "-----------------------------------------------------"
+          echo ""
+          systemctl start rsyslog.service
+          echo ""
+          echo "[Verify rsyslogd is running]"
+          echo "-----------------------------------------------------"
+          echo ""
+          ps aux | grep rsyslog
+      }
+      trap finish EXIT
+
+
+      echo "rsyslogd-nc-debug-tcp: [start]"
+      echo ""
+      echo "[Stopping rsyslog now so we can debug w/ netcat]"
+      echo "-----------------------------------------------------"
+      echo ""
+      systemctl stop rsyslog.service
+      echo ""
+      echo "[Verify rsyslogd is stopped]"
+      echo "-----------------------------------------------------"
+      echo ""
+      ps aux | grep rsyslog
+      # Do the work...
+
+      # Allow the script to end and the trapped finish function to start the
+      # daemon back up.
+
+
+      echo ""
+      echo "[Running netcat now]"
+      echo "-----------------------------------------------------"
+      nc -k -l {{boss__rsyslogd__rsyslog_master_ip}} {{boss__rsyslogd__rsyslog_tcp_port}}| ccze -A
+
+
+
+
+
+    dest: "/usr/local/bin/rsyslogd-nc-debug-tcp.sh"
+    owner: "root"
+    group: "root"
+    mode: 0755
+
+# $ nc -k -l <ip-of-server> 13515 # [FOR TCP] OR sudo nc … $ nc -u -l <ip-of-server> 13515 # [FOR UDP] OR sudo nc …
+
+- name: "create /usr/local/bin/rsyslogd-nc-debug-udp.sh"
+  copy:
+    content: |
+      #!/usr/bin/env bash
+      #
+      # rsyslogd-nc-debug-udp script
+      # Version: MASTER branch
+      # Author:  Bossjones
+      #
+      # -k      Forces nc to stay listening for another connection after its current connection is completed.  It is an error to use
+      #        this option without the -l option.
+
+      # -l      Used to specify that nc should listen for an incoming connection rather than initiate a connection to a remote host.
+      #        It is an error to use this option in conjunction with the -p, -s, or -z options.  Additionally, any timeouts speci‐
+      #        fied with the -w option are ignored.
+      # SOURCE: http://redsymbol.net/articles/bash-exit-traps/
+
+      function finish {
+          # re-start service
+          echo "rsyslogd-nc-debug-udp: [finish]"
+          echo ""
+          echo "[Starting up rsyslog now that we're finished debugging]"
+          echo "-----------------------------------------------------"
+          echo ""
+          systemctl start rsyslog.service
+          echo ""
+          echo "[Verify rsyslogd is running]"
+          echo "-----------------------------------------------------"
+          echo ""
+          ps aux | grep rsyslog
+      }
+      trap finish EXIT
+
+
+      echo "rsyslogd-nc-debug-udp: [start]"
+      echo ""
+      echo "[Stopping rsyslog now so we can debug w/ netcat]"
+      echo "-----------------------------------------------------"
+      echo ""
+      systemctl stop rsyslog.service
+      echo ""
+      echo "[Verify rsyslogd is stopped]"
+      echo "-----------------------------------------------------"
+      echo ""
+      ps aux | grep rsyslog
+      # Do the work...
+
+      # Allow the script to end and the trapped finish function to start the
+      # daemon back up.
+
+
+      echo ""
+      echo "[Running netcat now]"
+      echo "-----------------------------------------------------"
+      nc -k -l {{boss__rsyslogd__rsyslog_master_ip}} {{boss__rsyslogd__rsyslog_udp_port}}| ccze -A
+
+
+
+
+
+    dest: "/usr/local/bin/rsyslogd-nc-debug-udp.sh"
+    owner: "root"
+    group: "root"
+    mode: 0755
+
+- name: "create /usr/local/bin/rsyslogd-nc-debug-relp.sh"
+  copy:
+    content: |
+      #!/usr/bin/env bash
+      #
+      # rsyslogd-nc-debug-relp script
+      # Version: MASTER branch
+      # Author:  Bossjones
+      #
+      # -k      Forces nc to stay listening for another connection after its current connection is completed.  It is an error to use
+      #        this option without the -l option.
+
+      # -l      Used to specify that nc should listen for an incoming connection rather than initiate a connection to a remote host.
+      #        It is an error to use this option in conjunction with the -p, -s, or -z options.  Additionally, any timeouts speci‐
+      #        fied with the -w option are ignored.
+      # SOURCE: http://redsymbol.net/articles/bash-exit-traps/
+
+      function finish {
+          # re-start service
+          echo "rsyslogd-nc-debug-relp: [finish]"
+          echo ""
+          echo "[Starting up rsyslog now that we're finished debugging]"
+          echo "-----------------------------------------------------"
+          echo ""
+          systemctl start rsyslog.service
+          echo ""
+          echo "[Verify rsyslogd is running]"
+          echo "-----------------------------------------------------"
+          echo ""
+          ps aux | grep rsyslog
+      }
+      trap finish EXIT
+
+
+      echo "rsyslogd-nc-debug-relp: [start]"
+      echo ""
+      echo "[Stopping rsyslog now so we can debug w/ netcat]"
+      echo "-----------------------------------------------------"
+      echo ""
+      systemctl stop rsyslog.service
+      echo ""
+      echo "[Verify rsyslogd is stopped]"
+      echo "-----------------------------------------------------"
+      echo ""
+      ps aux | grep rsyslog
+      # Do the work...
+
+      # Allow the script to end and the trapped finish function to start the
+      # daemon back up.
+
+
+      echo ""
+      echo "[Running netcat now]"
+      echo "-----------------------------------------------------"
+      nc -k -l {{boss__rsyslogd__rsyslog_master_ip}} {{boss__rsyslogd__rsyslog_relp_port}}| ccze -A
+
+
+
+
+
+    dest: "/usr/local/bin/rsyslogd-nc-debug-relp.sh"
+    owner: "root"
+    group: "root"
+    mode: 0755
+
+# --------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------
+
+
+- name: "create /usr/local/bin/rsyslogd-nc-debug-tcp-sender.sh"
+  copy:
+    content: |
+      #!/usr/bin/env bash
+      #
+      # rsyslogd-nc-debug-tcp-sender script
+      # Version: MASTER branch
+      # Author:  Bossjones
+      #
+      # -k      Forces nc to stay listening for another connection after its current connection is completed.  It is an error to use
+      #        this option without the -l option.
+
+      # -l      Used to specify that nc should listen for an incoming connection rather than initiate a connection to a remote host.
+      #        It is an error to use this option in conjunction with the -p, -s, or -z options.  Additionally, any timeouts speci‐
+      #        fied with the -w option are ignored.
+      # SOURCE: http://redsymbol.net/articles/bash-exit-traps/
+
+      function finish {
+          # re-start service
+          echo "rsyslogd-nc-debug-tcp-sender: [finish]"
+          echo ""
+          echo "[Starting up rsyslog now that we're finished debugging]"
+          echo "-----------------------------------------------------"
+          echo ""
+          systemctl start rsyslog.service
+      }
+      trap finish EXIT
+
+
+      echo "rsyslogd-nc-debug-tcp-sender: [start]"
+      echo ""
+      echo "[Stopping rsyslog now so we can debug w/ netcat]"
+      echo "-----------------------------------------------------"
+      echo ""
+      systemctl stop rsyslog.service
+      echo ""
+      echo "[Verify rsyslogd is stopped]"
+      echo "-----------------------------------------------------"
+      echo ""
+      ps aux | grep rsyslog
+      # Do the work...
+
+      # Allow the script to end and the trapped finish function to start the
+      # daemon back up.
+
+
+      i=1
+      until [ $i -gt 100 ]
+      do
+        echo ""
+        echo "[Running netcat now]"
+        echo "-----------------------------------------------------"
+        echo "test message 1" | nc {{boss__rsyslogd__rsyslog_master_ip}} {{boss__rsyslogd__rsyslog_tcp_port}}| ccze -A
+        sleep 1
+        echo ""
+        echo ""
+        i=$(( i+1 ))
+      done
+
+
+
+
+    dest: "/usr/local/bin/rsyslogd-nc-debug-tcp-sender.sh"
+    owner: "root"
+    group: "root"
+    mode: 0755
+
+# $ nc -k -l <ip-of-server> 13515 # [FOR TCP] OR sudo nc … $ nc -u -l <ip-of-server> 13515 # [FOR UDP] OR sudo nc …
+
+- name: "create /usr/local/bin/rsyslogd-nc-debug-udp-sender.sh"
+  copy:
+    content: |
+      #!/usr/bin/env bash
+      #
+      # rsyslogd-nc-debug-udp-sender script
+      # Version: MASTER branch
+      # Author:  Bossjones
+      #
+      # -k      Forces nc to stay listening for another connection after its current connection is completed.  It is an error to use
+      #        this option without the -l option.
+
+      # -l      Used to specify that nc should listen for an incoming connection rather than initiate a connection to a remote host.
+      #        It is an error to use this option in conjunction with the -p, -s, or -z options.  Additionally, any timeouts speci‐
+      #        fied with the -w option are ignored.
+      # SOURCE: http://redsymbol.net/articles/bash-exit-traps/
+
+      function finish {
+          # re-start service
+          echo "rsyslogd-nc-debug-udp-sender: [finish]"
+          echo ""
+          echo "[Starting up rsyslog now that we're finished debugging]"
+          echo "-----------------------------------------------------"
+          echo ""
+          systemctl start rsyslog.service
+          echo ""
+          echo "[Verify rsyslogd is running]"
+          echo "-----------------------------------------------------"
+          echo ""
+          ps aux | grep rsyslog
+      }
+      trap finish EXIT
+
+
+      echo "rsyslogd-nc-debug-udp-sender: [start]"
+      echo ""
+      echo "[Stopping rsyslog now so we can debug w/ netcat]"
+      echo "-----------------------------------------------------"
+      echo ""
+      systemctl stop rsyslog.service
+      echo ""
+      echo "[Verify rsyslogd is stopped]"
+      echo "-----------------------------------------------------"
+      echo ""
+      ps aux | grep rsyslog
+      # Do the work...
+
+      # Allow the script to end and the trapped finish function to start the
+      # daemon back up.
+
+
+
+      i=1
+      until [ $i -gt 100 ]
+      do
+        echo ""
+        echo "[Running netcat now]"
+        echo "-----------------------------------------------------"
+        echo "test message 1" | nc {{boss__rsyslogd__rsyslog_master_ip}} {{boss__rsyslogd__rsyslog_udp_port}}| ccze -A
+        sleep 1
+        echo ""
+        echo ""
+        i=$(( i+1 ))
+      done
+
+
+
+
+
+    dest: "/usr/local/bin/rsyslogd-nc-debug-udp-sender.sh"
+    owner: "root"
+    group: "root"
+    mode: 0755
+
+- name: "create /usr/local/bin/rsyslogd-nc-debug-relp-sender.sh"
+  copy:
+    content: |
+      #!/usr/bin/env bash
+      #
+      # rsyslogd-nc-debug-relp-sender script
+      # Version: MASTER branch
+      # Author:  Bossjones
+      #
+      # -k      Forces nc to stay listening for another connection after its current connection is completed.  It is an error to use
+      #        this option without the -l option.
+
+      # -l      Used to specify that nc should listen for an incoming connection rather than initiate a connection to a remote host.
+      #        It is an error to use this option in conjunction with the -p, -s, or -z options.  Additionally, any timeouts speci‐
+      #        fied with the -w option are ignored.
+      # SOURCE: http://redsymbol.net/articles/bash-exit-traps/
+
+      function finish {
+          # re-start service
+          echo "rsyslogd-nc-debug-relp-sender: [finish]"
+          echo ""
+          echo "[Starting up rsyslog now that we're finished debugging]"
+          echo "-----------------------------------------------------"
+          echo ""
+          systemctl start rsyslog.service
+          echo ""
+          echo "[Verify rsyslogd is running]"
+          echo "-----------------------------------------------------"
+          echo ""
+          ps aux | grep rsyslog
+      }
+      trap finish EXIT
+
+
+      echo "rsyslogd-nc-debug-relp-sender: [start]"
+      echo ""
+      echo "[Stopping rsyslog now so we can debug w/ netcat]"
+      echo "-----------------------------------------------------"
+      echo ""
+      systemctl stop rsyslog.service
+      echo ""
+      echo "[Verify rsyslogd is stopped]"
+      echo "-----------------------------------------------------"
+      echo ""
+      ps aux | grep rsyslog
+      # Do the work...
+
+      # Allow the script to end and the trapped finish function to start the
+      # daemon back up.
+
+
+
+      i=1
+      until [ $i -gt 100 ]
+      do
+        echo ""
+        echo "[Running netcat now]"
+        echo "-----------------------------------------------------"
+        echo "test message 1" | nc {{boss__rsyslogd__rsyslog_master_ip}} {{boss__rsyslogd__rsyslog_relp_port}}| ccze -A
+        sleep 1
+        echo ""
+        echo ""
+        i=$(( i+1 ))
+      done
+
+
+
+
+
+    dest: "/usr/local/bin/rsyslogd-nc-debug-relp-sender.sh"
+    owner: "root"
+    group: "root"
+    mode: 0755
+

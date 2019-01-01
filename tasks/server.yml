@@ -1,0 +1,293 @@
+---
+
+- block:
+
+  - name: Install rsyslog repo for Ubuntu
+
+    # Add repo
+    apt_repository: repo='ppa:adiscon/v8-stable' state=present
+    when: (ansible_distribution == 'Ubuntu') and ansible_lsb.id != ansible_lsb.id
+
+  - name: Update cache for Ubuntu
+
+    # Update apt cache
+    apt: update_cache=yes
+
+  - name: debian | ensuring rsyslog is installed
+    apt:
+      name: rsyslog
+      state: present
+    when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+
+  #
+  # For RHEL / Centos
+  #
+
+- block:
+
+  - name: Install rsyslog repo for RHEL/CentOS
+
+    # Install repo file
+    get_url: url=http://rpms.adiscon.com/v8-stable/rsyslog.repo dest=/etc/yum.repos.d/
+
+  - name: Update rsyslog for RHEL/CentOS
+
+    # Update package
+    # Note: Using yum module does not seem to update rsyslog package, updating using command
+    package:
+      name: rsyslog
+      state: present
+
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+
+############################## Perl dependency ##############################
+- block:
+
+  - name: Install perl minimal for CentOS 6.x
+    yum: name=perl state=latest update_cache=yes
+
+  when: (ansible_distribution == "CentOS" and ansible_distribution_major_version == "6")
+
+############################## Perl Time/HiRes dependency ##############################
+- block:
+
+  - name: Install perl-Time-HiRes for CentOS 6.x
+    yum: name=perl-Time-HiRes state=latest
+
+  when: (ansible_distribution == "CentOS" and ansible_distribution_major_version == "6")
+
+###### Ubuntu uses the syslog user to write data from rsyslog ######
+- block:
+
+  # Create remote hosts directory for logging
+  - name: Create the /var/log/remote-hosts directory (for Ubuntu with syslog owner)
+    file: path=/var/log/remote-hosts owner=syslog group=syslog state=directory mode=0755 recurse=no
+
+  # Create nmon performance directory for logging
+  - name: Create the /var/log/nmon-performance directory (for Ubuntu/Debian with syslog owner)
+    file: path=/var/log/nmon-performance owner=syslog group=syslog state=directory mode=0755 recurse=no
+
+  when: ansible_distribution == 'Ubuntu'
+
+###### Redhat / CentOS uses root ######
+- block:
+
+  # Create remote hosts directory for logging
+  - name: Create the /var/log/remote-hosts directory (for RHEL/CentOS/Debian with root owner)
+    file: path=/var/log/remote-hosts owner=root group=root state=directory mode=0755 recurse=no
+
+  # Create nmon performance directory for logging
+  - name: Create the /var/log/nmon-performance directory (for RHEL/CentOS with root owner)
+    file: path=/var/log/nmon-performance owner=root group=root state=directory mode=0755 recurse=no
+
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'Debian'
+
+# Set this host as a central syslog collector
+# - name: Deploy rsyslog central configuration for global logging
+#   copy: src={{ docroot }}/vagrant-ansible-demo-rsyslog/99-central-server.conf dest=/etc/rsyslog.d/ remote_src=yes
+
+# Set this host as a central syslog collector
+- name: Deploy rsyslog central configuration for global logging
+  template:
+    src: 99-central-server.conf.j2
+    dest: /etc/rsyslog.d/99-central-server.conf
+
+# - name: Start and enable ntp service.
+#   service:
+#     name: "{{boss__common_ntp_daemon}}"
+#     state: started
+#     enabled: true
+
+# Set this host as a central syslog collector
+# - name: Deploy rsyslog central configuration for nmon performance
+#   copy: src={{ docroot }}/vagrant-ansible-demo-rsyslog/20-nmon-performance.conf dest=/etc/rsyslog.d/ remote_src=yes
+
+# Set this host as a central syslog collector
+- name: Deploy rsyslog central configuration for global logging
+  template:
+    src: 20-nmon-performance.conf.j2
+    dest: /etc/rsyslog.d/20-nmon-performance.conf
+
+# # Verify if Splunk Universal Forwarder is already installed
+# - name: Check if Splunk Universal Forwarder path exists
+#   stat: path={{ splunk_installpath }}/splunkforwarder
+#   register: check_splunk_path
+
+# # Copy and unarchive Splunk Universal Forwarder if not present
+# - name: Copy and unarchive Splunk Universal Forwarder
+#   unarchive: src={{ splunk_binpath }} dest={{ splunk_installpath }}
+#   when: check_splunk_path.stat.exists == false
+
+# # Start and accept licence
+# - name: Start Splunk Universal Forwarder and accept licence
+#   command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk start --answer-yes --no-prompt --accept-license"
+#   when: check_splunk_path.stat.exists == false
+
+# # Enable boot-start
+# - name: Enable boot start for Splunk Universal Forwarder
+#   command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk enable boot-start"
+#   when: check_splunk_path.stat.exists == false
+
+# # Configure Splunk as a client of the deployment server
+# - name: Configure Splunk as client of the deployment server
+#   command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk set deploy-poll {{ splunk_deploymentserver_adress }} -auth admin:changeme"
+#   ignore_errors: yes
+
+# # Finally restart Splunk
+# - name: Restart Splunk Universal Forwarder
+#   command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk restart"
+
+# Last but not least, restart rsyslog (using module service causes some trouble, let's use simple command)
+- name: Start and enable rsyslog service.
+  service:
+    name: rsyslog
+    state: restarted
+    enabled: true
+
+
+
+
+# NOTE: THis is probably duplicate, but just in case....
+# ############################## rsyslog-servers ##############################
+
+# - hosts: rsyslog-server1 rsyslog-server2
+#   become: yes
+#   become_method: sudo
+
+#   vars:
+#    - docroot: /opt/deployment/nmon-logger
+#    - splunk_binpath: "{{ lookup('pipe', 'ls /opt/deployment/splunk_bin/splunkforwarder-*-Linux-x86_64.tgz | head -1') }}"
+#    - splunk_installpath: /opt
+#    - splunk_appname: TA_syslog_nmon
+#    - splunk_deploymentserver_adress: splunk:8089
+
+#   tasks:
+
+#     #
+#     # For Ubuntu
+#     #
+
+#   - block:
+
+#     - name: Install rsyslog repo for Ubuntu
+
+#       # Add repo
+#       apt_repository: repo='ppa:adiscon/v8-stable' state=present
+#       when: (ansible_distribution == 'Ubuntu') and ansible_lsb.id != ansible_lsb.id
+
+#     - name: Update cache for Ubuntu
+
+#       # Update apt cache
+#       apt: update_cache=yes
+
+#     - name: debian | ensuring rsyslog is installed
+#       apt:
+#         name: rsyslog
+#         state: present
+#       when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+
+#     #
+#     # For RHEL / Centos
+#     #
+
+#   - block:
+
+#     - name: Install rsyslog repo for RHEL/CentOS
+
+#       # Install repo file
+#       get_url: url=http://rpms.adiscon.com/v8-stable/rsyslog.repo dest=/etc/yum.repos.d/
+
+#     - name: Update rsyslog for RHEL/CentOS
+
+#       # Update package
+#       # Note: Using yum module does not seem to update rsyslog package, updating using command
+#       package:
+#         name: rsyslog
+#         state: present
+
+#     when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+
+#   ############################## Perl dependency ##############################
+#   - block:
+
+#     - name: Install perl minimal for CentOS 6.x
+#       yum: name=perl state=latest update_cache=yes
+
+#     when: (ansible_distribution == "CentOS" and ansible_distribution_major_version == "6")
+
+#   ############################## Perl Time/HiRes dependency ##############################
+#   - block:
+
+#     - name: Install perl-Time-HiRes for CentOS 6.x
+#       yum: name=perl-Time-HiRes state=latest
+
+#     when: (ansible_distribution == "CentOS" and ansible_distribution_major_version == "6")
+
+#   ###### Ubuntu uses the syslog user to write data from rsyslog ######
+#   - block:
+
+#     # Create remote hosts directory for logging
+#     - name: Create the /var/log/remote-hosts directory (for Ubuntu with syslog owner)
+#       file: path=/var/log/remote-hosts owner=syslog group=syslog state=directory mode=0755 recurse=no
+
+#     # Create nmon performance directory for logging
+#     - name: Create the /var/log/nmon-performance directory (for Ubuntu/Debian with syslog owner)
+#       file: path=/var/log/nmon-performance owner=syslog group=syslog state=directory mode=0755 recurse=no
+
+#     when: ansible_distribution == 'Ubuntu'
+
+#   ###### Redhat / CentOS uses root ######
+#   - block:
+
+#     # Create remote hosts directory for logging
+#     - name: Create the /var/log/remote-hosts directory (for RHEL/CentOS/Debian with root owner)
+#       file: path=/var/log/remote-hosts owner=root group=root state=directory mode=0755 recurse=no
+
+#     # Create nmon performance directory for logging
+#     - name: Create the /var/log/nmon-performance directory (for RHEL/CentOS with root owner)
+#       file: path=/var/log/nmon-performance owner=root group=root state=directory mode=0755 recurse=no
+
+#     when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'Debian'
+
+#   # Set this host as a central syslog collector
+#   - name: Deploy rsyslog central configuration for global logging
+#     copy: src={{ docroot }}/vagrant-ansible-demo-rsyslog/99-central-server.conf dest=/etc/rsyslog.d/ remote_src=yes
+
+#   # Set this host as a central syslog collector
+#   - name: Deploy rsyslog central configuration for nmon performance
+#     copy: src={{ docroot }}/vagrant-ansible-demo-rsyslog/20-nmon-performance.conf dest=/etc/rsyslog.d/ remote_src=yes
+
+#   # # Verify if Splunk Universal Forwarder is already installed
+#   # - name: Check if Splunk Universal Forwarder path exists
+#   #   stat: path={{ splunk_installpath }}/splunkforwarder
+#   #   register: check_splunk_path
+
+#   # # Copy and unarchive Splunk Universal Forwarder if not present
+#   # - name: Copy and unarchive Splunk Universal Forwarder
+#   #   unarchive: src={{ splunk_binpath }} dest={{ splunk_installpath }}
+#   #   when: check_splunk_path.stat.exists == false
+
+#   # # Start and accept licence
+#   # - name: Start Splunk Universal Forwarder and accept licence
+#   #   command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk start --answer-yes --no-prompt --accept-license"
+#   #   when: check_splunk_path.stat.exists == false
+
+#   # # Enable boot-start
+#   # - name: Enable boot start for Splunk Universal Forwarder
+#   #   command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk enable boot-start"
+#   #   when: check_splunk_path.stat.exists == false
+
+#   # # Configure Splunk as a client of the deployment server
+#   # - name: Configure Splunk as client of the deployment server
+#   #   command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk set deploy-poll {{ splunk_deploymentserver_adress }} -auth admin:changeme"
+#   #   ignore_errors: yes
+
+#   # # Finally restart Splunk
+#   # - name: Restart Splunk Universal Forwarder
+#   #   command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk restart"
+
+#   # Last but not least, restart rsyslog (using module service causes some trouble, let's use simple command)
+#   - name: Restart rsyslog
+#     service: name=rsyslog state=restarted
