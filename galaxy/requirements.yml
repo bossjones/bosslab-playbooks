@@ -17,6 +17,7 @@
 - src: https://github.com/bossjones/boss-ansible-role-apt_install
 - src: https://github.com/bossjones/boss-ansible-role-apt
 - src: https://github.com/bossjones/boss-ansible-role-java
+- src: https://github.com/bossjones/boss-ansible-role-netdata
 - src: https://github.com/bossjones/boss-ansible-role-maven
 - src: https://github.com/bossjones/boss-ansible-role-users
 - src: https://github.com/bossjones/boss-ansible-role-debug
