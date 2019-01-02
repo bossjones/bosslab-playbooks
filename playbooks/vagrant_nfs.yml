@@ -15,7 +15,7 @@
   vars:
     boss__ntp__timezone: 'America/New_York'
   roles:
-    - role: ../
+    - role: boss-ansible-role-nfs
       boss__nfs__sysctl_fileno: 30000
       boss__nfs__systemd_limit_mem_lock: infinity
       boss__nfs__systemd_limit_no_file: 30000
@@ -44,7 +44,7 @@
   vars:
     boss__ntp__timezone: 'America/New_York'
   roles:
-    - role: ../
+    - role: boss-ansible-role-nfs
       boss__nfs__sysctl_fileno: 30000
       boss__nfs__systemd_limit_mem_lock: infinity
       boss__nfs__systemd_limit_no_file: 30000
