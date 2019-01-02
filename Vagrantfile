@@ -28,19 +28,6 @@ Vagrant.configure(2) do |config|
       # Ubuntu
       vm_config.vm.box = settings[:box]
 
-      # Vagrant can share the source directory using rsync, NFS, or SSHFS (with the vagrant-sshfs
-      # plugin). Consult the Vagrant documentation if you do not want to use SSHFS.
-      # Get's honored normally
-      # vm_config.vm.synced_folder '.', '/vagrant', disabled: true
-      # # But not the centos box
-      # vm_config.vm.synced_folder '.', '/home/vagrant/sync', disabled: true
-
-      # TODO: Should we try this???
-      # Change the permission of files and directories
-      # so that nosetests runs without extra arguments.
-      # config.vm.synced_folder '.', '/vagrant', mount_options: ['dmode=775,fmode=664']
-      # vm_config.vm.synced_folder '.', '/shared', type: 'nfs'
-
       # assign an ip address in the hosts network
       vm_config.vm.network 'private_network', ip: settings[:ip]
 
@@ -111,20 +98,6 @@ Vagrant.configure(2) do |config|
             SHELL
         s.privileged = true
       end # end - vm_config.vm.provision 'shell' do |s|
-
-      # vm_config.vm.provision :ansible do |ansible|
-      #   ansible.host_key_checking	= 'false'
-      #   # Disable default limit to connect to all the machines
-      #   ansible.limit = 'all'
-      #   ansible.playbook = 'vagrant_playbook.yml'
-      #   ansible.groups = config_yml[:groups]
-      #   ansible.verbose = 'vvv'
-      #   ansible.extra_vars = {
-      #     deploy_env: 'vagrant'
-      #   }
-      #   # ansible.skip_tags = %w[bootstrap]
-      #   ansible.raw_arguments = ['--forks=10']
-      # end
     end
   end
 end
