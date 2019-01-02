@@ -257,7 +257,7 @@ run-ansible-timezone:
 converge: up run-ansible
 
 ping:
-	@ansible-playbook -v -i inventory.ini ping.yml -v
+	@ansible-playbook -v -i inventory.ini ping.yml -v --limit "netdata_registry,netdata_nodes"
 
 ansible-run-dynamic-debug:
 	@ansible-playbook -v -i inventory.ini dynamic_vars.yml
@@ -347,8 +347,6 @@ graph-inventory-view:
 
 pip-install-pygments:
 	pip install Pygments
-
-
 
 open-netdata-registry:
 	./scripts/open-browser.py $(URL_PATH_NETDATA_REGISTRY)
