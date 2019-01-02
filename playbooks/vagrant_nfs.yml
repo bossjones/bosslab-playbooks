@@ -16,6 +16,12 @@
     boss__ntp__timezone: 'America/New_York'
   roles:
     - role: ../
+      boss__nfs__sysctl_fileno: 30000
+      boss__nfs__systemd_limit_mem_lock: infinity
+      boss__nfs__systemd_limit_no_file: 30000
+      boss__nfs__systemd_limit_nproc: infinity
+      boss__nfs__systemd_limit_core: infinity
+      boss__nfs__etc_default_nfs_rpcnfsdcount: 64
       boss__nfs__nfs_server_group: nfs_masters
       boss__nfs__nfs_client_group: nfs_clients
       task: master
@@ -39,6 +45,12 @@
     boss__ntp__timezone: 'America/New_York'
   roles:
     - role: ../
+      boss__nfs__sysctl_fileno: 30000
+      boss__nfs__systemd_limit_mem_lock: infinity
+      boss__nfs__systemd_limit_no_file: 30000
+      boss__nfs__systemd_limit_nproc: infinity
+      boss__nfs__systemd_limit_core: infinity
+      boss__nfs__etc_default_nfs_rpcnfsdcount: 64
       boss__nfs__nfs_server_group: nfs_masters
       boss__nfs__nfs_client_group: nfs_clients
       task: client
