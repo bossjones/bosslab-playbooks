@@ -202,7 +202,7 @@ destroy:
 	@vagrant destroy -f
 
 run-ansible:
-	@ansible-playbook -i inventory.ini vagrant_playbook.yml -v
+	@ansible-playbook -i inventory.ini playbooks/vagrant_playbook.yml -v
 
 run-ansible-rsyslogd:
 	@ansible-playbook -i inventory.ini rsyslogd_playbook.yml -v
@@ -232,7 +232,7 @@ run-ansible-goss:
 	@ansible-playbook -i inventory.ini tools.yml -v -f 10 --tags goss
 
 run-ansible-docker:
-	@ansible-playbook -i inventory.ini vagrant_playbook.yml -v --tags docker-provision --flush-cache
+	@ansible-playbook -i inventory.ini playbooks/vagrant_playbook.yml -v --tags docker-provision --flush-cache
 
 run-ansible-master:
 	@ansible-playbook -i inventory.ini vagrant_playbook.yml -v --tags primary_master
