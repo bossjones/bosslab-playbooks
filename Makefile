@@ -204,6 +204,9 @@ destroy:
 run-ansible:
 	@ansible-playbook -i inventory.ini playbooks/vagrant_playbook.yml -v
 
+run-ansible-list-tags:
+	@ansible-playbook -i inventory.ini playbooks/vagrant_playbook.yml -v --list-tasks
+
 run-ansible-rsyslogd:
 	@ansible-playbook -i inventory.ini rsyslogd_playbook.yml -v
 
@@ -307,6 +310,11 @@ dummy-web-server:
 	python dummy-web-server.py
 
 rebuild: destroy flush-cache bridge-up sleep ping-bridge run-bridge-ansible run-bridge-tools-ansible
+
+# pip install graphviz
+graph-inventory:
+	ansible-inventory-grapher -i inventory.ini -d static/graphs/bosslab --format "bosslab-{hostname}.dot" -a "rankdir=LR; splines=ortho; ranksep=2; node [ width=5 style=filled fillcolor=lightgrey ]; edge [ dir=back arrowtail=empty ];"
+	# for f in static/graphs/bosslab/*.dot ; do dot -Tpng -o static/graphs/bosslab/`basename $f .dot`.png $f; done
 
 # nvm-install:
 # 	nvm install stable ;

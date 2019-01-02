@@ -230,33 +230,161 @@
       tags:
         - boss-ansible-role-rsyslogd
 
-
-
-- hosts: servers
-  name: 'for debugging purposes, write /etc/rsyslog.d/* to /vagrant/HOST-rsyslog_unified.conf'
+###############################################################################
+- hosts: netdata_registry
   gather_facts: True
   become: yes
   become_method: sudo
-  vars:
-    bossjones__user: vagrant
-    bossjones__group: vagrant
-    timezone: 'America/New_York'
-  environment:
-    DEBIAN_FRONTEND: noninteractive
+  roles:
+    - role: ../
+      boss__netdata__netdata_proxy_enabled: False
+      boss__netdata__netdata_nginx_enabled: False
+      # graphite_secret_key: testtest123
+      # version: 1.1.3
+      # graphite_install_version: "{{ version }}"
+      # graphite_cache_graphite_url: 'http://127.0.0.1:8080'
+      # bossjones__user: vagrant
+      # bossjones__group: vagrant
+      boss__netdata__netdata_interface: 'enp0s8'
 
-  tasks:
+      netdata_registry_enabled: True
+      netdata_registry_to_announce: "http://{{ netdata_stream_master_node }}:{{ netdata_default_port }}"
+      pri_domain_name: scarlett-office.local
+      netdata_stream_enabled: True
+      # You can generate API keys, with the linux command: uuidgen
+      netdata_stream_api_key: 3402645b-2dbd-40d7-b748-21f564813f2f
+      netdata_stream_master_node: "{{boss__netdata__netdata_master_ip}}"
+      nginx_listen_port: 8080
+      tags:
+        - boss-ansible-role-netdata
 
-    - name: "for debugging purposes, write /etc/rsyslog.d/* to /vagrant/HOST-rsyslog_unified.conf"
-      shell: |
-        > /vagrant/{{ ansible_fqdn }}-rsyslog_unified.conf
+    - role: ansible-logrotate
+      # defaults file for ansible-logrotate
+      # Defines if you want your log files compressed
+      logrotate_compress: false
 
-        for f in /etc/rsyslog.d/*; do
-          echo ""
-          echo "#---------------------------------------------------------------------------" | tee -a /vagrant/{{ ansible_fqdn }}-rsyslog_unified.conf
-          echo "# file: $f" | tee -a /vagrant/{{ ansible_fqdn }}-rsyslog_unified.conf
-          echo "#---------------------------------------------------------------------------" | tee -a /vagrant/{{ ansible_fqdn }}-rsyslog_unified.conf
-          echo ""
-          echo ""
-          cat ${f} | tee -a /vagrant/{{ ansible_fqdn }}-rsyslog_unified.conf
-        done
-      become: yes
+      # packages drop log rotation information into this directory
+      logrotate_conf_dir: '/etc/logrotate.d/'
+
+      logrotate_config: true
+
+      logrotate_configs:
+        - name: 'netdata'
+          compress: true
+          copytruncate: false
+          create:
+            mode: '640'
+            owner: 'netdata'
+            group: 'netdata'
+          delaycompress: true
+          logs:
+            - '/var/log/netdata/*.log'
+          # If the log file is missing, go on to the next one without
+          # issuing an error message.
+          missingok: true
+          # Do not rotate the log if it is empty
+          notifempty: true
+          postrotate:
+            - '/bin/kill -HUP `pidof netdata 2>/dev/null` 2>/dev/null || true'
+          rotate: '14'
+          rotation: 'daily'
+          sharedscripts: true
+
+
+
+      # create new (empty) log files after rotating old ones
+      logrotate_create_new: true
+
+      logrotate_default_backlogs_rotate: '4'
+
+      logroate_default_configs:
+        - 'apt'
+        - 'dpkg'
+        - 'rsyslog'
+        - 'ufw'
+
+      # Defines the default rotate schedule
+      # hourly | daily | weekly | monthly
+      logrotate_default_rotate: 'daily'
+
+      # Defines if logrotate configs defined in logroate_default_configs
+      # should be removed or not
+      logrotate_remove_default_configs: false
+
+      tags:
+        - ansible-logrotate
+
+
+- hosts: netdata_nodes
+  gather_facts: True
+  become: yes
+  become_method: sudo
+  roles:
+    - role: ../
+      boss__netdata__netdata_proxy_enabled: False
+      boss__netdata__netdata_nginx_enabled: False
+      boss__netdata__netdata_interface: 'enp0s8'
+      netdata_registry_enabled: False
+      netdata_registry_to_announce: "http://{{ netdata_stream_master_node }}:{{ netdata_default_port }}"
+      pri_domain_name: scarlett-office.local
+      netdata_stream_enabled: True
+      # You can generate API keys, with the linux command: uuidgen
+      netdata_stream_api_key: 3402645b-2dbd-40d7-b748-21f564813f2f
+      netdata_stream_master_node: "{{boss__netdata__netdata_master_ip}}"
+      nginx_listen_port: 8080
+      tags:
+        - boss-ansible-role-netdata
+
+    - role: ansible-logrotate
+      # defaults file for ansible-logrotate
+      # Defines if you want your log files compressed
+      logrotate_compress: false
+
+      # packages drop log rotation information into this directory
+      logrotate_conf_dir: '/etc/logrotate.d/'
+
+      logrotate_config: true
+
+      logrotate_configs:
+        - name: 'netdata'
+          compress: true
+          copytruncate: false
+          create:
+            mode: '640'
+            owner: 'netdata'
+            group: 'netdata'
+          delaycompress: true
+          logs:
+            - '/var/log/netdata/*.log'
+          # If the log file is missing, go on to the next one without
+          # issuing an error message.
+          missingok: true
+          # Do not rotate the log if it is empty
+          notifempty: true
+          postrotate:
+            - '/bin/kill -HUP `pidof netdata 2>/dev/null` 2>/dev/null || true'
+          rotate: '14'
+          rotation: 'daily'
+          sharedscripts: true
+
+      # create new (empty) log files after rotating old ones
+      logrotate_create_new: true
+
+      logrotate_default_backlogs_rotate: '4'
+
+      logroate_default_configs:
+        - 'apt'
+        - 'dpkg'
+        - 'rsyslog'
+        - 'ufw'
+
+      # Defines the default rotate schedule
+      # hourly | daily | weekly | monthly
+      logrotate_default_rotate: 'daily'
+
+      # Defines if logrotate configs defined in logroate_default_configs
+      # should be removed or not
+      logrotate_remove_default_configs: false
+
+      tags:
+        - ansible-logrotate
