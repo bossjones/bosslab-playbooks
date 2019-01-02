@@ -1,0 +1,49 @@
+---
+##############################################################################
+# SERVERS: Install and configure rsyslogd
+##############################################################################
+- hosts: nfs_masters
+  name: (nfs_masters) - Install and configure nfs
+  gather_facts: True
+  become: yes
+  become_method: sudo
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+    bossjones__user: vagrant
+    bossjones__group: vagrant
+    timezone: 'America/New_York'
+  vars:
+    boss__ntp__timezone: 'America/New_York'
+  roles:
+    - role: ../
+      boss__nfs__nfs_server_group: nfs_masters
+      boss__nfs__nfs_client_group: nfs_clients
+      task: master
+      boss__nfs__nfs_interface: 'enp0s8'
+      boss__nfs__master_node_ip: "{{ hostvars[groups[boss__nfs__nfs_server_group][0]]['ansible_' + boss__nfs__nfs_interface].ipv4.address }}"
+      tags:
+        - boss-ansible-role-nfs
+
+
+- hosts: nfs_clients
+  name: (nfs_clients) - Install and configure nfs
+  gather_facts: True
+  become: yes
+  become_method: sudo
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+    bossjones__user: vagrant
+    bossjones__group: vagrant
+    timezone: 'America/New_York'
+  vars:
+    boss__ntp__timezone: 'America/New_York'
+  roles:
+    - role: ../
+      boss__nfs__nfs_server_group: nfs_masters
+      boss__nfs__nfs_client_group: nfs_clients
+      task: client
+      boss__nfs__nfs_interface: 'enp0s8'
+      boss__nfs__master_node_ip: "{{ hostvars[groups[boss__nfs__nfs_server_group][0]]['ansible_' + boss__nfs__nfs_interface].ipv4.address }}"
+      # boss__nfs__nfs_interface: 'enp0s3'
+      tags:
+        - boss-ansible-role-nfs

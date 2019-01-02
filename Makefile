@@ -204,6 +204,9 @@ destroy:
 run-ansible:
 	@ansible-playbook -i inventory.ini playbooks/vagrant_playbook.yml -v
 
+run-ansible-nfs:
+	@ansible-playbook -i inventory.ini playbooks/vagrant_nfs.yml -v
+
 run-ansible-influxdb:
 	@ansible-playbook -i inventory.ini playbooks/vagrant_influxdb_opentsdb.yml -v
 
