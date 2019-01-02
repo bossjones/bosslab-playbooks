@@ -10,3 +10,13 @@ pylint
 isort
 jinja2-cli[yaml]
 autopep8
+netaddr
+pretty
+python-slugify
+six
+simplejson
+shade
+awscli
+boto
+boto3
+botocore

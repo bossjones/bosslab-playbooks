@@ -575,10 +575,9 @@ endif
 dev_dep: ## ** Install Development Dependencies
 
 ifeq ($(HAVE_BREW), 0)
-	DEPSDIR='ARCHFLAGS="-arch x86_64" LDFLAGS="-L/usr/local/opt/openssl/lib" CFLAGS="-I/usr/local/opt/openssl/include"'
 	( \
 		cd ${PROJECT_ROOT_DIR}; \
-		$(DEPSDIR) ${BIN_PIP} install -r requirements.txt; \
+		ARCHFLAGS="-arch x86_64" LDFLAGS="-L/usr/local/opt/openssl/lib" CFLAGS="-I/usr/local/opt/openssl/include" ${BIN_PIP} install -r requirements.txt; \
 	)
 else
 	( \
