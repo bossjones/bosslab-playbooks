@@ -97,6 +97,9 @@ list:
 download-roles:
 	ansible-galaxy install -r galaxy/requirements.yml --roles-path ./roles/
 
+download-roles-force:
+	ansible-galaxy --force install -r galaxy/requirements.yml --roles-path ./roles/
+
 download-roles-global:
 	ansible-galaxy install -r galaxy/requirements.yml --roles-path=/etc/ansible/roles
 
