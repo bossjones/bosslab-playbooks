@@ -1,0 +1,52 @@
+[local]
+localhost ansible_connection=local
+
+[control]
+control ansible_connection=ssh ansible_host=192.168.33.100 ip=192.168.33.100 ansible_ssh_port=22 ansible_ssh_private_key_file=~/.ssh/vagrant_id_rsa ansible_user=vagrant ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s'
+
+[raspbian1]
+raspbian1 ansible_connection=ssh ansible_host=192.168.33.101 ip=192.168.33.101 ansible_ssh_port=22 ansible_ssh_private_key_file=~/.ssh/vagrant_id_rsa ansible_user=vagrant ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s'
+
+[raspbian2]
+raspbian2 ansible_connection=ssh ansible_host=192.168.33.102 ip=192.168.33.102 ansible_ssh_port=22 ansible_ssh_private_key_file=~/.ssh/vagrant_id_rsa ansible_user=vagrant ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s'
+
+[raspbian_servers:children]
+raspbian1
+raspbian2
+
+[hypriot1]
+hypriot1 ansible_connection=ssh ansible_host=192.168.33.103 ip=192.168.33.103 ansible_ssh_port=22 ansible_ssh_private_key_file=~/.ssh/vagrant_id_rsa ansible_user=vagrant ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s'
+
+[hypriot2]
+hypriot2 ansible_connection=ssh ansible_host=192.168.33.104 ip=192.168.33.104 ansible_ssh_port=22 ansible_ssh_private_key_file=~/.ssh/vagrant_id_rsa ansible_user=vagrant ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s'
+
+[home_elk]
+home_elk ansible_connection=ssh ansible_host=192.168.33.105 ip=192.168.33.105 ansible_ssh_port=22 ansible_ssh_private_key_file=~/.ssh/vagrant_id_rsa ansible_user=vagrant ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s'
+
+[hypriot_servers:children]
+hypriot1
+hypriot2
+
+[all_servers:children]
+raspbian_servers
+hypriot_servers
+
+[netdata_registry:children]
+raspbian1
+
+[netdata_slaves:children]
+raspbian2
+hypriot_servers
+home_elk
+
+[raspbian:children]
+raspbian_servers
+
+[hypriot:children]
+hypriot_servers
+
+[servers:children]
+hypriot_servers
+raspbian_servers
+home_elk
+control

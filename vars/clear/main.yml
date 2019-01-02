@@ -1,0 +1,2 @@
+---
+datadog_api_key: "{{ vault_datadog_api_key }}"

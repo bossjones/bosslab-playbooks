@@ -1,0 +1,1676 @@
+# ansible-playbook -i inventory-homelab/ bootstrap_office.yml --check
+# ansible-playbook -i inventory-homelab/ bootstrap_office.yml
+# ansible-playbook -i inventory-homelab/ bootstrap_office.yml --tags "scarlett_ids"
+---
+
+# no_log: true
+
+- hosts: raspbian hypriot
+  gather_facts: True
+  become: yes
+  become_method: sudo
+  tags:
+    - raspbian
+    - hypriot
+  vars:
+    nginx_listen_port: 8080
+
+  pre_tasks:
+
+    # Update apt packages
+    - name: Update apt packages
+      become: yes
+      apt:
+        update_cache=yes
+
+    # Upgrade apt packages
+    - name: Upgrade apt packages
+      become: yes
+      apt:
+        upgrade=dist
+
+    - name: 'run locale-gen en_US.UTF-8'
+      shell: 'DEBIAN_FRONTEND=noninteractive locale-gen en_US.UTF-8'
+      become: yes
+      register: local_gen_results
+
+    - name: debian | Installing Pre-Reqs
+      apt:
+        name: "{{ item }}"
+        state: present
+      become: True
+      with_items:
+        # - asciidoc
+        - peco
+        - atop
+        - bash
+        - bash-completion
+        - binutils-dev
+        - bison
+        - bridge-utils
+        - build-essential
+        - ca-certificates
+        - ccze
+        # - clang-3.5
+        - dstat
+        - elfutils
+        - file
+        - flex
+        # - gettext
+        - git
+        # - hdparm
+        - htop
+        - iftop
+        - iotop
+        - iperf
+        - iperf3
+        - iproute
+        # - libaudit-dev
+        # - libdw-dev
+        # - libelf-dev
+        # - libperl-dev
+        # - libslang2-dev
+        # - libunwind8-dev
+        # - llvm-3.5
+        - lsof
+        - ltrace
+        - make
+        - mercurial
+        - mtr
+        - net-tools
+        - ngrep
+        - nmap
+        # - nmon
+        - ntpdate
+        - perf-tools-unstable
+        - perl
+        - procps
+        - psmisc
+        - pv
+        - python-dev
+        - ruby2.3
+        - socat
+        # - software-properties-common
+        # - sslscan
+        - strace
+        - sysstat
+        - tar
+        - tcpdump
+        - tree
+        - vim
+        - wget
+        - mlocate
+        - ncdu
+        - fonts-symbola
+        - ttf-ancient-fonts-symbola
+        # emoji
+        - ttf-ancient-fonts
+        - software-properties-common
+
+- hosts: raspbian
+  gather_facts: True
+  become: yes
+  become_method: sudo
+  tags:
+    - raspbian
+  vars:
+    nginx_listen_port: 8080
+
+  pre_tasks:
+
+    # Update apt packages
+    - name: Update apt packages
+      become: yes
+      apt:
+        update_cache=yes
+
+    # Upgrade apt packages
+    - name: Upgrade apt packages
+      become: yes
+      apt:
+        upgrade=dist
+
+    - name: Upgrade apt packages
+      become: yes
+      apt:
+        name=rpi-update
+        state=present
+
+    - name: run rpi-update
+      shell: 'DEBIAN_FRONTEND=noninteractive rpi-update'
+      become: yes
+      register: rpi_update_results
+
+    - name: 'run locale-gen en_US.UTF-8'
+      shell: 'DEBIAN_FRONTEND=noninteractive locale-gen en_US.UTF-8'
+      become: yes
+      register: local_gen_results
+
+    # - name: debian | Installing Pre-Reqs
+    #   apt:
+    #     name: "{{ item }}"
+    #     state: present
+    #   become: True
+    #   with_items:
+    #     # - asciidoc
+    #     - peco
+    #     - atop
+    #     - bash
+    #     - bash-completion
+    #     - binutils-dev
+    #     - bison
+    #     - bridge-utils
+    #     - build-essential
+    #     - ca-certificates
+    #     - ccze
+    #     # - clang-3.5
+    #     - dstat
+    #     - elfutils
+    #     - file
+    #     - flex
+    #     # - gettext
+    #     - git
+    #     # - hdparm
+    #     - htop
+    #     - iftop
+    #     - iotop
+    #     - iperf
+    #     - iperf3
+    #     - iproute
+    #     # - libaudit-dev
+    #     # - libdw-dev
+    #     # - libelf-dev
+    #     # - libperl-dev
+    #     # - libslang2-dev
+    #     # - libunwind8-dev
+    #     # - llvm-3.5
+    #     - lsof
+    #     - ltrace
+    #     - make
+    #     - mercurial
+    #     - mtr
+    #     - net-tools
+    #     - ngrep
+    #     - nmap
+    #     # - nmon
+    #     - ntpdate
+    #     - perf-tools-unstable
+    #     - perl
+    #     - procps
+    #     - psmisc
+    #     - pv
+    #     - python-dev
+    #     - ruby2.3
+    #     - socat
+    #     # - software-properties-common
+    #     # - sslscan
+    #     - strace
+    #     - sysstat
+    #     - tar
+    #     - tcpdump
+    #     - tree
+    #     - vim
+    #     - wget
+    #     - mlocate
+    #     - ncdu
+    #     - fonts-symbola
+    #     - ttf-ancient-fonts-symbola
+    #     # emoji
+    #     - ttf-ancient-fonts
+    #     - software-properties-common
+
+        # apt-get -y install linux-headers-$(uname -r)
+        # cd /usr/local/bin && wget https://github.com/direnv/direnv/releases/download/v2.13.3/direnv.linux-arm && mv direnv.linux-arm direnv && chmod +x direnv
+
+    # SOURCE: https://www.bitpi.co/2015/02/11/how-to-change-raspberry-pis-swapfile-size-on-rasbian/
+    - name: "sed CONF_SWAPSIZE=1024 /etc/dphys-swapfile"
+      shell: |
+        sed -i 's,CONF_SWAPSIZE=.*,CONF_SWAPSIZE=2048,g' /etc/dphys-swapfile;dphys-swapfile setup
+      become: yes
+
+    - name: start and enable dphys-swapfile
+      become: yes
+      service: name=dphys-swapfile state=restarted enabled=yes
+
+    - name: remove apt-key
+      apt_key:
+        id: AD26AC18
+        url: https://files.9jkh.co.za/AD26AC18.asc
+        state: absent
+      become: yes
+
+    - name: remove apt-repo
+      apt_repository:
+        repo: deb https://dl.bintray.com/9jkh/jdk {{ ansible_distribution_release | lower }} main
+        state: absent
+      become: yes
+
+- hosts: netdata_registry
+  gather_facts: True
+  become: yes
+  become_method: sudo
+  tags:
+    - netdata_registry
+  vars:
+    netdata_registry_enabled: True
+    netdata_registry_to_announce: "http://{{ netdata_stream_master_node }}:{{ netdata_default_port }}"
+    pri_domain_name: scarlett-office.local
+    netdata_stream_enabled: True
+    netdata_stream_api_key: 70C1DAF7-C0F5-4D07-908F-7C5CAB0A0236
+    netdata_stream_master_node: 192.168.1.191
+    nginx_listen_port: 8080
+  roles:
+    # - role: boss-ansible-role-swapfile
+    - role: ansible-timezone
+      timezone: 'America/New_York'
+      timezone_update_hardware_clock: False
+    - role: ansible-ntp
+      # defaults file for ansible-ntp
+      # Defines if host is ntp_master
+      # set ntp_master to true on specific group_vars/group
+      ntp_master: False
+
+      # Define your ntp_master_servers
+      ntp_master_servers:
+        - 0.ubuntu.pool.ntp.org
+        - 1.ubuntu.pool.ntp.org
+        - 2.ubuntu.pool.ntp.org
+        - 3.ubuntu.pool.ntp.org
+
+      # Defines your primary domain name (FQDN)
+      ntp_pri_domain_name: 'localdomain'
+
+      # Defines internal ntp servers for clients to poll
+      # ntp_servers:
+      #  - 'ntp1.{{ ntp_pri_domain_name }}'
+      #  - 'ntp2.{{ ntp_pri_domain_name }}'
+
+    - role: ansible-nginx
+      nginx_listen_port: 8080
+    - role: ansible-netdata
+    - role: ansible-snmpd
+    - role: ansible-rsyslog
+    - role: ansible-motd
+    - role: boss-ansible-role-debug
+    # SOURCE: https://loganmarchione.com/2016/11/ubiquiti-unifi-controller-setup-raspberry-pi-3/
+    - role: ansible-role-unifi-controller
+      unifi_controller_jvm_xmx: 512M
+    - role: ansible-logrotate
+      # defaults file for ansible-logrotate
+      # Defines if you want your log files compressed
+      logrotate_compress: false
+
+      # packages drop log rotation information into this directory
+      logrotate_conf_dir: '/etc/logrotate.d/'
+
+      logrotate_config: true
+
+      logrotate_configs:
+        - name: 'netdata'
+          compress: true
+          copytruncate: false
+          create:
+            mode: '640'
+            owner: 'netdata'
+            group: 'netdata'
+          delaycompress: true
+          logs:
+            - '/var/log/netdata/*.log'
+          # If the log file is missing, go on to the next one without
+          # issuing an error message.
+          missingok: true
+          # Do not rotate the log if it is empty
+          notifempty: true
+          postrotate:
+            - '/bin/kill -HUP `pidof netdata 2>/dev/null` 2>/dev/null || true'
+          rotate: '14'
+          rotation: 'daily'
+          sharedscripts: true
+        - name: 'nginx'
+          compress: true
+          copytruncate: false
+          create:
+            mode: '664'
+            owner: 'www-data'
+            group: 'adm'
+          delaycompress: true
+          logs:
+            - '/var/log/nginx/*.log'
+          # If the log file is missing, go on to the next one without
+          # issuing an error message.
+          missingok: true
+          # Do not rotate the log if it is empty
+          notifempty: true
+          postrotate:
+            - '[ ! -f /var/run/nginx.pid ] || kill -HUP `cat /var/run/nginx.pid`'
+          rotate: '20'
+          rotation: 'daily'
+          sharedscripts: true
+
+        - name: 'unifi'
+          compress: true
+          copytruncate: false
+          delaycompress: true
+          logs:
+            - '/var/log/unifi/*.log'
+          # If the log file is missing, go on to the next one without
+          # issuing an error message.
+          missingok: true
+          # Do not rotate the log if it is empty
+          notifempty: true
+          rotate: '5'
+          rotation: 'daily'
+          sharedscripts: true
+
+      # create new (empty) log files after rotating old ones
+      logrotate_create_new: true
+
+      logrotate_default_backlogs_rotate: '4'
+
+      logroate_default_configs:
+        - 'apt'
+        - 'dpkg'
+        - 'rsyslog'
+        - 'ufw'
+
+      # Defines the default rotate schedule
+      # hourly | daily | weekly | monthly
+      logrotate_default_rotate: 'daily'
+
+      # Defines if logrotate configs defined in logroate_default_configs
+      # should be removed or not
+      logrotate_remove_default_configs: false
+
+  tasks:
+
+    # unifi post tasks
+
+    - name: "apt-mark hold unifi"
+      shell: 'apt-mark hold unifi'
+      become: yes
+      register: global_linenumber
+
+      # sudo cp -p /lib/systemd/system/unifi.service /etc/systemd/system
+      # sudo sed -i '/^\[Service\]$/a Environment=JAVA_HOME=/usr/lib/jvm/jdk-8-oracle-arm32-vfp-hflt' /etc/systemd/system/unifi.service
+
+    - name: "create /etc/nginx/sites-available/netdata"
+      copy:
+        content: |
+
+          log_format netdata '$remote_addr - $remote_user [$time_local] '
+                '"$request" $status $body_bytes_sent '
+                '$request_length $request_time '
+                '"$http_referer" "$http_user_agent"';
+
+          access_log /var/log/nginx/access.log netdata;
+
+          upstream backend {
+              server 127.0.0.1:19999;
+              keepalive 1024;
+          }
+
+          server {
+              listen *:8081;
+              # the virtual host name of this
+              server_name netdata.example.com;
+
+              location / {
+                  proxy_set_header X-Forwarded-Host $host;
+                  proxy_set_header X-Forwarded-Server $host;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_pass http://backend;
+                  proxy_http_version 1.1;
+                  proxy_pass_request_headers on;
+                  proxy_set_header Connection "keep-alive";
+                  proxy_store off;
+                  gzip on;
+                  gzip_proxied any;
+                  gzip_types *;
+
+                  # Block any HTTP requests other than GET, HEAD, and OPTIONS
+                  limit_except GET HEAD OPTIONS {
+                      deny all;
+                  }
+                location /stub_status {
+                    stub_status on;
+                    access_log off;
+                    allow 192.168.1.0/24;
+                    allow 127.0.0.1;
+                    deny all;
+                }
+
+                location /nginx_status {
+                  stub_status on;
+                  access_log   off;
+                  allow 127.0.0.1;
+                  deny all;
+                }
+
+              }
+
+              # WordPress Pingback Request Denial
+              if ($http_user_agent ~* "WordPress") {
+                  return 403;
+              }
+
+          }
+
+
+        dest: "/etc/nginx/sites-available/netdata"
+        owner: "root"
+        group: "root"
+        mode: 0644
+
+    - name: 'Create symlink for /etc/nginx/sites-enabled/netdata'
+      file:
+        src: "/etc/nginx/sites-available/netdata"
+        dest: "/etc/nginx/sites-enabled/netdata"
+        state: link
+
+
+    - name: 'delete symlink for /etc/nginx/sites-enabled/default'
+      file:
+        dest: "/etc/nginx/sites-enabled/default"
+        state: absent
+
+    - name: "get line of global"
+      shell: 'grep -n "\[global\]" /etc/netdata/netdata.conf | cut -d: -f1'
+      become: yes
+      register: global_linenumber
+
+    - name: "sed disconnect idle web clients after seconds = 3600"
+      shell: |
+        file /opt/netdata.lock
+      register: netdata_lock
+      become: yes
+
+    - name: "sed bind socket to IP = 127.0.0.1"
+      shell: |
+        sed -i '{{global_linenumber.stdout}}a\        bind socket to IP = 127.0.0.1' /etc/netdata/netdata.conf
+      become: yes
+      when: netdata_lock.stdout.find("No such file or directory") != -1
+
+    - name: "sed disconnect idle web clients after seconds = 3600"
+      shell: |
+        sed -i '{{global_linenumber.stdout}}a\        disconnect idle web clients after seconds = 3600' /etc/netdata/netdata.conf
+      become: yes
+      when: netdata_lock.stdout.find("No such file or directory") != -1
+
+    - name: "sed enable web responses gzip compression = no"
+      shell: |
+        sed -i '{{global_linenumber.stdout}}a\        enable web responses gzip compression = no' /etc/netdata/netdata.conf
+      become: yes
+      when: netdata_lock.stdout.find("No such file or directory") != -1
+
+    - name: "file limits /etc/security/limits.d/nginx.conf"
+      copy:
+        content: |
+          nginx   soft    nofile  10000
+          nginx   hard    nofile  30000
+        dest: "/etc/security/limits.d/nginx.conf"
+        owner: "root"
+        group: "root"
+        mode: 0644
+
+    - name: "file limits /etc/security/limits.d/netdata.conf"
+      copy:
+        content: |
+          netdata   soft    nofile  10000
+          netdata   hard    nofile  30000
+        dest: "/etc/security/limits.d/netdata.conf"
+        owner: "root"
+        group: "root"
+        mode: 0644
+
+    - name: "Create directory: /etc/systemd/system/netdata.service.d"
+      file:
+        path: "/etc/systemd/system/netdata.service.d"
+        state: directory
+        owner: "root"
+        group: "root"
+
+    - name: "Create directory: /etc/systemd/system/nginx.service.d"
+      file:
+        path: "/etc/systemd/system/nginx.service.d"
+        state: directory
+        owner: "root"
+        group: "root"
+
+
+    - name: "file limits /etc/systemd/system/nginx.service.d/limits.conf"
+      copy:
+        content: |
+          [Service]
+          LimitNOFILE=30000
+        dest: "/etc/systemd/system/nginx.service.d/limits.conf"
+        owner: "root"
+        group: "root"
+        mode: 0644
+
+    - name: "file limits /etc/systemd/system/netdata.service.d/limits.conf"
+      copy:
+        content: |
+          [Service]
+          LimitNOFILE=30000
+        dest: "/etc/systemd/system/netdata.service.d/limits.conf"
+        owner: "root"
+        group: "root"
+        mode: 0644
+
+    - name: reload systemd configuration
+      become: yes
+      command: systemctl daemon-reload
+
+    # Restart service and ensure it is enabled
+    - name: start and enable nginx
+      become: yes
+      service: name=nginx state=restarted enabled=yes
+
+    - name: start and enable netdata
+      become: yes
+      service: name=netdata state=restarted enabled=yes
+
+    - name: updatedb
+      shell: 'updatedb'
+      become: yes
+      register: updatedb
+
+##########################################################################################################################################
+# Enable netdata etc on our ids server as well
+##########################################################################################################################################
+
+- hosts: scarlett_ids
+  gather_facts: True
+  become: yes
+  become_method: sudo
+  tags:
+    - scarlett_ids
+  vars:
+    bossjones__user: "pi"
+    bossjones__group: "pi"
+    netdata_registry_enabled: False
+    netdata_registry_to_announce: "http://{{ netdata_stream_master_node }}:{{ netdata_default_port }}"
+    pri_domain_name: scarlett-ids.local
+    netdata_stream_enabled: True
+    netdata_stream_api_key: 70C1DAF7-C0F5-4D07-908F-7C5CAB0A0236
+    netdata_stream_master_node: 192.168.1.191
+    nginx_listen_port: 8080
+
+  roles:
+    # - role: boss-ansible-role-swapfile
+    - role: ansible-timezone
+      timezone: 'America/New_York'
+      timezone_update_hardware_clock: False
+    - role: ansible-ntp
+      # defaults file for ansible-ntp
+      # Defines if host is ntp_master
+      # set ntp_master to true on specific group_vars/group
+      ntp_master: False
+
+      # Define your ntp_master_servers
+      ntp_master_servers:
+        - 0.ubuntu.pool.ntp.org
+        - 1.ubuntu.pool.ntp.org
+        - 2.ubuntu.pool.ntp.org
+        - 3.ubuntu.pool.ntp.org
+
+      # Defines your primary domain name (FQDN)
+      ntp_pri_domain_name: 'localdomain'
+
+      # Defines internal ntp servers for clients to poll
+      # ntp_servers:
+      #  - 'ntp1.{{ ntp_pri_domain_name }}'
+      #  - 'ntp2.{{ ntp_pri_domain_name }}'
+
+    - role: ansible-nginx
+      nginx_listen_port: 8080
+    - role: ansible-netdata
+    - role: ansible-snmpd
+    - role: ansible-rsyslog
+    - role: ansible-motd
+    - role: boss-ansible-role-debug
+    - role: ansible-logrotate
+      # defaults file for ansible-logrotate
+      # Defines if you want your log files compressed
+      logrotate_compress: false
+
+      # packages drop log rotation information into this directory
+      logrotate_conf_dir: '/etc/logrotate.d/'
+
+      logrotate_config: true
+
+      logrotate_configs:
+        - name: 'netdata'
+          compress: true
+          copytruncate: false
+          create:
+            mode: '640'
+            owner: 'netdata'
+            group: 'netdata'
+          delaycompress: true
+          logs:
+            - '/var/log/netdata/*.log'
+          # If the log file is missing, go on to the next one without
+          # issuing an error message.
+          missingok: true
+          # Do not rotate the log if it is empty
+          notifempty: true
+          postrotate:
+            - '/bin/kill -HUP `pidof netdata 2>/dev/null` 2>/dev/null || true'
+          rotate: '14'
+          rotation: 'daily'
+          sharedscripts: true
+        - name: 'nginx'
+          compress: true
+          copytruncate: false
+          create:
+            mode: '664'
+            owner: 'www-data'
+            group: 'adm'
+          delaycompress: true
+          logs:
+            - '/var/log/nginx/*.log'
+          # If the log file is missing, go on to the next one without
+          # issuing an error message.
+          missingok: true
+          # Do not rotate the log if it is empty
+          notifempty: true
+          postrotate:
+            - '[ ! -f /var/run/nginx.pid ] || kill -HUP `cat /var/run/nginx.pid`'
+          rotate: '20'
+          rotation: 'daily'
+          sharedscripts: true
+
+      # create new (empty) log files after rotating old ones
+      logrotate_create_new: true
+
+      logrotate_default_backlogs_rotate: '4'
+
+      logroate_default_configs:
+        - 'apt'
+        - 'dpkg'
+        - 'rsyslog'
+        - 'ufw'
+
+      # Defines the default rotate schedule
+      # hourly | daily | weekly | monthly
+      logrotate_default_rotate: 'daily'
+
+      # Defines if logrotate configs defined in logroate_default_configs
+      # should be removed or not
+      logrotate_remove_default_configs: false
+  tasks:
+    - name: "create /etc/nginx/sites-available/netdata"
+      copy:
+        content: |
+
+          log_format netdata '$remote_addr - $remote_user [$time_local] '
+                '"$request" $status $body_bytes_sent '
+                '$request_length $request_time '
+                '"$http_referer" "$http_user_agent"';
+
+          access_log /var/log/nginx/access.log netdata;
+
+          upstream backend {
+              server 127.0.0.1:19999;
+              keepalive 1024;
+          }
+
+          server {
+              listen *:8081;
+              # the virtual host name of this
+              server_name netdata.example.com;
+
+              location / {
+                  proxy_set_header X-Forwarded-Host $host;
+                  proxy_set_header X-Forwarded-Server $host;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_pass http://backend;
+                  proxy_http_version 1.1;
+                  proxy_pass_request_headers on;
+                  proxy_set_header Connection "keep-alive";
+                  proxy_store off;
+                  gzip on;
+                  gzip_proxied any;
+                  gzip_types *;
+
+                  # Block any HTTP requests other than GET, HEAD, and OPTIONS
+                  limit_except GET HEAD OPTIONS {
+                      deny all;
+                  }
+                location /stub_status {
+                    stub_status on;
+                    access_log off;
+                    allow 192.168.1.0/24;
+                    allow 127.0.0.1;
+                    deny all;
+                }
+
+                location /nginx_status {
+                  stub_status on;
+                  access_log   off;
+                  allow 127.0.0.1;
+                  deny all;
+                }
+
+              }
+
+              # WordPress Pingback Request Denial
+              if ($http_user_agent ~* "WordPress") {
+                  return 403;
+              }
+
+          }
+
+
+        dest: "/etc/nginx/sites-available/netdata"
+        owner: "root"
+        group: "root"
+        mode: 0644
+
+    - name: 'Create symlink for /etc/nginx/sites-enabled/netdata'
+      file:
+        src: "/etc/nginx/sites-available/netdata"
+        dest: "/etc/nginx/sites-enabled/netdata"
+        state: link
+
+
+    - name: 'delete symlink for /etc/nginx/sites-enabled/default'
+      file:
+        dest: "/etc/nginx/sites-enabled/default"
+        state: absent
+
+    - name: "get line of global"
+      shell: 'grep -n "\[global\]" /etc/netdata/netdata.conf | cut -d: -f1'
+      become: yes
+      register: global_linenumber
+
+    - name: "sed disconnect idle web clients after seconds = 3600"
+      shell: |
+        file /opt/netdata.lock
+      register: netdata_lock
+      become: yes
+
+    - name: "sed bind socket to IP = 127.0.0.1"
+      shell: |
+        sed -i '{{global_linenumber.stdout}}a\        bind socket to IP = 127.0.0.1' /etc/netdata/netdata.conf
+      become: yes
+      when: netdata_lock.stdout.find("No such file or directory") != -1
+
+    - name: "sed disconnect idle web clients after seconds = 3600"
+      shell: |
+        sed -i '{{global_linenumber.stdout}}a\        disconnect idle web clients after seconds = 3600' /etc/netdata/netdata.conf
+      become: yes
+      when: netdata_lock.stdout.find("No such file or directory") != -1
+
+    - name: "sed enable web responses gzip compression = no"
+      shell: |
+        sed -i '{{global_linenumber.stdout}}a\        enable web responses gzip compression = no' /etc/netdata/netdata.conf
+      become: yes
+      when: netdata_lock.stdout.find("No such file or directory") != -1
+
+    - name: "file limits /etc/security/limits.d/nginx.conf"
+      copy:
+        content: |
+          nginx   soft    nofile  10000
+          nginx   hard    nofile  30000
+        dest: "/etc/security/limits.d/nginx.conf"
+        owner: "root"
+        group: "root"
+        mode: 0644
+
+    - name: "file limits /etc/security/limits.d/netdata.conf"
+      copy:
+        content: |
+          netdata   soft    nofile  10000
+          netdata   hard    nofile  30000
+        dest: "/etc/security/limits.d/netdata.conf"
+        owner: "root"
+        group: "root"
+        mode: 0644
+
+    - name: "Create directory: /etc/systemd/system/netdata.service.d"
+      file:
+        path: "/etc/systemd/system/netdata.service.d"
+        state: directory
+        owner: "root"
+        group: "root"
+
+    - name: "Create directory: /etc/systemd/system/nginx.service.d"
+      file:
+        path: "/etc/systemd/system/nginx.service.d"
+        state: directory
+        owner: "root"
+        group: "root"
+
+
+    - name: "file limits /etc/systemd/system/nginx.service.d/limits.conf"
+      copy:
+        content: |
+          [Service]
+          LimitNOFILE=30000
+        dest: "/etc/systemd/system/nginx.service.d/limits.conf"
+        owner: "root"
+        group: "root"
+        mode: 0644
+
+    - name: "file limits /etc/systemd/system/netdata.service.d/limits.conf"
+      copy:
+        content: |
+          [Service]
+          LimitNOFILE=30000
+        dest: "/etc/systemd/system/netdata.service.d/limits.conf"
+        owner: "root"
+        group: "root"
+        mode: 0644
+
+    - name: reload systemd configuration
+      become: yes
+      command: systemctl daemon-reload
+
+    # Restart service and ensure it is enabled
+    - name: start and enable nginx
+      become: yes
+      service: name=nginx state=restarted enabled=yes
+
+    - name: start and enable netdata
+      become: yes
+      service: name=netdata state=restarted enabled=yes
+
+    - name: updatedb
+      shell: 'updatedb'
+      become: yes
+      register: updatedb
+
+####################################################################################################
+# # sysctl SETUP(VSCode requirement)
+####################################################################################################
+- hosts: rpi
+  gather_facts: True
+  tags:
+    - sysctl
+  vars:
+    bossjones__user: "pi"
+    bossjones__group: "pi"
+  become: yes
+  # become_method: sudo
+  # SOURCE: https://docs.ansible.com/ansible/latest/playbooks_environment.html
+  environment:
+    SHELL: /bin/bash
+  tasks:
+    - name: 'set fs.inotify.max_user_watches=524288'
+      sysctl:
+        name: fs.inotify.max_user_watches
+        value: 524288
+        sysctl_set: yes
+        state: present
+        reload: yes
+
+# SOURCE: https://github.com/blacktop/docker-bro/blob/master/docs/elastic.md
+#       echo "vm.max_map_count=262144" | sudo tee -a /etc/sysctl.conf
+# sudo sysctl -w vm.max_map_count=262144
+    - name: 'set vm.max_map_count=262144'
+      sysctl:
+        name: vm.max_map_count
+        value: 262144
+        sysctl_set: yes
+        state: present
+        reload: yes
+
+##################################################################################
+# datadog install
+##################################################################################
+
+- hosts: raspbian
+  gather_facts: True
+  become: yes
+  become_method: sudo
+  vars:
+      datadog_agent_home: "/opt/datadog-agent"
+      datadog_skip_integrations: 1
+      datadog_log_file: "/var/log/datadog-agent.log"
+      datadog_hostname: "{{inventory_hostname}}"
+  tags:
+    - datadog
+  pre_tasks:
+
+    - include_vars: "{{ item }}"
+      with_fileglob:
+        - ./vars/secret/*
+        - ./vars/clear/*
+      tags: ['always']
+
+    - name: Debian Stretch requires dirmngr package to be installed in order to use apt_key
+      become: yes  # On Ansible < 1.9, use `sudo: yes` instead of `become: yes`
+      apt:
+        name: dirmngr
+        state: present
+
+  tasks:
+
+
+    - name: "Create directory: {{ datadog_agent_home }}/agent"
+      file:
+        path: "{{ datadog_agent_home }}/agent"
+        state: directory
+        owner: "root"
+        group: "root"
+
+    - name: "Create directory: {{ datadog_agent_home }}/logs"
+      file:
+        path: "{{ datadog_agent_home }}/logs"
+        state: directory
+        owner: "root"
+        group: "root"
+
+    - name: datadog-ansible-raspberrypi dependencies
+      action: apt pkg={{item}} state=present
+      with_items:
+      - libpython2.7-dev
+      - sysstat
+      - snmp
+    - name: datadog-ansible-raspberrypi dependencies for integrations
+      action: apt pkg={{item}} state=present
+      with_items:
+      - libpq-dev
+      - unixodbc-dev
+      - libffi-dev
+      - libssl-dev
+      when: datadog_skip_integrations == 0
+    - name: datadog-ansible-raspberrypi check installation
+      stat: path={{ datadog_agent_home }}
+      register: dd_agent_installed
+    - name: datadog-ansible-raspberrypi install agent
+      environment:
+        DD_API_KEY: "{{ datadog_api_key }}"
+        DD_HOME: "{{ datadog_agent_home }}"
+        DD_START_AGENT: 0
+        DD_SKIP_INTEGRATIONS: "{{ datadog_skip_integrations }}"
+      shell: sh -c "$(curl -L https://raw.githubusercontent.com/DataDog/dd-agent/master/packaging/datadog-agent/source/setup_agent.sh)"
+      when: not dd_agent_installed.stat.exists
+
+
+    - name: "create {{ datadog_agent_home }}/agent/conf.d/nginx.yaml"
+      copy:
+        content: |
+          init_config:
+          instances:
+              # For every instance, you have an `nginx_status_url` and (optionally)
+              # a list of tags.
+
+              -   nginx_status_url: http://127.0.0.1:8081/nginx_status/
+                  tags:
+                      - "instance:{{inventory_hostname}}"
+                      - "nginx_service:nginx_status"
+
+
+
+        dest: "{{ datadog_agent_home }}/agent/conf.d/nginx.yaml"
+        owner: "root"
+        group: "root"
+        mode: 0644
+
+    # root@scarlett-office:/etc/nginx/sites-available# snmpwalk -Os -c public -v 1 nsdude UCD-SNMP-MIB::laTable
+    # MIB search path: /root/.snmp/mibs:/usr/share/snmp/mibs:/usr/share/snmp/mibs/iana:/usr/share/snmp/mibs/ietf:/usr/share/mibs/site:/usr/share/snmp/mibs:/usr/share/mibs/iana:/usr/share/mibs/ietf:/usr/share/mibs/netsnmp
+    # Cannot find module (SNMPv2-SMI): At line 34 in /usr/share/snmp/mibs/UCD-SNMP-MIB.txt
+    # Cannot find module (SNMPv2-TC): At line 37 in /usr/share/snmp/mibs/UCD-SNMP-MIB.txt
+    # Did not find 'enterprises' in module #-1 (/usr/share/snmp/mibs/UCD-SNMP-MIB.txt)
+    # Did not find 'DisplayString' in module #-1 (/usr/share/snmp/mibs/UCD-SNMP-MIB.txt)
+    # Did not find 'TruthValue' in module #-1 (/usr/share/snmp/mibs/UCD-SNMP-MIB.txt)
+    # Unlinked OID in UCD-SNMP-MIB: ucdavis ::= { enterprises 2021 }
+    # Undefined identifier: enterprises near line 39 of /usr/share/snmp/mibs/UCD-SNMP-MIB.txt
+    # UCD-SNMP-MIB::laTable: Unknown Object Identifier
+
+    - name: Copy example datadog conf to 'real' datadog conf
+      shell: cp -fv {{ datadog_agent_home }}/agent/datadog.conf.example {{ datadog_agent_home }}/agent/datadog.conf
+
+    - name: Swap datadog api key
+      shell: "sed -i 's/api_key:.*/api_key: {{ datadog_api_key | default('') }}/' {{ datadog_agent_home }}/agent/datadog.conf"
+
+    - name: datadog-ansible-raspberrypi setup hostname
+      when: datadog_hostname is defined
+      lineinfile:
+        path: "{{ datadog_agent_home }}/agent/datadog.conf"
+        regexp: '^# hostname='
+        line: 'hostname={{ datadog_hostname }}'
+    - name: datadog-ansible-raspberrypi register rc.local
+      blockinfile:
+        path: /etc/rc.local
+        insertbefore: "exit 0"
+        content: "nohup sh {{ datadog_agent_home }}/bin/agent > {{ datadog_log_file }} &"
+    - name: datadog-ansible-raspberrypi check agent running
+      shell: ps -ef | grep "python agent/ddagent.py --use_simple_http_client=1" | grep -v grep | wc -l
+      register: dd_agent_running
+    - name: datadog-ansible-raspberrypi starting agent
+      shell: "nohup sh {{ datadog_agent_home }}/bin/agent > {{ datadog_log_file}} &"
+      when: dd_agent_running.rc == 0
+
+
+    # - role: ansible-datadog
+    #   datadog_agent_allow_downgrade: false
+    #   datadog_agent_version: "1:6.0.0-1"
+    #   datadog_config:
+    #     tags: "homelab, raspbian"
+    #     log_level: INFO
+    #     apm_enabled: "false" # has to be set as a string
+    #     # logs related config
+    #     log_enabled: false
+    #     logset: main
+    #   datadog_config_ex:
+    #     trace.config:
+    #       env: dev
+    #     trace.concentrator:
+    #       extra_aggregators: version
+    #   datadog_checks:
+    #     process:
+    #       init_config:
+    #       instances:
+    #         - name: ssh
+    #           search_string: ['ssh', 'sshd' ]
+    #         - name: syslog
+    #           search_string: ['rsyslog']
+    #           cpu_check_interval: 0.2
+    #           exact_match: true
+    #           ignore_denied_access: true
+    #     # ssh_check:
+    #     #   init_config:
+    #     #   instances:
+    #     #     - host: localhost
+    #     #       port: 22
+    #     #       username: root
+    #     #       password: changeme
+    #     #       sftp_check: True
+    #     #       private_key_file:
+    #     #       add_missing_keys: True
+    #     nginx:
+    #       init_config:
+    #       instances:
+    #         - nginx_status_url: http://localhost/nginx_status/
+    #           tags:
+    #             - "instance:{{inventory_hostname}}"
+    #             - "nginx_service:nginx_status"
+    #         - nginx_status_url: http://localhost:19999/
+    #           tags:
+    #             - "instance:{{inventory_hostname}}"
+    #             - "nginx_service:netdata"
+    #       # logs:
+    #       #   - type: file
+    #       #     path: /var/log/nginx.log
+    #       #     service: nginx
+    #       #     source: nginx
+    #       #     sourcecategory: webapp
+    #       #     tags: env:prod
+    #       #   - type: tcp
+    #       #     port: 10514
+    #       #     service: webapp
+    #       #     source: php
+    #       #     sourcecategory: front
+    #       #     log_processing_rules:
+    #       #       - type: exclude_at_match
+    #       #         name: exclude_datadoghq_users
+    #       #         # Regexp can be anything
+    #       #         pattern: User=\w+@datadoghq.com
+
+####################################################################################################
+# pi - COMPILE TMUX SETUP
+####################################################################################################
+- hosts: raspbian
+  tags:
+    - tmux
+  vars:
+    bossjones__user: pi
+    bossjones__group: pi
+    cheatsheet_update: yes
+    tmux_version: "2.6"
+    tmux_install_method: "source"
+    tmux_path: "/usr/local/"
+    tmux_tmp_dir: "/tmp/"
+    tmux_playbook_version: "0.0.1"
+    tmux_file_tag: "tmux-{{tmux_version}}"
+    tmux_file_name: "{{tmux_file_tag}}.tar.gz"
+    tmux_base_url: "https://github.com/tmux/tmux/releases/download/{{tmux_version}}/"
+    tmux_tarball_url: "{{tmux_base_url}}{{tmux_file_name}}"
+  become: yes
+  # become_user: "{{bossjones__user}}"
+  # become_method: sudo
+  # SOURCE: https://docs.ansible.com/ansible/latest/playbooks_environment.html
+  environment:
+    SHELL: /bin/bash
+  tasks:
+    - name: Install Debian packages tmux prereqs
+      apt: pkg={{item}} state=latest update_cache=yes
+      with_items:
+        - libevent-dev
+        - libncurses-dev
+        - pkg-config
+        - wget
+        - curl
+        - make
+        - gcc
+        - autoconf
+        - automake
+        - libtool
+      when: ansible_os_family == "Debian"
+      # become: yes
+      # become_user: root
+
+      become: yes
+      become_method: sudo
+
+    - name: Clone utf8proc
+      git:
+        repo: https://github.com/JuliaLang/utf8proc
+        dest: "/usr/local/src/utf8proc"
+        version: "master"
+      become: yes
+      become_user: root
+
+    - name: Compile and install utf8proc
+      shell: |
+                make &&
+                make check &&
+                make install
+                chdir=/usr/local/src/utf8proc
+      register: utf8proc_compiled
+      become: yes
+      become_user: root
+
+    - name: Checking installed version of tmux
+      shell: /usr/bin/test "$({{tmux_path}}bin/tmux -V 2> /dev/null)" = {{ tmux_version }}
+      register: wanted_version_installed
+      ignore_errors: True
+      changed_when: "wanted_version_installed.rc == 1"
+      become: yes
+      become_user: root
+
+    - name: Download tmux {{tmux_version}}
+      get_url: url={{tmux_tarball_url}} dest={{tmux_tmp_dir}}{{tmux_file_name}} timeout=120
+      when: wanted_version_installed.rc == 1
+      become: yes
+      become_user: root
+
+    - name: Unpack tmux {{tmux_version}}
+      command: tar -xzf {{tmux_file_name}} chdir={{tmux_tmp_dir}}
+      when: wanted_version_installed.rc == 1
+      become: yes
+      become_user: root
+
+    - name: Compile and install tmux {{tmux_version}}
+      shell: |
+        export LDFLAGS="-lresolv ${LDFLAGS}"
+        ./configure --prefix={{tmux_path}} --enable-utf8proc &&
+                make &&
+                make install &&
+                ldconfig
+                chdir={{tmux_tmp_dir}}{{tmux_file_tag}}
+      become: yes
+      become_user: root
+      when: wanted_version_installed.rc == 1
+
+    - name: Register remote PATH File
+      shell: "echo $PATH"
+      register: tmux_path_out
+      become: yes
+      become_user: root
+
+
+
+#############
+
+####################################################################################################
+# pi - COMPILE TMUX SETUP
+####################################################################################################
+- hosts: raspbian
+  tags:
+    - byobu
+  vars:
+    bossjones__user: pi
+    bossjones__group: pi
+    cheatsheet_update: yes
+    byobu_version: "2.6"
+    byobu_install_method: "source"
+    byobu_path: "/usr/local/"
+    byobu_tmp_dir: "/tmp/"
+    byobu_playbook_version: "0.0.1"
+    byobu_file_tag: "byobu-{{byobu_version}}"
+    byobu_file_name: "{{byobu_file_tag}}.tar.gz"
+    byobu_base_url: "https://github.com/dustinkirkland/byobu"
+    byobu_tarball_url: "{{byobu_base_url}}{{byobu_file_name}}"
+  become: yes
+  become_method: sudo
+  # become_user: "{{bossjones__user}}"
+  # become_method: sudo
+  # SOURCE: https://docs.ansible.com/ansible/latest/playbooks_environment.html
+  environment:
+    SHELL: /bin/bash
+  tasks:
+    - name: Install Debian packages tmux prereqs
+      apt: pkg={{item}} state=latest update_cache=yes
+      with_items:
+        - dh-make
+      when: ansible_os_family == "Debian"
+      # become: yes
+      # become_user: root
+
+      become: yes
+      become_method: sudo
+
+    - name: Clone byobu
+      git:
+        repo: https://github.com/dustinkirkland/byobu
+        dest: "/usr/local/src/byobu"
+        version: "master"
+      become: yes
+      become_user: root
+
+      # dh-make
+
+
+    - name: Compile and install byobu
+      shell: |
+                ./debian/rules autoconf &&
+                ./configure --prefix="/usr/local" &&
+                make &&
+                make check &&
+                make install &&
+                ldconfig
+                chdir=/usr/local/src/byobu
+      register: byobu_compiled
+      become: yes
+      become_user: root
+
+
+####################################################################################################
+# pirate - COMPILE TMUX SETUP
+####################################################################################################
+- hosts: scarlett_cluster
+  tags:
+    - tmux
+  vars:
+    bossjones__user: pirate
+    bossjones__group: pirate
+    cheatsheet_update: yes
+    tmux_version: "2.6"
+    tmux_install_method: "source"
+    tmux_path: "/usr/local/"
+    tmux_tmp_dir: "/tmp/"
+    tmux_playbook_version: "0.0.1"
+    tmux_file_tag: "tmux-{{tmux_version}}"
+    tmux_file_name: "{{tmux_file_tag}}.tar.gz"
+    tmux_base_url: "https://github.com/tmux/tmux/releases/download/{{tmux_version}}/"
+    tmux_tarball_url: "{{tmux_base_url}}{{tmux_file_name}}"
+  become: yes
+  # become_user: "{{bossjones__user}}"
+  # become_method: sudo
+  # SOURCE: https://docs.ansible.com/ansible/latest/playbooks_environment.html
+  environment:
+    SHELL: /bin/bash
+  tasks:
+    - name: Install Debian packages tmux prereqs
+      apt: pkg={{item}} state=latest update_cache=yes
+      with_items:
+        - libevent-dev
+        - libncurses-dev
+        - pkg-config
+        - wget
+        - curl
+        - make
+        - gcc
+        - autoconf
+        - automake
+        - libtool
+        # - xfonts-base
+        # - xfonts-terminus
+      when: ansible_os_family == "Debian"
+      # become: yes
+      # become_user: root
+
+      become: yes
+      become_method: sudo
+
+    - name: Clone utf8proc
+      git:
+        repo: https://github.com/JuliaLang/utf8proc
+        dest: "/usr/local/src/utf8proc"
+        version: "master"
+      become: yes
+      become_user: root
+
+    - name: Compile and install utf8proc
+      shell: |
+                make &&
+                make check &&
+                make install
+                chdir=/usr/local/src/utf8proc
+      register: utf8proc_compiled
+      become: yes
+      become_user: root
+
+    - name: Checking installed version of tmux
+      shell: /usr/bin/test "$({{tmux_path}}bin/tmux -V 2> /dev/null)" = {{ tmux_version }}
+      register: wanted_version_installed
+      ignore_errors: True
+      changed_when: "wanted_version_installed.rc == 1"
+      become: yes
+      become_user: root
+
+    - name: Download tmux {{tmux_version}}
+      get_url: url={{tmux_tarball_url}} dest={{tmux_tmp_dir}}{{tmux_file_name}} timeout=120
+      when: wanted_version_installed.rc == 1
+      become: yes
+      become_user: root
+
+    - name: Unpack tmux {{tmux_version}}
+      command: tar -xzf {{tmux_file_name}} chdir={{tmux_tmp_dir}}
+      when: wanted_version_installed.rc == 1
+      become: yes
+      become_user: root
+
+    - name: Compile and install tmux {{tmux_version}}
+      shell: |
+        export LDFLAGS="-lresolv ${LDFLAGS}"
+        ./configure --prefix={{tmux_path}} --enable-utf8proc &&
+                make &&
+                make install &&
+                ldconfig
+                chdir={{tmux_tmp_dir}}{{tmux_file_tag}}
+      become: yes
+      become_user: root
+      when: wanted_version_installed.rc == 1
+
+    - name: Register remote PATH File
+      shell: "echo $PATH"
+      register: tmux_path_out
+      become: yes
+      become_user: root
+
+
+
+#############
+
+####################################################################################################
+# pirate - COMPILE TMUX SETUP
+####################################################################################################
+- hosts: scarlett_cluster
+  tags:
+    - byobu
+  vars:
+    bossjones__user: pirate
+    bossjones__group: pirate
+    cheatsheet_update: yes
+    byobu_version: "2.6"
+    byobu_install_method: "source"
+    byobu_path: "/usr/local/"
+    byobu_tmp_dir: "/tmp/"
+    byobu_playbook_version: "0.0.1"
+    byobu_file_tag: "byobu-{{byobu_version}}"
+    byobu_file_name: "{{byobu_file_tag}}.tar.gz"
+    byobu_base_url: "https://github.com/dustinkirkland/byobu"
+    byobu_tarball_url: "{{byobu_base_url}}{{byobu_file_name}}"
+  become: yes
+  become_method: sudo
+  # become_user: "{{bossjones__user}}"
+  # become_method: sudo
+  # SOURCE: https://docs.ansible.com/ansible/latest/playbooks_environment.html
+  environment:
+    SHELL: /bin/bash
+  tasks:
+    - name: Install Debian packages tmux prereqs
+      apt: pkg={{item}} state=latest update_cache=yes
+      with_items:
+        - dh-make
+      when: ansible_os_family == "Debian"
+      # become: yes
+      # become_user: root
+
+      become: yes
+      become_method: sudo
+
+    - name: Clone byobu
+      git:
+        repo: https://github.com/dustinkirkland/byobu
+        dest: "/usr/local/src/byobu"
+        version: "master"
+      become: yes
+      become_user: root
+
+      # dh-make
+
+
+    - name: Compile and install byobu
+      shell: |
+                ./debian/rules autoconf &&
+                ./configure --prefix="/usr/local" &&
+                make &&
+                make check &&
+                make install &&
+                ldconfig
+                chdir=/usr/local/src/byobu
+      register: byobu_compiled
+      become: yes
+      become_user: root
+
+
+####################################################################################################
+# pirate - COMPILE nvm SETUP
+####################################################################################################
+- hosts: scarlett_cluster
+  tags:
+    - nvm
+  vars:
+    bossjones__user: pirate
+    bossjones__group: pirate
+    node_version: '8'
+  become: yes
+  become_method: sudo
+  # become_user: "{{bossjones__user}}"
+  # become_method: sudo
+  # SOURCE: https://docs.ansible.com/ansible/latest/playbooks_environment.html
+  environment:
+    SHELL: /bin/bash
+  pre_tasks:
+    - name: '/etc/profile.d'
+      file:
+        path: "/etc/profile.d"
+        state: directory
+  tasks:
+    - name: check nvm versions installed for system
+      shell: $SHELL -lc "command -v nvm"
+      register: nvm_exists
+      changed_when: false
+      ignore_errors: yes
+      failed_when: false
+      check_mode: no
+
+    - name: If nvm does not exist, call the nvm installer script
+      shell: |
+            curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
+      register: nvm_installed
+      become: yes
+      become_user: "{{bossjones__user}}"
+
+    - name: check nvm versions installed for system
+      shell: $SHELL -lc "nvm install {{node_version}}"
+      register: nvm_install
+      changed_when: false
+      ignore_errors: yes
+      failed_when: false
+      check_mode: no
+      become: yes
+      become_user: "{{bossjones__user}}"
+
+    - name: check nvm versions installed for system
+      shell: $SHELL -lc "nvm use {{node_version}}; npm install npm@latest -g"
+      register: npm_upgrade
+      changed_when: false
+      ignore_errors: yes
+      failed_when: false
+      check_mode: no
+      become: yes
+      become_user: "{{bossjones__user}}"
+
+    - name: check nvm versions installed for system
+      shell: $SHELL -lc "nvm use {{node_version}}; npm install {{item}}"
+      register: npm_install_global
+      changed_when: false
+      ignore_errors: yes
+      failed_when: false
+      check_mode: no
+      with_items:
+        - vtop
+        - whereami
+        - figlet-cli
+        - get-port-cli
+        - getmac
+        - speed-test
+        - spoof
+        - wireless-tools
+        - yaml-lint
+        - pathogen-pm
+        - gtop
+        - npm
+        - diff-so-fancy
+        - docker-enter
+        - jsonlint
+        - docker-enter
+        - vtop
+        - yaml-lint
+        - tldr
+        - speed-test
+        - jsonlint
+        - gtop
+        - docker-loghose
+        - device-discovery-cli
+      become: yes
+      become_user: "{{bossjones__user}}"
+
+    - name: check nvm versions installed for system
+      shell: $SHELL -lc "nvm alias default {{node_version}}"
+      register: nvm_install
+      changed_when: false
+      ignore_errors: yes
+      failed_when: false
+      check_mode: no
+      become: yes
+      become_user: "{{bossjones__user}}"
+
+####################################################################################################
+# raspbian - COMPILE nvm SETUP
+####################################################################################################
+- hosts: raspbian
+  tags:
+    - nvm
+  vars:
+    bossjones__user: pi
+    bossjones__group: pi
+    node_version: '8'
+  become: yes
+  become_method: sudo
+  strategy: free
+  # become_user: "{{bossjones__user}}"
+  # become_method: sudo
+  # SOURCE: https://docs.ansible.com/ansible/latest/playbooks_environment.html
+  environment:
+    SHELL: /bin/bash
+  pre_tasks:
+    - name: '/etc/profile.d'
+      file:
+        path: "/etc/profile.d"
+        state: directory
+
+    - name: "create /etc/profile.d/nvm.sh"
+      copy:
+        content: |
+          export NVM_DIR="$HOME/.nvm"
+          if [ -d "$HOME/.nvm" ]; then
+            \. $HOME/.nvm/nvm.sh
+          fi
+          if [ -s "$NVM_DIR/bash_completion" ]; then
+            \. $NVM_DIR/bash_completion
+          fi
+        dest: /etc/profile.d/nvm.sh
+        owner: root
+        group: root
+        mode: 0755
+      become: true
+
+  tasks:
+    - name: check nvm versions installed for system
+      shell: $SHELL -lc "command -v nvm"
+      register: nvm_exists
+      changed_when: false
+      ignore_errors: yes
+      failed_when: false
+      check_mode: no
+
+    - name: If nvm does not exist, call the nvm installer script
+      shell: |
+            curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
+      register: nvm_installed
+      become: yes
+      become_user: "{{bossjones__user}}"
+
+    - name: check nvm versions installed for system
+      shell: $SHELL -lc "nvm install {{node_version}}"
+      register: nvm_install
+      changed_when: false
+      ignore_errors: yes
+      failed_when: false
+      check_mode: no
+      become: yes
+      become_user: "{{bossjones__user}}"
+
+    - name: check nvm versions installed for system
+      shell: $SHELL -lc "nvm use {{node_version}}; npm install npm@latest -g"
+      register: npm_upgrade
+      changed_when: false
+      ignore_errors: yes
+      failed_when: false
+      check_mode: no
+      become: yes
+      become_user: "{{bossjones__user}}"
+
+    - name: check nvm versions installed for system
+      shell: $SHELL -lc "nvm use {{node_version}}; npm install {{item}}"
+      register: npm_install_global
+      changed_when: false
+      ignore_errors: yes
+      failed_when: false
+      check_mode: no
+      with_items:
+        - vtop
+        - whereami
+        - figlet-cli
+        - get-port-cli
+        - getmac
+        - speed-test
+        - spoof
+        - wireless-tools
+        - yaml-lint
+        - pathogen-pm
+        - gtop
+        - npm
+        - diff-so-fancy
+        - docker-enter
+        - jsonlint
+        - docker-enter
+        - vtop
+        - yaml-lint
+        - tldr
+        - speed-test
+        - jsonlint
+        - gtop
+        - docker-loghose
+        - device-discovery-cli
+      become: yes
+      become_user: "{{bossjones__user}}"
+
+    - name: check nvm versions installed for system
+      shell: $SHELL -lc "nvm alias default {{node_version}}"
+      register: nvm_install
+      changed_when: false
+      ignore_errors: yes
+      failed_when: false
+      check_mode: no
+      become: yes
+      become_user: "{{bossjones__user}}"

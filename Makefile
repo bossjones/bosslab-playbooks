@@ -21,8 +21,8 @@ URL_PATH_GRAFANA           := "http://grafana.$(DNSMASQ_DOMAIN)"
 URL_PATH_ALERTMANAGER      := "http://alertmanager.$(DNSMASQ_DOMAIN)"
 URL_PATH_DASHBOARD         := "http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/"
 
-# rsync -avz --exclude 'README.md' --exclude '*.log' --exclude '.git' --exclude '.vscode' --exclude '.vagrant' ~/dev/bossjones/boss-ansible-role-rsyslogd/.[^.]* ~/dev/bossjones/bosslab-playbooks
-# rsync -avz --exclude 'README.md' --exclude '*.log' --exclude '.git' --exclude '.vscode' --exclude '.vagrant' ~/dev/bossjones/boss-ansible-role-rsyslogd/* ~/dev/bossjones/bosslab-playbooks
+# rsync -avz --dry-run --exclude 'README.md' --exclude '*.log' --exclude '.git' --exclude '.vscode' --exclude '.vagrant' --exclude '.gitignore' --exclude '.retry' ~/dev/bossjones/boss-ansible-homelab/.[^.]* ~/dev/bossjones/bosslab-playbooks
+# rsync -avz --dry-run --exclude 'README.md' --exclude '*.log' --exclude '.git' --exclude '.vscode' --exclude '.vagrant'  ~/dev/bossjones/boss-ansible-homelab/{inventory-vagrant,inventory-homelab,decrypt_all.sh,encrypt_all.sh,vars,git_hooks,vault_password,group_vars} ~/dev/bossjones/bosslab-playbooks
 
 # SOURCE: https://github.com/wk8838299/bullcoin/blob/8182e2f19c1f93c9578a2b66de6a9cce0506d1a7/LMN/src/makefile.osx
 HAVE_BREW=$(shell brew --prefix >/dev/null 2>&1; echo $$? )
@@ -136,6 +136,9 @@ ci:
 
 test:
 	molecule test --destroy=always
+
+pre_commit_install:
+	cp git_hooks/pre-commit .git/hooks/pre-commit
 
 bootstrap:
 	echo bootstrap
@@ -492,7 +495,7 @@ setup_pyenv: brew_install_pyenv enable_pyenv ## ** Do some pre-setup for pyenv a
 	pyenv rehash
 
 .PHONY: bootstrap_venv
-bootstrap_venv: init_venv dev_dep show_venv_activate_cmd ## ** Create virtual environment, initialize it, install packages, and remind user to activate after make is done
+bootstrap_venv: pre_commit_install init_venv dev_dep show_venv_activate_cmd ## ** Create virtual environment, initialize it, install packages, and remind user to activate after make is done
 # bootstrap_venv: init_venv dev_dep ## ** Create virtual environment, initialize it, install packages, and remind user to activate after make is done
 
 .PHONY: init_venv
