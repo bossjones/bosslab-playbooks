@@ -1,4 +1,314 @@
 # https://gist.github.com/gnarf/b103e77f37236ca72d8e
+# SOURCE: \cat roles/*/vagrant-config.yml | pbcopy
+:vms:
+  rsyslogd-master-01:
+    :hostname: "rsyslogd-master-01"
+    :ip: "192.168.50.108"
+    :ram: 2048
+    :cpu: 2
+    :box: "ubuntu/xenial64"
+    :id: 10
+
+  rsyslogd-worker-01:
+    :hostname: "rsyslogd-worker-01"
+    :ip: "192.168.50.109"
+    :ram: 2048
+    :cpu: 2
+    :box: "ubuntu/xenial64"
+    :id: 11
+
+  ansible-workstation1:
+    :hostname: "ansible-workstation1"
+    :ip: "192.168.50.107"
+    :ram: 2048
+    :cpu: 2
+    :box: "ubuntu/xenial64"
+    :id: 10
+
+# :groups:
+#   rsyslogd-master-01:
+#     - rsyslogd-master-01
+#   slaves:
+#     - rsyslogd-worker-01
+#   agents:
+#     - rsyslogd-worker-01
+#   servers:
+#     - rsyslogd-master-01
+#     - rsyslogd-worker-01
+#   kubernetes-rsyslogd-master-01:
+#     - rsyslogd-master-01
+#   kubernetes-workers:
+#     - rsyslogd-worker-01
+#   kubernetes:
+#     - rsyslogd-master-01
+#     - rsyslogd-worker-01
+
+
+
+
+:groups:
+  ansible-workstation1:
+    - ansible-workstation1
+  servers:
+    - ansible-workstation1
+  kubernetes-ansible-workstation1:
+    - ansible-workstation1
+  kubernetes:
+    - ansible-workstation1
+# https://gist.github.com/gnarf/b103e77f37236ca72d8e
+:vms:
+  debug1:
+    :hostname: "debug1"
+    :ip: "192.168.23.100"
+    :ram: 1024
+    :cpu: 2
+    # :box: "debian/stretch64"
+    :box: "ubuntu/xenial64"
+    :id: 10
+
+:groups:
+  debug1:
+    - debug1
+  # docker2:
+  #   - docker2
+  docker_servers:
+    - debug1
+    # - docker2
+  servers:
+    - debug1
+    # - docker2
+  dns_servers:
+    - debug1
+    # - docker2
+# https://gist.github.com/gnarf/b103e77f37236ca72d8e
+:vms:
+  dhclient_dnsmasq1:
+    :hostname: "dhclient_dnsmasq1"
+    :ip: "192.168.33.100"
+    :ram: 512
+    :cpu: 1
+    :box: "debian/stretch64"
+
+  dhclient_dnsmasq2:
+    :hostname: "dhclient_dnsmasq2"
+    :ip: "192.168.33.101"
+    :ram: 512
+    :cpu: 1
+    :box: "debian/stretch64"
+
+  dhclient1:
+    :hostname: "dhclient1"
+    :ip: "192.168.33.102"
+    :ram: 512
+    :cpu: 1
+    :box: "debian/stretch64"
+
+:groups:
+  dhclient_dnsmasq1:
+    - dhclient_dnsmasq1
+  dhclient_dnsmasq2:
+    - dhclient_dnsmasq2
+  dhclient_dnsmasq_servers:
+    - dhclient_dnsmasq1
+    - dhclient_dnsmasq2
+  dhclient1:
+    - dhclient1
+  servers:
+    - dhclient_dnsmasq1
+    - dhclient_dnsmasq2
+    - dhclient1
+  dns_servers:
+    - dhclient_dnsmasq1
+    - dhclient_dnsmasq2
+  dhclient_servers:
+    - dhclient1
+# https://gist.github.com/gnarf/b103e77f37236ca72d8e
+:vms:
+  dhcpd1:
+    :hostname: "dhcpd1"
+    :ip: "192.168.35.100"
+    :ram: 512
+    :cpu: 1
+    :box: "debian/stretch64"
+
+:groups:
+  dhcpd1:
+    - dhcpd1
+  dhcpd:
+    - dhcpd1
+  dhcpd_servers:
+    - dhcpd1
+# https://gist.github.com/gnarf/b103e77f37236ca72d8e
+:vms:
+  dnsmasq1:
+    :hostname: "dnsmasq1"
+    :ip: "192.168.33.100"
+    :ram: 1024
+    :cpu: 2
+    :box: "debian/stretch64"
+
+  dnsmasq2:
+    :hostname: "dnsmasq2"
+    :ip: "192.168.33.101"
+    :ram: 1024
+    :cpu: 2
+    :box: "debian/stretch64"
+
+:groups:
+  dnsmasq1:
+    - dnsmasq1
+  dnsmasq2:
+    - dnsmasq2
+  dnsmasq_servers:
+    - dnsmasq1
+    - dnsmasq2
+  servers:
+    - dnsmasq1
+    - dnsmasq2
+  dns_servers:
+    - dnsmasq1
+    - dnsmasq2
+# https://gist.github.com/gnarf/b103e77f37236ca72d8e
+:vms:
+  docker1:
+    :hostname: "docker1"
+    :ip: "192.168.13.100"
+    :ram: 1024
+    :cpu: 2
+    # :box: "debian/stretch64"
+    :box: "ubuntu/xenial64"
+    :id: 10
+
+  # docker2:
+  #   :hostname: "docker2"
+  #   :ip: "192.168.13.101"
+  #   :ram: 1024
+  #   :cpu: 2
+  #   :box: "debian/stretch64"
+  #   # :box: "ubuntu/xenial64"
+  #   :id: 11
+
+:groups:
+  docker1:
+    - docker1
+  # docker2:
+  #   - docker2
+  docker_servers:
+    - docker1
+    # - docker2
+  servers:
+    - docker1
+    # - docker2
+  dns_servers:
+    - docker1
+    # - docker2
+# https://gist.github.com/gnarf/b103e77f37236ca72d8e
+:vms:
+  etckeeper1:
+    :hostname: "etckeeper1"
+    :ip: "192.168.34.100"
+    :ram: 512
+    :cpu: 1
+    :box: "debian/stretch64"
+
+:groups:
+  etckeeper1:
+    - etckeeper1
+  etckeeper_servers:
+    - etckeeper1
+# https://gist.github.com/gnarf/b103e77f37236ca72d8e
+:vms:
+  graphite-master1:
+    :hostname: "graphite-master1"
+    :ip: "192.168.50.105"
+    :ram: 2048
+    :cpu: 2
+    :box: "ubuntu/xenial64"
+    :id: 10
+
+:groups:
+  graphite-master1:
+    - graphite-master1
+  servers:
+    - graphite-master1
+  kubernetes-graphite-master1:
+    - graphite-master1
+  kubernetes:
+    - graphite-master1
+# https://gist.github.com/gnarf/b103e77f37236ca72d8e
+:vms:
+  journald-box1:
+    :hostname: "journald-box1"
+    :ip: "192.168.50.104"
+    :ram: 2048
+    :cpu: 2
+    :box: "ubuntu/xenial64"
+    :id: 10
+
+:groups:
+  journald-box1:
+    - journald-box1
+  servers:
+    - journald-box1
+  kubernetes-journald-box1:
+    - journald-box1
+  kubernetes:
+    - journald-box1
+# https://gist.github.com/gnarf/b103e77f37236ca72d8e
+:vms:
+  nfs-master1:
+    :hostname: "nfs-master1"
+    :ip: "192.168.50.101"
+    :ram: 2048
+    :cpu: 2
+    :box: "ubuntu/xenial64"
+    :id: 10
+
+  nfs-worker1:
+    :hostname: "nfs-worker1"
+    :ip: "192.168.50.102"
+    :ram: 2048
+    :cpu: 2
+    :box: "ubuntu/xenial64"
+    :id: 11
+
+:groups:
+  nfs-master1:
+    - nfs-master1
+  slaves:
+    - nfs-worker1
+  agents:
+    - nfs-worker1
+  servers:
+    - nfs-master1
+    - nfs-worker1
+  kubernetes-nfs-master1:
+    - nfs-master1
+  kubernetes-workers:
+    - nfs-worker1
+  kubernetes:
+    - nfs-master1
+    - nfs-worker1
+# https://gist.github.com/gnarf/b103e77f37236ca72d8e
+:vms:
+  ntp-box1:
+    :hostname: "ntp-box1"
+    :ip: "192.168.50.106"
+    :ram: 2048
+    :cpu: 2
+    :box: "ubuntu/xenial64"
+    :id: 10
+
+:groups:
+  ntp-box1:
+    - ntp-box1
+  servers:
+    - ntp-box1
+  kubernetes-ntp-box1:
+    - ntp-box1
+  kubernetes:
+    - ntp-box1
+# https://gist.github.com/gnarf/b103e77f37236ca72d8e
 :vms:
   rsyslogd-master-01:
     :hostname: "rsyslogd-master-01"
@@ -33,3 +343,102 @@
   kubernetes:
     - rsyslogd-master-01
     - rsyslogd-worker-01
+# https://gist.github.com/gnarf/b103e77f37236ca72d8e
+:vms:
+  sysctl1:
+    :hostname: "sysctl1"
+    :ip: "192.168.36.100"
+    :ram: 512
+    :cpu: 1
+    :box: "debian/stretch64"
+
+:groups:
+  servers:
+    - sysctl1
+# https://gist.github.com/gnarf/b103e77f37236ca72d8e
+:vms:
+  timezone-node1:
+    :hostname: "timezone-node1"
+    :ip: "192.168.50.109"
+    :ram: 2048
+    :cpu: 2
+    :box: "ubuntu/xenial64"
+    :id: 10
+
+:groups:
+  timezone-node1:
+    - timezone-node1
+  servers:
+    - timezone-node1
+  kubernetes-timezone-node1:
+    - timezone-node1
+  kubernetes:
+    - timezone-node1
+# https://gist.github.com/gnarf/b103e77f37236ca72d8e
+:vms:
+  tools-box1:
+    :hostname: "tools-box1"
+    :ip: "192.168.50.103"
+    :ram: 2048
+    :cpu: 2
+    :box: "ubuntu/xenial64"
+    :id: 10
+
+:groups:
+  tools-box1:
+    - tools-box1
+  servers:
+    - tools-box1
+  kubernetes-tools-box1:
+    - tools-box1
+  kubernetes:
+    - tools-box1
+# https://gist.github.com/gnarf/b103e77f37236ca72d8e
+:vms:
+  hosts-test-01:
+    :hostname: "hosts-test-01"
+    :ip: "192.168.13.100"
+    :ram: 1024
+    :cpu: 2
+    :box: "ubuntu/xenial64"
+
+  hosts-test-02:
+    :hostname: "hosts-test-02"
+    :ip: "192.168.13.101"
+    :ram: 1024
+    :cpu: 2
+    :box: "ubuntu/xenial64"
+
+:groups:
+  hosts-test-01:
+    - hosts-test-01
+  hosts-test-02:
+    - hosts-test-02
+  host-stest-0_servers:
+    - hosts-test-01
+    - hosts-test-02
+  servers:
+    - hosts-test-01
+    - hosts-test-02
+  dns_servers:
+    - hosts-test-01
+    - hosts-test-02
+# https://gist.github.com/gnarf/b103e77f37236ca72d8e
+:vms:
+  wireshark-master1:
+    :hostname: "wireshark-master1"
+    :ip: "192.168.50.106"
+    :ram: 2048
+    :cpu: 2
+    :box: "ubuntu/xenial64"
+    :id: 10
+
+:groups:
+  wireshark-master1:
+    - wireshark-master1
+  servers:
+    - wireshark-master1
+  kubernetes-wireshark-master1:
+    - wireshark-master1
+  kubernetes:
+    - wireshark-master1
