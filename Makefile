@@ -10,6 +10,11 @@ DNSMASQ_DOMAIN         := hyenalab.home
 # URL_PATH_CONSUL        := 8500
 # URL_PATH_TRAEFIK       := 80
 # URL_PATH_TRAEFIK_API   := 8080
+URL_PATH_NETDATA_MASTER1  := "http://bosslab-master-01.$(DNSMASQ_DOMAIN):19999"
+URL_PATH_NETDATA_WORKER1  := "http://bosslab-worker-01.$(DNSMASQ_DOMAIN):19999"
+URL_PATH_NETDATA_WORKER2  := "http://bosslab-worker-02.$(DNSMASQ_DOMAIN):19999"
+URL_PATH_NETDATA_PROXY1   := "http://bosslab-proxy-01.$(DNSMASQ_DOMAIN):19999"
+
 URL_PATH_NETDATA_REGISTRY  := "http://rsyslogd-master-01.$(DNSMASQ_DOMAIN):19999"
 URL_PATH_NETDATA_NODE      := "http://rsyslogd-worker-01.$(DNSMASQ_DOMAIN):19999"
 URL_PATH_WHOAMI            := "http://whoami.$(DNSMASQ_DOMAIN)"
@@ -351,7 +356,15 @@ open-netdata-registry:
 open-netdata-node:
 	./scripts/open-browser.py $(URL_PATH_NETDATA_NODE)
 
+open-netdata-vagrant:
+	./scripts/open-browser.py $(URL_PATH_NETDATA_MASTER1)
+	./scripts/open-browser.py $(URL_PATH_NETDATA_WORKER1)
+	./scripts/open-browser.py $(URL_PATH_NETDATA_WORKER2)
+	./scripts/open-browser.py $(URL_PATH_NETDATA_PROXY1)
+
 open: open-netdata-registry open-netdata-node
+
+open-vagrant: open-netdata-vagrant
 
 # # https://docs.debops.org/en/latest/ansible/roles/debops.core/getting-started.html
 # # To see what facts are configured on a host, run command:
