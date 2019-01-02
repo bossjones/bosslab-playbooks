@@ -313,8 +313,11 @@ rebuild: destroy flush-cache bridge-up sleep ping-bridge run-bridge-ansible run-
 
 # pip install graphviz
 graph-inventory:
-	ansible-inventory-grapher -i inventory.ini -d static/graphs/bosslab --format "bosslab-{hostname}.dot" -a "rankdir=LR; splines=ortho; ranksep=2; node [ width=5 style=filled fillcolor=lightgrey ]; edge [ dir=back arrowtail=empty ];"
-	# for f in static/graphs/bosslab/*.dot ; do dot -Tpng -o static/graphs/bosslab/`basename $f .dot`.png $f; done
+	ansible-inventory-grapher -i inventory.ini -d static/graphs/bosslab --format "bosslab-{hostname}.dot" -a "rankdir=LR; splines=ortho; ranksep=2; node [ width=5 style=filled fillcolor=lightgrey ]; edge [ dir=back arrowtail=empty ];" bosslab-master-01.hyenalab.home
+# for f in static/graphs/bosslab/*.dot ; do dot -Tpng -o static/graphs/bosslab/`basename $f .dot`.png $f; done
+
+graph-inventory-view:
+	ansible-inventory-grapher -i inventory.ini -d static/graphs/bosslab --format "bosslab-{hostname}.dot" -a "rankdir=LR; splines=ortho; ranksep=2; node [ width=5 style=filled fillcolor=lightgrey ]; edge [ dir=back arrowtail=empty ];" bosslab-master-01.hyenalab.home |prod-web-server-1a | dot -Tpng | display png:-
 
 # nvm-install:
 # 	nvm install stable ;
