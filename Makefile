@@ -257,7 +257,7 @@ run-ansible-timezone:
 converge: up run-ansible
 
 ping:
-	@ansible-playbook -v -i inventory.ini ping.yml -v --limit "netdata_registry,netdata_nodes"
+	@ansible-playbook -v -i inventory.ini ping.yml -v
 
 ansible-run-dynamic-debug:
 	@ansible-playbook -v -i inventory.ini dynamic_vars.yml

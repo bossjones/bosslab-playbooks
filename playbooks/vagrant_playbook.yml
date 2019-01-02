@@ -176,7 +176,7 @@
       pri_domain_name: scarlett-office.local
       netdata_stream_enabled: True
       # You can generate API keys, with the linux command: uuidgen
-      netdata_stream_api_key: 3402645b-2dbd-40d7-b748-21f564813f2f
+      netdata_stream_api_key: 1AC2CC1D-6E62-4116-A5A9-B3938881991F
       netdata_stream_master_node: "{{boss__netdata__netdata_master_ip}}"
       nginx_listen_port: 8080
       tags:
@@ -253,7 +253,7 @@
       pri_domain_name: scarlett-office.local
       netdata_stream_enabled: True
       # You can generate API keys, with the linux command: uuidgen
-      netdata_stream_api_key: 3402645b-2dbd-40d7-b748-21f564813f2f
+      netdata_stream_api_key: 1AC2CC1D-6E62-4116-A5A9-B3938881991F
       netdata_stream_master_node: "{{boss__netdata__netdata_master_ip}}"
       nginx_listen_port: 8080
       tags:
@@ -315,148 +315,148 @@
 
 
 
-# - hosts: nfs_masters
-#   name: (nfs_masters) - Install and configure nfs
-#   gather_facts: True
-#   become: yes
-#   become_method: sudo
-#   environment:
-#     DEBIAN_FRONTEND: noninteractive
-#   vars:
-#     boss__ntp__timezone: 'America/New_York'
-#   roles:
-#     - role: boss-ansible-role-nfs
-#       boss__nfs__sysctl_fileno: 30000
-#       boss__nfs__systemd_limit_mem_lock: infinity
-#       boss__nfs__systemd_limit_no_file: 30000
-#       boss__nfs__systemd_limit_nproc: infinity
-#       boss__nfs__systemd_limit_core: infinity
-#       boss__nfs__etc_default_nfs_rpcnfsdcount: 64
-#       boss__nfs__nfs_server_group: nfs_masters
-#       boss__nfs__nfs_client_group: nfs_clients
-#       task: master
-#       boss__nfs__nfs_interface: 'enp0s8'
-#       boss__nfs__master_node_ip: "{{ hostvars[groups[boss__nfs__nfs_server_group][0]]['ansible_' + boss__nfs__nfs_interface].ipv4.address }}"
-#       tags:
-#         - boss-ansible-role-nfs
+- hosts: nfs_masters
+  name: (nfs_masters) - Install and configure nfs
+  gather_facts: True
+  become: yes
+  become_method: sudo
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  vars:
+    boss__ntp__timezone: 'America/New_York'
+  roles:
+    - role: boss-ansible-role-nfs
+      boss__nfs__sysctl_fileno: 30000
+      boss__nfs__systemd_limit_mem_lock: infinity
+      boss__nfs__systemd_limit_no_file: 30000
+      boss__nfs__systemd_limit_nproc: infinity
+      boss__nfs__systemd_limit_core: infinity
+      boss__nfs__etc_default_nfs_rpcnfsdcount: 64
+      boss__nfs__nfs_server_group: nfs_masters
+      boss__nfs__nfs_client_group: nfs_clients
+      task: master
+      boss__nfs__nfs_interface: 'enp0s8'
+      boss__nfs__master_node_ip: "{{ hostvars[groups[boss__nfs__nfs_server_group][0]]['ansible_' + boss__nfs__nfs_interface].ipv4.address }}"
+      tags:
+        - boss-ansible-role-nfs
 
 
-# - hosts: nfs_clients
-#   name: (nfs_clients) - Install and configure nfs
-#   gather_facts: True
-#   become: yes
-#   become_method: sudo
-#   environment:
-#     DEBIAN_FRONTEND: noninteractive
-#   vars:
-#     boss__ntp__timezone: 'America/New_York'
-#   roles:
-#     - role: boss-ansible-role-nfs
-#       boss__nfs__sysctl_fileno: 30000
-#       boss__nfs__systemd_limit_mem_lock: infinity
-#       boss__nfs__systemd_limit_no_file: 30000
-#       boss__nfs__systemd_limit_nproc: infinity
-#       boss__nfs__systemd_limit_core: infinity
-#       boss__nfs__etc_default_nfs_rpcnfsdcount: 64
-#       boss__nfs__nfs_server_group: nfs_masters
-#       boss__nfs__nfs_client_group: nfs_clients
-#       task: client
-#       boss__nfs__nfs_interface: 'enp0s8'
-#       boss__nfs__master_node_ip: "{{ hostvars[groups[boss__nfs__nfs_server_group][0]]['ansible_' + boss__nfs__nfs_interface].ipv4.address }}"
-#       # boss__nfs__nfs_interface: 'enp0s3'
-#       tags:
-#         - boss-ansible-role-nfs
+- hosts: nfs_clients
+  name: (nfs_clients) - Install and configure nfs
+  gather_facts: True
+  become: yes
+  become_method: sudo
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  vars:
+    boss__ntp__timezone: 'America/New_York'
+  roles:
+    - role: boss-ansible-role-nfs
+      boss__nfs__sysctl_fileno: 30000
+      boss__nfs__systemd_limit_mem_lock: infinity
+      boss__nfs__systemd_limit_no_file: 30000
+      boss__nfs__systemd_limit_nproc: infinity
+      boss__nfs__systemd_limit_core: infinity
+      boss__nfs__etc_default_nfs_rpcnfsdcount: 64
+      boss__nfs__nfs_server_group: nfs_masters
+      boss__nfs__nfs_client_group: nfs_clients
+      task: client
+      boss__nfs__nfs_interface: 'enp0s8'
+      boss__nfs__master_node_ip: "{{ hostvars[groups[boss__nfs__nfs_server_group][0]]['ansible_' + boss__nfs__nfs_interface].ipv4.address }}"
+      # boss__nfs__nfs_interface: 'enp0s3'
+      tags:
+        - boss-ansible-role-nfs
 
 
 
-# - hosts: rsyslogd_masters
-#   name: (masters) - Install and configure rsyslogd
-#   gather_facts: True
-#   become: yes
-#   become_method: sudo
-#   environment:
-#     DEBIAN_FRONTEND: noninteractive
-#   vars:
-#     boss__ntp__timezone: 'America/New_York'
+- hosts: rsyslogd_masters
+  name: (masters) - Install and configure rsyslogd
+  gather_facts: True
+  become: yes
+  become_method: sudo
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  vars:
+    boss__ntp__timezone: 'America/New_York'
 
-#   roles:
-#     - role: boss-ansible-role-rsyslogd
-#       boss__rsyslogd__rsyslog_enable_debug: False
-#       boss__rsyslogd__master_group_label: 'rsyslogd_masters'
-#       boss__rsyslogd__rsyslog_install_bleeding_edge: True
-#       # boss__rsyslogd__rsyslog_force_remove_before_provision: True
-#       boss__rsyslogd__default_task: 'master'
-#       boss__rsyslogd__rsyslog_interface: 'enp0s8'
-#       # NOTE: https://docs.debops.org/en/master/ansible/roles/debops.rsyslog/getting-started.html
-#       # Enable network input channels and storage of remote logs in filesystem
-#       boss__rsyslogd__rsyslog_capabilities: [ 'network', 'remote-files' ]
-#       # boss__rsyslogd__rsyslog_capabilities: [ 'network', 'remote-files', 'debug' ]
+  roles:
+    - role: boss-ansible-role-rsyslogd
+      boss__rsyslogd__rsyslog_enable_debug: False
+      boss__rsyslogd__master_group_label: 'rsyslogd_masters'
+      boss__rsyslogd__rsyslog_install_bleeding_edge: True
+      # boss__rsyslogd__rsyslog_force_remove_before_provision: True
+      boss__rsyslogd__default_task: 'master'
+      boss__rsyslogd__rsyslog_interface: 'enp0s8'
+      # NOTE: https://docs.debops.org/en/master/ansible/roles/debops.rsyslog/getting-started.html
+      # Enable network input channels and storage of remote logs in filesystem
+      boss__rsyslogd__rsyslog_capabilities: [ 'network', 'remote-files' ]
+      # boss__rsyslogd__rsyslog_capabilities: [ 'network', 'remote-files', 'debug' ]
 
-#       # Specify which subnets can send remote logs through the firewall
-#       # FIXME: https://blog.webernetz.net/2001db8-32-in-the-wild/
-#       # boss__rsyslogd__host_allow: [ '192.0.2.0/24', '2001:db8::/32' ]
-#       boss__rsyslogd__rsyslog_host_allow: [ '192.168.1.1/16' ]
+      # Specify which subnets can send remote logs through the firewall
+      # FIXME: https://blog.webernetz.net/2001db8-32-in-the-wild/
+      # boss__rsyslogd__host_allow: [ '192.0.2.0/24', '2001:db8::/32' ]
+      boss__rsyslogd__rsyslog_host_allow: [ '192.168.1.1/16' ]
 
-#       # SOURCE: https://www.rsyslog.com/sending-messages-to-a-remote-syslog-server/
-#       # Mask log forwarding configuration defined elsewhere
-#       boss__rsyslogd__rsyslog_forward: []
-#         # - '*.*  action(type="omfwd" target="{{boss__rsyslogd__rsyslog_master_ip}}" port="{{boss__rsyslogd__rsyslog_tcp_port}}" protocol="tcp" action.resumeRetryCount="100" queue.type="linkedList" queue.size="10000")'
-#       # *.*  action(type="omfwd" target="192.0.2.2" port="10514" protocol="tcp" action.resumeRetryCount="100" queue.type="linkedList" queue.size="10000")
-#       # this will de-couple the sending from the other logging actions,
-#       # and prevent delays when the remote system is not reachable. Also,
-#       # it will try to connect 100 times before it discards messages as
-#       # undeliverable.
-#       # the rest below is more or less a plain vanilla rsyslog.conf as
-#       # many distros ship it - it's more for your reference...
-#       boss__rsyslogd__rsyslog_group_forward: []
-#       # boss__rsyslogd__host_forward: []
-#       # boss__rsyslogd__rsyslog_host_forward:
-#       #   - '*.*  action(type="omfwd" target="{{boss__rsyslogd__rsyslog_master_ip}}" port="{{boss__rsyslogd__rsyslog_tcp_port}}" protocol="tcp" action.resumeRetryCount="100" queue.type="linkedList" queue.size="10000")'
+      # SOURCE: https://www.rsyslog.com/sending-messages-to-a-remote-syslog-server/
+      # Mask log forwarding configuration defined elsewhere
+      boss__rsyslogd__rsyslog_forward: []
+        # - '*.*  action(type="omfwd" target="{{boss__rsyslogd__rsyslog_master_ip}}" port="{{boss__rsyslogd__rsyslog_tcp_port}}" protocol="tcp" action.resumeRetryCount="100" queue.type="linkedList" queue.size="10000")'
+      # *.*  action(type="omfwd" target="192.0.2.2" port="10514" protocol="tcp" action.resumeRetryCount="100" queue.type="linkedList" queue.size="10000")
+      # this will de-couple the sending from the other logging actions,
+      # and prevent delays when the remote system is not reachable. Also,
+      # it will try to connect 100 times before it discards messages as
+      # undeliverable.
+      # the rest below is more or less a plain vanilla rsyslog.conf as
+      # many distros ship it - it's more for your reference...
+      boss__rsyslogd__rsyslog_group_forward: []
+      # boss__rsyslogd__host_forward: []
+      # boss__rsyslogd__rsyslog_host_forward:
+      #   - '*.*  action(type="omfwd" target="{{boss__rsyslogd__rsyslog_master_ip}}" port="{{boss__rsyslogd__rsyslog_tcp_port}}" protocol="tcp" action.resumeRetryCount="100" queue.type="linkedList" queue.size="10000")'
 
-#       # Or, alternatively, forward logs to a different host
-#       # boss__rsyslogd__host_forward: [ '*.* @other.{{ ansible_domain }}' ]
+      # Or, alternatively, forward logs to a different host
+      # boss__rsyslogd__host_forward: [ '*.* @other.{{ ansible_domain }}' ]
 
-#       # Or, alternatively, forward logs to a different host
-#       # boss__rsyslogd__rsyslog_host_forward: [ '*.* @other.{{ ansible_domain }}' ]
-#       # {{ hostvars[groups[boss__rsyslogd__master_group_label][0]]['ansible_' + boss__kubernetes__kubeadm__nfs_interface].ipv4.address }}:{{ item.remote }}
+      # Or, alternatively, forward logs to a different host
+      # boss__rsyslogd__rsyslog_host_forward: [ '*.* @other.{{ ansible_domain }}' ]
+      # {{ hostvars[groups[boss__rsyslogd__master_group_label][0]]['ansible_' + boss__kubernetes__kubeadm__nfs_interface].ipv4.address }}:{{ item.remote }}
 
-#       # {% if etcd_discovery == none and etcd_discovery_srv == none -%}
-#       # {% macro initial_cluster() -%}
-#       # {% for host in groups[etcd_peers_group] -%}
-#       #   {% if loop.last -%}
-#       # {{ host }}={{ etcd_peer_url_scheme }}://{{ hostvars[host][  "ansible_"+hostvars[host]["ansible_default_ipv4"]["interface"]  ]['ipv4']['address'] }}:{{ etcd_peer_port }}
-#       #   {%- else -%}
-#       # {{ host }}={{ etcd_peer_url_scheme }}://{{ hostvars[host][ "ansible_"+hostvars[host]["ansible_default_ipv4"]["interface"]  ]['ipv4']['address'] }}:{{ etcd_peer_port }},
-#       #   {%- endif -%}
-#       # {% endfor -%}
-#       # {% endmacro -%}
-#       # {% endif %}
+      # {% if etcd_discovery == none and etcd_discovery_srv == none -%}
+      # {% macro initial_cluster() -%}
+      # {% for host in groups[etcd_peers_group] -%}
+      #   {% if loop.last -%}
+      # {{ host }}={{ etcd_peer_url_scheme }}://{{ hostvars[host][  "ansible_"+hostvars[host]["ansible_default_ipv4"]["interface"]  ]['ipv4']['address'] }}:{{ etcd_peer_port }}
+      #   {%- else -%}
+      # {{ host }}={{ etcd_peer_url_scheme }}://{{ hostvars[host][ "ansible_"+hostvars[host]["ansible_default_ipv4"]["interface"]  ]['ipv4']['address'] }}:{{ etcd_peer_port }},
+      #   {%- endif -%}
+      # {% endfor -%}
+      # {% endmacro -%}
+      # {% endif %}
 
-#       tags:
-#         - boss-ansible-role-rsyslogd
+      tags:
+        - boss-ansible-role-rsyslogd
 
 
-# - hosts: rsyslogd_clients
-#   name: (nodes) - Install and configure rsyslogd
-#   gather_facts: True
-#   become: yes
-#   become_method: sudo
-#   environment:
-#     DEBIAN_FRONTEND: noninteractive
-#   vars:
-#     boss__ntp__timezone: 'America/New_York'
+- hosts: rsyslogd_clients
+  name: (nodes) - Install and configure rsyslogd
+  gather_facts: True
+  become: yes
+  become_method: sudo
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  vars:
+    boss__ntp__timezone: 'America/New_York'
 
-#   roles:
-#     - role: boss-ansible-role-rsyslogd
-#       boss__rsyslogd__rsyslog_enable_debug: False
-#       boss__rsyslogd__master_group_label: 'rsyslogd_masters'
-#       boss__rsyslogd__rsyslog_install_bleeding_edge: True
-#       # boss__rsyslogd__rsyslog_force_remove_before_provision: True
-#       boss__rsyslogd__default_task: 'client'
-#       boss__rsyslogd__rsyslog_interface: 'enp0s8'
-#       # boss__rsyslogd__rsyslog_capabilities: [ 'network', 'remote-files', 'debug' ]
-#       boss__rsyslogd__rsyslog_forward:
-#         - '*.*  action(type="omfwd" target="{{boss__rsyslogd__rsyslog_master_ip}}" port="{{boss__rsyslogd__rsyslog_tcp_port}}" protocol="tcp" action.resumeRetryCount="100" queue.type="linkedList" queue.size="10000")'
-#         - '*.* @{{boss__rsyslogd__rsyslog_master_ip}}:{{boss__rsyslogd__rsyslog_tcp_port}}'
-#       tags:
-#         - boss-ansible-role-rsyslogd
+  roles:
+    - role: boss-ansible-role-rsyslogd
+      boss__rsyslogd__rsyslog_enable_debug: False
+      boss__rsyslogd__master_group_label: 'rsyslogd_masters'
+      boss__rsyslogd__rsyslog_install_bleeding_edge: True
+      # boss__rsyslogd__rsyslog_force_remove_before_provision: True
+      boss__rsyslogd__default_task: 'client'
+      boss__rsyslogd__rsyslog_interface: 'enp0s8'
+      # boss__rsyslogd__rsyslog_capabilities: [ 'network', 'remote-files', 'debug' ]
+      boss__rsyslogd__rsyslog_forward:
+        - '*.*  action(type="omfwd" target="{{boss__rsyslogd__rsyslog_master_ip}}" port="{{boss__rsyslogd__rsyslog_tcp_port}}" protocol="tcp" action.resumeRetryCount="100" queue.type="linkedList" queue.size="10000")'
+        - '*.* @{{boss__rsyslogd__rsyslog_master_ip}}:{{boss__rsyslogd__rsyslog_tcp_port}}'
+      tags:
+        - boss-ansible-role-rsyslogd
