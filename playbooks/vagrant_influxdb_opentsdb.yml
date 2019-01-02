@@ -1,0 +1,32 @@
+---
+##############################################################################
+# SERVERS: install influxdb with a opentsdb backend
+##############################################################################
+- hosts: influxdb
+  name: install influxdb with a opentsdb backend
+  gather_facts: True
+  become: yes
+  become_method: sudo
+  vars:
+    bossjones__user: vagrant
+    bossjones__group: vagrant
+    timezone: 'America/New_York'
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  roles:
+    - role: ansible-influxdb
+      influxdb_config: true
+      influxdb_version: 1.5.1
+      influxdb_admin:
+        enabled: true
+        bind_address: "0.0.0.0"
+      influxdb_opentsdb:
+        database: netdata
+        enabled: true
+      influxdb_databases:
+        - host: localhost
+          name: netdata
+          state: present
+      tags:
+        - ansible-influxdb
+

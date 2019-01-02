@@ -37,4 +37,5 @@
 - src: https://www.github.com/mrlesmithjr/ansible-nginx.git
 - src: https://www.github.com/mrlesmithjr/ansible-ntp.git
 - src: https://www.github.com/mrlesmithjr/ansible-timezone.git
+- src: https://www.github.com/mrlesmithjr/ansible-influxdb.git
 - src: rvm.ruby

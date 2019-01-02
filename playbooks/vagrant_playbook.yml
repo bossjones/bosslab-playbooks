@@ -140,6 +140,48 @@
       tags:
         - boss-ansible-role-journald
 
+- hosts: nfs_masters
+  name: (nfs_masters) - Install and configure nfs
+  gather_facts: True
+  become: yes
+  become_method: sudo
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  vars:
+    boss__ntp__timezone: 'America/New_York'
+  roles:
+    - role: ../
+      boss__nfs__nfs_server_group: nfs_masters
+      boss__nfs__nfs_client_group: nfs_clients
+      task: master
+      boss__nfs__nfs_interface: 'enp0s8'
+      boss__nfs__master_node_ip: "{{ hostvars[groups[boss__nfs__nfs_server_group][0]]['ansible_' + boss__nfs__nfs_interface].ipv4.address }}"
+      tags:
+        - boss-ansible-role-nfs
+
+
+- hosts: nfs_clients
+  name: (nfs_clients) - Install and configure nfs
+  gather_facts: True
+  become: yes
+  become_method: sudo
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  vars:
+    boss__ntp__timezone: 'America/New_York'
+  roles:
+    - role: ../
+      boss__nfs__nfs_server_group: nfs_masters
+      boss__nfs__nfs_client_group: nfs_clients
+      task: client
+      boss__nfs__nfs_interface: 'enp0s8'
+      boss__nfs__master_node_ip: "{{ hostvars[groups[boss__nfs__nfs_server_group][0]]['ansible_' + boss__nfs__nfs_interface].ipv4.address }}"
+      # boss__nfs__nfs_interface: 'enp0s3'
+      tags:
+        - boss-ansible-role-nfs
+
+
+
 - hosts: rsyslogd_masters
   name: (masters) - Install and configure rsyslogd
   gather_facts: True
@@ -152,6 +194,7 @@
 
   roles:
     - role: ../
+      boss__rsyslogd__rsyslog_enable_debug: False
       boss__rsyslogd__master_group_label: 'rsyslogd_masters'
       boss__rsyslogd__rsyslog_install_bleeding_edge: True
       # boss__rsyslogd__rsyslog_force_remove_before_provision: True
@@ -218,6 +261,7 @@
 
   roles:
     - role: ../
+      boss__rsyslogd__rsyslog_enable_debug: False
       boss__rsyslogd__master_group_label: 'rsyslogd_masters'
       boss__rsyslogd__rsyslog_install_bleeding_edge: True
       # boss__rsyslogd__rsyslog_force_remove_before_provision: True
@@ -237,6 +281,20 @@
   become_method: sudo
   roles:
     - role: ../
+      ##############################################################
+      # SOURCE: https://blog.codybunch.com/2018/03/26/Metrics-Part-2-InfluxDB/
+      ##############################################################
+      # netdata_configure_archive: true
+      # netdata_archive_enabled: 'yes'
+      # netdata_archive_type: 'opentsdb'
+      # netdata_archive_destination: ":4242"
+      # netdata_archive_prefix: 'netdata'
+      # netdata_archive_data_source: 'average'
+      # netdata_archive_update: 1
+      # netdata_archive_buffer_on_failures: 30
+      # netdata_archive_timeout: 20000
+      # netdata_archive_send_names: true
+      ##############################################################
       boss__netdata__netdata_proxy_enabled: False
       boss__netdata__netdata_nginx_enabled: False
       # graphite_secret_key: testtest123
