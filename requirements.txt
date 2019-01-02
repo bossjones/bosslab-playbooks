@@ -4,24 +4,74 @@
 #
 #    pip-compile --output-file requirements.txt requirements.in
 #
-ansible-lint==3.5.1
-ansible==2.5.11
+ansible-lint==4.0.0
+ansible==2.5.14
+ansigenome==0.6.0
+appdirs==1.4.3            # via openstacksdk
 asn1crypto==0.24.0        # via cryptography
-autopep8==1.4.2
-bcrypt==3.1.4             # via paramiko
+astroid==1.6.5            # via pylint
+autopep8==1.4.3
+awscli==1.16.81
+backports.functools-lru-cache==1.5  # via astroid, pylint
+bcrypt==3.1.5             # via paramiko
+boto3==1.9.71
+boto==2.49.0
+botocore==1.12.71
+certifi==2018.11.29       # via requests
 cffi==1.11.5              # via bcrypt, cryptography, pynacl
-cryptography==2.3.1       # via ansible, paramiko
-enum34==1.1.6             # via cryptography
-idna==2.7                 # via cryptography
-ipaddress==1.0.22         # via cryptography
-jinja2==2.10              # via ansible
-markupsafe==1.0           # via jinja2
+chardet==3.0.4            # via requests
+colorama==0.3.9           # via awscli
+configparser==3.5.0       # via pylint
+cryptography==2.4.2       # via ansible, openstacksdk, paramiko
+decorator==4.3.0          # via openstacksdk
+docutils==0.14            # via awscli, botocore
+dogpile.cache==0.6.8      # via openstacksdk
+enum34==1.1.6             # via astroid, cryptography
+futures==3.2.0            # via isort, openstacksdk, s3transfer
+idna==2.8                 # via cryptography, requests
+ipaddress==1.0.22         # via cryptography, openstacksdk
+iso8601==0.1.12           # via keystoneauth1, openstacksdk
+isort==4.3.4
+jinja2-cli[yaml]==0.6.0
+jinja2==2.10              # via ansible, ansigenome, jinja2-cli
+jmespath==0.9.3           # via boto3, botocore, openstacksdk
+jsonpatch==1.23           # via openstacksdk
+jsonpointer==2.0          # via jsonpatch
+keystoneauth1==3.11.2     # via openstacksdk
+lazy-object-proxy==1.3.1  # via astroid
+markupsafe==1.1.0         # via jinja2
+mccabe==0.6.1             # via pylint
+mitogen==0.2.3
+munch==2.3.2              # via openstacksdk
+netaddr==0.7.19
+netifaces==0.10.7         # via openstacksdk
+openstacksdk==0.22.0      # via os-client-config, shade
+os-client-config==1.31.2  # via shade
+os-service-types==1.4.0   # via keystoneauth1, openstacksdk
 paramiko==2.4.2           # via ansible
-pyaml==17.12.1
-pyasn1==0.4.4             # via paramiko
+pathspec==0.5.9           # via yamllint
+pbr==5.1.1                # via keystoneauth1, openstacksdk, os-service-types, shade, stevedore
+pretty==0.1
+pyaml==18.11.0
+pyasn1==0.4.5             # via paramiko, rsa
 pycodestyle==2.4.0        # via autopep8
 pycparser==2.19           # via cffi
+pylint==1.9.4
 pynacl==1.3.0             # via paramiko
-pyyaml==3.13              # via ansible, ansible-lint, pyaml
-six==1.11.0               # via ansible-lint, bcrypt, cryptography, pynacl
+python-dateutil==2.7.5    # via botocore
+python-slugify==2.0.0
+pyyaml==3.13              # via ansible, ansible-lint, ansigenome, awscli, jinja2-cli, openstacksdk, pyaml, yamllint
+requests==2.21.0          # via keystoneauth1
+requestsexceptions==1.4.0  # via openstacksdk
+rsa==3.4.2                # via awscli
+s3transfer==0.1.13        # via awscli, boto3
+shade==1.30.0
+simplejson==3.16.0
+singledispatch==3.4.0.3   # via astroid, pylint
+six==1.12.0
+stevedore==1.30.0         # via keystoneauth1
+unidecode==1.0.23         # via python-slugify
+urllib3==1.24.1           # via botocore, requests
+wrapt==1.10.11            # via astroid
+yamllint==1.13.0
 yolk3k==0.9
