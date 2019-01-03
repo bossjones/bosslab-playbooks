@@ -28,3 +28,4 @@ jsonschema
 pep8
 requests
 yamlreader
+subprocess32
