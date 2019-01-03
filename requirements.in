@@ -22,3 +22,9 @@ boto3
 botocore
 ansible-inventory-grapher
 ansible-playbook-grapher
+awacs
+bcdoc
+jsonschema
+pep8
+requests
+yamlreader
