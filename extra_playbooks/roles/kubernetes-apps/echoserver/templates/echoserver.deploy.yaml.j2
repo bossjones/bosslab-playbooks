@@ -1,0 +1,36 @@
+# https://medium.com/@awkwardferny/getting-started-with-kubernetes-ingress-nginx-on-minikube-d75e58f52b6c
+
+# USAGE: kubectl apply -f echoserver.deploy.yaml
+# kubectl get deploy
+# kubectl get pods
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: echoserver
+  namespace: echoserver
+  labels:
+    run: nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      # app: echoserver
+      run: nginx
+  template:
+    metadata:
+      labels:
+        # app: echoserver
+        run: nginx
+    spec:
+      containers:
+      - name: echoserver
+        image: gcr.io/kubernetes-e2e-test-images/echoserver:2.1
+        resources:
+          limits:
+            memory: 55Mi
+            cpu: 100m
+          requests:
+            cpu: 100m
+            memory: 20Mi
+        ports:
+        - containerPort: 8080

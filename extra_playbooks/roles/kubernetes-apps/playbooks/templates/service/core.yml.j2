@@ -1,0 +1,17 @@
+---
+
+- name: Prepare core environment
+  hosts:
+    - 'servers'
+  become: False
+
+  environment: '{{ inventory__environment | d({})
+                   | combine(inventory__group_environment | d({}))
+                   | combine(inventory__host_environment  | d({})) }}'
+
+  roles:
+
+    - role: boss-ansible-role-core
+      tags:
+        - boss-ansible-role-core
+      become: True

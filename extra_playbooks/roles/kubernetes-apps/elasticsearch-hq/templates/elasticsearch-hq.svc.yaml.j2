@@ -1,0 +1,41 @@
+# https://medium.com/@awkwardferny/getting-started-with-kubernetes-ingress-nginx-on-minikube-d75e58f52b6c
+
+# USAGE: kubectl apply -f elasticsearch-hq.svc.yaml
+# wait a min for the service to be created
+# kubectl get svc
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-hq-svc
+  # namespace: elasticsearch-hq
+  namespace: kube-system
+  labels:
+    run: nginx
+    k8s-app: elasticsearch-hq
+    version: release-v3.5.0
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: efk
+spec:
+  # In a production setup, we recommend accessing Grafana through an external Loadbalancer
+  # or through a public IP.
+  # type: LoadBalancer
+  # You could also use NodePort to expose the service at a randomly-generated port
+  # type: NodePort
+  # NOTE: How to support multiple ingress using on ingress controller
+  # NOTE: How to support multiple ingress using on ingress controller
+  # NOTE: How to support multiple ingress using on ingress controller
+  # NOTE: How to support multiple ingress using on ingress controller
+  # NOTE: How to support multiple ingress using on ingress controller
+  # NOTE: How to support multiple ingress using on ingress controller
+  # https://github.com/kubernetes/kubernetes/issues/17088#issuecomment-394313647
+  # type: ExternalName
+  # externalName: elasticsearch-hq-svc.elasticsearch-hq.svc.cluster.local
+  ports:
+  - port: 80
+    targetPort: 5000
+    protocol: TCP
+    name: http
+  selector:
+    # app: elasticsearch-hq
+    run: nginx

@@ -1,0 +1,34 @@
+# ---------------------------------------------------------------------
+# FILE: elasticsearch.yml
+# ---------------------------------------------------------------------
+
+cluster.name: kubernetes-logging
+
+node.name: ${NODE_NAME}
+node.master: ${NODE_MASTER}
+node.data: ${NODE_DATA}
+
+transport.tcp.port: ${TRANSPORT_PORT}
+http.port: ${HTTP_PORT}
+
+path.data: /data
+
+network.host: 0.0.0.0
+
+discovery.zen.minimum_master_nodes: ${MINIMUM_MASTER_NODES}
+
+xpack.security.enabled: false
+xpack.monitoring.enabled: false
+# ---------------------------------------------------------------------
+
+# It is vitally important to the health of your node that none of the JVM is ever swapped out to disk. One way of achieving that is set the bootstrap.memory_lock setting to true.
+
+# For this setting to have effect, other system settings need to be configured first. See Enable bootstrap.memory_lock for more details about how to set up memory locking correctly.
+
+# bootstrap.memory_lock: true
+
+bootstrap.memory_lock: ${MEMORY_LOCK}
+
+# https://github.com/mobz/elasticsearch-head#running-with-built-in-server
+http.cors.enabled: true
+http.cors.allow-origin: "*"

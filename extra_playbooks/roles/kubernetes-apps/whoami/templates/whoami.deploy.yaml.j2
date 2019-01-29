@@ -1,0 +1,32 @@
+# https://medium.com/@awkwardferny/getting-started-with-kubernetes-ingress-nginx-on-minikube-d75e58f52b6c
+
+# USAGE: kubectl apply -f whoami.deploy.yaml
+# kubectl get deploy
+# kubectl get pods
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: whoami
+  # namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: whoami
+  template:
+    metadata:
+      labels:
+        app: whoami
+    spec:
+      containers:
+      - name: whoami
+        image: containous/whoami
+        resources:
+          limits:
+            memory: 55Mi
+            cpu: 100m
+          requests:
+            cpu: 100m
+            memory: 20Mi
+        ports:
+        - containerPort: 80

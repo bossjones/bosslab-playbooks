@@ -1,0 +1,50 @@
+# Copyright 2016 The Kubernetes Authors All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: default-http-backend
+  namespace: kube-system
+  labels:
+    # k8s-app: default-http-backend
+    # kubernetes.io/cluster-service: "true"
+    app.kubernetes.io/name: default-http-backend
+    app.kubernetes.io/part-of: kube-system
+    # app.kubernetes.io/part-of: nginx-ingress
+    # kubernetes.io/minikube-addons: ingress
+    # kubernetes.io/minikube-addons-endpoint: ingress
+    # addonmanager.kubernetes.io/mode: Reconcile
+    addonmanager.kubernetes.io/mode: Reconcile
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    # protocol: TCP
+    targetPort: 8080
+    # nodePort: The Service created in the last section already used NodePort, so your nginx HTTPS replica is ready to serve traffic on the internet if your node has a public IP.
+    # curl https://<WORKER-NODE-IP>:<NODE-PORT> -k
+    nodePort: 30001
+    # - name: http
+    #   port: 80
+    #   targetPort: 80
+    #   protocol: TCP
+    # - name: https
+    #   port: 443
+    #   targetPort: 443
+    #   protocol: TCP
+  selector:
+    app.kubernetes.io/name: default-http-backend
+    # app.kubernetes.io/part-of: nginx-ingress
+    # k8s-app: default-http-backend

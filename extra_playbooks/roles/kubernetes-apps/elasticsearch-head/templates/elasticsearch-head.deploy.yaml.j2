@@ -1,0 +1,49 @@
+# https://medium.com/@awkwardferny/getting-started-with-kubernetes-ingress-nginx-on-minikube-d75e58f52b6c
+
+# USAGE: kubectl apply -f elasticsearch-head.deploy.yaml
+# kubectl get deploy
+# kubectl get pods
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: elasticsearch-head
+  # namespace: elasticsearch-head
+  namespace: kube-system
+  labels:
+    run: nginx
+    k8s-app: elasticsearch-head
+    version: v5.6.2
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: efk
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      # app: elasticsearch-head
+      run: nginx
+      k8s-app: elasticsearch-head
+      version: v5.6.2
+  template:
+    metadata:
+      labels:
+        # app: elasticsearch-head
+        run: nginx
+        k8s-app: elasticsearch-head
+        version: v5.6.2
+        kubernetes.io/cluster-service: "true"
+        addonmanager.kubernetes.io/mode: Reconcile
+        boss-part-of: efk
+    spec:
+      containers:
+      - name: elasticsearch-head
+        image: mobz/elasticsearch-head:5
+        resources:
+          limits:
+            memory: 55Mi
+            cpu: 100m
+          requests:
+            cpu: 100m
+            memory: 20Mi
+        ports:
+        - containerPort: 9100

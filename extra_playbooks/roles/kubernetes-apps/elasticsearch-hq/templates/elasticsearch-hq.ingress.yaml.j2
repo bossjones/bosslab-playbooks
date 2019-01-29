@@ -1,0 +1,41 @@
+# https://medium.com/@awkwardferny/getting-started-with-kubernetes-ingress-nginx-on-minikube-d75e58f52b6c
+
+# USAGE: kubectl apply -f elasticsearch-hq.svc.yaml
+# wait a min for the service to be created
+# kubectl get svc
+
+# wait a min for the ingress resource to be created
+# $ kubectl get ing
+# NAME           HOSTS     ADDRESS     PORTS
+# meow-ingress   *         10.0.2.15   80
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: elasticsearch-hq-ingress
+  # namespace: elasticsearch-hq
+  namespace: kube-system
+  annotations:
+    # Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
+    # https://github.com/kubernetes/ingress-nginx/issues/1567
+    nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+    # NOTE: you need this when the value of path below is more than just '/'
+    # nginx.ingress.kubernetes.io/rewrite-target: /
+    # kubernetes.io/ingress.class: \"nginx\"
+  labels:
+    run: nginx
+    k8s-app: elasticsearch-hq
+    version: release-v3.5.0
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: efk
+spec:
+  rules:
+  - host: elasticsearch-hq.hyenaclan.org
+    http:
+      paths:
+      # - path: /elasticsearch-hq
+      - path: /
+        backend:
+          serviceName: elasticsearch-hq-svc
+          servicePort: 80

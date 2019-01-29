@@ -1,0 +1,46 @@
+# https://medium.com/@awkwardferny/getting-started-with-kubernetes-ingress-nginx-on-minikube-d75e58f52b6c
+
+# https://kubernetes.io/docs/concepts/services-networking/ingress/
+# https://kubernetes.io/docs/reference/federation/extensions/v1beta1/definitions/
+# https://medium.com/@cashisclay/kubernetes-ingress-82aa960f658e
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: grafana-ingress
+  namespace: monitoring
+  annotations:
+    # Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
+    # https://github.com/kubernetes/ingress-nginx/issues/1567
+    # SOURCE: https://github.com/nginxinc/kubernetes-ingress/tree/master/examples/multiple-ingress-controllers
+    # NOTE: To designate that a particular Ingress resource must be handled only by the NGINX or NGINX Plus controller add the following annotation along with the value to the Ingress resource:
+
+    # to designate that a particular Ingress resource must be handled only by the NGINX or NGINX Plus controller add the following annotation along with the value to the Ingress resource
+    # kubernetes.io/ingress.class: "nginx"
+    # kubernetes.io/tls-acme: "false"
+    # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-body-size: \"0\"
+    # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-read-timeout: \"600\"
+    # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-send-timeout: \"600\"
+    # INFO: Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
+    # https://github.com/kubernetes/ingress-nginx/issues/1567
+    nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+    # INFO: Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
+    # SOURCE: https://medium.com/@Oskarr3/setting-up-ingress-on-minikube-6ae825e98f82
+    # nginx.ingress.kubernetes.io/rewrite-target: /
+  labels:
+    run: nginx
+    app: grafana
+spec:
+  # IMPORTANT
+  # SOURCE: https://medium.com/@Oskarr3/setting-up-ingress-on-minikube-6ae825e98f82
+  # backend:
+  #     serviceName: default-http-backend
+  #     servicePort: 80
+  rules:
+  - host: grafana.hyenaclan.org
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: grafana
+          servicePort: 3000

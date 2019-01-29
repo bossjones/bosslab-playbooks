@@ -1,0 +1,25 @@
+---
+
+- name: Manage log rotation configuration
+  hosts:
+  - 'servers'
+
+  become: True
+
+  environment: '{{ inventory__environment | d({})
+                   | combine(inventory__group_environment | d({}))
+                   | combine(inventory__host_environment  | d({})) }}'
+
+  roles:
+
+    - role: ansible-logrotate
+      tags:
+       - ansible-logrotate
+      # # defaults file for ansible-logrotate
+      # # Defines if you want your log files compressed
+      # logrotate_compress: false
+
+      # # packages drop log rotation information into this directory
+      # logrotate_conf_dir: '/etc/logrotate.d/'
+
+      # logrotate_config: true

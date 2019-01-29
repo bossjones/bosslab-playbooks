@@ -1,0 +1,28 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: istio-ingress
+  namespace: istio-system
+spec:
+  rules:
+  - host: grafana.istio.jimmysong.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: grafana
+          servicePort: 3000
+  - host: servicegraph.istio.jimmysong.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: servicegraph
+          servicePort: 8088
+  - host: prometheus.istio.jimmysong.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: prometheus
+          servicePort: 9090

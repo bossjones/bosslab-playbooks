@@ -1,0 +1,125 @@
+---
+# SOURCE: https://github.com/kubernetes-retired/heapster/issues/1936
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: heapster-custom-fix
+  namespace: kube-system
+  labels:
+    k8s-app: heapster
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: heapster
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - nodes
+  - namespaces
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - extensions
+  resources:
+  - deployments
+  verbs:
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - nodes/stats
+  verbs:
+  - get
+  - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: heapster-custom-fix
+  labels:
+    k8s-app: heapster
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: heapster
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: heapster-custom-fix
+subjects:
+- kind: ServiceAccount
+  name: heapster-custom-fix
+  namespace: kube-system
+
+# THIS SECTION COMES FROM SOMEWHERE ELSE:
+# SOURCE: https://github.com/kubernetes/kubernetes/blob/master/cluster/addons/cluster-monitoring/heapster-rbac.yaml
+# NOTE: https://github.com/kubernetes-retired/heapster/issues/1595
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: heapster-binding
+  labels:
+    k8s-app: heapster
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: heapster
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:heapster
+subjects:
+- kind: ServiceAccount
+  name: heapster
+  namespace: kube-system
+---
+# Heapster's pod_nanny monitors the heapster deployment & its pod(s), and scales
+# the resources of the deployment if necessary.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: system:pod-nanny
+  namespace: kube-system
+  labels:
+    k8s-app: heapster
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: heapster
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+- apiGroups:
+  - "extensions"
+  resources:
+  - deployments
+  verbs:
+  - get
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: heapster-binding
+  namespace: kube-system
+  labels:
+    k8s-app: heapster
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: heapster
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: system:pod-nanny
+subjects:
+- kind: ServiceAccount
+  name: heapster
+  namespace: kube-system

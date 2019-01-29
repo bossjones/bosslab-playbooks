@@ -1,0 +1,431 @@
+# generated via: helm get manifest heapster
+# NOTE: Created via a mixture of manually and with the aid of 'helm get manifest'
+# E0105 00:41:05.012572       1 manager.go:101] Error in scraping containers from kubelet_summary:192.168.205.10:10250: request failed - "403 Forbidden", response: "Forbidden (user=system:serviceaccount:kube-system:heapster, verb=get, resource=nodes, subresource=stats)"
+# E0105 00:41:05.016361       1 manager.go:101] Error in scraping containers from kubelet_summary:192.168.205.11:10250: request failed - "403 Forbidden", response: "Forbidden (user=system:serviceaccount:kube-system:heapster, verb=get, resource=nodes, subresource=stats)"
+# E0105 00:41:05.077137       1 manager.go:101] Error in scraping containers from kubelet_summary:192.168.205.12:10250: request failed - "403 Forbidden", response: "Forbidden (user=system:serviceaccount:kube-system:heapster, verb=get, resource=nodes, subresource=stats)"
+# W0105 00:41:25.061941       1 manager.go:152] Failed to get all responses in time (got 0/3)
+# E0105 00:42:05.081610       1 manager.go:101] Error in scraping containers from kubelet_summary:192.168.205.12:10250: request failed - "403 Forbidden", response: "Forbidden (user=system:serviceaccount:kube-system:heapster, verb=get, resource=nodes, subresource=stats)"
+# E0105 00:42:05.082859       1 manager.go:101] Error in scraping containers from kubelet_summary:192.168.205.10:10250: request failed - "403 Forbidden", response: "Forbidden (user=system:serviceaccount:kube-system:heapster, verb=get, resource=nodes, subresource=stats)"
+# E0105 00:42:05.084330       1 manager.go:101] Error in scraping containers from kubelet_summary:192.168.205.11:10250: request failed - "403 Forbidden", response: "Forbidden (user=system:serviceaccount:kube-system:heapster, verb=get, resource=nodes, subresource=stats)"
+# W0105 00:42:25.096540       1 manager.go:152] Failed to get all responses in time (got 0/3)
+##################################################################
+# kubectl get clusterroles system:heapster -o yaml
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRole
+# metadata:
+#   name: system:heapster
+# rules:
+# - apiGroups:
+#   - ""
+#   resources:
+#   - events
+#   - namespaces
+#   - nodes
+#   - pods
+#   verbs:
+#   - get
+#   - list
+#   - watch
+# - apiGroups:
+#   - extensions
+#   resources:
+#   - deployments
+#   verbs:
+#   - get
+#   - list
+#   - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: heapster
+  namespace: kube-system
+  labels:
+    k8s-app: heapster
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: heapster
+rules:
+- apiGroups:
+  - ""
+  resources:
+  # -
+  - '*'
+  verbs:
+  # - get
+  # - list
+  # - watch
+  - '*'
+- apiGroups:
+  - "extensions"
+  - "apps"
+  resources:
+  - deployments
+  verbs:
+  - get
+  - list
+  - watch
+# - apiGroups:
+#   - ""
+#   resources:
+#   - events
+#   - nodes
+#   - nodes/stats
+#   - nodes/status
+#   - pods
+#   - pods/status
+#   verbs:
+#   # FIXME: can't figure it out for the moment, going for wildcard till then
+#   # - get
+#   - '*'
+# - apiGroups:
+#   - extensions
+#   - apps
+#   resources:
+#   - deployments
+#   verbs:
+#   - get
+#   - list
+#   - watch
+#   - update
+#   - patch
+# # "" indicates the core API group
+# - apiGroups:
+#   - ""
+#   resources:
+#   - events
+#   - namespaces
+#   - nodes
+#   - pods
+#   - deployments
+#   verbs:
+#   - get
+#   - list
+#   - update
+#   - watch
+# NOTE: DISABLED
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1beta1
+# kind: ClusterRoleBinding
+# metadata:
+#   name: heapster
+# roleRef:
+#   apiGroup: rbac.authorization.k8s.io
+#   kind: ClusterRole
+#   name: heapster
+# subjects:
+# - kind: ServiceAccount
+#   name: heapster
+#   namespace: kube-system
+---
+# Source: heapster/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: heapster
+  namespace: kube-system
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+    app: heapster
+    boss-part-of: heapster
+    chart: heapster-0.3.2
+    heritage: Tiller
+    k8s-app: heapster
+    kubernetes.io/cluster-service: "true"
+    release: heapsters
+---
+# SOURCE: https://github.com/kubernetes/kubernetes/blob/v1.13.1/cluster/addons/cluster-monitoring/influxdb/heapster-controller.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: heapster-config
+  namespace: kube-system
+  labels:
+    k8s-app: heapster
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: EnsureExists
+    boss-part-of: heapster
+data:
+  NannyConfiguration: |-
+    apiVersion: nannyconfig/v1alpha1
+    kind: NannyConfiguration
+---
+# SOURCE: https://github.com/kubernetes/kubernetes/blob/v1.13.1/cluster/addons/cluster-monitoring/influxdb/heapster-controller.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eventer-config
+  namespace: kube-system
+  # labels:
+  #   kubernetes.io/cluster-service: "true"
+  #   addonmanager.kubernetes.io/mode: Reconcile
+  labels:
+    k8s-app: heapster
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: EnsureExists
+    boss-part-of: heapster
+data:
+  NannyConfiguration: |-
+    apiVersion: nannyconfig/v1alpha1
+    kind: NannyConfiguration
+---
+# FIXME: kubectl create serviceaccount heapster --namespace=kube-system
+# FIXME: kubectl create clusterrolebinding heapster-role --clusterrole=system:heapster --serviceaccount=kube-system:heapster --namespace=heapster
+# Source: heapster/templates/heapster-crb.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: heapster
+  namespace: kube-system
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+    app: heapster
+    boss-part-of: heapster
+    chart: heapster-0.3.2
+    heritage: Tiller
+    k8s-app: heapster
+    kubernetes.io/cluster-service: "true"
+    release: heapsters
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:heapster
+subjects:
+  - kind: ServiceAccount
+    name: heapster
+    namespace: kube-system
+---
+# Source: heapster/templates/pod-nanny-role.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: heapster-pod-nanny
+  namespace: kube-system
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+    app: heapster
+    boss-part-of: heapster
+    chart: heapster-0.3.2
+    heritage: Tiller
+    k8s-app: heapster
+    kubernetes.io/cluster-service: "true"
+    release: heapsters
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - pods/stats
+  - nodes
+  - nodes/stats
+  - namespaces
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+- apiGroups:
+  - "extensions"
+  - "apps"
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+---
+# Source: heapster/templates/pod-nanny-rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name: heapster-pod-nanny
+  namespace: kube-system
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+    app: heapster
+    boss-part-of: heapster
+    chart: heapster-0.3.2
+    heritage: Tiller
+    k8s-app: heapster
+    kubernetes.io/cluster-service: "true"
+    release: heapsters
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: heapster-pod-nanny
+subjects:
+- kind: ServiceAccount
+  name: heapster
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: heapster
+  namespace: kube-system
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+    app: heapster
+    boss-part-of: heapster
+    chart: heapster-0.3.2
+    heritage: Tiller
+    k8s-app: heapster
+    kubernetes.io/cluster-service: "true"
+    release: heapsters
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: heapster-pod-nanny
+subjects:
+- kind: ServiceAccount
+  name: heapster
+  namespace: kube-system
+---
+# Source: heapster/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: heapster
+  namespace: kube-system
+  labels:
+    kubernetes.io/name: Heapster
+    addonmanager.kubernetes.io/mode: Reconcile
+    app: heapster
+    boss-part-of: heapster
+    chart: heapster-0.3.2
+    heritage: Tiller
+    k8s-app: heapster
+    kubernetes.io/cluster-service: "true"
+    release: heapsters
+spec:
+  type: ClusterIP
+  ports:
+  # - port: 80
+  - port: 8082
+    targetPort: 8082
+    protocol: TCP
+  selector:
+    app: heapster
+---
+# SOURCE: https://github.com/kubernetes/kubernetes/blob/v1.13.1/cluster/addons/cluster-monitoring/influxdb/heapster-controller.yaml
+# Source: heapster/templates/deployment.yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: heapster
+  namespace: kube-system
+  # annotations:
+  #   {}
+  annotations:
+      seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+    app: heapster
+    boss-part-of: heapster
+    chart: "heapster-0.3.2"
+    heritage: Tiller
+    k8s-app: heapster
+    kubernetes.io/cluster-service: "true"
+    kubernetes.io/name: Heapster
+    release: heapsters
+    version: v1.5.4
+spec:
+  replicas: 1
+  template:
+    metadata:
+      # annotations:
+      #   {}
+      annotations:
+        # scheduler.alpha.kubernetes.io/critical-pod: ''
+        seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
+      labels:
+        addonmanager.kubernetes.io/mode: Reconcile
+        app: heapster
+        boss-part-of: heapster
+        chart: "heapster-0.3.2"
+        heritage: Tiller
+        k8s-app: heapster
+        kubernetes.io/cluster-service: "true"
+        kubernetes.io/name: Heapster
+        release: heapsters
+        version: v1.5.4
+    spec:
+      serviceAccountName: heapster
+      # securityContext:
+      #   supplementalGroups: [ 65534 ]
+      #   fsGroup: 65534
+      containers:
+      - name: heapster
+        # DISABLED: 1/5/2018 # image: "k8s.gcr.io/heapster:v1.5.2"
+        image: "k8s.gcr.io/heapster-amd64:v1.5.4"
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          # runAsNonRoot: true
+          # runAsUser: 65534
+          privileged: true
+        ports:
+        - containerPort: 8082
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8082
+          initialDelaySeconds: 180
+          timeoutSeconds: 5
+        resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+
+        command:
+          - "/heapster"
+          # - "--source=kubernetes.summary_api:''"
+          # - "--source=kubernetes.summary_api:https://kubernetes.default:443?useServiceAccount=true&kubeletHttps=true&kubeletPort=10250&insecure=true"
+          - "--source=kubernetes.summary_api:''?useServiceAccount=true&kubeletHttps=true&kubeletPort=10250&insecure=true"
+          # - "--sink=log"
+          # - "--vmodule=*=2"
+          # - "--api-server"
+          # - "--sink=influxdb:http://monitoring-influxdb.kube-system.svc:8086"
+
+      - name: heapster-nanny
+
+        image: "k8s.gcr.io/addon-resizer:1.7"
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          # runAsNonRoot: true
+          # runAsUser: 65534
+          privileged: true
+        resources:
+            limits:
+              cpu: 50m
+              memory: 90Mi
+            requests:
+              cpu: 50m
+              memory: 90Mi
+
+        env:
+          - name: MY_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: MY_POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+        command:
+          - "/pod_nanny"
+          - "--deployment=heapster"
+          - "--container=heapster"
+          - "--cpu=150m"
+          - "--extra-cpu=10m"
+          - "--memory=200Mi"
+          - "--extra-memory=6Mi"
+          - "--threshold=5"
+          - "--poll-period=300000"
