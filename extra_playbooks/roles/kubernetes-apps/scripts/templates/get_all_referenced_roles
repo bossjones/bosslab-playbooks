@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+## @author Copyright (C) 2016 Robin Schneider <ypid@riseup.net>
+## @license GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.html>
+
+
+# Autodetect the OS
+detect_OS() {
+  if [ "$(uname)" == "Darwin" ]; then  # macOS
+    echo 'Looks like a macOS'
+    # readlink_cmd="greadlink"
+    # dirname_cmd="gdirname"
+    # gawk_cmd="awk"
+    grep_cmd="ggrep"
+    egrep_cmd="gegrep"
+    sed_cmd="gsed"
+    find_cmd="gfind"
+  elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then  # Linux
+    echo 'Looks like linux'
+    # readlink_cmd="readlink"
+    # dirname_cmd="dirname"
+    # gawk_cmd="gawk"
+	grep_cmd="grep"
+    egrep_cmd="egrep"
+    sed_cmd="sed"
+    find_cmd="find"
+  elif [ "$(expr substr $OS 1 3)" == "Win" ]; then  # Windows
+    echo 'Looks like windows - hope you have git bash or cygwin otherwise this wont work!'
+    # readlink_cmd="readlink"
+    # dirname_cmd="dirname"
+    # gawk_cmd="gawk"
+	grep_cmd="grep"
+    egrep_cmd="egrep"
+    sed_cmd="sed"
+    find_cmd="find"
+  fi
+}
+
+detect_OS
+
+## Go into the directory where this script is stored.
+cd "$( dirname "${BASH_SOURCE[0]}" )" || exit
+
+## Get all files, independently what the current subdirectory is.
+cd "$(git rev-parse --show-toplevel)" || exit
+(
+	git ls-files -z | xargs --null -I '{}' $find_cmd '{}' -type f -name '*.yml' -print0 | xargs --null $egrep_cmd --no-filename -e '^\s{4}-\s?role:\s?[^/]+$$' | $sed_cmd --regexp-extended 's/.*?:\s+//'
+	test -r galaxy/requirements-manual.txt && $grep_cmd --invert-match '^\s*#' galaxy/requirements-manual.txt
+) | sort -u

@@ -34,12 +34,31 @@ kube_apps_array=(calico calico-ui cert-manager cfs-go cheeses contrib dashboard 
 # done
 
 
+
 for i in "${kube_apps_array[@]}"; do
     echo "This is: $i"
     gfind ~/dev/bossjones/bosslab-playbooks/extra_playbooks/roles/kubernetes-apps/${i}/templates/ -type f -iname "*.yml" -print0 | xargs -0 /usr/local/bin/rename -s yml yml.j2 {}
 
     gfind ~/dev/bossjones/bosslab-playbooks/extra_playbooks/roles/kubernetes-apps/${i}/templates/ -type f -iname "*.yaml" -print0 | xargs -0 /usr/local/bin/rename -s yaml yaml.j2 {}
 
+    gfind ~/dev/bossjones/bosslab-playbooks/extra_playbooks/roles/kubernetes-apps/${i}/templates/ -type f -iname "*.json" -print0 | xargs -0 /usr/local/bin/rename -s json json.j2 {}
+
+    gfind ~/dev/bossjones/bosslab-playbooks/extra_playbooks/roles/kubernetes-apps/${i}/templates/ -type f -iname "*.sh$" -print0 | xargs -0 /usr/local/bin/rename -s sh sh.j2 {}
+
+
+    gfind ~/dev/bossjones/bosslab-playbooks/extra_playbooks/roles/kubernetes-apps/${i}/templates/ -type f -iname "Dockerfile" -print0 | xargs -0 /usr/local/bin/rename -s Dockerfile Dockerfile.j2 {}
+
+
+    gfind ~/dev/bossjones/bosslab-playbooks/extra_playbooks/roles/kubernetes-apps/${i}/templates/ -type f -iname "Makefile" -print0 | xargs -0 /usr/local/bin/rename -s Makefile Makefile.j2 {}
+
+
+    gfind ~/dev/bossjones/bosslab-playbooks/extra_playbooks/roles/kubernetes-apps/${i}/templates/ -type f -iname "Gemfile" -print0 | xargs -0 /usr/local/bin/rename -s Gemfile Gemfile.j2 {}
+
+    gfind ~/dev/bossjones/bosslab-playbooks/extra_playbooks/roles/kubernetes-apps/${i}/templates/ -type f -iname "jvm.opts" -print0 | xargs -0 /usr/local/bin/rename -s jvm.opts jvm.opts.j2 {}
+
+    gfind ~/dev/bossjones/bosslab-playbooks/extra_playbooks/roles/kubernetes-apps/${i}/templates/ -type f -iname "*.gpg" -print0 | xargs -0 /usr/local/bin/rename -s gpg gpg.j2 {}
+
     tree ~/dev/bossjones/bosslab-playbooks/extra_playbooks/roles/kubernetes-apps/${i}/templates/
 done
+
 ```
