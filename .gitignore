@@ -178,7 +178,7 @@ vault_password
 vagrant-admin.conf
 dump/
 dump_json_exports
-tls.crt
-tls.key
+tls.crt*
+tls.key*
 borg-admin.conf
 playbooks/.ansible-logs/
