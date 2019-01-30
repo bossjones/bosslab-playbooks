@@ -1,5 +1,6 @@
 ---
-- hosts: local
+- hosts: localhost
+  connection: local
   name: gather facts on kubernetes cluster
   gather_facts: True
   # become: yes
