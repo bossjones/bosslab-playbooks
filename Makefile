@@ -660,3 +660,7 @@ show_venv_activate_cmd: ## ** Show activate command when finished
 # Pyenv initilization - 12/23/2018 -- END
 # SOURCE: https://github.com/MacHu-GWU/learn_datasette-project/blob/120b45363aa63bdffe2f1933cf2d4e20bb6cbdb8/make/python_env.mk
 ###########################################################
+
+borg-inventory-ini-to-yaml:
+	scripts/ini2yaml <${PROJECT_ROOT_DIR}/contrib/inventory_builder/inventory/borg/inventory.ini >${PROJECT_ROOT_DIR}/contrib/inventory_builder/cluster_configs/borg.yaml
+	cat ${PROJECT_ROOT_DIR}/contrib/inventory_builder/cluster_configs/borg.yaml
