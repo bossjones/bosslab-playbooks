@@ -13,19 +13,19 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: echoserver-ingress
-  namespace: "{{boss__echoserver__namespace_name}}"
-  annotations: "{{boss__echoserver__ingress_annotations}}"
+  namespace: "echoserver"
+  annotations: "{u'nginx.ingress.kubernetes.io/ssl-redirect': u'\\"false\\"'}"
     # # Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
     # # https://github.com/kubernetes/ingress-nginx/issues/1567
     # nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
     # # NOTE: you need this when the value of path below is more than just '/'
     # # nginx.ingress.kubernetes.io/rewrite-target: /
     # # kubernetes.io/ingress.class: \"nginx\"
-  labels: "{{boss__echoserver__ingress_labels}}"
+  labels: "{u'run': u'nginx'}"
     # run: nginx
 spec:
   rules:
-  - host: "{{boss__echoserver__echoserver_subdomain}}.{{ domain_root }}"
+  - host: "echoserver.hyenaclan.org"
     http:
       paths:
       # - path: /echoserver

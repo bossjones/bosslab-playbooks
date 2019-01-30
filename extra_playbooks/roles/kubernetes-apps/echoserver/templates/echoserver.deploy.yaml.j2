@@ -7,30 +7,30 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: echoserver
-  namespace: echoserver
-  labels:
-    run: nginx
+  namespace: "{{boss__echoserver__namespace_name}}"
+  labels: "{{boss__echoserver__deployment_labels}}"
+    # run: nginx
 spec:
-  replicas: 2
+  replicas: {{boss__echoserver__deployment_spec_replicas}}
   selector:
     matchLabels:
       # app: echoserver
       run: nginx
   template:
     metadata:
-      labels:
+      labels: "{{boss__echoserver__deployment_spec_template_metadata_labels}}"
         # app: echoserver
-        run: nginx
+        # run: nginx
     spec:
       containers:
       - name: echoserver
-        image: gcr.io/kubernetes-e2e-test-images/echoserver:2.1
+        image: "{{ boss__echoserver__echoserver_image_repo }}:{{ boss__echoserver__echoserver_image_tag }}"
         resources:
           limits:
-            memory: 55Mi
-            cpu: 100m
+            memory: "{{boss__echoserver__echoserver_mem_limit}}"
+            cpu: "{{boss__echoserver__echoserver_cpu_limit}}"
           requests:
-            cpu: 100m
-            memory: 20Mi
+            cpu: "{{boss__echoserver__echoserver_cpu_requests}}"
+            memory: "{{boss__echoserver__echoserver_mem_requests}}"
         ports:
         - containerPort: 8080

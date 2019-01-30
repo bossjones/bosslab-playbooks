@@ -7,8 +7,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: echoserver-svc
-  namespace: "{{boss__echoserver__namespace_name}}"
-  labels: "{{boss__echoserver__service_labels}}"
+  namespace: "echoserver"
+  labels: "{u'run': u'nginx'}"
     # run: nginx
 spec:
   # In a production setup, we recommend accessing Grafana through an external Loadbalancer
@@ -30,6 +30,6 @@ spec:
     targetPort: 8080
     protocol: TCP
     name: http
-  selector: "{{boss__echoserver__service__spec_selector}}"
+  selector: "{u'run': u'nginx'}"
     # app: echoserver
     # run: nginx
