@@ -116,6 +116,11 @@ raw:
 	$(call check_defined, command, Please set command)
 	@ansible localhost -i inventory-$(product)/ ${PROXY_COMMAND} -m raw -a "$(command)" -f 10
 
+get-ansible-modules:
+	ansible-doc --list | peco
+
+list-ansible-modules: get-ansible-modules
+
 # Compile python modules against homebrew openssl. The homebrew version provides a modern alternative to the one that comes packaged with OS X by default.
 # OS X's older openssl version will fail against certain python modules, namely "cryptography"
 # Taken from this git issue pyca/cryptography#2692
