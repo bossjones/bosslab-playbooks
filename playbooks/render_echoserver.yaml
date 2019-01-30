@@ -24,7 +24,7 @@
 
 - hosts: localhost
   # connection: local
-  gather_facts: True
+  # gather_facts: True
   vars_prompt:
     - name: "cluster"
       prompt: "Name cluster, will be used to locate manifest config variables"

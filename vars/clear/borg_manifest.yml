@@ -23,6 +23,23 @@ boss__echoserver__echoserver_cpu_requests: 100m
 boss__echoserver__echoserver_mem_requests: 20Mi
 
 #################################################################
+
+boss__echoserver__deployment_annotations_list:
+  - name: nginx.ingress.kubernetes.io/ssl-redirect
+    val: \"false\"
+# The chomping method used is a presentation detail and must not be used to convey content information.
+# ************************************************************************************
+# These IPs are for all Adobe-owned IP blocks that can access customer ELBs
+# https://stackoverflow.com/questions/45505587/jinja-iterate-list-to-create-array-of-yaml-elements
+# NOTE: Important, no spaces between ':'s
+# boss__echoserver__deployment_annotations: >
+#                                     [ {% for l in boss__echoserver__deployment_annotations_list %}
+#                                       {
+#                                         '{{ l["name"] }}':'{{ l["val"] }}'
+#                                       }
+#                                       {% if not loop.last %},{% endif %}
+#                                       {% endfor %}
+#                                     ]
 boss__echoserver__deployment_annotations:
   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
 

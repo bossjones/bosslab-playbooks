@@ -7,9 +7,13 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: echoserver
-  namespace: "{{boss__echoserver__namespace_name}}"
-  labels: "{{boss__echoserver__deployment_labels}}"
+  namespace: {{boss__echoserver__namespace_name}}
+  # to_nice_yaml(indent=8)
+{%   if boss__echoserver__deployment_labels is defined %}
+  labels:
+    {{ boss__echoserver__deployment_labels | to_nice_yaml(indent=2) }}
     # run: nginx
+{%   endif %}
 spec:
   replicas: {{boss__echoserver__deployment_spec_replicas}}
   selector:
@@ -18,19 +22,22 @@ spec:
       run: nginx
   template:
     metadata:
-      labels: "{{boss__echoserver__deployment_spec_template_metadata_labels}}"
+{%   if boss__echoserver__deployment_spec_template_metadata_labels is defined %}
+      labels:
+        {{ boss__echoserver__deployment_spec_template_metadata_labels | to_nice_yaml }}
         # app: echoserver
         # run: nginx
+{%   endif %}
     spec:
       containers:
       - name: echoserver
-        image: "{{ boss__echoserver__echoserver_image_repo }}:{{ boss__echoserver__echoserver_image_tag }}"
+        image: {{ boss__echoserver__echoserver_image_repo }}:{{ boss__echoserver__echoserver_image_tag }}
         resources:
           limits:
-            memory: "{{boss__echoserver__echoserver_mem_limit}}"
-            cpu: "{{boss__echoserver__echoserver_cpu_limit}}"
+            memory: {{boss__echoserver__echoserver_mem_limit}}
+            cpu: {{boss__echoserver__echoserver_cpu_limit}}
           requests:
-            cpu: "{{boss__echoserver__echoserver_cpu_requests}}"
-            memory: "{{boss__echoserver__echoserver_mem_requests}}"
+            cpu: {{boss__echoserver__echoserver_cpu_requests}}
+            memory: {{boss__echoserver__echoserver_mem_requests}}
         ports:
         - containerPort: 8080

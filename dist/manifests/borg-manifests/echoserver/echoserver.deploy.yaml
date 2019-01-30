@@ -7,8 +7,11 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: echoserver
-  namespace: "echoserver"
-  labels: "{u'run': u'nginx'}"
+  namespace: echoserver
+  # to_nice_yaml(indent=8)
+  labels:
+    run: nginx
+
     # run: nginx
 spec:
   replicas: 2
@@ -18,19 +21,21 @@ spec:
       run: nginx
   template:
     metadata:
-      labels: "{u'run': u'nginx'}"
+      labels:
+        run: nginx
+
         # app: echoserver
         # run: nginx
     spec:
       containers:
       - name: echoserver
-        image: "gcr.io/kubernetes-e2e-test-images/echoserver:2.1"
+        image: gcr.io/kubernetes-e2e-test-images/echoserver:2.1
         resources:
           limits:
-            memory: "55Mi"
-            cpu: "100m"
+            memory: 55Mi
+            cpu: 100m
           requests:
-            cpu: "100m"
-            memory: "20Mi"
+            cpu: 100m
+            memory: 20Mi
         ports:
         - containerPort: 8080

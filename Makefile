@@ -73,7 +73,7 @@ mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 current_dir := $(notdir $(patsubst %/,%,$(dir $(mkfile_path))))
 MAKE := make
 
-list_allowed_args := product ip command role tier
+list_allowed_args := product ip command role tier cluster
 
 default: all
 
@@ -676,3 +676,7 @@ run-ansible-module-kube-facts-pdb:
 
 run-ansible-module-kube-facts:
 	python ./library/kube_facts.py ./test-kube-facts-args.json | jq
+
+render-manifest:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_echoserver.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
