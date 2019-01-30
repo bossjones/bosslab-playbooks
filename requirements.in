@@ -31,4 +31,3 @@ requests
 yamlreader
 subprocess32
 openshift
-ini2yaml

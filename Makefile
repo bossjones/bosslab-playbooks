@@ -182,21 +182,21 @@ endif
 
 .PHONY: pip-compile-upgrade-all
 pip-compile-upgrade-all: pip-tools
-	pip-compile --output-file requirements.txt requirements.in --upgrade --pre
-	pip-compile --output-file requirements-dev.txt requirements-dev.in --upgrade --pre
-	pip-compile --output-file requirements-test.txt requirements-test.in --upgrade --pre
+	pip-compile --output-file requirements.txt requirements.in --upgrade
+	pip-compile --output-file requirements-dev.txt requirements-dev.in --upgrade
+	pip-compile --output-file requirements-test.txt requirements-test.in --upgrade
 
 .PHONY: pip-compile
 pip-compile: pip-tools
-	pip-compile --output-file requirements.txt requirements.in --pre
-	pip-compile --output-file requirements-dev.txt requirements-dev.in --pre
-	pip-compile --output-file requirements-test.txt requirements-test.in --pre
+	pip-compile --output-file requirements.txt requirements.in
+	pip-compile --output-file requirements-dev.txt requirements-dev.in
+	pip-compile --output-file requirements-test.txt requirements-test.in
 
 .PHONY: pip-compile-rebuild
 pip-compile-rebuild: pip-tools
-	pip-compile --rebuild --output-file requirements.txt requirements.in --pre
-	pip-compile --rebuild --output-file requirements-dev.txt requirements-dev.in  --pre
-	pip-compile --rebuild --output-file requirements-test.txt requirements-test.in  --pre
+	pip-compile --rebuild --output-file requirements.txt requirements.in
+	pip-compile --rebuild --output-file requirements-dev.txt requirements-dev.in
+	pip-compile --rebuild --output-file requirements-test.txt requirements-test.in
 
 .PHONY: install-deps-all
 install-deps-all:
@@ -662,5 +662,5 @@ show_venv_activate_cmd: ## ** Show activate command when finished
 ###########################################################
 
 borg-inventory-ini-to-yaml:
-	scripts/ini2yaml <${PROJECT_ROOT_DIR}/contrib/inventory_builder/inventory/borg/inventory.ini >${PROJECT_ROOT_DIR}/contrib/inventory_builder/cluster_configs/borg.yaml
-	cat ${PROJECT_ROOT_DIR}/contrib/inventory_builder/cluster_configs/borg.yaml
+	@scripts/ini2yaml <${PROJECT_ROOT_DIR}/contrib/inventory_builder/inventory/borg/inventory.ini >${PROJECT_ROOT_DIR}/contrib/inventory_builder/cluster_configs/borg.yaml
+	@cat ${PROJECT_ROOT_DIR}/contrib/inventory_builder/cluster_configs/borg.yaml | highlight

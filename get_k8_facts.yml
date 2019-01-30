@@ -1,0 +1,16 @@
+---
+- hosts: servers
+  gather_facts: yes
+  become: yes
+  become_method: sudo
+  # serial: True
+  pre_tasks:
+  - name: ping all machines
+    ping:
+
+- name: Search for all running pods
+  kube_facts:
+    kind: Pod
+    field_selectors:
+      - status.phase = running
+  kubeconfig: ~/dev/bossjones/kubernetes-cluster/borg-admin.conf
