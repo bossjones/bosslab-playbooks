@@ -6,67 +6,87 @@ dist_dir_path: ~/dev/bossjones/bosslab-playbooks/dist
 manifest_dir_name: manifests/borg-manifests
 manifest_dir_path: "{{dist_dir_path}}/{{manifest_dir_name}}"
 
+#      .########..######..##.....##..#######...######..########.########..##.....##.########.########.
+#      .##.......##....##.##.....##.##.....##.##....##.##.......##.....##.##.....##.##.......##.....##
+#      .##.......##.......##.....##.##.....##.##.......##.......##.....##.##.....##.##.......##.....##
+#      .######...##.......#########.##.....##..######..######...########..##.....##.######...########.
+#      .##.......##.......##.....##.##.....##.......##.##.......##...##....##...##..##.......##...##..
+#      .##.......##....##.##.....##.##.....##.##....##.##.......##....##....##.##...##.......##....##.
+#      .########..######..##.....##..#######...######..########.##.....##....###....########.##.....##
+
+
 boss__echoserver__manifest_path: "{{manifest_dir_path}}/echoserver"
-
-
-boss__echoserver__echoserver_version: 2.1
-
 boss__echoserver__namespace_name: echoserver
 boss__echoserver__deployment_name: echoserver
-
+boss__echoserver__echoserver_version: 2.1
 boss__echoserver__echoserver_image_repo: "gcr.io/kubernetes-e2e-test-images/echoserver"
 boss__echoserver__echoserver_image_tag: "{{ boss__echoserver__echoserver_version }}"
-
 boss__echoserver__echoserver_cpu_limit: 100m
 boss__echoserver__echoserver_mem_limit: 55Mi
 boss__echoserver__echoserver_cpu_requests: 100m
 boss__echoserver__echoserver_mem_requests: 20Mi
-
-#################################################################
-
 boss__echoserver__deployment_annotations_list:
   - name: nginx.ingress.kubernetes.io/ssl-redirect
     val: \"false\"
-# The chomping method used is a presentation detail and must not be used to convey content information.
-# ************************************************************************************
-# These IPs are for all Adobe-owned IP blocks that can access customer ELBs
-# https://stackoverflow.com/questions/45505587/jinja-iterate-list-to-create-array-of-yaml-elements
-# NOTE: Important, no spaces between ':'s
-# boss__echoserver__deployment_annotations: >
-#                                     [ {% for l in boss__echoserver__deployment_annotations_list %}
-#                                       {
-#                                         '{{ l["name"] }}':'{{ l["val"] }}'
-#                                       }
-#                                       {% if not loop.last %},{% endif %}
-#                                       {% endfor %}
-#                                     ]
 boss__echoserver__deployment_annotations:
   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
-
 boss__echoserver__deployment_labels:
   run: nginx
-
 boss__echoserver__deployment_spec_replicas: 2
-
 boss__echoserver__deployment_spec_template_metadata_labels: "{{boss__echoserver__deployment_labels}}"
-
-############################################################################3
 boss__echoserver__ingress_labels:
   run: nginx
-
 boss__echoserver__ingress_annotations:
   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
-
-#############################################################################
-
-
 boss__echoserver__service_labels:
   run: nginx
-
 boss__echoserver__service__spec_selector:
   run: nginx
-
 # boss__echoserver__echoserver_service_port: 9200
+
+
+# # Kubernetes dashboard
+# # RBAC required. see docs/getting-started.md for access details.
+# dashboard_enabled: true
+
+# # Addons which can be enabled
+# efk_enabled: false
+# helm_enabled: false
+# istio_enabled: false
+# registry_enabled: false
+# enable_network_policy: false
+# local_volume_provisioner_enabled: "{{ local_volumes_enabled | default('false') }}"
+# persistent_volumes_enabled: false
+# cephfs_provisioner_enabled: false
+# ingress_nginx_enabled: false
+# cert_manager_enabled: false
+
+##########################################################################################################
+#                   ..######.....###....##.......####..######...#######.
+#                   .##....##...##.##...##........##..##....##.##.....##
+#                   .##........##...##..##........##..##.......##.....##
+#                   .##.......##.....##.##........##..##.......##.....##
+#                   .##.......#########.##........##..##.......##.....##
+#                   .##....##.##.....##.##........##..##....##.##.....##
+#                   ..######..##.....##.########.####..######...#######.
+##########################################################################################################
+
+boss__calico__manifest_path: "{{manifest_dir_path}}/calico"
+boss__calico__namespace_name: kube-system
+boss__calico__prometheus_metrics_enabled: true
+
+boss__calico__node_version: v3.3.2
+boss__calico__node_image_repo: "quay.io/calico/node"
+boss__calico__node_image_tag: "{{ boss__calico__node_version }}"
+
+boss__calico__cni_version: v3.3.2
+boss__calico__cni_image_repo: "quay.io/calico/cni"
+boss__calico__cni_image_tag: "{{ boss__calico__node_version }}"
+
+boss__calico__node_daemonset_annotations:
+  scheduler.alpha.kubernetes.io/critical-pod: ''
+
+# {{ calico_node_image_repo }}:{{ calico_node_image_tag }}
 
 # ---
 # local_release_dir: /tmp/releases

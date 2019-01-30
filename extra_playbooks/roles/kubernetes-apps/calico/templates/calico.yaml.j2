@@ -10,7 +10,7 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: calico-config
-  namespace: kube-system
+  namespace: {{ boss__calico__namespace_name }}
 data:
   # To enable Typha, set this to "calico-typha" *and* set a non-zero value for Typha replicas
   # below.  We recommend using Typha if you have more than 50 nodes. Above 100 nodes it is
@@ -64,7 +64,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: calico-typha
-  namespace: kube-system
+  namespace: {{ boss__calico__namespace_name }}
   labels:
     k8s-app: calico-typha
 spec:
@@ -84,7 +84,7 @@ apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: calico-typha
-  namespace: kube-system
+  namespace: {{ boss__calico__namespace_name }}
   labels:
     k8s-app: calico-typha
 spec:
@@ -141,12 +141,14 @@ spec:
             value: "kubernetes"
           - name: TYPHA_HEALTHENABLED
             value: "true"
+{%   if ( (boss__calico__prometheus_metrics_enabled is defined) and (boss__calico__prometheus_metrics_enabled) ) %}
           # Uncomment these lines to enable prometheus metrics.  Since Typha is host-networked,
           # this opens a port on the host, which may need to be secured.
-          #- name: TYPHA_PROMETHEUSMETRICSENABLED
-          #  value: "true"
-          #- name: TYPHA_PROMETHEUSMETRICSPORT
-          #  value: "9093"
+          - name: TYPHA_PROMETHEUSMETRICSENABLED
+            value: "true"
+          - name: TYPHA_PROMETHEUSMETRICSPORT
+            value: "9093"
+{%   endif %}
         livenessProbe:
           exec:
             command:
@@ -171,7 +173,7 @@ apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
   name: calico-typha
-  namespace: kube-system
+  namespace: {{ boss__calico__namespace_name }}
   labels:
     k8s-app: calico-typha
 spec:
@@ -189,7 +191,7 @@ kind: DaemonSet
 apiVersion: extensions/v1beta1
 metadata:
   name: calico-node
-  namespace: kube-system
+  namespace: {{ boss__calico__namespace_name }}
   labels:
     k8s-app: calico-node
 spec:
@@ -204,12 +206,14 @@ spec:
     metadata:
       labels:
         k8s-app: calico-node
+{%   if boss__calico__node_daemonset_annotations is defined %}
       annotations:
         # This, along with the CriticalAddonsOnly toleration below,
         # marks the pod as a critical add-on, ensuring it gets
         # priority scheduling and that its resources are reserved
         # if it ever gets evicted.
-        scheduler.alpha.kubernetes.io/critical-pod: ''
+        {{ boss__calico__node_daemonset_annotations | to_nice_yaml(indent=2) }}
+{%   endif %}
     spec:
       nodeSelector:
         beta.kubernetes.io/os: linux
@@ -232,7 +236,7 @@ spec:
         # container programs network policy and routes on each
         # host.
         - name: calico-node
-          image: quay.io/calico/node:v3.3.2
+          image: {{ boss__calico__node_image_repo }}:{{ boss__calico__node_image_tag }}
           env:
             # Use Kubernetes API as the backing datastore.
             - name: DATASTORE_TYPE
@@ -327,7 +331,7 @@ spec:
         # This container installs the Calico CNI binaries
         # and CNI network config file on each node.
         - name: install-cni
-          image: quay.io/calico/cni:v3.3.2
+          image: {{ boss__calico__cni_image_repo }}:{{ boss__calico__cni_image_tag }}
           command: ["/install-cni.sh"]
           env:
             # Name of the CNI config file to create.
@@ -383,7 +387,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: calico-node
-  namespace: kube-system
+  namespace: {{ boss__calico__namespace_name }}
 
 ---
 

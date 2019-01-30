@@ -62,3 +62,26 @@ for i in "${kube_apps_array[@]}"; do
 done
 
 ```
+
+
+
+#####
+
+```
+host_vars[i[:name]] = {
+  "ip": i[:ip],
+  "subnet": "#{$subnet}",
+  "nfs_server": $nfs_server,
+  "count_nodes": $kube_node_instances,
+  "ansible_host": i[:ip],
+  "bootstrap_os": SUPPORTED_OS[$os][:bootstrap_os],
+  "ansible_port": 22,
+  "ansible_user": 'vagrant',
+  "ansible_connection": 'ssh',
+  "ansible_ssh_user": 'vagrant',
+  "ansible_ssh_pass": 'vagrant',
+  "local_release_dir" => $local_release_dir,
+  "download_run_once": "False",
+  "kube_network_plugin": $network_plugin
+}
+```
