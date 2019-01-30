@@ -88,6 +88,30 @@ boss__calico__node_daemonset_annotations:
 
 # {{ calico_node_image_repo }}:{{ calico_node_image_tag }}
 
+##########################################################################################################
+#      .########.....###.....######..##.....##.########...#######.....###....########..########.
+#      .##.....##...##.##...##....##.##.....##.##.....##.##.....##...##.##...##.....##.##.....##
+#      .##.....##..##...##..##.......##.....##.##.....##.##.....##..##...##..##.....##.##.....##
+#      .##.....##.##.....##..######..#########.########..##.....##.##.....##.########..##.....##
+#      .##.....##.#########.......##.##.....##.##.....##.##.....##.#########.##...##...##.....##
+#      .##.....##.##.....##.##....##.##.....##.##.....##.##.....##.##.....##.##....##..##.....##
+#      .########..##.....##..######..##.....##.########...#######..##.....##.##.....##.########.
+##########################################################################################################
+
+boss__dashboard__manifest_path: "{{manifest_dir_path}}/dashboard"
+boss__dashboard__namespace_name: kube-system
+
+boss__dashboard__version: v1.10.0
+boss__dashboard__image_repo: "k8s.gcr.io/kubernetes-dashboard-amd64"
+boss__dashboard__image_tag: "{{ boss__dashboard__version }}"
+
+boss__dashboard__deployment_container_args:
+  - --auto-generate-certificates
+  # Uncomment the following line to manually specify Kubernetes API server Host
+  # If not specified, Dashboard will attempt to auto discover the API server and connect
+  # to it. Uncomment only if the default does not work.
+  # - --apiserver-host=http://my-address:port
+
 # ---
 # local_release_dir: /tmp/releases
 

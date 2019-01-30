@@ -26,7 +26,7 @@
 #   labels:
 #     k8s-app: kubernetes-dashboard
 #   name: kubernetes-dashboard-certs
-#   namespace: {{ boss__dashboard__namespace_name }}
+#   namespace: kube-system
 # type: Opaque
 
 # ---
@@ -38,7 +38,7 @@
 #   labels:
 #     k8s-app: kubernetes-dashboard
 #   name: kubernetes-dashboard
-#   namespace: {{ boss__dashboard__namespace_name }}
+#   namespace: kube-system
 
 # ---
 # # ------------------- Dashboard Role & Role Binding ------------------- #
@@ -47,7 +47,7 @@
 # apiVersion: rbac.authorization.k8s.io/v1
 # metadata:
 #   name: kubernetes-dashboard-minimal
-#   namespace: {{ boss__dashboard__namespace_name }}
+#   namespace: kube-system
 # rules:
 #   # Allow Dashboard to create 'kubernetes-dashboard-key-holder' secret.
 # - apiGroups: [""]
@@ -82,7 +82,7 @@
 # kind: RoleBinding
 # metadata:
 #   name: kubernetes-dashboard-minimal
-#   namespace: {{ boss__dashboard__namespace_name }}
+#   namespace: kube-system
 # roleRef:
 #   apiGroup: rbac.authorization.k8s.io
 #   kind: Role
@@ -90,7 +90,7 @@
 # subjects:
 # - kind: ServiceAccount
 #   name: kubernetes-dashboard
-#   namespace: {{ boss__dashboard__namespace_name }}
+#   namespace: kube-system
 
 # ---
 # # ------------------- Dashboard Deployment ------------------- #
@@ -101,7 +101,7 @@
 #   labels:
 #     k8s-app: kubernetes-dashboard
 #   name: kubernetes-dashboard
-#   namespace: {{ boss__dashboard__namespace_name }}
+#   namespace: kube-system
 # spec:
 #   replicas: 1
 #   revisionHistoryLimit: 10
@@ -163,7 +163,7 @@
 #   labels:
 #     k8s-app: kubernetes-dashboard
 #   name: kubernetes-dashboard
-#   namespace: {{ boss__dashboard__namespace_name }}
+#   namespace: kube-system
 # spec:
 #   ports:
 #     - port: 8443
@@ -200,7 +200,7 @@ metadata:
   labels:
     k8s-app: kubernetes-dashboard
   name: kubernetes-dashboard-certs
-  namespace: {{ boss__dashboard__namespace_name }}
+  namespace: kube-system
 type: Opaque
 
 ---
@@ -212,7 +212,7 @@ metadata:
   labels:
     k8s-app: kubernetes-dashboard
   name: kubernetes-dashboard
-  namespace: {{ boss__dashboard__namespace_name }}
+  namespace: kube-system
 
 ---
 # ------------------- Dashboard Role & Role Binding ------------------- #
@@ -221,7 +221,7 @@ kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: kubernetes-dashboard-minimal
-  namespace: {{ boss__dashboard__namespace_name }}
+  namespace: kube-system
 rules:
   # Allow Dashboard to create 'kubernetes-dashboard-key-holder' secret.
 - apiGroups: [""]
@@ -268,7 +268,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: kubernetes-dashboard-minimal
-  namespace: {{ boss__dashboard__namespace_name }}
+  namespace: kube-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -276,7 +276,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: kubernetes-dashboard
-  namespace: {{ boss__dashboard__namespace_name }}
+  namespace: kube-system
 
 ---
 # ------------------- Dashboard Deployment ------------------- #
@@ -287,7 +287,7 @@ metadata:
   labels:
     k8s-app: kubernetes-dashboard
   name: kubernetes-dashboard
-  namespace: {{ boss__dashboard__namespace_name }}
+  namespace: kube-system
 spec:
   replicas: 1
   revisionHistoryLimit: 10
@@ -306,19 +306,18 @@ spec:
       - name: kubernetes-dashboard
       # ORIG This one
       # image: jimmysong/kubernetes-dashboard-amd64:v1.8.3
-        image: {{boss__dashboard__image_repo}}:{{ boss__dashboard__image_tag }}
+        image: k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.0
         ports:
         - containerPort: 8443
           protocol: TCP
           hostPort: 8443
-{%   if boss__dashboard__deployment_container_args is defined %}
         args:
-          {{ boss__dashboard__deployment_container_args | to_nice_yaml }}
+          - --auto-generate-certificates
+
           # Uncomment the following line to manually specify Kubernetes API server Host
           # If not specified, Dashboard will attempt to auto discover the API server and connect
           # to it. Uncomment only if the default does not work.
           # - --apiserver-host=http://my-address:port
-{%   endif %}
         volumeMounts:
         - name: kubernetes-dashboard-certs
           mountPath: /certs
@@ -353,7 +352,7 @@ metadata:
   labels:
     k8s-app: kubernetes-dashboard
   name: kubernetes-dashboard
-  namespace: {{ boss__dashboard__namespace_name }}
+  namespace: kube-system
 spec:
   ports:
     - port: 8443
