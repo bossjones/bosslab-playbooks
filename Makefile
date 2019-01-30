@@ -169,20 +169,34 @@ endif
 
 
 .PHONY: pip-tools-osx
-.PHONY: pip-tools-osx
 pip-tools-osx: pip-tools
+
+.PHONY: pip-tools-upgrade
+pip-tools-upgrade:
+ifeq (${DETECTED_OS}, Darwin)
+	ARCHFLAGS="-arch x86_64" LDFLAGS="-L/usr/local/opt/openssl/lib" CFLAGS="-I/usr/local/opt/openssl/include" pip install pip-tools pipdeptree --upgrade
+else
+	pip install pip-tools pipdeptree --upgrade
+endif
+
 
 .PHONY: pip-compile-upgrade-all
 pip-compile-upgrade-all: pip-tools
-	pip-compile --output-file requirements.txt requirements.in --upgrade
-	pip-compile --output-file requirements-dev.txt requirements-dev.in --upgrade
-	pip-compile --output-file requirements-test.txt requirements-test.in --upgrade
+	pip-compile --output-file requirements.txt requirements.in --upgrade --pre
+	pip-compile --output-file requirements-dev.txt requirements-dev.in --upgrade --pre
+	pip-compile --output-file requirements-test.txt requirements-test.in --upgrade --pre
 
 .PHONY: pip-compile
 pip-compile: pip-tools
-	pip-compile --output-file requirements.txt requirements.in
-	pip-compile --output-file requirements-dev.txt requirements-dev.in
-	pip-compile --output-file requirements-test.txt requirements-test.in
+	pip-compile --output-file requirements.txt requirements.in --pre
+	pip-compile --output-file requirements-dev.txt requirements-dev.in --pre
+	pip-compile --output-file requirements-test.txt requirements-test.in --pre
+
+.PHONY: pip-compile-rebuild
+pip-compile-rebuild: pip-tools
+	pip-compile --rebuild --output-file requirements.txt requirements.in --pre
+	pip-compile --rebuild --output-file requirements-dev.txt requirements-dev.in  --pre
+	pip-compile --rebuild --output-file requirements-test.txt requirements-test.in  --pre
 
 .PHONY: install-deps-all
 install-deps-all:
