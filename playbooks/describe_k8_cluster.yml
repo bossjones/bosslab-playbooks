@@ -1,0 +1,17 @@
+---
+- hosts: local
+  name: gather facts on kubernetes cluster
+  gather_facts: True
+  # become: yes
+  # become_method: sudo
+  vars:
+    bossjones__user: vagrant
+    bossjones__group: vagrant
+    timezone: 'America/New_York'
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  roles:
+    - role: describe-k8-cluster
+      tags:
+        - describe-k8-cluster
+

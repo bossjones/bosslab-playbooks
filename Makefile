@@ -668,6 +668,9 @@ borg-inventory-ini-to-yaml:
 borg-kube-facts:
 	env ANSIBLE_STRATEGY=debug KUBECONFIG=~/dev/bossjones/kubernetes-cluster/borg-admin.conf ansible-playbook -v -i contrib/inventory_builder/inventory/borg/inventory.ini get_k8_facts.yml -v
 
+run-ansible-describe-borg-cluster:
+	env ANSIBLE_STRATEGY=debug KUBECONFIG=~/dev/bossjones/kubernetes-cluster/borg-admin.conf ansible-playbook  -i contrib/inventory_builder/inventory/borg/inventory.ini playbooks/describe_k8_cluster.yml -vvvvvv
+
 run-ansible-module-kube-facts-pdb:
 	python -m pdb ./library/kube_facts.py ./test-kube-facts-args.json
 
