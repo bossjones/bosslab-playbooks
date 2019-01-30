@@ -1,19 +1,12 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 # (c) 2018, Will Thames <@willthames>
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 # SOURCE: https://github.com/ansible/ansible/blob/b35ac8080f1749d341212be40615d591adc57ff9/lib/ansible/modules/clustering/k8s/k8s_facts.py
+# import pdb
+# pdb.set_trace()
 from __future__ import absolute_import, division, print_function
-
-import os
-import copy
-
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.six import iteritems, string_types
-
-from ansible.module_utils.k8s.common import KubernetesAnsibleModule
 
 try:
     import kubernetes
@@ -41,6 +34,13 @@ try:
     urllib3.disable_warnings()
 except ImportError:
     pass
+
+import os
+import copy
+
+from ansible.module_utils.six import iteritems, string_types
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.k8s.common import KubernetesAnsibleModule
 
 __metaclass__ = type
 
@@ -430,4 +430,6 @@ def main():
 
 
 if __name__ == '__main__':
+    # import pdb
+    # pdb.set_trace()
     main()

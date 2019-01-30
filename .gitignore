@@ -3,7 +3,7 @@
 .DS_Store
 
 
-.vscode
+# .vscode
 *.swp
 **/.*.swp
 **/.ropeproject
@@ -135,7 +135,7 @@ tests/__pycache__/
 playbook.retry
 
 *.log
-.vscode
+# .vscode
 _cache/
 
 ################################################################
@@ -183,3 +183,5 @@ tls.key
 tls.{crt,key}.*
 borg-admin.conf
 playbooks/.ansible-logs/
+
+!.vscode/launch.json

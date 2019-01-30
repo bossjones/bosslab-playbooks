@@ -664,3 +664,12 @@ show_venv_activate_cmd: ## ** Show activate command when finished
 borg-inventory-ini-to-yaml:
 	@scripts/ini2yaml <${PROJECT_ROOT_DIR}/contrib/inventory_builder/inventory/borg/inventory.ini >${PROJECT_ROOT_DIR}/contrib/inventory_builder/cluster_configs/borg.yaml
 	@cat ${PROJECT_ROOT_DIR}/contrib/inventory_builder/cluster_configs/borg.yaml | highlight
+
+borg-kube-facts:
+	env ANSIBLE_STRATEGY=debug KUBECONFIG=~/dev/bossjones/kubernetes-cluster/borg-admin.conf ansible-playbook -v -i contrib/inventory_builder/inventory/borg/inventory.ini get_k8_facts.yml -v
+
+run-ansible-module-kube-facts-pdb:
+	python -m pdb ./library/kube_facts.py ./test-kube-facts-args.json
+
+run-ansible-module-kube-facts:
+	python ./library/kube_facts.py ./test-kube-facts-args.json | jq
