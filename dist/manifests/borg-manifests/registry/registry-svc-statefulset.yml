@@ -74,9 +74,9 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-            k8s-app: registry
-    version: "2.6"
-    
+        k8s-app: registry
+        version: "2.6"
+        
   template:
     metadata:
       labels:

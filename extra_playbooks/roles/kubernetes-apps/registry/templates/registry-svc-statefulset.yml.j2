@@ -63,7 +63,7 @@ spec:
   selector:
 {%   if boss__registry__stateful_set_spec_selector_match_labels is defined %}
     matchLabels:
-        {{ boss__registry__stateful_set_spec_selector_match_labels | indent( width=4, indentfirst=True,blank=True) }}
+{{ boss__registry__stateful_set_spec_selector_match_labels | indent( width=8, indentfirst=True,blank=True) }}
 {%   endif %}
   template:
     metadata:
