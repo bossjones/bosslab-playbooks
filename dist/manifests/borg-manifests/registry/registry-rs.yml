@@ -1,3 +1,4 @@
+
 # ---
 # kind: ReplicaSet
 # apiVersion: apps/v1
@@ -40,5 +41,9 @@
 #               protocol: TCP
 #       volumes:
 #         - name: registry-pvc
-# # # #          emptyDir: {}
-# #
+# # {% if boss__registry__enable_pvc %}
+#           persistentVolumeClaim:
+#             claimName: registry-pvc
+# # {% else %}
+# #          emptyDir: {}
+# #{% endif %}

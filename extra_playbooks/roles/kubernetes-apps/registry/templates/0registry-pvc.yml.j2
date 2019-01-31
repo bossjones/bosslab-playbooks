@@ -6,7 +6,7 @@ metadata:
   namespace: {{boss__registry__namespace_name}}
 {%   if boss__registry__persistent_volume_claim_labels is defined %}
   labels:
-    {{ boss__registry__persistent_volume_claim_labels | to_nice_yaml(indent=2) }}
+{{ boss__registry__persistent_volume_claim_labels | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
 spec:
   accessModes:
@@ -16,11 +16,7 @@ spec:
     requests:
       storage: "{{boss__registry__persistent_volume_claim_spec_resources_requests_storage}}"
 
-  resources:
-    requests:
-      storage: "2Gi"
-
-
+{% raw %}
 # ---
 # apiVersion: v1
 # kind: PersistentVolume
@@ -29,7 +25,7 @@ spec:
 #   namespace: {{boss__registry__namespace_name}}
 # {%   if boss__registry__persistent_volume_labels is defined %}
 #   labels:
-#     {{ boss__registry__persistent_volume_labels | to_nice_yaml(indent=2) }}
+#     {{ boss__registry__persistent_volume_labels | indent( width=4, indentfirst=True,blank=True) }}
 # {%   endif %}
 # spec:
 #   capacity:
@@ -39,3 +35,4 @@ spec:
 #   nfs:
 #     server: {{boss__registry__nfs_master_node_ip}}
 #     path: "{{boss__registry__persistent_volume_spec_nfs_path}}"
+{% endraw %}

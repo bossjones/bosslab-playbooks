@@ -7,7 +7,7 @@ metadata:
   namespace: {{boss__registry__namespace_name}}
 {%   if boss__registry__service_account_labels is defined %}
   labels:
-    {{ boss__registry__service_account_labels | to_nice_yaml(indent=2) }}
+{{ boss__registry__service_account_labels | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
 ---
 kind: ClusterRole
@@ -16,7 +16,7 @@ metadata:
   name: registry-cr
 {%   if boss__registry__cluster_role_labels is defined %}
   labels:
-    {{ boss__registry__cluster_role_labels | to_nice_yaml(indent=2) }}
+{{ boss__registry__cluster_role_labels | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
 rules:
 - apiGroups:
@@ -35,7 +35,7 @@ metadata:
   name: registry-crb
 {%   if boss__registry__cluster_role_binding_labels is defined %}
   labels:
-    {{ boss__registry__cluster_role_binding_labels | to_nice_yaml(indent=2) }}
+{{ boss__registry__cluster_role_binding_labels | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
 subjects:
 - kind: ServiceAccount
@@ -54,7 +54,7 @@ metadata:
   namespace: {{boss__registry__namespace_name}}
 {%   if boss__registry__stateful_set_labels is defined %}
   labels:
-    {{ boss__registry__stateful_set_labels | to_nice_yaml(indent=2) }}
+{{ boss__registry__stateful_set_labels | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
 spec:
   serviceName: registry-svc-account
@@ -62,13 +62,13 @@ spec:
   selector:
 {%   if boss__registry__stateful_set_spec_selector_match_labels is defined %}
     matchLabels:
-        {{ boss__registry__stateful_set_spec_selector_match_labels | to_nice_yaml(indent=2) }}
+        {{ boss__registry__stateful_set_spec_selector_match_labels | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
   template:
     metadata:
 {%   if boss__registry__stateful_set_spec_template_metadata_labels is defined %}
       labels:
-        {{ boss__registry__stateful_set_spec_template_metadata_labels | to_nice_yaml(indent=2) }}
+{{ boss__registry__stateful_set_spec_template_metadata_labels | indent( width=8, indentfirst=True,blank=True) }}
 {%   endif %}
     spec:
       volumes:
