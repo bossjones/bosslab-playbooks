@@ -2,7 +2,7 @@ apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: es-curator
-  namespace: kube-system
+  namespace: {{boss__efk__namespace_name}}
   labels:
     k8s-app: es-curator
     boss-part-of: efk

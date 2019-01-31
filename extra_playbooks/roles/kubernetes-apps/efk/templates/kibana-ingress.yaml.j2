@@ -17,7 +17,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: kibana-ingress
-  namespace: kube-system
+  namespace: {{boss__efk__namespace_name}}
   labels:
     k8s-app: kibana-ingress
     kubernetes.io/cluster-service: "true"

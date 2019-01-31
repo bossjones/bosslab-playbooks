@@ -3,36 +3,34 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: elasticsearch-pvc
-  namespace: kube-system
+  namespace: {{boss__efk__namespace_name}}
+{%   if boss__efk__elasticsearch_persistent_volume_claim_labels is defined %}
   labels:
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    k8s-app: elasticsearch-logging
-    boss-part-of: efk
+    {{ boss__efk__elasticsearch_persistent_volume_claim_labels | to_nice_yaml(indent=2) }}
+{%   endif %}
 spec:
   accessModes:
     - ReadWriteOnce
   storageClassName: "nfs-dynamic-class"
   resources:
     requests:
-      storage: "2Gi"
+      storage: "{{boss__efk__elasticsearch_persistent_volume_claim_spec_resources_requests_storage}}"
 
 ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: elasticsearch-pv
-  namespace: kube-system
+  namespace: {{boss__efk__namespace_name}}
+{%   if boss__efk__elasticsearch_persistent_volume_labels is defined %}
   labels:
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    k8s-app: elasticsearch-logging
-    boss-part-of: efk
+    {{ boss__efk__elasticsearch_persistent_volume_labels | to_nice_yaml(indent=2) }}
+{%   endif %}
 spec:
   capacity:
-    storage: 5Gi
+    storage: {{boss__efk__elasticsearch_persistent_volume_spec_capacity_storage}}
   accessModes:
     - ReadWriteMany
   nfs:
-    server: 192.168.1.174
-    path: "/mnt/publicdata/elasticsearch"
+    server: {{boss__efk__nfs_master_node_ip}}
+    path: "{{boss__efk__elasticsearch_persistent_volume_spec_nfs_path}}"

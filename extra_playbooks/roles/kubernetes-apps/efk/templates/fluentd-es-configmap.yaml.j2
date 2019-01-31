@@ -2,7 +2,7 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: fluentd-es-config-v0.1.0
-  namespace: kube-system
+  namespace: {{boss__efk__namespace_name}}
   labels:
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk
@@ -375,7 +375,7 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: fluentd-es-config-v0.1.6
-  namespace: kube-system
+  namespace: {{boss__efk__namespace_name}}
   labels:
     addonmanager.kubernetes.io/mode: Reconcile
 data:
