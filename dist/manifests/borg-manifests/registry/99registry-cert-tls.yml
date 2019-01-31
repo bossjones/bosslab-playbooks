@@ -27,9 +27,7 @@ metadata:
   name: docker-registry
 type: Opaque
 data:
-  HTPASSWD: "YWRtaW46JDJ5JDA1JG1HalExd2FEeXJUbE1MVG85dDRJUU9vTy9BZEJpN2VrOXFHbTFFa09YTktE
-RlhrbEt1a0xPCgo="
-
+  HTPASSWD: YWRtaW46JDJ5JDA1JFZQVVJjeXluTy5IM3NlYnRYaEIxQnV0TmdFVTk2QzlQQlk3a2RLR1IvLm1xN1EzRzRJaGw2
 
 ---
 apiVersion: v1
