@@ -28,7 +28,7 @@ metadata:
   namespace: kube-system
 type: Opaque
 data:
-  HTPASSWD: YWRtaW46JDJ5JDA1JFpBNTdrV3hkS1BWSFUyMG1WZE5NbmU3cEFIVWhaT1hLSXgzZlprWi9rUzAuVDhLTDhGU3hX
+  HTPASSWD: YWRtaW46JDJ5JDA1JC5PVnFTZDd2YnZzMURuak5mT3d1WU8ySng5bDROdzEyZWVyWWRHOG9TV1hVeW8zRnVpR2ZL
 
 ---
 apiVersion: v1

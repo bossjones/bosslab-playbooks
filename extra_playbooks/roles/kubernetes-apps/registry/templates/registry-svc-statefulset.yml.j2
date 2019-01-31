@@ -80,7 +80,6 @@ spec:
 {% else %}
           emptyDir: {}
 {% endif %}
-
 {% if boss__registry__enable_tls %}
         - name: config
           configMap:

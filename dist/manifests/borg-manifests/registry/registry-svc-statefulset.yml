@@ -88,7 +88,6 @@ spec:
       volumes:
         - name: registry-vol
           emptyDir: {}
-
         - name: config
           configMap:
             name: docker-registry
