@@ -1,0 +1,16 @@
+---
+- name: "registry | Create directory: {{boss__registry__manifest_path}}"
+  file:
+    path: "{{boss__registry__manifest_path}}"
+    state: directory
+
+- name: "registry | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__registry__manifest_path }}/{{ item }}"
+  with_items:
+    - "registry-ingress.yml"
+    - "registry-ns.yml"
+    - "0registry-pvc.yml"
+    - "registry-rs.yml"
+    - "registry-svc.yml"

@@ -1,0 +1,133 @@
+# RBAC authn and authz
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: registry-svc-account
+  namespace: {{boss__registry__namespace_name}}
+{%   if boss__registry__service_account_labels is defined %}
+  labels:
+    {{ boss__registry__service_account_labels | to_nice_yaml(indent=2) }}
+{%   endif %}
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: registry-cr
+{%   if boss__registry__cluster_role_labels is defined %}
+  labels:
+    {{ boss__registry__cluster_role_labels | to_nice_yaml(indent=2) }}
+{%   endif %}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - "services"
+  - "namespaces"
+  - "endpoints"
+  verbs:
+  - "get"
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  namespace: {{boss__registry__namespace_name}}
+  name: registry-crb
+{%   if boss__registry__cluster_role_binding_labels is defined %}
+  labels:
+    {{ boss__registry__cluster_role_binding_labels | to_nice_yaml(indent=2) }}
+{%   endif %}
+subjects:
+- kind: ServiceAccount
+  name: registry-svc-account
+  namespace: {{boss__registry__namespace_name}}
+  apiGroup: ""
+roleRef:
+  kind: ClusterRole
+  name: registry-cr
+  apiGroup: ""
+# Elasticsearch deployment itself
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: registry-statefulset
+  namespace: {{boss__registry__namespace_name}}
+{%   if boss__registry__stateful_set_labels is defined %}
+  labels:
+    {{ boss__registry__stateful_set_labels | to_nice_yaml(indent=2) }}
+{%   endif %}
+spec:
+  serviceName: registry-svc-account
+  replicas: {{boss__registry__stateful_set_spec_replicas}}
+  selector:
+{%   if boss__registry__stateful_set_spec_selector_match_labels is defined %}
+    matchLabels:
+        {{ boss__registry__stateful_set_spec_selector_match_labels | to_nice_yaml(indent=2) }}
+{%   endif %}
+  template:
+    metadata:
+{%   if boss__registry__stateful_set_spec_template_metadata_labels is defined %}
+      labels:
+        {{ boss__registry__stateful_set_spec_template_metadata_labels | to_nice_yaml(indent=2) }}
+{%   endif %}
+    spec:
+      volumes:
+        - name: rregistry-vol
+{% if boss__registry__enable_pvc %}
+          persistentVolumeClaim:
+            claimName: registry-pvc
+{% else %}
+          emptyDir: {}
+{% endif %}
+      serviceAccountName: registry-svc-account
+      containers:
+      - image: {{boss__registry__image_repo}}:{{boss__registry__image_tag}}
+        imagePullPolicy: Always
+        securityContext:
+          # runAsNonRoot: true
+          # runAsUser: 65534
+          privileged: true
+        name: registry
+        resources:
+          # need more cpu upon initialization, therefore burstable class
+          limits:
+            cpu: {{boss__registry__cpu_limit}}
+            memory: {{boss__registry__mem_limit}}
+          requests:
+            cpu: {{boss__registry__cpu_requests}}
+            memory: {{boss__registry__mem_requests}}
+        ports:
+        - containerPort: 5000
+          name: registry
+          protocol: TCP
+        volumeMounts:
+        - name: registry-vol-mount
+          mountPath: /data
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: "NAMESPACE"
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: REGISTRY_HTTP_ADDR
+            value: :5000
+          - name: REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY
+            value: /var/lib/registry
+        volumeMounts:
+          - name: registry-pvc
+            mountPath: /var/lib/registry
+
+      initContainers:
+      - image: alpine:3.6
+        command: ["/sbin/sysctl", "-w", "vm.max_map_count=262144"]
+        name: registry-logging-init
+        securityContext:
+          privileged: true
+  # volumeClaimTemplates:
+  # - metadata:
+  #     name: elasticsearch-logging
+  #   spec:
+  #     accessModes: ["ReadWriteOnce"]
+  #     resources:
+  #       requests:
+  #         storage: 20Gi

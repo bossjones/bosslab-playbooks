@@ -348,6 +348,99 @@ boss__efk__elasticsearch_persistent_volume_spec_nfs_path: "{{path_to_network_dis
 boss__efk__nfs_master_node_ip: "{{ hostvars[groups[nfs_server_group][0]]['ansible_' + main_network_interface].ipv4.address }}"
 
 
+
+##########################################
+
+
+##########################################################################################################
+#      .########..########..######...####..######..########.########..##....##
+#      .##.....##.##.......##....##...##..##....##....##....##.....##..##..##.
+#      .##.....##.##.......##.........##..##..........##....##.....##...####..
+#      .########..######...##...####..##...######.....##....########.....##...
+#      .##...##...##.......##....##...##........##....##....##...##......##...
+#      .##....##..##.......##....##...##..##....##....##....##....##.....##...
+#      .##.....##.########..######...####..######.....##....##.....##....##...
+##########################################################################################################
+boss__registry__subdomain: registry
+boss__registry__manifest_path: "{{manifest_dir_path}}/registry"
+boss__registry__namespace_name: kube-system
+boss__registry__deployment_name: registry
+boss__registry__enable_pvc: false
+
+
+boss__registry__ingress_annotations:
+  nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+boss__registry__ingress_labels:
+  k8s-app: registry
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  boss-part-of: registry
+  version: "{{boss__registry__version}}"
+boss__registry__service_labels:
+    k8s-app: registry
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    kubernetes.io/name: "KubeRegistry"
+    boss-part-of: registry
+    version: "{{boss__registry__version}}"
+boss__registry__persistent_volume_claim_labels:
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  k8s-app: registry
+  boss-part-of: registry
+  version: "{{boss__registry__version}}"
+boss__registry__persistent_volume_claim_spec_resources_requests_storage: "2Gi"
+boss__registry__persistent_volume_labels:
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  k8s-app: registry
+  boss-part-of: registry
+  version: "{{boss__registry__version}}"
+boss__registry__version: 2.6
+boss__registry__image_repo: "registry"
+boss__registry__image_tag: "{{ boss__registry__version }}"
+boss__registry__cpu_limit: 1000m
+boss__registry__mem_limit: 500Mi
+boss__registry__cpu_requests: 100m
+boss__registry__mem_requests: 200Mi
+
+boss__registry__service_account_labels:
+    k8s-app: registry
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: registry
+    version: "{{boss__registry__version}}"
+boss__registry__cluster_role_labels:
+    k8s-app: registry
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: registry
+    version: "{{boss__registry__version}}"
+
+boss__registry__cluster_role_binding_labels:
+    k8s-app: registry
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: registry
+    version: "{{boss__registry__version}}"
+
+boss__registry__stateful_set_labels:
+    k8s-app: registry
+    version: "{{boss__registry__version}}"
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: registry
+boss__registry__stateful_set_spec_replicas: 1
+boss__registry__stateful_set_spec_selector_match_labels:
+        k8s-app: registry
+        version: "{{boss__registry__version}}"
+boss__registry__stateful_set_spec_template_metadata_labels:
+        k8s-app: registry
+        version: "{{boss__registry__version}}"
+        kubernetes.io/cluster-service: "true"
+
+
+
 # ---
 # local_release_dir: /tmp/releases
 
