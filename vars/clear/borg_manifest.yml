@@ -367,7 +367,6 @@ boss__registry__namespace_name: kube-system
 boss__registry__deployment_name: registry
 boss__registry__enable_pvc: false
 
-
 boss__registry__ingress_annotations:
   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
 boss__registry__ingress_labels:

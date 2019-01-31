@@ -40,7 +40,7 @@
 #               protocol: TCP
 #       volumes:
 #         - name: registry-pvc
-# # {% if registry_storage_class != none %}
+# # {% if boss__registry__enable_pvc %}
 #           persistentVolumeClaim:
 #             claimName: registry-pvc
 # # {% else %}
