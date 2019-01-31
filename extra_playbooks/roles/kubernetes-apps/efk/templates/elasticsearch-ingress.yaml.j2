@@ -22,8 +22,6 @@ metadata:
   labels:
     {{ boss__efk__elasticsearch_ingress_labels | to_nice_yaml(indent=2) }}
 {%   endif %}
-
-
 {%   if boss__efk__elasticsearch_ingress_annotations is defined %}
   annotations:
     # Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
@@ -51,7 +49,7 @@ spec:
   #     serviceName: default-http-backend
   #     servicePort: 80
   rules:
-  - host: elasticsearch.hyenaclan.org
+  - host: {{boss__efk__elasticsearch_subdomain}}.{{domain_root}}
     http:
       paths:
       - path: /

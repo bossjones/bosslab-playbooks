@@ -161,6 +161,7 @@ boss__efk__deployment_spec_replicas: 2
 boss__efk__deployment_spec_template_metadata_labels: "{{boss__efk__deployment_labels}}"
 boss__efk__ingress_labels:
   run: nginx
+
 boss__efk__elasticsearch_ingress_annotations:
   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
 boss__efk__elasticsearch_ingress_labels:
@@ -168,8 +169,12 @@ boss__efk__elasticsearch_ingress_labels:
   kubernetes.io/cluster-service: "true"
   addonmanager.kubernetes.io/mode: Reconcile
   boss-part-of: efk
-boss__efk__service__spec_selector:
-  run: nginx
+boss__efk__elasticsearch_service_labels:
+    k8s-app: elasticsearch-logging
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    kubernetes.io/name: "Elasticsearch"
+    boss-part-of: efk
 boss__efk__elasticsearch_persistent_volume_claim_labels:
   kubernetes.io/cluster-service: "true"
   addonmanager.kubernetes.io/mode: Reconcile
@@ -181,6 +186,20 @@ boss__efk__elasticsearch_persistent_volume_labels:
   addonmanager.kubernetes.io/mode: Reconcile
   k8s-app: elasticsearch-logging
   boss-part-of: efk
+
+
+boss__efk__elasticsearch_curator_deployment_labels:
+  k8s-app: es-curator
+  boss-part-of: efk
+
+
+boss__efk__elasticsearch_curator_version: 5.3.0-1
+boss__efk__elasticsearch_curator_image_repo: "aknudsen/es-curator-service"
+boss__efk__elasticsearch_curator_image_tag: "{{ boss__efk__efk_version }}"
+boss__efk__elasticsearch_curator_cpu_limit: 200m
+boss__efk__elasticsearch_curator_mem_limit: 500Mi
+boss__efk__elasticsearch_curator_cpu_requests: 100m
+boss__efk__elasticsearch_curator_mem_requests: 200Mi
 
 boss__efk__elasticsearch_persistent_volume_spec_capacity_storage: 5Gi
 boss__efk__elasticsearch_persistent_volume_spec_nfs_path: "{{path_to_network_disk}}/elasticsearch"

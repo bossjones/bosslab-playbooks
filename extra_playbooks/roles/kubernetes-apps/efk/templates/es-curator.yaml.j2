@@ -3,9 +3,10 @@ kind: Deployment
 metadata:
   name: es-curator
   namespace: {{boss__efk__namespace_name}}
+{%   if boss__efk__elasticsearch_curator_deployment_labels is defined %}
   labels:
-    k8s-app: es-curator
-    boss-part-of: efk
+    {{ boss__efk__elasticsearch_curator_deployment_labels | to_nice_yaml(indent=2) }}
+{%   endif %}
 spec:
   replicas: 1
   selector:
@@ -18,7 +19,7 @@ spec:
     spec:
       containers:
       - name: es-curator
-        image: aknudsen/es-curator-service:5.3.0-1
+        image: {{boss__efk__elasticsearch_curator_image_repo}}:{{boss__efk__elasticsearch_curator_image_tag}}
         imagePullPolicy: IfNotPresent
         args: ["--config", "/etc/config/config.yml", "/etc/config/action_file.yml"]
         volumeMounts:
@@ -26,11 +27,11 @@ spec:
             mountPath: /etc/config
         resources:
           limits:
-            memory: 500Mi
-            cpu: 200m
+            cpu: {{boss__efk__elasticsearch_curator_cpu_limit}}
+            memory: {{boss__efk__elasticsearch_curator_mem_limit}}
           requests:
-            cpu: 100m
-            memory: 200Mi
+            cpu: {{boss__efk__elasticsearch_curator_cpu_requests}}
+            memory: {{boss__efk__elasticsearch_curator_mem_requests}}
       volumes:
         - name: config-volume
           secret:
