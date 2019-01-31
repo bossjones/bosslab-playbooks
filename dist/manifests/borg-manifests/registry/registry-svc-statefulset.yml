@@ -86,7 +86,7 @@ spec:
         
     spec:
       volumes:
-        - name: rregistry-vol
+        - name: registry-vol
           emptyDir: {}
 
         - name: config

@@ -73,7 +73,7 @@ spec:
 {%   endif %}
     spec:
       volumes:
-        - name: rregistry-vol
+        - name: registry-vol
 {% if boss__registry__enable_pvc %}
           persistentVolumeClaim:
             claimName: registry-pvc
