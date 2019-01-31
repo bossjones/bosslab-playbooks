@@ -122,8 +122,8 @@ spec:
           name: registry
           protocol: TCP
         volumeMounts:
-        - name: registry-vol-mount
-          mountPath: /data
+        - name: registry-vol
+          mountPath: /var/lib/registry
         - name: config
           mountPath: /etc/docker/registry
           readOnly: true

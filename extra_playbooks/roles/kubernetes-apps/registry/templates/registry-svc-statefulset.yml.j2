@@ -116,12 +116,8 @@ spec:
           name: registry
           protocol: TCP
         volumeMounts:
-        - name: registry-vol-mount
-          mountPath: /data
-{% if boss__registry__enable_pvc %}
-        - name: registry-pvc
+        - name: registry-vol
           mountPath: /var/lib/registry
-{% endif %}
 {% if boss__registry__enable_tls %}
         - name: config
           mountPath: /etc/docker/registry
