@@ -5,21 +5,19 @@ kind: ServiceAccount
 metadata:
   name: elasticsearch-logging
   namespace: {{boss__efk__namespace_name}}
+{%   if boss__efk__elasticsearch_service_account_labels is defined %}
   labels:
-    k8s-app: elasticsearch-logging
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: efk
+    {{ boss__efk__elasticsearch_service_account_labels | to_nice_yaml(indent=2) }}
+{%   endif %}
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: elasticsearch-logging
+{%   if boss__efk__elasticsearch_cluster_role_labels is defined %}
   labels:
-    k8s-app: elasticsearch-logging
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: efk
+    {{ boss__efk__elasticsearch_cluster_role_labels | to_nice_yaml(indent=2) }}
+{%   endif %}
 rules:
 - apiGroups:
   - ""

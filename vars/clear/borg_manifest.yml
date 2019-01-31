@@ -143,24 +143,6 @@ boss__efk__elasticsearch_subdomain: elasticsearch
 boss__efk__manifest_path: "{{manifest_dir_path}}/efk"
 boss__efk__namespace_name: kube-system
 boss__efk__deployment_name: efk
-boss__efk__efk_version: 2.1
-boss__efk__efk_image_repo: "gcr.io/kubernetes-e2e-test-images/efk"
-boss__efk__efk_image_tag: "{{ boss__efk__efk_version }}"
-boss__efk__efk_cpu_limit: 100m
-boss__efk__efk_mem_limit: 55Mi
-boss__efk__efk_cpu_requests: 100m
-boss__efk__efk_mem_requests: 20Mi
-boss__efk__deployment_annotations_list:
-  - name: nginx.ingress.kubernetes.io/ssl-redirect
-    val: \"false\"
-boss__efk__deployment_annotations:
-  nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
-boss__efk__deployment_labels:
-  run: nginx
-boss__efk__deployment_spec_replicas: 2
-boss__efk__deployment_spec_template_metadata_labels: "{{boss__efk__deployment_labels}}"
-boss__efk__ingress_labels:
-  run: nginx
 
 boss__efk__elasticsearch_ingress_annotations:
   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
@@ -186,13 +168,27 @@ boss__efk__elasticsearch_persistent_volume_labels:
   addonmanager.kubernetes.io/mode: Reconcile
   k8s-app: elasticsearch-logging
   boss-part-of: efk
-
+# boss__efk__elasticsearch_version: 5.3.0-1
+# boss__efk__elasticsearch_image_repo: "aknudsen/es-curator-service"
+# boss__efk__elasticsearch_image_tag: "{{ boss__efk__efk_version }}"
+# boss__efk__elasticsearch_cpu_limit: 200m
+# boss__efk__elasticsearch_mem_limit: 500Mi
+# boss__efk__elasticsearch_cpu_requests: 100m
+# boss__efk__elasticsearch_mem_requests: 200Mi
+boss__efk__elasticsearch_service_account_labels:
+    k8s-app: elasticsearch-logging
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: efk
+boss__efk__elasticsearch_cluster_role_labels:
+    k8s-app: elasticsearch-logging
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: efk
 
 boss__efk__elasticsearch_curator_deployment_labels:
   k8s-app: es-curator
   boss-part-of: efk
-
-
 boss__efk__elasticsearch_curator_version: 5.3.0-1
 boss__efk__elasticsearch_curator_image_repo: "aknudsen/es-curator-service"
 boss__efk__elasticsearch_curator_image_tag: "{{ boss__efk__efk_version }}"
