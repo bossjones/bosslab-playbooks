@@ -11,8 +11,11 @@
     timezone: 'America/New_York'
   environment:
     DEBIAN_FRONTEND: noninteractive
-  roles:
-    - role: describe-k8-cluster
-      tags:
-        - describe-k8-cluster
+  # roles:
+  #   - role: describe-k8-cluster
+  #     tags:
+  #       - describe-k8-cluster
 
+# hostvars
+  tasks:
+    - debug: msg="{{ hostvars | to_nice_json }}"
