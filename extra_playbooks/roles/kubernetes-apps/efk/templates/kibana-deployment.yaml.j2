@@ -3,35 +3,40 @@ kind: Deployment
 metadata:
   name: kibana-logging
   namespace: {{boss__efk__namespace_name}}
+{%   if boss__efk__kibana_deployment_labels is defined %}
   labels:
-    k8s-app: kibana-logging
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: efk
+    {{ boss__efk__kibana_deployment_labels | to_nice_yaml(indent=2) }}
+{%   endif %}
 spec:
-  replicas: 1
+  replicas: {{boss__efk__kibana_deployment_spec_replicas}}
   selector:
+{%   if boss__efk__kibana_deployment_spec_selector_match_labels is defined %}
     matchLabels:
-      k8s-app: kibana-logging
+      {{ boss__efk__kibana_deployment_spec_selector_match_labels | to_nice_yaml(indent=2) }}
+{%   endif %}
   template:
     metadata:
+{%   if boss__efk__kibana_deployment_spec_template_metadata_labels is defined %}
       labels:
-        k8s-app: kibana-logging
+        {{ boss__efk__kibana_deployment_spec_template_metadata_labels | to_nice_yaml(indent=2) }}
+{%   endif %}
     spec:
-      # SOURCE: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+{%   if boss__efk__kibana_deployment_spec_template_spec_node_selector is defined %}
       nodeSelector:
-        kubernetes.io/hostname: "borg-worker-01"
+        {{ boss__efk__kibana_deployment_spec_template_spec_node_selector | to_nice_yaml(indent=2) }}
+{%   endif %}
+      # SOURCE: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
       containers:
       - name: kibana-logging
         imagePullPolicy: Always
         # image: docker.elastic.co/kibana/kibana:5.6.2
-        image: bossjones/kibana:5.6.2
+        image: {{boss__efk__kibana_image_repo}}:{{boss__efk__kibana_image_tag}}
         resources:
           # need more cpu upon initialization, therefore burstable class
           limits:
-            cpu: 1000m
+            cpu: {{boss__efk__kibana_cpu_limit}}
           requests:
-            cpu: 1000m
+            cpu: {{boss__efk__kibana_cpu_requests}}
         env:
           - name: ELASTICSEARCH_URL
             value: http://elasticsearch-logging:9200

@@ -33,11 +33,10 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   namespace: {{boss__efk__namespace_name}}
   name: elasticsearch-logging
+{%   if boss__efk__elasticsearch_cluster_role_binding_labels is defined %}
   labels:
-    k8s-app: elasticsearch-logging
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: efk
+    {{ boss__efk__elasticsearch_cluster_role_binding_labels | to_nice_yaml(indent=2) }}
+{%   endif %}
 subjects:
 - kind: ServiceAccount
   name: elasticsearch-logging
@@ -54,26 +53,28 @@ kind: StatefulSet
 metadata:
   name: elasticsearch-logging
   namespace: {{boss__efk__namespace_name}}
+{%   if boss__efk__elasticsearch_stateful_set_labels is defined %}
   labels:
-    k8s-app: elasticsearch-logging
-    version: v5.6.2
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: efk
+    {{ boss__efk__elasticsearch_stateful_set_labels | to_nice_yaml(indent=2) }}
+{%   endif %}
 spec:
   serviceName: elasticsearch-logging
   # ORIG # replicas: 2
-  replicas: 1
+  replicas: {{boss__efk__elasticsearch_stateful_set_spec_replicas}}
   selector:
+{%   if boss__efk__elasticsearch_stateful_set_spec_selector_match_labels is defined %}
     matchLabels:
-      k8s-app: elasticsearch-logging
-      version: v5.6.2
+        {{ boss__efk__elasticsearch_stateful_set_spec_selector_match_labels | to_nice_yaml(indent=2) }}
+{%   endif %}
+    # matchLabels:
+    #   k8s-app: elasticsearch-logging
+    #  version: v5.6.2
   template:
     metadata:
+{%   if boss__efk__elasticsearch_stateful_set_spec_template_metadata_labels is defined %}
       labels:
-        k8s-app: elasticsearch-logging
-        version: v5.6.2
-        kubernetes.io/cluster-service: "true"
+        {{ boss__efk__elasticsearch_stateful_set_spec_template_metadata_labels | to_nice_yaml(indent=2) }}
+{%   endif %}
     spec:
       volumes:
       - name: elasticsearch-logging
@@ -85,7 +86,7 @@ spec:
       serviceAccountName: elasticsearch-logging
       containers:
       # - image: k8s.gcr.io/elasticsearch:v5.6.2
-      - image: bossjones/elasticsearch:v5.6.2
+      - image: {{boss__efk__elasticsearch_image_repo}}:{{boss__efk__elasticsearch_image_tag}}
         imagePullPolicy: Always
         securityContext:
           # runAsNonRoot: true
@@ -95,12 +96,12 @@ spec:
         resources:
           # need more cpu upon initialization, therefore burstable class
           limits:
-            cpu: 1000m
-            memory: 4048Mi
+            cpu: {{boss__efk__elasticsearch_cpu_limit}}
+            memory: {{boss__efk__elasticsearch_mem_limit}}
             # memory: 2400Mi
           requests:
-            cpu: 100m
-            memory: 2350Mi
+            cpu: {{boss__efk__elasticsearch_cpu_requests}}
+            memory: {{boss__efk__elasticsearch_mem_requests}}
             # memory: 2350Mi
             # memory: 2000Mi
         ports:
@@ -133,7 +134,7 @@ spec:
         - name: ES_JAVA_OPTS
           # value: "-Xms1024m -Xmx1024m"
           # value: "-Xms4048m -Xmx4048m"
-          value: "-Xms2048m -Xmx2048m"
+          value: "{{boss__efk__elasticsearch_stateful_set_env_ES_JAVA_OPTS}}"
           # value: "-Xms256m -Xmx256m"
         # - name: ES_HEAP_SIZE
         #   # value: "-Xms1024m -Xmx1024m"
