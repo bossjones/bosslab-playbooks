@@ -1,0 +1,47 @@
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: registry-pvc
+  namespace: kube-system
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+boss-part-of: registry
+k8s-app: registry
+kubernetes.io/cluster-service: 'true'
+version: 2.6
+
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: "nfs-dynamic-class"
+  resources:
+    requests:
+      storage: "2Gi"
+
+  resources:
+    requests:
+      storage: "2Gi"
+
+
+# ---
+# apiVersion: v1
+# kind: PersistentVolume
+# metadata:
+#   name: registry-pv
+#   namespace: kube-system
+# #   labels:
+#     addonmanager.kubernetes.io/mode: Reconcile
+boss-part-of: registry
+k8s-app: registry
+kubernetes.io/cluster-service: 'true'
+version: 2.6
+
+# # spec:
+#   capacity:
+#     storage: 10Gi
+#   accessModes:
+#     - ReadWriteMany
+#   nfs:
+#     server: 192.168.1.174
+#     path: "/mnt/publicdata/registry"

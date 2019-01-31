@@ -1,0 +1,44 @@
+# ---
+# kind: ReplicaSet
+# apiVersion: apps/v1
+# metadata:
+#   name: registry-v2.6
+#   namespace: "kube-system"
+#   labels:
+#     k8s-app: registry
+#     version: v2.6
+#     kubernetes.io/cluster-service: "true"
+#     addonmanager.kubernetes.io/mode: Reconcile
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       k8s-app: registry
+#       version: v2.6
+#   template:
+#     metadata:
+#       labels:
+#         k8s-app: registry
+#         version: v2.6
+#         kubernetes.io/cluster-service: "true"
+#     spec:
+#       containers:
+#         - name: registry
+#           image: registry:2.6
+#           imagePullPolicy: IfNotPresent
+#           env:
+#             - name: REGISTRY_HTTP_ADDR
+#               value: :5000
+#             - name: REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY
+#               value: /var/lib/registry
+#           volumeMounts:
+#             - name: registry-pvc
+#               mountPath: /var/lib/registry
+#           ports:
+#             - containerPort: 5000
+#               name: registry
+#               protocol: TCP
+#       volumes:
+#         - name: registry-pvc
+# # # #          emptyDir: {}
+# #
