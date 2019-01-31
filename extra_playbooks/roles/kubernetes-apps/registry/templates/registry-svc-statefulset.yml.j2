@@ -1,4 +1,5 @@
 # RBAC authn and authz
+# SOURCE: https://www.nearform.com/blog/how-to-run-a-public-docker-registry-in-kubernetes/
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -79,6 +80,21 @@ spec:
 {% else %}
           emptyDir: {}
 {% endif %}
+
+{% if boss__registry__enable_tls %}
+        - name: config
+          configMap:
+            name: docker-registry
+            items:
+              - key: registry-config.yml
+                path: config.yml
+        - name: htpasswd
+          secret:
+            secretName: docker-registry
+            items:
+            - key: HTPASSWD
+              path: htpasswd
+{% endif %}
       serviceAccountName: registry-svc-account
       containers:
       - image: {{boss__registry__image_repo}}:{{boss__registry__image_tag}}
@@ -104,6 +120,16 @@ spec:
           mountPath: /data
         - name: registry-pvc
           mountPath: /var/lib/registry
+
+{% if boss__registry__enable_tls %}
+        - name: config
+          mountPath: /etc/docker/registry
+          readOnly: true
+        - name: htpasswd
+          mountPath: /auth
+          readOnly: true
+{% endif %}
+
         imagePullPolicy: IfNotPresent
         env:
           - name: "NAMESPACE"

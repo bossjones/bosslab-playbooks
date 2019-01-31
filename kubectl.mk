@@ -282,6 +282,8 @@ describe-registry:
 debug-registry: describe-registry
 	kubectl -n kube-system get pod -l app=registry --output=yaml | highlight
 
+test-registry-curl:
+	curl -u admin:admin123 'https://registry.hyenalab.home/v2/_catalog'
 
 
 create-metrics-server:
@@ -560,3 +562,5 @@ describe-cert-manager:
 
 debug-cert-manager: describe-cert-manager
 	kubectl get pod -l app=cert-manager --output=yaml | highlight
+
+

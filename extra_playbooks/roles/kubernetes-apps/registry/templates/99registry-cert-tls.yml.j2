@@ -1,0 +1,60 @@
+---
+# boss__registry__enable_tls
+# SOURCE: https://cert-manager.readthedocs.io/en/latest/tutorials/ca/creating-ca-issuer.html
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: docker-registry-crt
+  namespace: {{boss__registry__namespace_name}}
+spec:
+  secretName: docker-registry-tls
+  issuerRef:
+    name: selfsigning-issuer
+    # We can reference ClusterIssuers by changing the kind here.
+    # The default value is Issuer (i.e. a locally namespaced Issuer)
+    kind: ClusterIssuer
+  commonName: {{boss__registry__subdomain}}.{{domain_root}}
+  organization:
+  - Hyena Labs
+  dnsNames:
+  - {{boss__registry__subdomain}}.{{domain_root}}
+  - www.{{boss__registry__subdomain}}.{{domain_root}}
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: docker-registry
+type: Opaque
+data:
+  HTPASSWD: {{htpasswd_base64}}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: docker-registry
+data:
+  registry-config.yml: |
+    version: 0.1
+    log:
+      fields:
+        service: registry
+    storage:
+      cache:
+        blobdescriptor: inmemory
+      filesystem:
+        rootdirectory: /var/lib/registry
+    http:
+      addr: :5000
+      headers:
+        X-Content-Type-Options: [nosniff]
+    auth:
+      htpasswd:
+        realm: basic-realm
+        path: /auth/htpasswd
+    health:
+      storagedriver:
+        enabled: true
+        interval: 10s
+        threshold: 3

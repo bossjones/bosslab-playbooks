@@ -367,6 +367,8 @@ boss__registry__manifest_path: "{{manifest_dir_path}}/registry"
 boss__registry__namespace_name: kube-system
 boss__registry__deployment_name: registry
 boss__registry__enable_pvc: false
+boss__registry__enable_tls: true
+boss__registry__tls_cert_cluster_issuer_name: selfsigning-issuer
 
 boss__registry__ingress_annotations: |
   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"

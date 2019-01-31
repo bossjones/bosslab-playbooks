@@ -1,4 +1,23 @@
 ---
+
+# htpasswd -Bbn admin admin123 | base64
+
+- name: "registry | Create httpasswd: htpasswd -Bbn admin admin123 | base64"
+
+  shell: |
+    htpasswd -Bbn admin admin123 | base64 | tee htpasswd.base64
+  # args:
+  #   creates: 'htpasswd.base64'
+  register: boss__registry__htpasswd_base64_results
+
+- name: "registry | debug fact boss__registry__htpasswd_base64_results"
+  debug: msg="{{boss__registry__htpasswd_base64_results}}"
+
+- name: "registry | set base64 fact"
+  set_fact:
+    htpasswd_base64: |
+      "{{boss__registry__htpasswd_base64_results.stdout}}"
+
 - name: "registry | Create directory: {{boss__registry__manifest_path}}"
   file:
     path: "{{boss__registry__manifest_path}}"
@@ -15,3 +34,4 @@
     - "registry-rs.yml"
     - "registry-svc.yml"
     - "registry-svc-statefulset.yml"
+    - "99registry-cert-tls.yml"

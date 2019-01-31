@@ -42,7 +42,18 @@ metadata:
     # SOURCE: https://medium.com/@Oskarr3/setting-up-ingress-on-minikube-6ae825e98f82
     # nginx.ingress.kubernetes.io/rewrite-target: /
 {%   endif %}
+{% if boss__registry__enable_tls %}
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    certmanager.k8s.io/issuer: {{boss__registry__tls_cert_cluster_issuer_name}}
+{%   endif %}
 spec:
+{% if boss__registry__enable_tls %}
+  tls:
+  - hosts:
+    - {{boss__registry__subdomain}}.{{domain_root}}
+    secretName: docker-registry-tls-certificate
+{% endif %}
+
   # IMPORTANT
   # SOURCE: https://medium.com/@Oskarr3/setting-up-ingress-on-minikube-6ae825e98f82
   # backend:

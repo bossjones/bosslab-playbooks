@@ -1,4 +1,5 @@
 # RBAC authn and authz
+# SOURCE: https://www.nearform.com/blog/how-to-run-a-public-docker-registry-in-kubernetes/
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -55,7 +56,6 @@ roleRef:
   kind: ClusterRole
   name: registry-cr
   apiGroup: ""
-# Elasticsearch deployment itself
 ---
 apiVersion: apps/v1beta1
 kind: StatefulSet
@@ -88,6 +88,19 @@ spec:
       volumes:
         - name: rregistry-vol
           emptyDir: {}
+
+        - name: config
+          configMap:
+            name: docker-registry
+            items:
+              - key: registry-config.yml
+                path: config.yml
+        - name: htpasswd
+          secret:
+            secretName: docker-registry
+            items:
+            - key: HTPASSWD
+              path: htpasswd
       serviceAccountName: registry-svc-account
       containers:
       - image: registry:2.6
@@ -113,6 +126,14 @@ spec:
           mountPath: /data
         - name: registry-pvc
           mountPath: /var/lib/registry
+
+        - name: config
+          mountPath: /etc/docker/registry
+          readOnly: true
+        - name: htpasswd
+          mountPath: /auth
+          readOnly: true
+
         imagePullPolicy: IfNotPresent
         env:
           - name: "NAMESPACE"
