@@ -31,7 +31,7 @@ spec:
     name: selfsigning-issuer
     # We can reference ClusterIssuers by changing the kind here.
     # The default value is Issuer (i.e. a locally namespaced Issuer)
-    kind: IssClusterIssueruer
+    kind: ClusterIssuer
   commonName: example.com
   organization:
   - Example CA

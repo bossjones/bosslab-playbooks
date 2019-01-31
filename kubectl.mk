@@ -556,6 +556,7 @@ delete-cert-manager:
 describe-cert-manager:
 	$(call check_defined, cluster, Please set cluster)
 	kubectl describe -f dist/manifests/$(cluster)-manifests/cert-manager/ | highlight
+	kubectl get secret example-com-tls -o yaml | highlight
 
 debug-cert-manager: describe-cert-manager
 	kubectl get pod -l app=cert-manager --output=yaml | highlight
