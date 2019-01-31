@@ -25,15 +25,17 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: docker-registry
+  namespace: kube-system
 type: Opaque
 data:
-  HTPASSWD: YWRtaW46JDJ5JDA1JDJIeEhMSk1Za0U0cDBzdS5KMW1SWnU2ZmdBbTRYNmphT0M2TWR6RHF5M0duQ2llM2E4UTZh
+  HTPASSWD: YWRtaW46JDJ5JDA1JFpBNTdrV3hkS1BWSFUyMG1WZE5NbmU3cEFIVWhaT1hLSXgzZlprWi9rUzAuVDhLTDhGU3hX
 
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: docker-registry
+  namespace: kube-system
 data:
   registry-config.yml: |
     version: 0.1
