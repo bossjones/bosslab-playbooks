@@ -1,3 +1,4 @@
+{% raw %}
 # # SOURCE: https://github.com/rootsongjc/kubernetes-vagrant-centos-cluster/blob/master/addon/dashboard/kubernetes-dashboard.yaml
 # # Copyright 2017 The Kubernetes Authors.
 # #
@@ -191,6 +192,8 @@
 # Kubernetes 1.8.
 #
 # Example usage: kubectl create -f <this_file>
+{% endraw %}
+
 
 # ------------------- Dashboard Secret ------------------- #
 
@@ -313,7 +316,7 @@ spec:
           hostPort: 8443
 {%   if boss__dashboard__deployment_container_args is defined %}
         args:
-          {{ boss__dashboard__deployment_container_args | to_nice_yaml }}
+          {{ boss__dashboard__deployment_container_args | indent( width=4, indentfirst=True,blank=True) }}
           # Uncomment the following line to manually specify Kubernetes API server Host
           # If not specified, Dashboard will attempt to auto discover the API server and connect
           # to it. Uncomment only if the default does not work.

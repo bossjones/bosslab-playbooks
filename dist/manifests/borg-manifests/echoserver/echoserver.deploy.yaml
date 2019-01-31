@@ -8,11 +8,10 @@ kind: Deployment
 metadata:
   name: echoserver
   namespace: echoserver
-  # to_nice_yaml(indent=8)
+  # indent( width=4, indentfirst=True,blank=True)(indent=8)
   labels:
-    run: nginx
-
-    # run: nginx
+        run: nginx
+    
 spec:
   replicas: 2
   selector:
@@ -22,8 +21,8 @@ spec:
   template:
     metadata:
       labels:
-        run: nginx
-
+            run: nginx
+    
         # app: echoserver
         # run: nginx
     spec:

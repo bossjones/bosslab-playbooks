@@ -6,7 +6,7 @@ metadata:
 
 {%   if boss__efk__fluentd_config_map_labels is defined %}
   labels:
-    {{ boss__efk__fluentd_config_map_labels | to_nice_yaml(indent=2) }}
+    {{ boss__efk__fluentd_config_map_labels | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
 data:
   containers.input.conf: |-
@@ -380,7 +380,7 @@ metadata:
   namespace: {{boss__efk__namespace_name}}
 {%   if boss__efk__fluentd_config_map_labels is defined %}
   labels:
-    {{ boss__efk__fluentd_config_map_labels | to_nice_yaml(indent=2) }}
+    {{ boss__efk__fluentd_config_map_labels | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
 data:
   system.conf: |-

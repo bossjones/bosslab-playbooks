@@ -1,3 +1,4 @@
+
 # # SOURCE: https://github.com/rootsongjc/kubernetes-vagrant-centos-cluster/blob/master/addon/dashboard/kubernetes-dashboard.yaml
 # # Copyright 2017 The Kubernetes Authors.
 # #
@@ -26,7 +27,7 @@
 #   labels:
 #     k8s-app: kubernetes-dashboard
 #   name: kubernetes-dashboard-certs
-#   namespace: kube-system
+#   namespace: {{ boss__dashboard__namespace_name }}
 # type: Opaque
 
 # ---
@@ -38,7 +39,7 @@
 #   labels:
 #     k8s-app: kubernetes-dashboard
 #   name: kubernetes-dashboard
-#   namespace: kube-system
+#   namespace: {{ boss__dashboard__namespace_name }}
 
 # ---
 # # ------------------- Dashboard Role & Role Binding ------------------- #
@@ -47,7 +48,7 @@
 # apiVersion: rbac.authorization.k8s.io/v1
 # metadata:
 #   name: kubernetes-dashboard-minimal
-#   namespace: kube-system
+#   namespace: {{ boss__dashboard__namespace_name }}
 # rules:
 #   # Allow Dashboard to create 'kubernetes-dashboard-key-holder' secret.
 # - apiGroups: [""]
@@ -82,7 +83,7 @@
 # kind: RoleBinding
 # metadata:
 #   name: kubernetes-dashboard-minimal
-#   namespace: kube-system
+#   namespace: {{ boss__dashboard__namespace_name }}
 # roleRef:
 #   apiGroup: rbac.authorization.k8s.io
 #   kind: Role
@@ -90,7 +91,7 @@
 # subjects:
 # - kind: ServiceAccount
 #   name: kubernetes-dashboard
-#   namespace: kube-system
+#   namespace: {{ boss__dashboard__namespace_name }}
 
 # ---
 # # ------------------- Dashboard Deployment ------------------- #
@@ -101,7 +102,7 @@
 #   labels:
 #     k8s-app: kubernetes-dashboard
 #   name: kubernetes-dashboard
-#   namespace: kube-system
+#   namespace: {{ boss__dashboard__namespace_name }}
 # spec:
 #   replicas: 1
 #   revisionHistoryLimit: 10
@@ -163,7 +164,7 @@
 #   labels:
 #     k8s-app: kubernetes-dashboard
 #   name: kubernetes-dashboard
-#   namespace: kube-system
+#   namespace: {{ boss__dashboard__namespace_name }}
 # spec:
 #   ports:
 #     - port: 8443
@@ -191,6 +192,7 @@
 # Kubernetes 1.8.
 #
 # Example usage: kubectl create -f <this_file>
+
 
 # ------------------- Dashboard Secret ------------------- #
 
@@ -312,8 +314,12 @@ spec:
           protocol: TCP
           hostPort: 8443
         args:
-          - --auto-generate-certificates
-
+              - --auto-generate-certificates
+    # Uncomment the following line to manually specify Kubernetes API server Host
+    # If not specified, Dashboard will attempt to auto discover the API server and connect
+    # to it. Uncomment only if the default does not work.
+    # - --apiserver-host=http://my-address:port
+    
           # Uncomment the following line to manually specify Kubernetes API server Host
           # If not specified, Dashboard will attempt to auto discover the API server and connect
           # to it. Uncomment only if the default does not work.

@@ -4,12 +4,12 @@ metadata:
   name: elasticsearch-logging
   namespace: kube-system
   labels:
+        k8s-app: elasticsearch-logging
+    kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
-boss-part-of: efk
-k8s-app: elasticsearch-logging
-kubernetes.io/cluster-service: 'true'
-kubernetes.io/name: Elasticsearch
-
+    kubernetes.io/name: "Elasticsearch"
+    boss-part-of: efk
+    
 spec:
   ports:
   - port: 9200

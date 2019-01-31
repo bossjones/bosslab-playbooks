@@ -4,7 +4,6 @@ metadata:
   name: grafana
   namespace: monitoring
   labels:
-    # run: nginx
     app: grafana
 spec:
   ports:
@@ -13,4 +12,3 @@ spec:
     targetPort: http
   selector:
     app: grafana
-    # run: nginx

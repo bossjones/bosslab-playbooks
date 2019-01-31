@@ -16,7 +16,7 @@ metadata:
   namespace: {{boss__echoserver__namespace_name}}
 {%   if boss__echoserver__ingress_annotations is defined %}
   annotations:
-    {{ boss__echoserver__ingress_annotations | to_nice_yaml(indent=2) }}
+    {{ boss__echoserver__ingress_annotations | indent( width=4, indentfirst=True,blank=True) }}
     # # Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
     # # https://github.com/kubernetes/ingress-nginx/issues/1567
     # nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
@@ -26,8 +26,7 @@ metadata:
 {%   endif %}
 {%   if boss__echoserver__ingress_labels is defined %}
   labels:
-    {{ boss__echoserver__ingress_labels | to_nice_yaml(indent=2) }}
-    # run: nginx
+    {{ boss__echoserver__ingress_labels | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
 spec:
   rules:

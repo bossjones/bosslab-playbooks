@@ -6,22 +6,22 @@ metadata:
   name: elasticsearch-logging
   namespace: kube-system
   labels:
+        k8s-app: elasticsearch-logging
+    kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
-boss-part-of: efk
-k8s-app: elasticsearch-logging
-kubernetes.io/cluster-service: 'true'
-
+    boss-part-of: efk
+    
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: elasticsearch-logging
   labels:
+        k8s-app: elasticsearch-logging
+    kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
-boss-part-of: efk
-k8s-app: elasticsearch-logging
-kubernetes.io/cluster-service: 'true'
-
+    boss-part-of: efk
+    
 rules:
 - apiGroups:
   - ""
@@ -38,11 +38,11 @@ metadata:
   namespace: kube-system
   name: elasticsearch-logging
   labels:
+        k8s-app: elasticsearch-logging
+    kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
-boss-part-of: efk
-k8s-app: elasticsearch-logging
-kubernetes.io/cluster-service: 'true'
-
+    boss-part-of: efk
+    
 subjects:
 - kind: ServiceAccount
   name: elasticsearch-logging
@@ -60,31 +60,31 @@ metadata:
   name: elasticsearch-logging
   namespace: kube-system
   labels:
+        k8s-app: elasticsearch-logging
+    version: "v5.6.2"
+    kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
-boss-part-of: efk
-k8s-app: elasticsearch-logging
-kubernetes.io/cluster-service: 'true'
-version: v5.6.2
-
+    boss-part-of: efk
+    
 spec:
   serviceName: elasticsearch-logging
   # ORIG # replicas: 2
   replicas: 1
   selector:
     matchLabels:
-        k8s-app: elasticsearch-logging
-version: v5.6.2
-
+            k8s-app: elasticsearch-logging
+    version: v5.6.2
+    
     # matchLabels:
     #   k8s-app: elasticsearch-logging
     #  version: v5.6.2
   template:
     metadata:
       labels:
-        k8s-app: elasticsearch-logging
-kubernetes.io/cluster-service: 'true'
-version: v5.6.2
-
+            k8s-app: elasticsearch-logging
+    version: v5.6.2
+    kubernetes.io/cluster-service: "true"
+    
     spec:
       volumes:
       - name: elasticsearch-logging

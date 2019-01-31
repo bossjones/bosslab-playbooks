@@ -8,11 +8,10 @@ kind: Deployment
 metadata:
   name: echoserver
   namespace: {{boss__echoserver__namespace_name}}
-  # to_nice_yaml(indent=8)
+  # indent( width=4, indentfirst=True,blank=True)(indent=8)
 {%   if boss__echoserver__deployment_labels is defined %}
   labels:
-    {{ boss__echoserver__deployment_labels | to_nice_yaml(indent=2) }}
-    # run: nginx
+    {{ boss__echoserver__deployment_labels | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
 spec:
   replicas: {{boss__echoserver__deployment_spec_replicas}}
@@ -22,9 +21,9 @@ spec:
       run: nginx
   template:
     metadata:
-{%   if boss__echoserver__deployment_spec_template_metadata_labels is defined %}
+{%   if boss__echoserver__deployment_labels is defined %}
       labels:
-        {{ boss__echoserver__deployment_spec_template_metadata_labels | to_nice_yaml }}
+        {{ boss__echoserver__deployment_labels | indent( width=4, indentfirst=True,blank=True) }}
         # app: echoserver
         # run: nginx
 {%   endif %}

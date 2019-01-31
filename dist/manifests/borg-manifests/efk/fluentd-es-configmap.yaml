@@ -5,9 +5,9 @@ metadata:
   namespace: kube-system
 
   labels:
-    addonmanager.kubernetes.io/mode: Reconcile
-boss-part-of: efk
-
+        addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: efk
+    
 data:
   containers.input.conf: |-
     # This configuration file for Fluentd / td-agent is used
@@ -379,9 +379,9 @@ metadata:
   name: fluentd-es-config-v0.1.6
   namespace: kube-system
   labels:
-    addonmanager.kubernetes.io/mode: Reconcile
-boss-part-of: efk
-
+        addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: efk
+    
 data:
   system.conf: |-
     <system>

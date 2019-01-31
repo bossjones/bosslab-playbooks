@@ -32,19 +32,19 @@ boss__echoserver__echoserver_mem_requests: 20Mi
 boss__echoserver__deployment_annotations_list:
   - name: nginx.ingress.kubernetes.io/ssl-redirect
     val: \"false\"
-boss__echoserver__deployment_annotations:
+boss__echoserver__deployment_annotations: |
   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
-boss__echoserver__deployment_labels:
+boss__echoserver__deployment_labels: |
   run: nginx
 boss__echoserver__deployment_spec_replicas: 2
-boss__echoserver__deployment_spec_template_metadata_labels: "{{boss__echoserver__deployment_labels}}"
-boss__echoserver__ingress_labels:
+# boss__echoserver__deployment_spec_template_metadata_labels: "{{boss__echoserver__deployment_labels}}"
+boss__echoserver__ingress_labels: |
   run: nginx
-boss__echoserver__ingress_annotations:
+boss__echoserver__ingress_annotations: |
   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
-boss__echoserver__service_labels:
+boss__echoserver__service_labels: |
   run: nginx
-boss__echoserver__service__spec_selector:
+boss__echoserver__service__spec_selector: |
   run: nginx
 # boss__echoserver__echoserver_service_port: 9200
 
@@ -87,7 +87,7 @@ boss__calico__cni_version: v3.3.2
 boss__calico__cni_image_repo: "quay.io/calico/cni"
 boss__calico__cni_image_tag: "{{ boss__calico__node_version }}"
 
-boss__calico__node_daemonset_annotations:
+boss__calico__node_daemonset_annotations: |
   scheduler.alpha.kubernetes.io/critical-pod: ''
 
 # {{ calico_node_image_repo }}:{{ calico_node_image_tag }}
@@ -109,7 +109,7 @@ boss__dashboard__version: v1.10.0
 boss__dashboard__image_repo: "k8s.gcr.io/kubernetes-dashboard-amd64"
 boss__dashboard__image_tag: "{{ boss__dashboard__version }}"
 
-boss__dashboard__deployment_container_args:
+boss__dashboard__deployment_container_args: |
   - --auto-generate-certificates
   # Uncomment the following line to manually specify Kubernetes API server Host
   # If not specified, Dashboard will attempt to auto discover the API server and connect
@@ -155,26 +155,26 @@ boss__efk__deployment_name: efk
 #    .##.......##.......##.....##.##....##....##.....##..##....##.##....##.##.......##.....##.##....##..##....##.##.....##
 #    .########.########.##.....##..######.....##....####..######...######..########.##.....##.##.....##..######..##.....##
 ##########################################################################################################
-boss__efk__elasticsearch_ingress_annotations:
+boss__efk__elasticsearch_ingress_annotations: |
   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
-boss__efk__elasticsearch_ingress_labels:
+boss__efk__elasticsearch_ingress_labels: |
   k8s-app: elasticsearch-logging
   kubernetes.io/cluster-service: "true"
   addonmanager.kubernetes.io/mode: Reconcile
   boss-part-of: efk
-boss__efk__elasticsearch_service_labels:
+boss__efk__elasticsearch_service_labels: |
     k8s-app: elasticsearch-logging
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
     kubernetes.io/name: "Elasticsearch"
     boss-part-of: efk
-boss__efk__elasticsearch_persistent_volume_claim_labels:
+boss__efk__elasticsearch_persistent_volume_claim_labels: |
   kubernetes.io/cluster-service: "true"
   addonmanager.kubernetes.io/mode: Reconcile
   k8s-app: elasticsearch-logging
   boss-part-of: efk
 boss__efk__elasticsearch_persistent_volume_claim_spec_resources_requests_storage: "2Gi"
-boss__efk__elasticsearch_persistent_volume_labels:
+boss__efk__elasticsearch_persistent_volume_labels: |
   kubernetes.io/cluster-service: "true"
   addonmanager.kubernetes.io/mode: Reconcile
   k8s-app: elasticsearch-logging
@@ -188,34 +188,34 @@ boss__efk__elasticsearch_cpu_requests: 100m
 boss__efk__elasticsearch_mem_requests: 2350Mi
 
 boss__efk__elasticsearch_stateful_set_env_ES_JAVA_OPTS: "-Xms2048m -Xmx2048m"
-boss__efk__elasticsearch_service_account_labels:
+boss__efk__elasticsearch_service_account_labels: |
     k8s-app: elasticsearch-logging
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk
-boss__efk__elasticsearch_cluster_role_labels:
-    k8s-app: elasticsearch-logging
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: efk
-
-boss__efk__elasticsearch_cluster_role_binding_labels:
+boss__efk__elasticsearch_cluster_role_labels: |
     k8s-app: elasticsearch-logging
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk
 
-boss__efk__elasticsearch_stateful_set_labels:
+boss__efk__elasticsearch_cluster_role_binding_labels: |
+    k8s-app: elasticsearch-logging
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: efk
+
+boss__efk__elasticsearch_stateful_set_labels: |
     k8s-app: elasticsearch-logging
     version: "{{boss__efk__elasticsearch_version}}"
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk
 boss__efk__elasticsearch_stateful_set_spec_replicas: 1
-boss__efk__elasticsearch_stateful_set_spec_selector_match_labels:
+boss__efk__elasticsearch_stateful_set_spec_selector_match_labels: |
         k8s-app: elasticsearch-logging
         version: v5.6.2
-boss__efk__elasticsearch_stateful_set_spec_template_metadata_labels:
+boss__efk__elasticsearch_stateful_set_spec_template_metadata_labels: |
         k8s-app: elasticsearch-logging
         version: v5.6.2
         kubernetes.io/cluster-service: "true"
@@ -231,7 +231,7 @@ boss__efk__elasticsearch_stateful_set_spec_template_metadata_labels:
 #     .##.......##....##.........##....##.##.....##.##....##..##.....##....##....##.....##.##....##.
 #     .########..######...........######...#######..##.....##.##.....##....##.....#######..##.....##
 ##########################################################################################################
-boss__efk__elasticsearch_curator_deployment_labels:
+boss__efk__elasticsearch_curator_deployment_labels: |
   k8s-app: es-curator
   boss-part-of: efk
 
@@ -261,39 +261,39 @@ boss__efk__fluentd_image_tag: "{{ boss__efk__fluentd_version }}"
 boss__efk__fluentd_mem_limit: 500Mi
 boss__efk__fluentd_cpu_requests: 100m
 boss__efk__fluentd_mem_requests: 200Mi
-boss__efk__fluentd_config_map_labels:
+boss__efk__fluentd_config_map_labels: |
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk
-boss__efk__fluentd_service_account_labels:
+boss__efk__fluentd_service_account_labels: |
     k8s-app: fluentd-es
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk
-boss__efk__fluentd_cluster_role_labels:
+boss__efk__fluentd_cluster_role_labels: |
     k8s-app: fluentd-es
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk
-boss__efk__fluentd_cluster_role_binding_labels:
+boss__efk__fluentd_cluster_role_binding_labels: |
     k8s-app: fluentd-es
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk
-boss__efk__fluentd_daemon_set_labels:
+boss__efk__fluentd_daemon_set_labels: |
     k8s-app: fluentd-es
     version: v2.2.1
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk
-boss__efk__fluentd_daemon_set_spec_selector_match_labels:
+boss__efk__fluentd_daemon_set_spec_selector_match_labels: |
       k8s-app: fluentd-es
       version: v2.2.1
-boss__efk__fluentd_daemon_set_spec_template_metadata_labels:
+boss__efk__fluentd_daemon_set_spec_template_metadata_labels: |
         k8s-app: fluentd-es
         kubernetes.io/cluster-service: "true"
         version: v2.2.1
         boss-part-of: efk
-boss__efk__fluentd_daemon_set_spec_template_metadata_annotations:
+boss__efk__fluentd_daemon_set_spec_template_metadata_annotations: |
         scheduler.alpha.kubernetes.io/critical-pod: ''
         seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
 
@@ -316,26 +316,26 @@ boss__efk__kibana_image_tag: "{{ boss__efk__kibana_version }}"
 boss__efk__kibana_cpu_limit: 1000m
 boss__efk__kibana_cpu_requests: 1000m
 
-boss__efk__kibana_deployment_labels:
+boss__efk__kibana_deployment_labels: |
     k8s-app: kibana-logging
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk
 boss__efk__kibana_deployment_spec_replicas: 1
-boss__efk__kibana_deployment_spec_selector_match_labels:
+boss__efk__kibana_deployment_spec_selector_match_labels: |
       k8s-app: kibana-logging
-boss__efk__kibana_deployment_spec_template_metadata_labels:
+boss__efk__kibana_deployment_spec_template_metadata_labels: |
         k8s-app: kibana-logging
-boss__efk__kibana_deployment_spec_template_spec_node_selector:
+boss__efk__kibana_deployment_spec_template_spec_node_selector: |
         kubernetes.io/hostname: "borg-worker-01"
-boss__efk__kibana_ingress_labels:
+boss__efk__kibana_ingress_labels: |
     k8s-app: kibana-ingress
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk
-boss__efk__kibana_ingress_annotations:
+boss__efk__kibana_ingress_annotations: |
     nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
-boss__efk__kibana_service_labels:
+boss__efk__kibana_service_labels: |
     k8s-app: kibana-logging
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile

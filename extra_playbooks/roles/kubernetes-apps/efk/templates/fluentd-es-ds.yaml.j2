@@ -20,7 +20,7 @@ metadata:
   namespace: {{boss__efk__namespace_name}}
 {%   if boss__efk__fluentd_service_account_labels is defined %}
   labels:
-    {{ boss__efk__fluentd_service_account_labels | to_nice_yaml(indent=2) }}
+    {{ boss__efk__fluentd_service_account_labels | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
 ---
 kind: ClusterRole
@@ -30,7 +30,7 @@ metadata:
   # namespace: {{boss__efk__namespace_name}}
 {%   if boss__efk__fluentd_cluster_role_labels is defined %}
   labels:
-    {{ boss__efk__fluentd_cluster_role_labels | to_nice_yaml(indent=2) }}
+    {{ boss__efk__fluentd_cluster_role_labels | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
 rules:
 - apiGroups:
@@ -50,7 +50,7 @@ metadata:
   # FIXME: DON'T WE NEED THIS?? # namespace: {{boss__efk__namespace_name}} ( Answer is, no we dont )
 {%   if boss__efk__fluentd_cluster_role_binding_labels is defined %}
   labels:
-    {{ boss__efk__fluentd_cluster_role_binding_labels | to_nice_yaml(indent=2) }}
+    {{ boss__efk__fluentd_cluster_role_binding_labels | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
 subjects:
 - kind: ServiceAccount
@@ -73,26 +73,26 @@ metadata:
   namespace: {{boss__efk__namespace_name}}
 {%   if boss__efk__fluentd_daemon_set_labels is defined %}
   labels:
-    {{ boss__efk__fluentd_daemon_set_labels | to_nice_yaml(indent=2) }}
+    {{ boss__efk__fluentd_daemon_set_labels | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
 spec:
   selector:
 {%   if boss__efk__fluentd_daemon_set_spec_selector_match_labels is defined %}
     matchLabels:
-      {{ boss__efk__fluentd_daemon_set_spec_selector_match_labels | to_nice_yaml(indent=2) }}
+      {{ boss__efk__fluentd_daemon_set_spec_selector_match_labels | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
   template:
     metadata:
 {%   if boss__efk__fluentd_daemon_set_spec_template_metadata_labels is defined %}
       labels:
-        {{ boss__efk__fluentd_daemon_set_spec_template_metadata_labels | to_nice_yaml(indent=2) }}
+        {{ boss__efk__fluentd_daemon_set_spec_template_metadata_labels | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
       # This annotation ensures that fluentd does not get evicted if the node
       # supports critical pod annotation based priority scheme.
       # Note that this does not guarantee admission on the nodes (#40573).
 {%   if boss__efk__fluentd_daemon_set_spec_template_metadata_annotations is defined %}
       annotations:
-        {{ boss__efk__fluentd_daemon_set_spec_template_metadata_annotations | to_nice_yaml(indent=2) }}
+        {{ boss__efk__fluentd_daemon_set_spec_template_metadata_annotations | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
     spec:
       priorityClassName: system-node-critical

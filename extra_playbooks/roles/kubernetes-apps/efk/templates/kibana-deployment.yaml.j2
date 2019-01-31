@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
@@ -5,25 +6,25 @@ metadata:
   namespace: {{boss__efk__namespace_name}}
 {%   if boss__efk__kibana_deployment_labels is defined %}
   labels:
-    {{ boss__efk__kibana_deployment_labels | to_nice_yaml(indent=2) }}
+    {{ boss__efk__kibana_deployment_labels | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
 spec:
   replicas: {{boss__efk__kibana_deployment_spec_replicas}}
   selector:
 {%   if boss__efk__kibana_deployment_spec_selector_match_labels is defined %}
     matchLabels:
-      {{ boss__efk__kibana_deployment_spec_selector_match_labels | to_nice_yaml(indent=2) }}
+      {{ boss__efk__kibana_deployment_spec_selector_match_labels | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
   template:
     metadata:
 {%   if boss__efk__kibana_deployment_spec_template_metadata_labels is defined %}
       labels:
-        {{ boss__efk__kibana_deployment_spec_template_metadata_labels | to_nice_yaml(indent=2) }}
+        {{ boss__efk__kibana_deployment_spec_template_metadata_labels | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
     spec:
 {%   if boss__efk__kibana_deployment_spec_template_spec_node_selector is defined %}
       nodeSelector:
-        {{ boss__efk__kibana_deployment_spec_template_spec_node_selector | to_nice_yaml(indent=2) }}
+        {{ boss__efk__kibana_deployment_spec_template_spec_node_selector | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
       # SOURCE: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
       containers:

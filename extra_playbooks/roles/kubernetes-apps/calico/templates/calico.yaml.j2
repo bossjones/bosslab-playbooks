@@ -212,7 +212,7 @@ spec:
         # marks the pod as a critical add-on, ensuring it gets
         # priority scheduling and that its resources are reserved
         # if it ever gets evicted.
-        {{ boss__calico__node_daemonset_annotations | to_nice_yaml(indent=2) }}
+        {{ boss__calico__node_daemonset_annotations | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
     spec:
       nodeSelector:

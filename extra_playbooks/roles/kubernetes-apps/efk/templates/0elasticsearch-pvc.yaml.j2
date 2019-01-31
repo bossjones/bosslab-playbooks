@@ -6,7 +6,7 @@ metadata:
   namespace: {{boss__efk__namespace_name}}
 {%   if boss__efk__elasticsearch_persistent_volume_claim_labels is defined %}
   labels:
-    {{ boss__efk__elasticsearch_persistent_volume_claim_labels | to_nice_yaml(indent=2) }}
+    {{ boss__efk__elasticsearch_persistent_volume_claim_labels | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
 spec:
   accessModes:
@@ -24,7 +24,7 @@ metadata:
   namespace: {{boss__efk__namespace_name}}
 {%   if boss__efk__elasticsearch_persistent_volume_labels is defined %}
   labels:
-    {{ boss__efk__elasticsearch_persistent_volume_labels | to_nice_yaml(indent=2) }}
+    {{ boss__efk__elasticsearch_persistent_volume_labels | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
 spec:
   capacity:
