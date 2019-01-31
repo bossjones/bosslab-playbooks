@@ -4,20 +4,26 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: registry-svc-account
-  namespace: {{boss__registry__namespace_name}}
-{%   if boss__registry__service_account_labels is defined %}
+  namespace: kube-system
   labels:
-{{ boss__registry__service_account_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+    k8s-app: registry
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: registry
+    version: "2.6"
+    
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: registry-cr
-{%   if boss__registry__cluster_role_labels is defined %}
   labels:
-{{ boss__registry__cluster_role_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+    k8s-app: registry
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: registry
+    version: "2.6"
+    
 rules:
 - apiGroups:
   - ""
@@ -31,57 +37,60 @@ rules:
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
-  namespace: {{boss__registry__namespace_name}}
+  namespace: kube-system
   name: registry-crb
-{%   if boss__registry__cluster_role_binding_labels is defined %}
   labels:
-{{ boss__registry__cluster_role_binding_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+    k8s-app: registry
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: registry
+    version: "2.6"
+    
 subjects:
 - kind: ServiceAccount
   name: registry-svc-account
-  namespace: {{boss__registry__namespace_name}}
+  namespace: kube-system
   apiGroup: ""
 roleRef:
   kind: ClusterRole
   name: registry-cr
   apiGroup: ""
+# Elasticsearch deployment itself
 ---
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
   name: registry-statefulset
-  namespace: {{boss__registry__namespace_name}}
-{%   if boss__registry__stateful_set_labels is defined %}
+  namespace: kube-system
   labels:
-{{ boss__registry__stateful_set_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+    k8s-app: registry
+    version: "2.6"
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: registry
+    
 spec:
   serviceName: registry-svc-account
-  replicas: {{boss__registry__stateful_set_spec_replicas}}
+  replicas: 1
   selector:
-{%   if boss__registry__stateful_set_spec_selector_match_labels is defined %}
     matchLabels:
-        {{ boss__registry__stateful_set_spec_selector_match_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+            k8s-app: registry
+    version: "2.6"
+    
   template:
     metadata:
-{%   if boss__registry__stateful_set_spec_template_metadata_labels is defined %}
       labels:
-{{ boss__registry__stateful_set_spec_template_metadata_labels | indent( width=8, indentfirst=True,blank=True) }}
-{%   endif %}
+        k8s-app: registry
+        version: "2.6"
+        kubernetes.io/cluster-service: "true"
+        
     spec:
       volumes:
         - name: rregistry-vol
-{% if boss__registry__enable_pvc %}
-          persistentVolumeClaim:
-            claimName: registry-pvc
-{% else %}
           emptyDir: {}
-{% endif %}
       serviceAccountName: registry-svc-account
       containers:
-      - image: {{boss__registry__image_repo}}:{{boss__registry__image_tag}}
+      - image: registry:2.6
         securityContext:
           # runAsNonRoot: true
           # runAsUser: 65534
@@ -90,11 +99,11 @@ spec:
         resources:
           # need more cpu upon initialization, therefore burstable class
           limits:
-            cpu: {{boss__registry__cpu_limit}}
-            memory: {{boss__registry__mem_limit}}
+            cpu: 1000m
+            memory: 500Mi
           requests:
-            cpu: {{boss__registry__cpu_requests}}
-            memory: {{boss__registry__mem_requests}}
+            cpu: 100m
+            memory: 200Mi
         ports:
         - containerPort: 5000
           name: registry
