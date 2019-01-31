@@ -206,7 +206,7 @@ boss__efk__elasticsearch_cluster_role_binding_labels:
 
 boss__efk__elasticsearch_stateful_set_labels:
     k8s-app: elasticsearch-logging
-    version: {{boss__efk__elasticsearch_version}}
+    version: "{{boss__efk__elasticsearch_version}}"
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk

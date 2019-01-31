@@ -2,12 +2,12 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: fluentd-es-config-v0.1.0
-  namespace: {{boss__efk__namespace_name}}
+  namespace: kube-system
 
-{%   if boss__efk__fluentd_config_map_labels is defined %}
   labels:
-    {{ boss__efk__fluentd_config_map_labels | to_nice_yaml(indent=2) }}
-{%   endif %}
+    addonmanager.kubernetes.io/mode: Reconcile
+boss-part-of: efk
+
 data:
   containers.input.conf: |-
     # This configuration file for Fluentd / td-agent is used
@@ -377,11 +377,11 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: fluentd-es-config-v0.1.6
-  namespace: {{boss__efk__namespace_name}}
-{%   if boss__efk__fluentd_config_map_labels is defined %}
+  namespace: kube-system
   labels:
-    {{ boss__efk__fluentd_config_map_labels | to_nice_yaml(indent=2) }}
-{%   endif %}
+    addonmanager.kubernetes.io/mode: Reconcile
+boss-part-of: efk
+
 data:
   system.conf: |-
     <system>
@@ -697,9 +697,8 @@ data:
     <source>
       @id journald-container-runtime
       @type systemd
-{% raw %}
+
       matches [{ "_SYSTEMD_UNIT": "{{ fluentd_container_runtime_service }}.service" }]
-{% endraw %}
       <storage>
         @type local
         persistent true
