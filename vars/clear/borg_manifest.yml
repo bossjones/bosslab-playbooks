@@ -438,7 +438,9 @@ boss__registry__stateful_set_spec_template_metadata_labels:
         version: "{{boss__registry__version}}"
         kubernetes.io/cluster-service: "true"
 
-
+boss__registry__persistent_volume_spec_capacity_storage: 10Gi
+boss__registry__persistent_volume_spec_nfs_path: "{{path_to_network_disk}}/registry"
+boss__registry__nfs_master_node_ip: "{{ hostvars[groups[nfs_server_group][0]]['ansible_' + main_network_interface].ipv4.address }}"
 
 # ---
 # local_release_dir: /tmp/releases
