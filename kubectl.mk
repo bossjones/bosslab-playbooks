@@ -562,6 +562,8 @@ describe-cert-manager:
 	-kubectl --namespace=default describe -f dist/manifests/$(cluster)-manifests/cert-manager/ | highlight
 	-kubectl --namespace=kube-system describe -f dist/manifests/$(cluster)-manifests/cert-manager/ | highlight
 	-kubectl --namespace=cert-manager get secret example-com-tls -o yaml | highlight
+	-kubectl get pods --show-all --namespace cert-manager | highlight
+	-kubectl get cronjob --namespace cert-manager | hightlight
 
 debug-cert-manager: describe-cert-manager
 	kubectl --namespace=cert-manager  get pod -l app=cert-manager --output=yaml | highlight
