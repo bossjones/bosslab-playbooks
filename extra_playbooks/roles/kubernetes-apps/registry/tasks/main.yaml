@@ -34,3 +34,4 @@
     - "registry-svc.yml"
     - "registry-svc-statefulset.yml"
     - "99registry-cert-tls.yml"
+    - "99registry-from-helm.yml"

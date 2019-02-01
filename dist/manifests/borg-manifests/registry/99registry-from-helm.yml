@@ -150,9 +150,8 @@ spec:
         addonmanager.kubernetes.io/mode: Reconcile
         boss-part-of: registry
         version: "2.6.2"
-{% raw %}
+
       annotations: {}
-{% endraw %}
     spec:
       securityContext:
         fsGroup: 1000
@@ -176,10 +175,9 @@ spec:
             httpGet:
               path: /
               port: 5000
-{% raw %}
+
           resources:
             {}
-{% endraw %}
 
           env:
             - name: REGISTRY_HTTP_SECRET
@@ -196,9 +194,8 @@ spec:
               mountPath: "/etc/docker/registry"
       volumes:
         - name: data
-{% raw %}
+
           emptyDir: {}
-{% endraw %}
         - name: docker-registry-config
           configMap:
             name: docker-registry-config
