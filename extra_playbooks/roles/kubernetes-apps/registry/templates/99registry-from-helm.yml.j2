@@ -61,15 +61,21 @@ data:
         interval: 10s
         threshold: 3
     http:
-      addr: :5000
+      addr: localhost:5000
+#      tls:
+#        certificate: /path/to/x509/public
+#        key: /path/to/x509/private
+#        clientcas:
+#          - /path/to/ca.pem
+#          - /path/to/another/ca.pem
       headers:
         # Needed for docker-registry-ui
         # SOURCE: https://github.com/Joxit/docker-registry-ui
         X-Content-Type-Options: [nosniff]
         # Access-Control-Allow-Origin: ['http://127.0.0.1:8001']
-        Access-Control-Allow-Origin: ['http://registry-ui.hyenaclan.org']
+        # Access-Control-Allow-Origin: ['http://registry-ui.hyenaclan.org']
         # If your docker registry does not need credentials, you will need to send this HEADER:
-        # Access-Control-Allow-Origin: ['*']
+        Access-Control-Allow-Origin: ['*']
 
         # NOTE: If your docker registry need credentials, you will need to send these HEADERS:
         # Access-Control-Allow-Origin: '<your docker-registry-ui url>'
@@ -80,9 +86,9 @@ data:
         Access-Control-Allow-Methods: ['HEAD', 'GET', 'OPTIONS', 'DELETE']
         Access-Control-Expose-Headers: ['Docker-Content-Digest']
 
-        # Access-Control-Allow-Headers: ['Authorization']
-        # Access-Control-Max-Age: [1728000]
-        # Access-Control-Allow-Credentials: [true]
+        Access-Control-Allow-Headers: ['Authorization']
+        Access-Control-Max-Age: [1728000]
+        Access-Control-Allow-Credentials: [true]
       # debug:
       #    addr: :5001
     log:
@@ -93,7 +99,7 @@ data:
       # formatter: text
       fields:
         service: registry
-      # level: debug
+      level: debug
     storage:
       cache:
         blobdescriptor: inmemory
@@ -124,6 +130,7 @@ metadata:
 
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+    nginx.ingress.kubernetes.io/proxy-body-size: \"0\"
 
 spec:
   type: ClusterIP
@@ -236,10 +243,10 @@ metadata:
     version: "2.6.2"
   annotations:
       # certmanager.k8s.io/issuer: "selfsigning-issuer"
-      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-body-size: "\\\"0\\\""
       # nginx.ingress.kubernetes.io/rewrite-target: "\\\"/\\\""
-      # nginx.ingress.kubernetes.io/ssl-redirect: "\\\"false\\\""
-      nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+      nginx.ingress.kubernetes.io/ssl-redirect: "\\\"false\\\""
+      # nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
 spec:
   rules:
     - host: registry.hyenaclan.org

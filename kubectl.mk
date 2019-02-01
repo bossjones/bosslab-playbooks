@@ -569,8 +569,6 @@ describe-cert-manager:
 debug-cert-manager: describe-cert-manager
 	kubectl --namespace=cert-manager  get pod -l app=cert-manager --output=yaml | highlight
 
-
-
 create-registry-ui:
 	$(call check_defined, cluster, Please set cluster)
 	@printf "create-registry-ui:\n"

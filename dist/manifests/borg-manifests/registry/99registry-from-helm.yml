@@ -67,8 +67,9 @@ data:
         # SOURCE: https://github.com/Joxit/docker-registry-ui
         X-Content-Type-Options: [nosniff]
         # Access-Control-Allow-Origin: ['http://127.0.0.1:8001']
+        Access-Control-Allow-Origin: ['http://registry-ui.hyenaclan.org']
         # If your docker registry does not need credentials, you will need to send this HEADER:
-        Access-Control-Allow-Origin: ['*']
+        # Access-Control-Allow-Origin: ['*']
 
         # NOTE: If your docker registry need credentials, you will need to send these HEADERS:
         # Access-Control-Allow-Origin: '<your docker-registry-ui url>'
@@ -123,6 +124,7 @@ metadata:
 
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+    nginx.ingress.kubernetes.io/proxy-body-size: \"0\"
 
 spec:
   type: ClusterIP
@@ -232,7 +234,7 @@ metadata:
     version: "2.6.2"
   annotations:
       # certmanager.k8s.io/issuer: "selfsigning-issuer"
-      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-body-size: \"0\"
       # nginx.ingress.kubernetes.io/rewrite-target: "\\\"/\\\""
       # nginx.ingress.kubernetes.io/ssl-redirect: "\\\"false\\\""
       nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
