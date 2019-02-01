@@ -3,12 +3,16 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: RELEASE-NAME-docker-registry-secret
+  name: docker-registry-secret
   labels:
     app: docker-registry
-    chart: docker-registry-1.7.0
-    heritage: Tiller
-    release: RELEASE-NAME
+    k8s-app: registry
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: registry
+    version: "2.6.2"
+
+
 type: Opaque
 data:
   haSharedSecret: "eVU5a2ZKNndFODV1TmczTQ=="
@@ -18,12 +22,16 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: RELEASE-NAME-docker-registry-config
+  name: docker-registry-config
   labels:
     app: docker-registry
-    chart: docker-registry-1.7.0
-    heritage: Tiller
-    release: RELEASE-NAME
+    k8s-app: registry
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: registry
+    version: "2.6.2"
+
+
 data:
   config.yml: |-
     health:
@@ -55,12 +63,16 @@ data:
 apiVersion: v1
 kind: Service
 metadata:
-  name: RELEASE-NAME-docker-registry
+  name: docker-registry
   labels:
     app: docker-registry
-    chart: docker-registry-1.7.0
-    release: RELEASE-NAME
-    heritage: Tiller
+    k8s-app: registry
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: registry
+    version: "2.6.2"
+
+
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
 
@@ -73,19 +85,24 @@ spec:
       targetPort: 5000
   selector:
     app: docker-registry
-    release: RELEASE-NAME
+    k8s-app: registry
+
 
 ---
 # Source: docker-registry/templates/deployment.yaml
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: RELEASE-NAME-docker-registry
+  name: docker-registry
   labels:
     app: docker-registry
-    chart: docker-registry-1.7.0
-    release: RELEASE-NAME
-    heritage: Tiller
+    k8s-app: registry
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: registry
+    version: "2.6.2"
+
+
 spec:
   replicas: 1
   minReadySeconds: 5
@@ -93,7 +110,12 @@ spec:
     metadata:
       labels:
         app: docker-registry
-        release: RELEASE-NAME
+        k8s-app: registry
+        kubernetes.io/cluster-service: "true"
+        addonmanager.kubernetes.io/mode: Reconcile
+        boss-part-of: registry
+        version: "2.6.2"
+
       annotations:
         checksum/config: df30f756639ab7549b1302413d30817f5f743d7fce54e82fd8d28caee42d9ded
     spec:
@@ -125,39 +147,35 @@ spec:
             - name: REGISTRY_HTTP_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: RELEASE-NAME-docker-registry-secret
+                  name: docker-registry-secret
                   key: haSharedSecret
             - name: REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY
               value: "/var/lib/registry"
           volumeMounts:
             - name: data
               mountPath: /var/lib/registry/
-            - name: "RELEASE-NAME-docker-registry-config"
+            - name: "docker-registry-config"
               mountPath: "/etc/docker/registry"
       volumes:
         - name: data
           emptyDir: {}
-        - name: RELEASE-NAME-docker-registry-config
+        - name: docker-registry-config
           configMap:
-            name: RELEASE-NAME-docker-registry-config
+            name: docker-registry-config
 
 ---
 # Source: docker-registry/templates/ingress.yaml
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: RELEASE-NAME-docker-registry
+  name: docker-registry
   labels:
     app: docker-registry
-    chart: docker-registry-1.7.0
-    release: RELEASE-NAME
-    heritage: Tiller
-    addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: registry
     k8s-app: registry
     kubernetes.io/cluster-service: "true"
-    version: 2.6.2
-
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: registry
+    version: "2.6.2"
   annotations:
       certmanager.k8s.io/issuer: "selfsigning-issuer"
       nginx.ingress.kubernetes.io/proxy-body-size: "0"
@@ -169,7 +187,7 @@ spec:
         paths:
           - path: /
             backend:
-              serviceName: RELEASE-NAME-docker-registry
+              serviceName: docker-registry
               servicePort: 5000
   tls:
     - hosts:
