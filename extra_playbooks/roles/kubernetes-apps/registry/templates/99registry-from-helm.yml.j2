@@ -53,7 +53,6 @@ metadata:
     boss-part-of: registry
     version: "2.6.2"
 
-
 data:
   config.yml: |-
     health:
@@ -64,8 +63,25 @@ data:
     http:
       addr: :5000
       headers:
-        X-Content-Type-Options:
-        - nosniff
+        # Needed for docker-registry-ui
+        # SOURCE: https://github.com/Joxit/docker-registry-ui
+        X-Content-Type-Options: [nosniff]
+        # Access-Control-Allow-Origin: ['http://127.0.0.1:8001']
+        # If your docker registry does not need credentials, you will need to send this HEADER:
+        Access-Control-Allow-Origin: ['*']
+
+        # NOTE: If your docker registry need credentials, you will need to send these HEADERS:
+        # Access-Control-Allow-Origin: '<your docker-registry-ui url>'
+        # Access-Control-Allow-Credentials: true
+        # Access-Control-Allow-Methods: ['HEAD', 'GET', 'OPTIONS'] # Optional
+
+        # NOTE: Needed for delete
+        Access-Control-Allow-Methods: ['HEAD', 'GET', 'OPTIONS', 'DELETE']
+        Access-Control-Expose-Headers: ['Docker-Content-Digest']
+
+        # Access-Control-Allow-Headers: ['Authorization']
+        # Access-Control-Max-Age: [1728000]
+        # Access-Control-Allow-Credentials: [true]
       # debug:
       #    addr: :5001
     log:
@@ -80,6 +96,8 @@ data:
     storage:
       cache:
         blobdescriptor: inmemory
+      filesystem:
+        rootdirectory: /var/lib/registry
       delete:
         enable: true
     # storage:
@@ -87,7 +105,6 @@ data:
     #     rootdirectory: /var/lib/registry
     #     maxthreads: 100
     version: 0.1
-
 
 ---
 # Source: docker-registry/templates/service.yaml
