@@ -1,0 +1,194 @@
+---
+# Source: docker-registry/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: RELEASE-NAME-docker-registry-secret
+  labels:
+    app: docker-registry
+    chart: docker-registry-1.7.0
+    heritage: Tiller
+    release: RELEASE-NAME
+type: Opaque
+data:
+  htpasswd: YWRtaW46JDJ5JDA1JE5uQjhHZDVmM0hFSVdUUlh6MGEyQ2UzN2xOeFlLTDNnVXdnSEFNdHpBRTRpeWoxSmtOdmVT
+  haSharedSecret: "dzBZQUNJenp5OG8yR0dwRQ=="
+
+---
+# Source: docker-registry/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: RELEASE-NAME-docker-registry-config
+  labels:
+    app: docker-registry
+    chart: docker-registry-1.7.0
+    heritage: Tiller
+    release: RELEASE-NAME
+data:
+  config.yml: |-
+    health:
+      storagedriver:
+        enabled: true
+        interval: 10s
+        threshold: 3
+    http:
+      addr: :5000
+      headers:
+        X-Content-Type-Options:
+        - nosniff
+    log:
+      fields:
+        service: registry
+    storage:
+      cache:
+        blobdescriptor: inmemory
+      delete:
+        enable: true
+    version: 0.1
+
+
+---
+# Source: docker-registry/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: RELEASE-NAME-docker-registry
+  labels:
+    app: docker-registry
+    chart: docker-registry-1.7.0
+    release: RELEASE-NAME
+    heritage: Tiller
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5000
+      protocol: TCP
+      name: registry
+      targetPort: 5000
+  selector:
+    app: docker-registry
+    release: RELEASE-NAME
+
+---
+# Source: docker-registry/templates/deployment.yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: RELEASE-NAME-docker-registry
+  labels:
+    app: docker-registry
+    chart: docker-registry-1.7.0
+    release: RELEASE-NAME
+    heritage: Tiller
+spec:
+  replicas: 1
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        app: docker-registry
+        release: RELEASE-NAME
+      annotations:
+        checksum/config: df30f756639ab7549b1302413d30817f5f743d7fce54e82fd8d28caee42d9ded
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+      containers:
+        - name: docker-registry
+          image: "registry:2.6.2"
+          imagePullPolicy: IfNotPresent
+          command:
+          - /bin/registry
+          - serve
+          - /etc/docker/registry/config.yml
+          ports:
+            - containerPort: 5000
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5000
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5000
+          resources:
+            {}
+
+          env:
+            - name: REGISTRY_AUTH
+              value: "htpasswd"
+            - name: REGISTRY_AUTH_HTPASSWD_REALM
+              value: "Registry Realm"
+            - name: REGISTRY_AUTH_HTPASSWD_PATH
+              value: "/auth/htpasswd"
+            - name: REGISTRY_HTTP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: RELEASE-NAME-docker-registry-secret
+                  key: haSharedSecret
+            - name: REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY
+              value: "/var/lib/registry"
+          volumeMounts:
+            - name: auth
+              mountPath: /auth
+              readOnly: true
+            - name: data
+              mountPath: /var/lib/registry/
+            - name: "RELEASE-NAME-docker-registry-config"
+              mountPath: "/etc/docker/registry"
+      volumes:
+        - name: auth
+          secret:
+            secretName: RELEASE-NAME-docker-registry-secret
+            items:
+            - key: htpasswd
+              path: htpasswd
+        - name: data
+          emptyDir: {}
+        - name: RELEASE-NAME-docker-registry-config
+          configMap:
+            name: RELEASE-NAME-docker-registry-config
+
+---
+# Source: docker-registry/templates/ingress.yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: RELEASE-NAME-docker-registry
+  labels:
+    app: docker-registry
+    chart: docker-registry-1.7.0
+    release: RELEASE-NAME
+    heritage: Tiller
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: registry
+    k8s-app: registry
+    kubernetes.io/cluster-service: "true"
+    version: 2.6.2
+
+  annotations:
+      certmanager.k8s.io/issuer: "selfsigning-issuer"
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/ssl-redirect: "\\\"false\\\""
+spec:
+  rules:
+    - host: registry.hyenaclan.org
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: RELEASE-NAME-docker-registry
+              servicePort: 5000
+  tls:
+    - hosts:
+      - registry.hyenaclan.org
+      secretName: docker-registry-tls-certificate
+
+---
+# Source: docker-registry/templates/pvc.yaml
+
