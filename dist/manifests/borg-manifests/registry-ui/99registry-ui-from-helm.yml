@@ -127,7 +127,7 @@ spec:
           env:
             # REGISTRY_URL: your docker registry URL to contact (CORS configuration is not needed). Example: http://my-docker-container:5000. (Can't be used with URL, since 0.3.2).
             - name: REGISTRY_URL
-              value: "http://registry:5000"
+              value: "http://docker-registry:5000"
             - name: DELETE_IMAGES
               value: "true"
             - name: REGISTRY_TITLE
