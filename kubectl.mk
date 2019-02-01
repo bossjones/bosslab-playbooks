@@ -249,6 +249,40 @@ describe-nfs-client:
 debug-nfs-client: describe-nfs-client
 	kubectl -n kube-system get pod -l app=nfs-client --output=yaml | highlight
 
+redeploy-registry:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete registry:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete registry$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/registry/
+
+	@printf "render registry manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render registry manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_registry.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "create-registry:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy registry$$NC\n"
+	@printf "=======================================\n"
+	# kubectl create -f dist/manifests/$(cluster)-manifests/registry/
+	-kubectl create -f dist/manifests/$(cluster)-manifests/registry/99registry-from-helm.yml
+	@echo ""
+	@echo ""
+
+
 create-registry:
 	$(call check_defined, cluster, Please set cluster)
 	@printf "create-registry:\n"
@@ -284,7 +318,9 @@ debug-registry: describe-registry
 	kubectl -n kube-system get pod -l app=registry --output=yaml | highlight
 
 test-registry-curl:
-	curl -u admin:admin123 'https://registry.hyenalab.home/v2/_catalog'
+	-curl -v -L -u admin:admin123 'https://registry.hyenalab.home/v2/_catalog'
+	-curl -v -L 'http://registry.hyenalab.home/v2'
+	-curl -v -L 'http://registry.hyenalab.home/v2_catalog'
 
 
 create-metrics-server:

@@ -124,9 +124,9 @@ metadata:
     version: "2.6.2"
 
 
-  annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
-    nginx.ingress.kubernetes.io/proxy-body-size: \"0\"
+  # annotations:
+  #   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  #  nginx.ingress.kubernetes.io/proxy-body-size: \"0\"
 
 spec:
   type: ClusterIP
@@ -233,23 +233,26 @@ metadata:
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: registry
     version: "2.6.2"
+  # (see issue #2292 - https://github.com/moby/moby/issues/2292)
+  # nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
   annotations:
       # certmanager.k8s.io/issuer: "selfsigning-issuer"
       nginx.ingress.kubernetes.io/proxy-body-size: 16384m
       nginx.ingress.kubernetes.io/proxy-read-timeout: "900"
       nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
-      # (see issue #2292 - https://github.com/moby/moby/issues/2292)
-      nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
       # nginx.ingress.kubernetes.io/rewrite-target: "\\\"/\\\""
       # nginx.ingress.kubernetes.io/ssl-redirect: "\\\"false\\\""
-      nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
       #nginx.ingress.kubernetes.io/proxy-body-size: 0
       #nginx.ingress.kubernetes.io/proxy-read-timeout: 600
       #nginx.ingress.kubernetes.io/proxy-send-timeout: 600
+      # nginx.ingress.kubernetes.io/x-forwarded-prefix: \"true\"
+      # nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+      # nginx.ingress.kubernetes.io/rewrite-target: /
 
       # ingress.kubernetes.io/proxy-body-size: "0"
       # SOURCE: https://github.com/BA-2017/Infrastructure/blob/24e8a9d18ac89787f53076cce38c3683fdf5f60c/kubernetes/addons/DockerRegistry/ingress.yml
       # pass on real client's IP
+      #  proxy_set_header Host $host;
       nginx.ingress.kubernetes.io/configuration-snippet: |
         chunked_transfer_encoding on;
         proxy_set_header  X-Real-IP         $remote_addr;
@@ -265,6 +268,14 @@ spec:
             backend:
               serviceName: docker-registry
               servicePort: 5000
+          # - path: /v2
+          #   backend:
+          #     serviceName: docker-registry-v2
+          #     servicePort: 5000
+          # - path: /service
+          #   backend:
+          #     serviceName: docker-registry
+          #     servicePort: 5000
     - host: debug.registry.hyenaclan.org
       http:
         paths:
@@ -272,9 +283,12 @@ spec:
             backend:
               serviceName: docker-registry
               servicePort: 5001
-  # tls:
+  tls:
+    - hosts:
+      - registry.hyenaclan.org
+  #    secretName: docker-registry-tls-certificate
   #   - hosts:
-  #     - registry.hyenaclan.org
+  #     - debug.registry.hyenaclan.org
   #     secretName: docker-registry-tls-certificate
 
 ---
