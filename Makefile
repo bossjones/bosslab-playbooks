@@ -736,4 +736,15 @@ tmp-shell-kube-system:
 tmp-shell-monitoring:
 	kubectl -n monitoring run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash
 
+zsh-tmp-shell-default:
+	kubectl run zsh-tmp-shell --rm -i --tty --image bossjones/k8s-zsh-debugger -- /bin/zsh
+
+zsh-tmp-shell-kube-system:
+	kubectl -n kube-system run zsh-tmp-shell --rm -i --tty --image bossjones/k8s-zsh-debugger -- /bin/zsh
+
+zsh-tmp-shell-monitoring:
+	kubectl -n monitoring run zsh-tmp-shell --rm -i --tty --image bossjones/k8s-zsh-debugger -- /bin/zsh
+
+# bossjones/k8s-zsh-debugger:
+
 include *.mk
