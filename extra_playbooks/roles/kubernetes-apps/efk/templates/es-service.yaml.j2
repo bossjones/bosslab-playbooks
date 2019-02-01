@@ -5,7 +5,7 @@ metadata:
   namespace: {{boss__efk__namespace_name}}
 {%   if boss__efk__elasticsearch_service_labels is defined %}
   labels:
-    {{ boss__efk__elasticsearch_service_labels | indent( width=4, indentfirst=True,blank=True) }}
+{{ boss__efk__elasticsearch_service_labels | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
 spec:
   ports:

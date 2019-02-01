@@ -20,7 +20,7 @@ metadata:
   namespace: {{boss__efk__namespace_name}}
 {%   if boss__efk__kibana_ingress_labels is defined %}
   labels:
-    {{ boss__efk__kibana_ingress_labels | indent( width=4, indentfirst=True,blank=True) }}
+{{ boss__efk__kibana_ingress_labels | indent( width=4, indentfirst=True,blank=True) }}
 {%   endif %}
 {%   if boss__efk__kibana_ingress_annotations is defined %}
   annotations:
@@ -37,7 +37,7 @@ metadata:
     # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-send-timeout: \"600\"
     # INFO: Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
     # https://github.com/kubernetes/ingress-nginx/issues/1567
-    {{ boss__efk__kibana_ingress_annotations | indent( width=4, indentfirst=True,blank=True) }}
+{{ boss__efk__kibana_ingress_annotations | indent( width=4, indentfirst=True,blank=True) }}
     # INFO: Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
     # SOURCE: https://medium.com/@Oskarr3/setting-up-ingress-on-minikube-6ae825e98f82
     # nginx.ingress.kubernetes.io/rewrite-target: /
