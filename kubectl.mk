@@ -267,7 +267,7 @@ apply-registry:
 	@printf "=======================================\n"
 	@printf "$$GREEN deploy registry$$NC\n"
 	@printf "=======================================\n"
-	kubectl apply -f dist/manifests/$(cluster)-manifests/registry/
+	kubectl apply -f dist/manifests/$(cluster)-manifests/registry/99registry-from-helm.yml
 	@echo ""
 	@echo ""
 # kubectl get pods --all-namespaces -l app=registry --watch

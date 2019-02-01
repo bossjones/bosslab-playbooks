@@ -61,21 +61,16 @@ data:
         interval: 10s
         threshold: 3
     http:
-      addr: localhost:5000
-#      tls:
-#        certificate: /path/to/x509/public
-#        key: /path/to/x509/private
-#        clientcas:
-#          - /path/to/ca.pem
-#          - /path/to/another/ca.pem
+      addr: :5000
       headers:
         # Needed for docker-registry-ui
         # SOURCE: https://github.com/Joxit/docker-registry-ui
         X-Content-Type-Options: [nosniff]
         # Access-Control-Allow-Origin: ['http://127.0.0.1:8001']
         # Access-Control-Allow-Origin: ['http://registry-ui.hyenaclan.org']
-        # If your docker registry does not need credentials, you will need to send this HEADER:
         Access-Control-Allow-Origin: ['*']
+        # If your docker registry does not need credentials, you will need to send this HEADER:
+        # Access-Control-Allow-Origin: ['*']
 
         # NOTE: If your docker registry need credentials, you will need to send these HEADERS:
         # Access-Control-Allow-Origin: '<your docker-registry-ui url>'
@@ -86,20 +81,21 @@ data:
         Access-Control-Allow-Methods: ['HEAD', 'GET', 'OPTIONS', 'DELETE']
         Access-Control-Expose-Headers: ['Docker-Content-Digest']
 
-        Access-Control-Allow-Headers: ['Authorization']
-        Access-Control-Max-Age: [1728000]
-        Access-Control-Allow-Credentials: [true]
-      # debug:
-      #    addr: :5001
+        # Access-Control-Allow-Headers: ['Authorization']
+        # Access-Control-Max-Age: [1728000]
+        # Access-Control-Allow-Credentials: [true]
+      debug:
+         addr: :5001
     log:
       accesslog:
-        disabled: true
+        disabled: false
+      level: info
       formatter: json
       # formatter: logstash
       # formatter: text
       fields:
         service: registry
-      level: debug
+      # level: debug
     storage:
       cache:
         blobdescriptor: inmemory
@@ -137,12 +133,12 @@ spec:
   ports:
     - port: 5000
       protocol: TCP
-      name: registry
+      name: registry-http
       targetPort: 5000
-    # - port: 5001
-    #   protocol: TCP
-    #   name: registry
-    #   targetPort: 5001
+    - port: 5001
+      protocol: TCP
+      name: registry-debug
+      targetPort: 5001
   selector:
     app: docker-registry
     k8s-app: registry
@@ -191,8 +187,10 @@ spec:
           - serve
           - /etc/docker/registry/config.yml
           ports:
-            - containerPort: 5000
-            # - containerPort: 5001
+            - name: registry-http
+              containerPort: 5000
+            - name: registry-debug
+              containerPort: 5001
           livenessProbe:
             httpGet:
               path: /
@@ -212,6 +210,8 @@ spec:
             #     secretKeyRef:
             #       name: docker-registry-secret
             #       key: haSharedSecret
+            - name: REGISTRY_HTTP_ADDR
+              value: ":5000"
             - name: REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY
               value: "/var/lib/registry"
           volumeMounts:
@@ -243,10 +243,13 @@ metadata:
     version: "2.6.2"
   annotations:
       # certmanager.k8s.io/issuer: "selfsigning-issuer"
-      nginx.ingress.kubernetes.io/proxy-body-size: "\\\"0\\\""
+      # nginx.ingress.kubernetes.io/proxy-body-size: "\\\"0\\\""
       # nginx.ingress.kubernetes.io/rewrite-target: "\\\"/\\\""
-      nginx.ingress.kubernetes.io/ssl-redirect: "\\\"false\\\""
-      # nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+      # nginx.ingress.kubernetes.io/ssl-redirect: "\\\"false\\\""
+      nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
 spec:
   rules:
     - host: registry.hyenaclan.org
@@ -256,6 +259,13 @@ spec:
             backend:
               serviceName: docker-registry
               servicePort: 5000
+    - host: debug.registry.hyenaclan.org
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: docker-registry
+              servicePort: 5001
   # tls:
   #   - hosts:
   #     - registry.hyenaclan.org
