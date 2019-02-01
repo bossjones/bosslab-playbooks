@@ -268,14 +268,6 @@ spec:
             backend:
               serviceName: docker-registry
               servicePort: 5000
-          # - path: /v2
-          #   backend:
-          #     serviceName: docker-registry-v2
-          #     servicePort: 5000
-          # - path: /service
-          #   backend:
-          #     serviceName: docker-registry
-          #     servicePort: 5000
     - host: debug.registry.hyenaclan.org
       http:
         paths:
@@ -286,6 +278,7 @@ spec:
   tls:
     - hosts:
       - registry.hyenaclan.org
+      # - debug.registry.hyenaclan.org
   #    secretName: docker-registry-tls-certificate
   #   - hosts:
   #     - debug.registry.hyenaclan.org
