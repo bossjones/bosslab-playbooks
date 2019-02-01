@@ -191,14 +191,6 @@ spec:
               containerPort: 5000
             - name: registry-debug
               containerPort: 5001
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 5000
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 5000
 {% raw %}
           resources:
             {}
@@ -243,13 +235,27 @@ metadata:
     version: "2.6.2"
   annotations:
       # certmanager.k8s.io/issuer: "selfsigning-issuer"
-      # nginx.ingress.kubernetes.io/proxy-body-size: "\\\"0\\\""
+      nginx.ingress.kubernetes.io/proxy-body-size: 16384m
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "900"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+      # (see issue #2292 - https://github.com/moby/moby/issues/2292)
+      nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
       # nginx.ingress.kubernetes.io/rewrite-target: "\\\"/\\\""
       # nginx.ingress.kubernetes.io/ssl-redirect: "\\\"false\\\""
       nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
-      nginx.ingress.kubernetes.io/proxy-body-size: "0"
-      nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
-      nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+      #nginx.ingress.kubernetes.io/proxy-body-size: 0
+      #nginx.ingress.kubernetes.io/proxy-read-timeout: 600
+      #nginx.ingress.kubernetes.io/proxy-send-timeout: 600
+
+      # ingress.kubernetes.io/proxy-body-size: "0"
+      # SOURCE: https://github.com/BA-2017/Infrastructure/blob/24e8a9d18ac89787f53076cce38c3683fdf5f60c/kubernetes/addons/DockerRegistry/ingress.yml
+      # pass on real client's IP
+      nginx.ingress.kubernetes.io/configuration-snippet: |
+        chunked_transfer_encoding on;
+        proxy_set_header  X-Real-IP         $remote_addr;
+        proxy_set_header  X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header  X-Forwarded-Proto $scheme;
+        add_header 'Docker-Distribution-Api-Version' 'registry/2.0' always;
 spec:
   rules:
     - host: registry.hyenaclan.org
