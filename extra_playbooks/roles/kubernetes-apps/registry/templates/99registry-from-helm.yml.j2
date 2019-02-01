@@ -11,8 +11,7 @@ metadata:
     release: RELEASE-NAME
 type: Opaque
 data:
-  htpasswd: YWRtaW46JDJ5JDA1JE5uQjhHZDVmM0hFSVdUUlh6MGEyQ2UzN2xOeFlLTDNnVXdnSEFNdHpBRTRpeWoxSmtOdmVT
-  haSharedSecret: "dzBZQUNJenp5OG8yR0dwRQ=="
+  haSharedSecret: "eVU5a2ZKNndFODV1TmczTQ=="
 
 ---
 # Source: docker-registry/templates/configmap.yaml
@@ -120,12 +119,6 @@ spec:
             {}
 
           env:
-            - name: REGISTRY_AUTH
-              value: "htpasswd"
-            - name: REGISTRY_AUTH_HTPASSWD_REALM
-              value: "Registry Realm"
-            - name: REGISTRY_AUTH_HTPASSWD_PATH
-              value: "/auth/htpasswd"
             - name: REGISTRY_HTTP_SECRET
               valueFrom:
                 secretKeyRef:
@@ -134,20 +127,11 @@ spec:
             - name: REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY
               value: "/var/lib/registry"
           volumeMounts:
-            - name: auth
-              mountPath: /auth
-              readOnly: true
             - name: data
               mountPath: /var/lib/registry/
             - name: "RELEASE-NAME-docker-registry-config"
               mountPath: "/etc/docker/registry"
       volumes:
-        - name: auth
-          secret:
-            secretName: RELEASE-NAME-docker-registry-secret
-            items:
-            - key: htpasswd
-              path: htpasswd
         - name: data
           emptyDir: {}
         - name: RELEASE-NAME-docker-registry-config
