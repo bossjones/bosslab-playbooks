@@ -570,3 +570,40 @@ debug-cert-manager: describe-cert-manager
 	kubectl --namespace=cert-manager  get pod -l app=cert-manager --output=yaml | highlight
 
 
+
+create-registry-ui:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-registry-ui:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy registry-ui$$NC\n"
+	@printf "=======================================\n"
+	# kubectl create -f dist/manifests/$(cluster)-manifests/registry-ui/
+	kubectl create -f dist/manifests/$(cluster)-manifests/registry-ui/99registry-ui-from-helm.yml
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=registry-ui --watch | highlight
+
+apply-registry-ui:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-registry-ui:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy registry-ui$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/registry-ui/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=registry-ui --watch
+
+delete-registry-ui:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/registry-ui/
+
+describe-registry-ui:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/registry-ui/ | highlight
+
+debug-registry-ui: describe-registry-ui
+	kubectl -n kube-system get pod -l app=registry-ui --output=yaml | highlight
+
+test-registry-ui-curl:
+	curl -u admin:admin123 'https://registry-ui.hyenalab.org/v2/_catalog'
