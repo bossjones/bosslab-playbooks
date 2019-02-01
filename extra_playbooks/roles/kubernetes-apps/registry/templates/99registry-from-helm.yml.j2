@@ -86,13 +86,13 @@ data:
       #    addr: :5001
     log:
       accesslog:
-        disabled: false
+        disabled: true
       formatter: json
       # formatter: logstash
       # formatter: text
       fields:
         service: registry
-      level: debug
+      # level: debug
     storage:
       cache:
         blobdescriptor: inmemory
@@ -199,11 +199,11 @@ spec:
 {% endraw %}
 
           env:
-            - name: REGISTRY_HTTP_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: docker-registry-secret
-                  key: haSharedSecret
+            # - name: REGISTRY_HTTP_SECRET
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: docker-registry-secret
+            #       key: haSharedSecret
             - name: REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY
               value: "/var/lib/registry"
           volumeMounts:
@@ -234,10 +234,11 @@ metadata:
     boss-part-of: registry
     version: "2.6.2"
   annotations:
-      certmanager.k8s.io/issuer: "selfsigning-issuer"
+      # certmanager.k8s.io/issuer: "selfsigning-issuer"
       nginx.ingress.kubernetes.io/proxy-body-size: "0"
-      nginx.ingress.kubernetes.io/rewrite-target: "\\\"/\\\""
-      nginx.ingress.kubernetes.io/ssl-redirect: "\\\"false\\\""
+      # nginx.ingress.kubernetes.io/rewrite-target: "\\\"/\\\""
+      # nginx.ingress.kubernetes.io/ssl-redirect: "\\\"false\\\""
+      nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
 spec:
   rules:
     - host: registry.hyenaclan.org
@@ -247,10 +248,10 @@ spec:
             backend:
               serviceName: docker-registry
               servicePort: 5000
-  tls:
-    - hosts:
-      - registry.hyenaclan.org
-      secretName: docker-registry-tls-certificate
+  # tls:
+  #   - hosts:
+  #     - registry.hyenaclan.org
+  #     secretName: docker-registry-tls-certificate
 
 ---
 # Source: docker-registry/templates/pvc.yaml

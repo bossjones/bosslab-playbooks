@@ -104,9 +104,9 @@ spec:
       annotations: {}
 {% endraw %}
     spec:
-      securityContext:
-        fsGroup: 1000
-        runAsUser: 1000
+      # securityContext:
+      #   fsGroup: 1000
+      #   runAsUser: 1000
       containers:
         - name: docker-registry-ui
           image: "joxit/docker-registry-ui:0.6"
@@ -129,7 +129,7 @@ spec:
           env:
             # REGISTRY_URL: your docker registry URL to contact (CORS configuration is not needed). Example: http://my-docker-container:5000. (Can't be used with URL, since 0.3.2).
             - name: REGISTRY_URL
-              value: "registry:5000"
+              value: "http://registry:5000"
             - name: DELETE_IMAGES
               value: "true"
             - name: REGISTRY_TITLE
@@ -152,7 +152,8 @@ metadata:
       nginx.ingress.kubernetes.io/proxy-body-size: "0"
       # nginx.ingress.kubernetes.io/rewrite-target: "\\\"/\\\""
       # nginx.ingress.kubernetes.io/ssl-redirect: "\\\"false\\\""
-      nginx.ingress.kubernetes.io/ssl-redirect: "\\\"false\\\""
+      # nginx.ingress.kubernetes.io/ssl-redirect: "\\\"false\\\""
+      nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
 spec:
   rules:
     - host: registry-ui.hyenaclan.org
