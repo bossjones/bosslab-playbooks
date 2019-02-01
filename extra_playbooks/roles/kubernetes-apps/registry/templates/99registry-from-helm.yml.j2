@@ -1,4 +1,26 @@
 ---
+# boss__registry__enable_tls
+# SOURCE: https://cert-manager.readthedocs.io/en/latest/tutorials/ca/creating-ca-issuer.html
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: docker-registry-tls-certificate
+  # namespace: kube-system
+spec:
+  secretName: docker-registry-tls-certificate
+  issuerRef:
+    name: selfsigning-issuer
+    # We can reference ClusterIssuers by changing the kind here.
+    # The default value is Issuer (i.e. a locally namespaced Issuer)
+    kind: ClusterIssuer
+  commonName: registry.hyenaclan.org
+  organization:
+  - Hyena Labs
+  dnsNames:
+  - registry.hyenaclan.org
+  - www.registry.hyenaclan.org
+
+---
 # Source: docker-registry/templates/secret.yaml
 apiVersion: v1
 kind: Secret
@@ -115,9 +137,9 @@ spec:
         addonmanager.kubernetes.io/mode: Reconcile
         boss-part-of: registry
         version: "2.6.2"
-
-      annotations:
-        checksum/config: df30f756639ab7549b1302413d30817f5f743d7fce54e82fd8d28caee42d9ded
+{% raw %}
+      annotations: {}
+{% endraw %}
     spec:
       securityContext:
         fsGroup: 1000
@@ -140,8 +162,10 @@ spec:
             httpGet:
               path: /
               port: 5000
+{% raw %}
           resources:
             {}
+{% endraw %}
 
           env:
             - name: REGISTRY_HTTP_SECRET
@@ -158,7 +182,9 @@ spec:
               mountPath: "/etc/docker/registry"
       volumes:
         - name: data
+{% raw %}
           emptyDir: {}
+{% endraw %}
         - name: docker-registry-config
           configMap:
             name: docker-registry-config
@@ -179,6 +205,7 @@ metadata:
   annotations:
       certmanager.k8s.io/issuer: "selfsigning-issuer"
       nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/ssl-redirect: "\\\"/\\\""
       nginx.ingress.kubernetes.io/ssl-redirect: "\\\"false\\\""
 spec:
   rules:
