@@ -103,9 +103,6 @@ spec:
 
       annotations: {}
     spec:
-      securityContext:
-        fsGroup: 1000
-        runAsUser: 1000
       containers:
         - name: docker-registry-ui
           image: "joxit/docker-registry-ui:0.6"
