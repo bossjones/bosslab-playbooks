@@ -575,6 +575,53 @@ boss__registry__ui__persistent_volume_spec_nfs_path: "{{path_to_network_disk}}/r
 boss__registry__ui__nfs_master_node_ip: "{{ nfs_server_ip_override }}"
 
 
+
+
+##########################################################################################################
+#     .......##.########.##....##.##....##.####.##....##..######.
+#     .......##.##.......###...##.##...##...##..###...##.##....##
+#     .......##.##.......####..##.##..##....##..####..##.##......
+#     .......##.######...##.##.##.#####.....##..##.##.##..######.
+#     .##....##.##.......##..####.##..##....##..##..####.......##
+#     .##....##.##.......##...###.##...##...##..##...###.##....##
+#     ..######..########.##....##.##....##.####.##....##..######.
+##########################################################################################################
+boss__jenkins__subdomain: jenkins
+boss__jenkins__version: lts
+boss__jenkins__image_repo: "jenkins/jenkins"
+boss__jenkins__image_tag: "{{ boss__jenkins__version }}"
+boss__jenkins__cpu_limit: 1000m
+boss__jenkins__cpu_requests: 1000m
+
+boss__jenkins__deployment_labels: |
+    k8s-app: jenkins
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: jenkins
+boss__jenkins__deployment_spec_replicas: 1
+boss__jenkins__deployment_spec_selector_match_labels: |
+      k8s-app: jenkins
+boss__jenkins__deployment_spec_template_metadata_labels: |
+        k8s-app: jenkins
+boss__jenkins__deployment_spec_template_spec_node_selector: |
+        kubernetes.io/hostname: "borg-worker-01"
+boss__jenkins__ingress_labels: |
+    k8s-app: jenkins-ingress
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: jenkins
+boss__jenkins__ingress_annotations: |
+    nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+boss__jenkins__service_labels: |
+    k8s-app: jenkins
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    kubernetes.io/name: "jenkins"
+    boss-part-of: jenkins
+############################################
+
+
+
 # ---
 # local_release_dir: /tmp/releases
 
