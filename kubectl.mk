@@ -788,3 +788,73 @@ debug-heapster2: describe-heapster2
 
 test-heapster2-curl:
 	-curl -v -L 'http://heapster.hyenaclan.org'
+
+
+redeploy-metrics-server:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete metrics-server:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete metrics-server$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/metrics-server/
+
+	@printf "render metrics-server manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render metrics-server manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_metrics_server.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "create-metrics-server:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy metrics-server$$NC\n"
+	@printf "=======================================\n"
+	-kubectl create -f dist/manifests/$(cluster)-manifests/metrics-server/
+	@echo ""
+	@echo ""
+
+
+create-metrics-server:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-metrics-server:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy metrics-server$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/metrics-server/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=metrics-server --watch | highlight
+
+apply-metrics-server:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-metrics-server:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy metrics-server$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/metrics-server/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=metrics-server --watch
+
+delete-metrics-server:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/metrics-server/
+
+describe-metrics-server:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/metrics-server/ | highlight
+
+debug-metrics-server: describe-metrics-server
+	kubectl -n kube-system get pod -l app=metrics-server --output=yaml | highlight
+
+test-metrics-server-curl:
+	-curl -v -L 'http://metrics-server.hyenaclan.org'

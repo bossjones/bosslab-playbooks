@@ -49,6 +49,7 @@ spec:
         persistentVolumeClaim:
           claimName: tmp-dir-pvc
 
+      # FIXME: USE THIS GUY HERE - https://github.com/kubernetes-incubator/metrics-server/issues/77
       containers:
       - name: metrics-server
         image: k8s.gcr.io/metrics-server-amd64:v0.3.1

@@ -1,0 +1,19 @@
+---
+- name: "metrics-server | Create directory: {{boss__metrics_server__manifest_path}}"
+  file:
+    path: "{{boss__metrics_server__manifest_path}}"
+    state: directory
+
+- name: "metrics-server | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__metrics_server__manifest_path }}/{{ item }}"
+  with_items:
+    - "0metrics-server-pvc.yaml"
+    - "aggregated-metrics-reader.yaml"
+    - "auth-delegator.yaml"
+    - "auth-reader.yaml"
+    - "metrics-apiservice.yaml"
+    - "metrics-server-deployment.yaml"
+    - "metrics-server-service.yaml"
+    - "resource-reader.yaml"
