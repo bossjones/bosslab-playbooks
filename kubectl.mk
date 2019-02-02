@@ -822,3 +822,7 @@ debug-metrics-server: describe-metrics-server
 
 test-metrics-server-curl:
 	-curl -v -L 'http://metrics-server.hyenaclan.org'
+
+lint-metrics-server:
+	$(call check_defined, cluster, Please set cluster)
+	bash -c "find dist/manifests/$(cluster)-manifests/metrics-server -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
