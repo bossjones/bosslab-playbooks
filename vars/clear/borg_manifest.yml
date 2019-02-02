@@ -772,6 +772,70 @@ boss__metrics__server__persistent_volume_spec_nfs_path: "{{path_to_network_disk}
 boss__metrics__server__nfs_master_node_ip: "{{ nfs_server_ip_override }}"
 ############################################
 
+
+##########################################################################################################
+#   .########.##.....##.########.########.########..##....##....###....##...............########..##....##..######.
+#   .##........##...##.....##....##.......##.....##.###...##...##.##...##...............##.....##.###...##.##....##
+#   .##.........##.##......##....##.......##.....##.####..##..##...##..##...............##.....##.####..##.##......
+#   .######......###.......##....######...########..##.##.##.##.....##.##.......#######.##.....##.##.##.##..######.
+#   .##.........##.##......##....##.......##...##...##..####.#########.##...............##.....##.##..####.......##
+#   .##........##...##.....##....##.......##....##..##...###.##.....##.##...............##.....##.##...###.##....##
+#   .########.##.....##....##....########.##.....##.##....##.##.....##.########.........########..##....##..######.
+##########################################################################################################
+boss__external__dns__subdomain: external-dns
+boss__external__dns__version: lts
+boss__external__dns__image_repo: "external-dns/external-dns"
+boss__external__dns__image_tag: "{{ boss__external__dns__version }}"
+boss__external__dns__cpu_limit: 1000m
+boss__external__dns__cpu_requests: 1000m
+boss__external__dns__manifest_path: "{{manifest_dir_path}}/external-dns"
+boss__external__dns__namespace_name: default
+
+boss__external__dns__deployment_labels: |
+    k8s-app: external-dns
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: external-dns
+boss__external__dns__deployment_spec_replicas: 1
+boss__external__dns__deployment_spec_selector_match_labels: |
+      k8s-app: external-dns
+boss__external__dns__deployment_spec_template_metadata_labels: |
+        k8s-app: external-dns
+boss__external__dns__ingress_labels: |
+    k8s-app: external-dns-ingress
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: external-dns
+boss__external__dns__ingress_annotations: |
+    nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+boss__external__dns__service_labels: |
+    k8s-app: external-dns
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    kubernetes.io/name: "external-dns"
+    boss-part-of: external-dns
+
+boss__external__dns__persistent_volume_claim_labels: |
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  k8s-app: external-dns
+  boss-part-of: external-dns
+  version: "{{ boss__external__dns__version }}"
+
+boss__external__dns__persistent_volume_claim_spec_resources_requests_storage: "2Gi"
+boss__external__dns__persistent_volume_labels: |
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  k8s-app: external-dns
+  boss-part-of: external-dns
+  version: "{{ boss__external__dns__version }}"
+
+boss__external__dns__persistent_volume_spec_capacity_storage: 2Gi
+boss__external__dns__persistent_volume_spec_nfs_path: "{{path_to_network_disk}}/external-dns"
+# TODO: FIXME, this needs to be dynamic going forward, but for now, we need to hardcode it
+# boss__external__dns__nfs_master_node_ip: "{{ hostvars[groups[nfs_server_group][0]]['ansible_' + main_network_interface].ipv4.address }}"
+boss__external__dns__nfs_master_node_ip: "{{ nfs_server_ip_override }}"
+
 # ---
 # local_release_dir: /tmp/releases
 

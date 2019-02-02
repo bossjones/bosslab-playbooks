@@ -736,6 +736,11 @@ render-manifest-metrics-server:
 	@echo 'FIXME: USE THIS GUY HERE - https://github.com/kubernetes-incubator/metrics-server/issues/77'
 	@echo 'FIXME: USE THIS GUY HERE - https://github.com/kubernetes-incubator/metrics-server/issues/77'
 
+
+render-manifest-external-dns:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_external_dns.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+
 render-manifest:
 	$(call check_defined, cluster, Please set cluster)
 	ansible-playbook -c local -vvvvv playbooks/render_echoserver.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"

@@ -1,0 +1,29 @@
+---
+- name: "external-dns | set CF_API_KEY"
+  set_fact:
+    CF_API_KEY: "{{ lookup('env','CF_API_KEY') }}"
+
+- name: "external-dns | set CF_API_EMAIL"
+  set_fact:
+    CF_API_EMAIL: "{{ lookup('env','CF_API_EMAIL') }}"
+
+- name: "external-dns | Create directory: {{boss__external__dns__manifest_path}}"
+  file:
+    path: "{{boss__external__dns__manifest_path}}"
+    state: directory
+
+- name: "external-dns | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__external__dns__manifest_path }}/{{ item }}"
+  with_items:
+    - "00external-dns-secrets.yaml"
+    - "01external-dns-kube.yaml"
+    - "02external-dns-test-app.yaml"
+
+- name: "external-dns | Write gitignore"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__external__dns__manifest_path }}/.{{ item }}"
+  with_items:
+    - "gitignore"

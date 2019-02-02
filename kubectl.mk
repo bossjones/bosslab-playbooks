@@ -826,3 +826,78 @@ test-metrics-server-curl:
 lint-metrics-server:
 	$(call check_defined, cluster, Please set cluster)
 	bash -c "find dist/manifests/$(cluster)-manifests/metrics-server -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+
+
+redeploy-external-dns:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete external-dns:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete external-dns$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/external-dns/
+
+	@printf "render external-dns manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render external-dns manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_external_dns.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "create-external-dns:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy external-dns$$NC\n"
+	@printf "=======================================\n"
+	-kubectl create -f dist/manifests/$(cluster)-manifests/external-dns/
+	@echo ""
+	@echo ""
+
+
+create-external-dns:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-external-dns:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy external-dns$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/external-dns/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=external-dns --watch | highlight
+
+apply-external-dns:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-external-dns:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy external-dns$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/external-dns/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=external-dns --watch
+
+delete-external-dns:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/external-dns/
+
+describe-external-dns:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/external-dns/ | highlight
+
+debug-external-dns: describe-external-dns
+	kubectl -n kube-system get pod -l app=external-dns --output=yaml | highlight
+
+test-external-dns-curl:
+	-curl -v -L 'http://external-dns.hyenaclan.org'
+
+lint-external-dns:
+	$(call check_defined, cluster, Please set cluster)
+	bash -c "find dist/manifests/$(cluster)-manifests/external-dns -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
