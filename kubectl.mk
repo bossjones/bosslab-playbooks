@@ -717,3 +717,74 @@ debug-jenkins: describe-jenkins
 
 test-jenkins-curl:
 	-curl -v -L 'http://jenkins.hyenaclan.org'
+
+
+
+redeploy-heapster2:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete heapster:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete heapster$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/heapster2/
+
+	@printf "render heapster manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render heapster manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_heapster2.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "create-heapster2:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy heapster$$NC\n"
+	@printf "=======================================\n"
+	-kubectl create -f dist/manifests/$(cluster)-manifests/heapster2/
+	@echo ""
+	@echo ""
+
+
+create-heapster2:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-heapster2:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy heapster$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/heapster2/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=heapster --watch | highlight
+
+apply-heapster2:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-heapster2:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy heapster2$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/heapster2/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=heapster --watch
+
+delete-heapster2:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/heapster2/
+
+describe-heapster2:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/heapster2/ | highlight
+
+debug-heapster2: describe-heapster2
+	kubectl -n kube-system get pod -l app=heapster --output=yaml | highlight
+
+test-heapster2-curl:
+	-curl -v -L 'http://heapster.hyenaclan.org'

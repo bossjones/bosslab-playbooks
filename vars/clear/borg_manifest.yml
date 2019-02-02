@@ -644,6 +644,70 @@ boss__jenkins__nfs_master_node_ip: "{{ nfs_server_ip_override }}"
 ############################################
 
 
+##########################################################################################################
+#              .##.....##.########....###....########...######..########.########.########.
+#              .##.....##.##.........##.##...##.....##.##....##....##....##.......##.....##
+#              .##.....##.##........##...##..##.....##.##..........##....##.......##.....##
+#              .#########.######...##.....##.########...######.....##....######...########.
+#              .##.....##.##.......#########.##..............##....##....##.......##...##..
+#              .##.....##.##.......##.....##.##........##....##....##....##.......##....##.
+#              .##.....##.########.##.....##.##.........######.....##....########.##.....##
+##########################################################################################################
+boss__heapster__subdomain: heapster
+boss__heapster__version: lts
+boss__heapster__image_repo: "heapster/heapster"
+boss__heapster__image_tag: "{{ boss__heapster__version }}"
+boss__heapster__cpu_limit: 1000m
+boss__heapster__cpu_requests: 1000m
+boss__heapster__manifest_path: "{{manifest_dir_path}}/heapster2"
+boss__heapster__namespace_name: kube-system
+
+boss__heapster__deployment_labels: |
+    k8s-app: heapster
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: heapster
+boss__heapster__deployment_spec_replicas: 1
+boss__heapster__deployment_spec_selector_match_labels: |
+      k8s-app: heapster
+boss__heapster__deployment_spec_template_metadata_labels: |
+        k8s-app: heapster
+boss__heapster__ingress_labels: |
+    k8s-app: heapster-ingress
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: heapster
+boss__heapster__ingress_annotations: |
+    nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+boss__heapster__service_labels: |
+    k8s-app: heapster
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    kubernetes.io/name: "heapster"
+    boss-part-of: heapster
+
+boss__heapster__persistent_volume_claim_labels: |
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  k8s-app: heapster
+  boss-part-of: heapster
+  version: "{{ boss__heapster__version }}"
+
+boss__heapster__persistent_volume_claim_spec_resources_requests_storage: "2Gi"
+boss__heapster__persistent_volume_labels: |
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  k8s-app: heapster
+  boss-part-of: heapster
+  version: "{{ boss__heapster__version }}"
+
+boss__heapster__persistent_volume_spec_capacity_storage: 2Gi
+boss__heapster__persistent_volume_spec_nfs_path: "{{path_to_network_disk}}/heapster"
+# TODO: FIXME, this needs to be dynamic going forward, but for now, we need to hardcode it
+# boss__heapster__nfs_master_node_ip: "{{ hostvars[groups[nfs_server_group][0]]['ansible_' + main_network_interface].ipv4.address }}"
+boss__heapster__nfs_master_node_ip: "{{ nfs_server_ip_override }}"
+############################################
+
 
 # ---
 # local_release_dir: /tmp/releases
