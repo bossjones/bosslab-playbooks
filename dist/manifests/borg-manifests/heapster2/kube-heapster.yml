@@ -340,8 +340,8 @@ spec:
         # scheduler.alpha.kubernetes.io/critical-pod: ''
         seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
     spec:
-      #serviceAccountName: heapster
-      serviceAccount: heapster
+      serviceAccountName: heapster
+      # serviceAccount: heapster
       # securityContext:
       #   supplementalGroups: [ 65534 ]
       #   fsGroup: 65534
@@ -374,7 +374,8 @@ spec:
           - "/heapster"
           # - "--source=kubernetes.summary_api:''"
           # - "--source=kubernetes.summary_api:https://kubernetes.default:443?useServiceAccount=true&kubeletHttps=true&kubeletPort=10250&insecure=true"
-          - "--source=kubernetes.summary_api:''?inClusterConfig=false&useServiceAccount=true&kubeletHttps=true&kubeletPort=10250&insecure=true&auth="
+          # - "--source=kubernetes.summary_api:''?inClusterConfig=false&useServiceAccount=true&kubeletHttps=true&kubeletPort=10250&insecure=true&auth="
+          - "--source=kubernetes.summary_api:''?useServiceAccount=true&kubeletHttps=true&kubeletPort=10250&insecure=true&auth="
           - "--sink=log"
           # - "--vmodule=*=2"
           # - "--api-server"
