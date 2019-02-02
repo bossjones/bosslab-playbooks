@@ -708,6 +708,69 @@ boss__heapster__persistent_volume_spec_nfs_path: "{{path_to_network_disk}}/heaps
 boss__heapster__nfs_master_node_ip: "{{ nfs_server_ip_override }}"
 ############################################
 
+##########################################################################################################
+# ................##.....##.########.########.########..####..######...######...........######..########.########..##.....##.########.########.
+# ................###...###.##..........##....##.....##..##..##....##.##....##.........##....##.##.......##.....##.##.....##.##.......##.....##
+# ................####.####.##..........##....##.....##..##..##.......##...............##.......##.......##.....##.##.....##.##.......##.....##
+# ................##.###.##.######......##....########...##..##........######..#######..######..######...########..##.....##.######...########.
+# ................##.....##.##..........##....##...##....##..##.............##...............##.##.......##...##....##...##..##.......##...##..
+# ................##.....##.##..........##....##....##...##..##....##.##....##.........##....##.##.......##....##....##.##...##.......##....##.
+# ................##.....##.########....##....##.....##.####..######...######...........######..########.##.....##....###....########.##.....##
+##########################################################################################################
+boss__metrics__server__subdomain: metrics-server
+boss__metrics__server__version: lts
+boss__metrics__server__image_repo: "metrics-server/metrics-server"
+boss__metrics__server__image_tag: "{{ boss__metrics__server__version }}"
+boss__metrics__server__cpu_limit: 1000m
+boss__metrics__server__cpu_requests: 1000m
+boss__metrics__server__manifest_path: "{{manifest_dir_path}}/metrics-server"
+boss__metrics__server__namespace_name: kube-system
+
+boss__metrics__server__deployment_labels: |
+    k8s-app: metrics-server
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: metrics-server
+boss__metrics__server__deployment_spec_replicas: 1
+boss__metrics__server__deployment_spec_selector_match_labels: |
+      k8s-app: metrics-server
+boss__metrics__server__deployment_spec_template_metadata_labels: |
+        k8s-app: metrics-server
+boss__metrics__server__ingress_labels: |
+    k8s-app: metrics-server-ingress
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: metrics-server
+boss__metrics__server__ingress_annotations: |
+    nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+boss__metrics__server__service_labels: |
+    k8s-app: metrics-server
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    kubernetes.io/name: "metrics-server"
+    boss-part-of: metrics-server
+
+boss__metrics__server__persistent_volume_claim_labels: |
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  k8s-app: metrics-server
+  boss-part-of: metrics-server
+  version: "{{ boss__metrics__server__version }}"
+
+boss__metrics__server__persistent_volume_claim_spec_resources_requests_storage: "2Gi"
+boss__metrics__server__persistent_volume_labels: |
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  k8s-app: metrics-server
+  boss-part-of: metrics-server
+  version: "{{ boss__metrics__server__version }}"
+
+boss__metrics__server__persistent_volume_spec_capacity_storage: 2Gi
+boss__metrics__server__persistent_volume_spec_nfs_path: "{{path_to_network_disk}}/metrics-server"
+# TODO: FIXME, this needs to be dynamic going forward, but for now, we need to hardcode it
+# boss__metrics__server__nfs_master_node_ip: "{{ hostvars[groups[nfs_server_group][0]]['ansible_' + main_network_interface].ipv4.address }}"
+boss__metrics__server__nfs_master_node_ip: "{{ nfs_server_ip_override }}"
+############################################
 
 # ---
 # local_release_dir: /tmp/releases

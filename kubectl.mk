@@ -322,42 +322,6 @@ test-registry-curl:
 	-curl -v -L 'http://registry.hyenalab.home/v2'
 	-curl -v -L 'http://registry.hyenalab.home/v2_catalog'
 
-
-create-metrics-server:
-	$(call check_defined, cluster, Please set cluster)
-	@printf "create-metrics-server:\n"
-	@printf "=======================================\n"
-	@printf "$$GREEN deploy metrics-server$$NC\n"
-	@printf "=======================================\n"
-	kubectl create -f dist/manifests/$(cluster)-manifests/metrics-server/
-	@echo ""
-	@echo ""
-	kubectl describe storageclass | highlight
-
-# https://github.com/kubernetes/kubernetes/blob/3d7d35ee8f099f4611dca06de4453f958b4b8492/cluster/addons/storage-class/local/default.yaml
-apply-metrics-server:
-	$(call check_defined, cluster, Please set cluster)
-	@printf "create-metrics-server:\n"
-	@printf "=======================================\n"
-	@printf "$$GREEN deploy metrics-server$$NC\n"
-	@printf "=======================================\n"
-	kubectl apply -f dist/manifests/$(cluster)-manifests/metrics-server/
-	@echo ""
-	@echo ""
-	kubectl describe storageclass | highlight
-
-delete-metrics-server:
-	$(call check_defined, cluster, Please set cluster)
-	kubectl delete -f dist/manifests/$(cluster)-manifests/metrics-server/
-
-describe-metrics-server:
-	$(call check_defined, cluster, Please set cluster)
-	kubectl describe -f dist/manifests/$(cluster)-manifests/metrics-server/ | highlight
-
-debug-metrics-server: describe-metrics-server
-	kubectl -n kube-system get pod -l app=metrics-server --output=yaml | highlight
-
-
 create-efk:
 	$(call check_defined, cluster, Please set cluster)
 	@printf "create-efk:\n"
