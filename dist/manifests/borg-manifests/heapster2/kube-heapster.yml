@@ -40,7 +40,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: heapster
-  namespace: kube-system
+  # "namespace" omitted since ClusterRoles are not namespaced
   labels:
     k8s-app: heapster
     kubernetes.io/cluster-service: "true"
@@ -129,8 +129,6 @@ metadata:
     addonmanager.kubernetes.io/mode: Reconcile
     app: heapster
     boss-part-of: heapster
-    chart: heapster-0.3.2
-    heritage: Tiller
     k8s-app: heapster
     kubernetes.io/cluster-service: "true"
     release: heapsters
@@ -152,8 +150,8 @@ data:
     kind: NannyConfiguration
 ---
 # SOURCE: https://github.com/kubernetes/kubernetes/blob/v1.13.1/cluster/addons/cluster-monitoring/influxdb/heapster-controller.yaml
-apiVersion: v1
 kind: ConfigMap
+apiVersion: v1
 metadata:
   name: eventer-config
   namespace: kube-system
@@ -173,32 +171,30 @@ data:
 # FIXME: kubectl create serviceaccount heapster --namespace=kube-system
 # FIXME: kubectl create clusterrolebinding heapster-role --clusterrole=system:heapster --serviceaccount=kube-system:heapster --namespace=heapster
 # Source: heapster/templates/heapster-crb.yaml
-apiVersion: rbac.authorization.k8s.io/v1beta1
+# NOTE: This cluster role binding allows anyone with ServiceAccount "heapster-custom-fix" to get metrics in any namespace.
 kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: heapster
-  namespace: kube-system
   labels:
     addonmanager.kubernetes.io/mode: Reconcile
     app: heapster
     boss-part-of: heapster
-    chart: heapster-0.3.2
-    heritage: Tiller
     k8s-app: heapster
     kubernetes.io/cluster-service: "true"
     release: heapsters
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: system:heapster
 subjects:
   - kind: ServiceAccount
     name: heapster
     namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:heapster
 ---
 # Source: heapster/templates/pod-nanny-role.yaml
-apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: Role
+apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: heapster-pod-nanny
   namespace: kube-system
@@ -206,8 +202,6 @@ metadata:
     addonmanager.kubernetes.io/mode: Reconcile
     app: heapster
     boss-part-of: heapster
-    chart: heapster-0.3.2
-    heritage: Tiller
     k8s-app: heapster
     kubernetes.io/cluster-service: "true"
     release: heapsters
@@ -240,8 +234,8 @@ rules:
   - watch
 ---
 # Source: heapster/templates/pod-nanny-rolebinding.yaml
+kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: RoleBinding
 metadata:
   name: heapster-pod-nanny
   namespace: kube-system
@@ -249,22 +243,20 @@ metadata:
     addonmanager.kubernetes.io/mode: Reconcile
     app: heapster
     boss-part-of: heapster
-    chart: heapster-0.3.2
-    heritage: Tiller
     k8s-app: heapster
     kubernetes.io/cluster-service: "true"
     release: heapsters
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: heapster-pod-nanny
 subjects:
 - kind: ServiceAccount
   name: heapster
   namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: heapster-pod-nanny
 ---
-apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: heapster
   namespace: kube-system
@@ -272,23 +264,21 @@ metadata:
     addonmanager.kubernetes.io/mode: Reconcile
     app: heapster
     boss-part-of: heapster
-    chart: heapster-0.3.2
-    heritage: Tiller
     k8s-app: heapster
     kubernetes.io/cluster-service: "true"
     release: heapsters
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: heapster-pod-nanny
 subjects:
 - kind: ServiceAccount
   name: heapster
   namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: heapster-pod-nanny
 ---
 # Source: heapster/templates/service.yaml
-apiVersion: v1
 kind: Service
+apiVersion: v1
 metadata:
   name: heapster
   namespace: kube-system
@@ -297,8 +287,6 @@ metadata:
     addonmanager.kubernetes.io/mode: Reconcile
     app: heapster
     boss-part-of: heapster
-    chart: heapster-0.3.2
-    heritage: Tiller
     k8s-app: heapster
     kubernetes.io/cluster-service: "true"
     release: heapsters
@@ -309,51 +297,48 @@ spec:
   - port: 8082
     targetPort: 8082
     protocol: TCP
+    name: heapster
   selector:
     app: heapster
 ---
 # SOURCE: https://github.com/kubernetes/kubernetes/blob/v1.13.1/cluster/addons/cluster-monitoring/influxdb/heapster-controller.yaml
 # Source: heapster/templates/deployment.yaml
-apiVersion: extensions/v1beta1
 kind: Deployment
+apiVersion: extensions/v1beta1
 metadata:
   name: heapster
   namespace: kube-system
+  labels:
+    kubernetes.io/name: Heapster
+    addonmanager.kubernetes.io/mode: Reconcile
+    app: heapster
+    boss-part-of: heapster
+    k8s-app: heapster
+    kubernetes.io/cluster-service: "true"
+    release: heapsters
+    version: v1.5.4
   # annotations:
   #   {}
   annotations:
       seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
-  labels:
-    addonmanager.kubernetes.io/mode: Reconcile
-    app: heapster
-    boss-part-of: heapster
-    chart: "heapster-0.3.2"
-    heritage: Tiller
-    k8s-app: heapster
-    kubernetes.io/cluster-service: "true"
-    kubernetes.io/name: Heapster
-    release: heapsters
-    version: v1.5.4
 spec:
   replicas: 1
   template:
     metadata:
       # annotations:
       #   {}
-      annotations:
-        # scheduler.alpha.kubernetes.io/critical-pod: ''
-        seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
       labels:
         addonmanager.kubernetes.io/mode: Reconcile
         app: heapster
         boss-part-of: heapster
-        chart: "heapster-0.3.2"
-        heritage: Tiller
         k8s-app: heapster
         kubernetes.io/cluster-service: "true"
         kubernetes.io/name: Heapster
         release: heapsters
         version: v1.5.4
+      annotations:
+        # scheduler.alpha.kubernetes.io/critical-pod: ''
+        seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
     spec:
       serviceAccountName: heapster
       # securityContext:
@@ -409,7 +394,6 @@ spec:
             requests:
               cpu: 50m
               memory: 90Mi
-
         env:
           - name: MY_POD_NAME
             valueFrom:
