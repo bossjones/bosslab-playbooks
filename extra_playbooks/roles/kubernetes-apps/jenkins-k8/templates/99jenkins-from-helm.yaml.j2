@@ -300,6 +300,7 @@ spec:
       name: slavelistener
   selector:
     component: "jenkins-master"
+    app: jenkins
   type: ClusterIP
 
 ---
@@ -332,6 +333,7 @@ spec:
 
   selector:
     component: "jenkins-master"
+    app: jenkins
   type: ClusterIP
 
 
