@@ -592,6 +592,8 @@ boss__jenkins__image_repo: "jenkins/jenkins"
 boss__jenkins__image_tag: "{{ boss__jenkins__version }}"
 boss__jenkins__cpu_limit: 1000m
 boss__jenkins__cpu_requests: 1000m
+boss__jenkins__manifest_path: "{{manifest_dir_path}}/jenkins-k8"
+boss__jenkins__namespace_name: jenkins
 
 boss__jenkins__deployment_labels: |
     k8s-app: jenkins

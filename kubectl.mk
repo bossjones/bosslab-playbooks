@@ -641,3 +641,79 @@ debug-registry-ui: describe-registry-ui
 
 test-registry-ui-curl:
 	curl -u admin:admin123 'https://registry-ui.hyenalab.org/v2/_catalog'
+
+
+
+
+
+
+redeploy-jenkins:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete jenkins:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete jenkins$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/jenkins-k8/
+
+	@printf "render jenkins manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render jenkins manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_jenkins.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "create-jenkins:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy jenkins$$NC\n"
+	@printf "=======================================\n"
+	# kubectl create -f dist/manifests/$(cluster)-manifests/jenkins-k8/
+	-kubectl create -f dist/manifests/$(cluster)-manifests/jenkins-k8/99jenkins-from-helm.yaml
+	@echo ""
+	@echo ""
+
+
+create-jenkins:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-jenkins:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy jenkins$$NC\n"
+	@printf "=======================================\n"
+	# kubectl create -f dist/manifests/$(cluster)-manifests/jenkins-k8/
+	kubectl create -f dist/manifests/$(cluster)-manifests/jenkins-k8/99jenkins-from-helm.yaml
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=jenkins --watch | highlight
+
+apply-jenkins:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-jenkins:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy jenkins$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/jenkins-k8/99jenkins-from-helm.yaml
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=jenkins --watch
+
+delete-jenkins:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/jenkins-k8/
+
+describe-jenkins:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/jenkins-k8/ | highlight
+
+debug-jenkins: describe-jenkins
+	kubectl -n kube-system get pod -l app=jenkins --output=yaml | highlight
+
+test-jenkins-curl:
+	-curl -v -L 'http://jenkins.hyenaclan.org'
