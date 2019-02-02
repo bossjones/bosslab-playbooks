@@ -285,8 +285,6 @@ metadata:
     # release: "RELEASE-NAME"
     # chart: "jenkins-0.28.11"
     component: "jenkins-master"
-    addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: jenkins
 
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
@@ -340,7 +338,7 @@ spec:
       name: jenkins-tests
   - name: tools
 {% raw %}
-        emptyDir: {}
+    emptyDir: {}
 {% endraw %}
   restartPolicy: Never
 
