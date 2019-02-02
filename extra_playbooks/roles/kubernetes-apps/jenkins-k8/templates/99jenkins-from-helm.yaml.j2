@@ -4,16 +4,16 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: jenkins
+  name: RELEASE-NAME-jenkins
   labels:
-    app: jenkins
-    # chart: "jenkins-0.28.11"
-    # release: "RELEASE-NAME"
-    # heritage: "Tiller"
+    app: RELEASE-NAME-jenkins
+    chart: "jenkins-0.28.11"
+    release: "RELEASE-NAME"
+    heritage: "Tiller"
 type: Opaque
 data:
 
-  jenkins-admin-password: "SXVTZDR6N1pXUQ=="
+  jenkins-admin-password: "YWRtaW4="
 
   jenkins-admin-user: "YWRtaW4="
 ---
@@ -23,14 +23,14 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: jenkins
+  name: RELEASE-NAME-jenkins
 data:
   config.xml: |-
     <?xml version='1.0' encoding='UTF-8'?>
     <hudson>
       <disabledAdministrativeMonitors/>
       <version>lts</version>
-      <numExecutors>2</numExecutors>
+      <numExecutors>0</numExecutors>
       <mode>NORMAL</mode>
       <useSecurity>true</useSecurity>
       <authorizationStrategy class="hudson.security.FullControlOnceLoggedInAuthorizationStrategy">
@@ -54,7 +54,7 @@ data:
               <name>default</name>
               <instanceCap>2147483647</instanceCap>
               <idleMinutes>0</idleMinutes>
-              <label>jenkins-slave </label>
+              <label>RELEASE-NAME-jenkins-slave </label>
               <nodeSelector></nodeSelector>
                 <nodeUsageMode>NORMAL</nodeUsageMode>
               <volumes>
@@ -79,7 +79,7 @@ data:
                   <envVars>
                     <org.csanchez.jenkins.plugins.kubernetes.ContainerEnvVar>
                       <key>JENKINS_URL</key>
-                      <value>http://jenkins:8080</value>
+                      <value>http://RELEASE-NAME-jenkins:8080/</value>
                     </org.csanchez.jenkins.plugins.kubernetes.ContainerEnvVar>
                   </envVars>
                 </org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
@@ -93,8 +93,8 @@ data:
           <serverUrl>https://kubernetes.default</serverUrl>
           <skipTlsVerify>false</skipTlsVerify>
           <namespace>default</namespace>
-          <jenkinsUrl>http://jenkins:8080</jenkinsUrl>
-          <jenkinsTunnel>jenkins-agent:50000</jenkinsTunnel>
+          <jenkinsUrl>http://RELEASE-NAME-jenkins:8080/</jenkinsUrl>
+          <jenkinsTunnel>RELEASE-NAME-jenkins-agent:50000</jenkinsTunnel>
           <containerCap>10</containerCap>
           <retentionTimeout>5</retentionTimeout>
           <connectTimeout>0</connectTimeout>
@@ -131,7 +131,7 @@ data:
     <?xml version='1.1' encoding='UTF-8'?>
     <jenkins.model.JenkinsLocationConfiguration>
       <adminAddress></adminAddress>
-      <jenkinsUrl>http://jenkins:8080</jenkinsUrl>
+      <jenkinsUrl>http://jenkins.hyenaclan.org/</jenkinsUrl>
     </jenkins.model.JenkinsLocationConfiguration>
   jenkins.CLI.xml: |-
     <?xml version='1.1' encoding='UTF-8'?>
@@ -156,6 +156,7 @@ data:
     workflow-aggregator:2.6
     credentials-binding:1.17
     git:3.9.1
+    python:1.3
 
 
 ---
@@ -163,11 +164,11 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: jenkins-tests
+  name: RELEASE-NAME-jenkins-tests
 data:
   run.sh: |-
     @test "Testing Jenkins UI is accessible" {
-      curl --retry 48 --retry-delay 10 jenkins:8080/login
+      curl --retry 48 --retry-delay 10 RELEASE-NAME-jenkins:8080//login
     }
 
 ---
@@ -175,12 +176,12 @@ data:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: jenkins
+  name: RELEASE-NAME-jenkins
   labels:
-    app: jenkins
-    # chart: "jenkins-0.28.11"
-    # release: "RELEASE-NAME"
-    # heritage: "Tiller"
+    app: RELEASE-NAME-jenkins
+    chart: "jenkins-0.28.11"
+    release: "RELEASE-NAME"
+    heritage: "Tiller"
 spec:
   accessModes:
     - "ReadWriteOnce"
@@ -193,12 +194,12 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: jenkins
+  name: RELEASE-NAME-jenkins
   labels:
-    app: jenkins
-    # chart: "jenkins-0.28.11"
-    # release: "RELEASE-NAME"
-    # heritage: "Tiller"
+    app: RELEASE-NAME-jenkins
+    chart: "jenkins-0.28.11"
+    release: "RELEASE-NAME"
+    heritage: "Tiller"
 
 ---
 # Source: jenkins/templates/rbac.yaml
@@ -206,19 +207,19 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: jenkins-role-binding
+  name: RELEASE-NAME-jenkins-role-binding
   labels:
-    app: jenkins
-    # chart: "jenkins-0.28.11"
-    # release: "RELEASE-NAME"
-    # heritage: "Tiller"
+    app: RELEASE-NAME-jenkins
+    chart: "jenkins-0.28.11"
+    release: "RELEASE-NAME"
+    heritage: "Tiller"
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: cluster-admin
 subjects:
 - kind: ServiceAccount
-  name: jenkins
+  name: RELEASE-NAME-jenkins
   namespace: default
 
 
@@ -227,11 +228,11 @@ subjects:
 apiVersion: v1
 kind: Service
 metadata:
-  name: jenkins-agent
+  name: RELEASE-NAME-jenkins-agent
   labels:
-    app: jenkins
-    # chart: "jenkins-0.28.11"
-    component: "jenkins-master"
+    app: RELEASE-NAME-jenkins
+    chart: "jenkins-0.28.11"
+    component: "RELEASE-NAME-jenkins-master"
 spec:
   ports:
     - port: 50000
@@ -239,7 +240,7 @@ spec:
 
       name: slavelistener
   selector:
-    component: "jenkins-master"
+    component: "RELEASE-NAME-jenkins-master"
   type: ClusterIP
 
 ---
@@ -247,13 +248,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: jenkins
+  name: RELEASE-NAME-jenkins
   labels:
-    app: jenkins
-    # heritage: "Tiller"
-    # release: "RELEASE-NAME"
-    # chart: "jenkins-0.28.11"
-    component: "jenkins-master"
+    app: RELEASE-NAME-jenkins
+    heritage: "Tiller"
+    release: "RELEASE-NAME"
+    chart: "jenkins-0.28.11"
+    component: "RELEASE-NAME-jenkins-master"
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: jenkins
     k8s-app: jenkins
@@ -270,13 +271,8 @@ spec:
       targetPort: 8080
 
   selector:
-    component: "jenkins-master"
-  type: LoadBalancer
-
-  loadBalancerSourceRanges:
-    - 0.0.0.0/0
-
-
+    component: "RELEASE-NAME-jenkins-master"
+  type: ClusterIP
 
 
 ---
@@ -284,7 +280,7 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: "ui-test-bcm3w"
+  name: "RELEASE-NAME-ui-test-3owng"
   annotations:
     "helm.sh/hook": test-success
 spec:
@@ -302,7 +298,7 @@ spec:
       - mountPath: /tools
         name: tools
   containers:
-    - name: ui-test
+    - name: RELEASE-NAME-ui-test
       image: jenkins/jenkins:lts
       command: ["/tools/bats/bats", "-t", "/tests/run.sh"]
       volumeMounts:
@@ -314,7 +310,7 @@ spec:
   volumes:
   - name: tests
     configMap:
-      name: jenkins-tests
+      name: RELEASE-NAME-jenkins-tests
   - name: tools
     emptyDir: {}
   restartPolicy: Never
@@ -325,12 +321,12 @@ spec:
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: jenkins
+  name: RELEASE-NAME-jenkins
   labels:
-    # heritage: "Tiller"
-    # release: "RELEASE-NAME"
-    # chart: "jenkins-0.28.11"
-    component: "jenkins-master"
+    heritage: "Tiller"
+    release: "RELEASE-NAME"
+    chart: "jenkins-0.28.11"
+    component: "RELEASE-NAME-jenkins-master"
     addonmanager.kubernetes.io/mode: "Reconcile"
     boss-part-of: "jenkins"
     k8s-app: "jenkins"
@@ -342,22 +338,22 @@ spec:
     type: Recreate
   selector:
     matchLabels:
-      component: "jenkins-master"
+      component: "RELEASE-NAME-jenkins-master"
   template:
     metadata:
       labels:
-        app: jenkins
-        # heritage: "Tiller"
-        # release: "RELEASE-NAME"
-        # chart: "jenkins-0.28.11"
-        component: "jenkins-master"
+        app: RELEASE-NAME-jenkins
+        heritage: "Tiller"
+        release: "RELEASE-NAME"
+        chart: "jenkins-0.28.11"
+        component: "RELEASE-NAME-jenkins-master"
       annotations:
-        checksum/config: 8f2b77455630692b2b60ef15e2d7afce2f68cd442f032e14068b404e0926e418
+        checksum/config: a1e1f63e6c69d17d0dc317536d5b69fe0749b6d27ded37a52a5aa4217932e0b8
     spec:
       securityContext:
         runAsUser: 1000
         fsGroup: 1000
-      serviceAccountName: jenkins
+      serviceAccountName: RELEASE-NAME-jenkins
       initContainers:
         - name: "copy-default-config"
           image: "jenkins/jenkins:lts"
@@ -385,24 +381,24 @@ spec:
               mountPath: /usr/share/jenkins/ref/secrets/
               name: secrets-dir
       containers:
-        - name: jenkins
+        - name: RELEASE-NAME-jenkins
           image: "jenkins/jenkins:lts"
           imagePullPolicy: "Always"
           args: [ "--argumentsRealm.passwd.$(ADMIN_USER)=$(ADMIN_PASSWORD)",  "--argumentsRealm.roles.$(ADMIN_USER)=admin"]
           env:
             - name: JAVA_OPTS
-              value: ""
+              value: "-Xms512m -Xmx512m"
             - name: JENKINS_OPTS
-              value: ""
+              value: "--prefix=/ "
             - name: ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: jenkins
+                  name: RELEASE-NAME-jenkins
                   key: jenkins-admin-password
             - name: ADMIN_USER
               valueFrom:
                 secretKeyRef:
-                  name: jenkins
+                  name: RELEASE-NAME-jenkins
                   key: jenkins-admin-user
           ports:
             - containerPort: 8080
@@ -411,14 +407,14 @@ spec:
               name: slavelistener
           livenessProbe:
             httpGet:
-              path: "/login"
+              path: "//login"
               port: http
             initialDelaySeconds: 90
             timeoutSeconds: 5
             failureThreshold: 12
           readinessProbe:
             httpGet:
-              path: "/login"
+              path: "//login"
               port: http
             initialDelaySeconds: 60
             periodSeconds: 10
@@ -455,24 +451,41 @@ spec:
       volumes:
       - name: jenkins-config
         configMap:
-          name: jenkins
+          name: RELEASE-NAME-jenkins
       - name: plugin-dir
         emptyDir: {}
       - name: secrets-dir
         emptyDir: {}
       - name: jenkins-home
         persistentVolumeClaim:
-          claimName: jenkins
+          claimName: RELEASE-NAME-jenkins
+---
+# Source: jenkins/templates/jenkins-master-ingress.yaml
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+
+  name: RELEASE-NAME-jenkins
+spec:
+  rules:
+  - host: "jenkins.hyenaclan.org"
+    http:
+      paths:
+      - backend:
+          serviceName: RELEASE-NAME-jenkins
+          servicePort: 8080
+        path: /
+
 ---
 # Source: jenkins/templates/jenkins-backup-cronjob.yaml
 
 
 ---
 # Source: jenkins/templates/jenkins-backup-rbac.yaml
-
-
----
-# Source: jenkins/templates/jenkins-master-ingress.yaml
 
 
 ---
