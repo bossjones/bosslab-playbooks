@@ -5,6 +5,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: jenkins
+  namespace: {{boss__jenkins__namespace_name}}
   labels:
     app: jenkins
     k8s-app: jenkins
@@ -29,6 +30,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: jenkins
+  namespace: {{boss__jenkins__namespace_name}}
 data:
   config.xml: |-
     <?xml version='1.0' encoding='UTF-8'?>
@@ -170,6 +172,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: jenkins-tests
+  namespace: {{boss__jenkins__namespace_name}}
 data:
   run.sh: |-
     @test "Testing Jenkins UI is accessible" {
@@ -194,17 +197,18 @@ metadata:
     # release: "RELEASE-NAME"
     # heritage: "Tiller"
 spec:
+  # storageClassName: ""
   accessModes:
-    - "ReadWriteOnce"
+    - "ReadWriteMany"
   volumeMode: Filesystem
   resources:
     requests:
       storage: "{{boss__jenkins__persistent_volume_spec_capacity_storage}}"
   # NOTE: looks like you don't always need to specify the storage class name, since it should already be setup as the default one
-  # storageClassName: "nfs-dynamic-class"
+  storageClassName: "nfs-dynamic-class"
   # selector:
-  #   matchLabels:
-  #    app: jenkins
+  #  matchLabels:
+  #   app: jenkins
 
 ---
 apiVersion: v1
@@ -220,7 +224,7 @@ spec:
   capacity:
     storage: {{boss__jenkins__persistent_volume_spec_capacity_storage}}
   accessModes:
-    - "ReadWriteOnce"
+    - "ReadWriteMany"
   persistentVolumeReclaimPolicy: Delete
   volumeMode: Filesystem
   nfs:
@@ -233,6 +237,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: jenkins
+  namespace: {{boss__jenkins__namespace_name}}
   labels:
     app: jenkins
     k8s-app: jenkins
@@ -277,6 +282,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: jenkins-agent
+  namespace: {{boss__jenkins__namespace_name}}
   labels:
     app: jenkins
     k8s-app: jenkins
@@ -302,6 +308,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: jenkins
+  namespace: {{boss__jenkins__namespace_name}}
   labels:
     app: jenkins
     k8s-app: jenkins
@@ -334,6 +341,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: "ui-test-3owng"
+  namespace: {{boss__jenkins__namespace_name}}
   annotations:
     "helm.sh/hook": test-success
 spec:
@@ -380,6 +388,7 @@ apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: jenkins
+  namespace: {{boss__jenkins__namespace_name}}
   labels:
     # chart: "jenkins-0.28.11"
     # heritage: "Tiller"
@@ -415,6 +424,8 @@ spec:
       #  app: jenkins
 
       securityContext:
+        # runAsUser: 65534
+        # fsGroup: 65534
         runAsUser: 1000
         fsGroup: 1000
       serviceAccountName: jenkins
@@ -451,7 +462,8 @@ spec:
           args: [ "--argumentsRealm.passwd.$(ADMIN_USER)=$(ADMIN_PASSWORD)",  "--argumentsRealm.roles.$(ADMIN_USER)=admin"]
           env:
             - name: JAVA_OPTS
-              value: "-Xms512m -Xmx512m"
+              # value: "-Xms512m -Xmx512m"
+              value: ""
             - name: JENKINS_OPTS
               value: "--prefix=/ "
             - name: ADMIN_PASSWORD
@@ -525,14 +537,19 @@ spec:
         emptyDir: {}
 {% endraw %}
       - name: jenkins-home
-        persistentVolumeClaim:
-          claimName: jenkins
+        #persistentVolumeClaim:
+        #  claimName: jenkins
+{% raw %}
+        emptyDir: {}
+{% endraw %}
 ---
 # Source: jenkins/templates/jenkins-master-ingress.yaml
 
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
+  name: jenkins
+  namespace: {{boss__jenkins__namespace_name}}
   labels:
     addonmanager.kubernetes.io/mode: "Reconcile"
     boss-part-of: "jenkins"
@@ -544,7 +561,6 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: 16384m
     nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
 
-  name: jenkins
 spec:
   rules:
   - host: "jenkins.hyenaclan.org"

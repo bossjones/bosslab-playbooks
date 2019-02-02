@@ -5,6 +5,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: jenkins
+  namespace: kube-system
   labels:
     app: jenkins
     k8s-app: jenkins
@@ -29,6 +30,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: jenkins
+  namespace: kube-system
 data:
   config.xml: |-
     <?xml version='1.0' encoding='UTF-8'?>
@@ -95,9 +97,9 @@ data:
               <nodeProperties/>
               <podRetention class="org.csanchez.jenkins.plugins.kubernetes.pod.retention.Default"/>
             </org.csanchez.jenkins.plugins.kubernetes.PodTemplate></templates>
-          <serverUrl>https://kubernetes.default</serverUrl>
+          <serverUrl>https://kubernetes.kube-system</serverUrl>
           <skipTlsVerify>false</skipTlsVerify>
-          <namespace>default</namespace>
+          <namespace>kube-system</namespace>
           <jenkinsUrl>http://jenkins:8080/</jenkinsUrl>
           <jenkinsTunnel>jenkins-agent:50000</jenkinsTunnel>
           <containerCap>10</containerCap>
@@ -170,6 +172,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: jenkins-tests
+  namespace: kube-system
 data:
   run.sh: |-
     @test "Testing Jenkins UI is accessible" {
@@ -182,7 +185,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: jenkins
-  namespace: default
+  namespace: kube-system
   labels:
     app: jenkins
     k8s-app: jenkins
@@ -194,23 +197,25 @@ metadata:
     # release: "RELEASE-NAME"
     # heritage: "Tiller"
 spec:
+  # storageClassName: ""
   accessModes:
-    - "ReadWriteOnce"
+    - "ReadWriteMany"
   volumeMode: Filesystem
   resources:
     requests:
       storage: "2Gi"
-  # storageClassName: "nfs-dynamic-class"
+  # NOTE: looks like you don't always need to specify the storage class name, since it should already be setup as the default one
+  storageClassName: "nfs-dynamic-class"
   # selector:
-  #   matchLabels:
-  #    app: jenkins
+  #  matchLabels:
+  #   app: jenkins
 
 ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: jenkins
-  namespace: default
+  namespace: kube-system
   labels:
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
@@ -222,7 +227,7 @@ spec:
   capacity:
     storage: 2Gi
   accessModes:
-    - "ReadWriteOnce"
+    - "ReadWriteMany"
   persistentVolumeReclaimPolicy: Delete
   volumeMode: Filesystem
   nfs:
@@ -235,6 +240,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: jenkins
+  namespace: kube-system
   labels:
     app: jenkins
     k8s-app: jenkins
@@ -270,7 +276,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: jenkins
-  namespace: default
+  namespace: kube-system
 
 
 ---
@@ -279,6 +285,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: jenkins-agent
+  namespace: kube-system
   labels:
     app: jenkins
     k8s-app: jenkins
@@ -304,6 +311,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: jenkins
+  namespace: kube-system
   labels:
     app: jenkins
     k8s-app: jenkins
@@ -336,6 +344,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: "ui-test-3owng"
+  namespace: kube-system
   annotations:
     "helm.sh/hook": test-success
 spec:
@@ -381,6 +390,7 @@ apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: jenkins
+  namespace: kube-system
   labels:
     # chart: "jenkins-0.28.11"
     # heritage: "Tiller"
@@ -416,6 +426,8 @@ spec:
       #  app: jenkins
 
       securityContext:
+        # runAsUser: 65534
+        # fsGroup: 65534
         runAsUser: 1000
         fsGroup: 1000
       serviceAccountName: jenkins
@@ -452,7 +464,8 @@ spec:
           args: [ "--argumentsRealm.passwd.$(ADMIN_USER)=$(ADMIN_PASSWORD)",  "--argumentsRealm.roles.$(ADMIN_USER)=admin"]
           env:
             - name: JAVA_OPTS
-              value: "-Xms512m -Xmx512m"
+              # value: "-Xms512m -Xmx512m"
+              value: ""
             - name: JENKINS_OPTS
               value: "--prefix=/ "
             - name: ADMIN_PASSWORD
@@ -524,14 +537,18 @@ spec:
 
         emptyDir: {}
       - name: jenkins-home
-        persistentVolumeClaim:
-          claimName: jenkins
+        #persistentVolumeClaim:
+        #  claimName: jenkins
+
+        emptyDir: {}
 ---
 # Source: jenkins/templates/jenkins-master-ingress.yaml
 
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
+  name: jenkins
+  namespace: kube-system
   labels:
     addonmanager.kubernetes.io/mode: "Reconcile"
     boss-part-of: "jenkins"
@@ -543,7 +560,6 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: 16384m
     nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
 
-  name: jenkins
 spec:
   rules:
   - host: "jenkins.hyenaclan.org"
