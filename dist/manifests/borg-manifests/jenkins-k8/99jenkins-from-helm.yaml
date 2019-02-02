@@ -182,6 +182,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: jenkins
+  namespace: default
   labels:
     app: jenkins
     k8s-app: jenkins
@@ -195,10 +196,14 @@ metadata:
 spec:
   accessModes:
     - "ReadWriteOnce"
-  storageClassName: "nfs-dynamic-class"
+  volumeMode: Filesystem
   resources:
     requests:
-      storage: "8Gi"
+      storage: "2Gi"
+  # storageClassName: "nfs-dynamic-class"
+  # selector:
+  #   matchLabels:
+  #    app: jenkins
 
 ---
 apiVersion: v1
@@ -215,9 +220,11 @@ metadata:
     
 spec:
   capacity:
-    storage: 8Gi
+    storage: 2Gi
   accessModes:
-    - ReadWriteMany
+    - "ReadWriteOnce"
+  persistentVolumeReclaimPolicy: Delete
+  volumeMode: Filesystem
   nfs:
     server: 192.168.1.174
     path: "/mnt/publicdata/jenkins"
@@ -332,6 +339,9 @@ metadata:
   annotations:
     "helm.sh/hook": test-success
 spec:
+  # nodeSelector:
+  #  app: jenkins
+
   initContainers:
     - name: "test-framework"
       image: "dduportal/bats:0.4.0"
@@ -402,6 +412,9 @@ spec:
       # annotations:
       #   checksum/config: a1e1f63e6c69d17d0dc317536d5b69fe0749b6d27ded37a52a5aa4217932e0b8
     spec:
+      # nodeSelector:
+      #  app: jenkins
+
       securityContext:
         runAsUser: 1000
         fsGroup: 1000

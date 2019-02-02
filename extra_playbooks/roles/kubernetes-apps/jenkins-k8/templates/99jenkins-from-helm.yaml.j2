@@ -182,6 +182,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: jenkins
+  namespace: {{boss__jenkins__namespace_name}}
   labels:
     app: jenkins
     k8s-app: jenkins
@@ -195,10 +196,15 @@ metadata:
 spec:
   accessModes:
     - "ReadWriteOnce"
-  storageClassName: "nfs-dynamic-class"
+  volumeMode: Filesystem
   resources:
     requests:
-      storage: "8Gi"
+      storage: "{{boss__jenkins__persistent_volume_spec_capacity_storage}}"
+  # NOTE: looks like you don't always need to specify the storage class name, since it should already be setup as the default one
+  # storageClassName: "nfs-dynamic-class"
+  # selector:
+  #   matchLabels:
+  #    app: jenkins
 
 ---
 apiVersion: v1
@@ -214,7 +220,9 @@ spec:
   capacity:
     storage: {{boss__jenkins__persistent_volume_spec_capacity_storage}}
   accessModes:
-    - ReadWriteMany
+    - "ReadWriteOnce"
+  persistentVolumeReclaimPolicy: Delete
+  volumeMode: Filesystem
   nfs:
     server: {{boss__jenkins__nfs_master_node_ip}}
     path: "{{boss__jenkins__persistent_volume_spec_nfs_path}}"
@@ -329,6 +337,9 @@ metadata:
   annotations:
     "helm.sh/hook": test-success
 spec:
+  # nodeSelector:
+  #  app: jenkins
+
   initContainers:
     - name: "test-framework"
       image: "dduportal/bats:0.4.0"
@@ -400,6 +411,9 @@ spec:
       # annotations:
       #   checksum/config: a1e1f63e6c69d17d0dc317536d5b69fe0749b6d27ded37a52a5aa4217932e0b8
     spec:
+      # nodeSelector:
+      #  app: jenkins
+
       securityContext:
         runAsUser: 1000
         fsGroup: 1000
