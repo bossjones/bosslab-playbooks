@@ -95,9 +95,9 @@ data:
               <nodeProperties/>
               <podRetention class="org.csanchez.jenkins.plugins.kubernetes.pod.retention.Default"/>
             </org.csanchez.jenkins.plugins.kubernetes.PodTemplate></templates>
-          <serverUrl>https://kubernetes.{{boss__jenkins__namespace_name}}</serverUrl>
+          <serverUrl>https://kubernetes.default</serverUrl>
           <skipTlsVerify>false</skipTlsVerify>
-          <namespace>{{boss__jenkins__namespace_name}}</namespace>
+          <namespace>default</namespace>
           <jenkinsUrl>http://jenkins:8080/</jenkinsUrl>
           <jenkinsTunnel>jenkins-agent:50000</jenkinsTunnel>
           <containerCap>10</containerCap>
@@ -240,7 +240,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: jenkins
-  namespace: {{boss__jenkins__namespace_name}}
+  namespace: default
 
 
 ---
@@ -339,9 +339,8 @@ spec:
     configMap:
       name: jenkins-tests
   - name: tools
-{% raw %}
+
         emptyDir: {}
-{% endraw %}
   restartPolicy: Never
 
 ---
@@ -485,13 +484,11 @@ spec:
         configMap:
           name: jenkins
       - name: plugin-dir
-{% raw %}
+
         emptyDir: {}
-{% endraw %}
       - name: secrets-dir
-{% raw %}
+
         emptyDir: {}
-{% endraw %}
       - name: jenkins-home
         persistentVolumeClaim:
           claimName: jenkins
