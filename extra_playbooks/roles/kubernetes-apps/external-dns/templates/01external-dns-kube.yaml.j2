@@ -53,6 +53,7 @@ spec:
         image: registry.opensource.zalan.do/teapot/external-dns:latest
         args:
         # ingress is also possible
+        - --source=service
         - --source=ingress
         # (optional) limit to only example.com domains; change to match the zone created above.
         - --domain-filter=hyenaclan.org
@@ -61,19 +62,22 @@ spec:
         - --cloudflare-proxied
         - --log-level=debug
         - --dry-run
+        - --log-format=json
         env:
         - name: CF_API_KEY
           valueFrom:
             secretKeyRef:
-              name: cloudflare-api-key
+              name: external-dns-secret
               key: CF_API_KEY
         - name: CF_API_EMAIL
           valueFrom:
             secretKeyRef:
-              name: cloudflare-api-email
+              name: external-dns-secret
               key: CF_API_EMAIL
 
 
+# FIXME: https://github.com/rancher/rancher/issues/17742
+# FIXME: https://github.com/kubernetes-incubator/external-dns/issues/887
 
 # SOURCE: https://github.com/kubernetes-incubator/external-dns/blob/8d7eb18d0322743e289bdeca168e102cee3d22c0/pkg/apis/externaldns/types.go
 # // Flags related to processing sources

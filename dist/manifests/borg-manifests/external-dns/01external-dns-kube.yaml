@@ -65,12 +65,12 @@ spec:
         - name: CF_API_KEY
           valueFrom:
             secretKeyRef:
-              name: cloudflare-api-key
+              name: external-dns-secret
               key: CF_API_KEY
         - name: CF_API_EMAIL
           valueFrom:
             secretKeyRef:
-              name: cloudflare-api-email
+              name: external-dns-secret
               key: CF_API_EMAIL
 
 
