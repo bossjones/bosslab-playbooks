@@ -16,8 +16,8 @@ rules:
   resources: ["pods"]
   verbs: ["get","watch","list"]
 - apiGroups: ["extensions"]
-  resources: ["ingresses"]
-  verbs: ["get","watch","list"]
+  resources: ["ingresses", "ingress/status"]
+  verbs: ["get","watch","list", "update"]
 - apiGroups: [""]
   resources: ["nodes"]
   verbs: ["list"]
@@ -53,10 +53,10 @@ spec:
         image: registry.opensource.zalan.do/teapot/external-dns:latest
         args:
         # ingress is also possible
-        - --source=service
+        # - --source=service
         - --source=ingress
         # (optional) limit to only example.com domains; change to match the zone created above.
-        - --domain-filter=hyenaclan.org
+        - --domain-filter=borg.hyenaclan.org
         - --provider=cloudflare
         # (optional) enable the proxy feature of Cloudflare (DDOS protection, CDN...)
         - --cloudflare-proxied
