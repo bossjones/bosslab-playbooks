@@ -1,0 +1,41 @@
+---
+# NOTE: The presence of the selfSigned: {} line is enough to indicate that this Issuer is of type 'self signed'.
+# SOURCE: https://github.com/jetstack/cert-manager/blob/ad32ab3b0bca16982c9f2ee3fcfb795fa9bb7e09/docs/reference/issuers.rst
+# https://cert-manager.readthedocs.io/en/latest/reference/issuers/selfsigned/index.html
+
+## IMPORTANT: if you are deploying into a namespace that **already exists**,
+## you MUST ensure the namespace has an additional label on it in order for
+## the deployment to succeed
+# $ kubectl label namespace <deployment-namespace> certmanager.k8s.io/disable-validation="true"
+
+
+{% raw %}
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: ClusterIssuer
+metadata:
+  name: selfsigning-issuer
+spec:
+  selfSigned: {}
+{% endraw %}
+
+---
+
+# SOURCE: https://cert-manager.readthedocs.io/en/latest/tutorials/ca/creating-ca-issuer.html
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: example-com-crt
+  namespace: {{boss__certmanager__example_com_namespace_name}}
+spec:
+  secretName: example-com-tls
+  issuerRef:
+    name: selfsigning-issuer
+    # We can reference ClusterIssuers by changing the kind here.
+    # The default value is Issuer (i.e. a locally namespaced Issuer)
+    kind: ClusterIssuer
+  commonName: example.com
+  organization:
+  - Example CA
+  dnsNames:
+  - example.com
+  - www.example.com

@@ -1,0 +1,15 @@
+---
+- debug: msg="{{ lookup('env','KUBECONFIG') }} is an environment variable"
+
+- name: Search for all running pods
+  kube_facts:
+    name: web
+    kind: Pod
+    namespace: kube-system
+    # field_selectors:
+    #   - status.phase = running
+    # kubeconfig: "{{ lookup('env','KUBECONFIG') }}"
+    kubeconfig: "~/dev/bossjones/kubernetes-cluster/borg-admin.conf"
+  register: web_Service
+
+# eg: ~/dev/bossjones/kubernetes-cluster/borg-admin.conf

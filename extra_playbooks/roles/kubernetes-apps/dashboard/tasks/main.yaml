@@ -1,0 +1,44 @@
+---
+
+- name: "dashboard | Create directory: {{boss__dashboard__manifest_path}}"
+  file:
+    path: "{{boss__dashboard__manifest_path}}"
+    state: directory
+
+- name: "dashboard | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__dashboard__manifest_path }}/{{ item }}"
+  with_items:
+    - "01-kubernetes-dashboard.yml"
+    - "02-admin-role.yml"
+
+# - name: "dashboard | Create Serviceaccount and Clusterrolebinding (RBAC)"
+#   command: "{{ bin_dir }}/kubectl apply -f {{ boss__dashboard__manifest_path }}/{{ item }} -n kube-system"
+#   with_items:
+#     - "efk-sa.yml"
+#     - "efk-clusterrolebinding.yml"
+#   run_once: true
+#   when: rbac_enabled
+
+# - name: "dashboard | Write ES deployment"
+#   template:
+#     src: dashboard-deployment.yml.j2
+#     dest: "{{ boss__dashboard__manifest_path }}/dashboard-deployment.yaml"
+#   register: es_deployment_manifest
+
+# - name: "dashboard | Create ES deployment"
+#   command: "{{ bin_dir }}/kubectl apply -f {{ boss__dashboard__manifest_path }}/dashboard-deployment.yaml -n kube-system"
+#   run_once: true
+#   when: es_deployment_manifest.changed
+
+# - name: "dashboard | Write ES service "
+#   template:
+#     src: dashboard-service.yml.j2
+#     dest: "{{ boss__dashboard__manifest_path }}/dashboard-service.yaml"
+#   register: es_service_manifest
+
+# - name: "dashboard | Create ES service"
+#   command: "{{ bin_dir }}/kubectl apply -f {{ boss__dashboard__manifest_path }}/dashboard-service.yaml -n kube-system"
+#   run_once: true
+#   when: es_service_manifest.changed

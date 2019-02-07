@@ -3,7 +3,7 @@
 .DS_Store
 
 
-.vscode
+# .vscode
 *.swp
 **/.*.swp
 **/.ropeproject
@@ -135,7 +135,7 @@ tests/__pycache__/
 playbook.retry
 
 *.log
-.vscode
+# .vscode
 _cache/
 
 ################################################################
@@ -144,6 +144,7 @@ _cache/
 # Ignore user-created DebOps directories
 playbooks/roles
 roles
+!extra_playbooks/roles
 #inventory
 #inventory.secret
 
@@ -170,3 +171,17 @@ docs/_templates/.gitkeep
 docs/_static/custom.css
 docs/_static/.gitkeep
 vault_password
+
+
+vault_password
+.envrc
+vagrant-admin.conf
+dump/
+dump_json_exports
+tls.crt
+tls.key
+tls.{crt,key}.*
+borg-admin.conf
+playbooks/.ansible-logs/
+
+!.vscode/launch.json

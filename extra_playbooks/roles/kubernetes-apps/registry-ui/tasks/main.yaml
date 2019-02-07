@@ -1,0 +1,12 @@
+---
+- name: "registry-ui | Create directory: {{boss__registry__ui__manifest_path}}"
+  file:
+    path: "{{boss__registry__ui__manifest_path}}"
+    state: directory
+
+- name: "registry-ui | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__registry__ui__manifest_path }}/{{ item }}"
+  with_items:
+    - "99registry-ui-from-helm.yml"

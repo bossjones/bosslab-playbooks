@@ -1,0 +1,505 @@
+---
+# boss__registry__enable_tls
+# SOURCE: https://cert-manager.readthedocs.io/en/latest/tutorials/ca/creating-ca-issuer.html
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: docker-registry-tls-certificate
+  # namespace: kube-system
+spec:
+  secretName: docker-registry-tls-certificate
+  issuerRef:
+    name: selfsigning-issuer
+    # We can reference ClusterIssuers by changing the kind here.
+    # The default value is Issuer (i.e. a locally namespaced Issuer)
+    kind: ClusterIssuer
+  commonName: registry.hyenaclan.org
+  organization:
+  - Hyena Labs
+  dnsNames:
+  - registry.hyenaclan.org
+  - www.registry.hyenaclan.org
+
+---
+# Source: docker-registry/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: docker-registry-secret
+  labels:
+    app: docker-registry
+    k8s-app: registry
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: registry
+    version: "2.6.2"
+
+
+type: Opaque
+data:
+  haSharedSecret: "eVU5a2ZKNndFODV1TmczTQ=="
+
+---
+# Source: docker-registry/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: docker-registry-config
+  labels:
+    app: docker-registry
+    k8s-app: registry
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: registry
+    version: "2.6.2"
+
+data:
+  config.yml: |-
+    health:
+      storagedriver:
+        enabled: true
+        interval: 10s
+        threshold: 3
+    http:
+      addr: :5000
+      headers:
+        # Needed for docker-registry-ui
+        # SOURCE: https://github.com/Joxit/docker-registry-ui
+        X-Content-Type-Options: [nosniff]
+        # Access-Control-Allow-Origin: ['http://127.0.0.1:8001']
+        # Access-Control-Allow-Origin: ['http://registry-ui.hyenaclan.org']
+        Access-Control-Allow-Origin: ['*']
+        # If your docker registry does not need credentials, you will need to send this HEADER:
+        # Access-Control-Allow-Origin: ['*']
+
+        # NOTE: If your docker registry need credentials, you will need to send these HEADERS:
+        # Access-Control-Allow-Origin: '<your docker-registry-ui url>'
+        # Access-Control-Allow-Credentials: true
+        # Access-Control-Allow-Methods: ['HEAD', 'GET', 'OPTIONS'] # Optional
+
+        # NOTE: Needed for delete
+        Access-Control-Allow-Methods: ['HEAD', 'GET', 'OPTIONS', 'DELETE']
+        Access-Control-Expose-Headers: ['Docker-Content-Digest']
+
+        # Access-Control-Allow-Headers: ['Authorization']
+        # Access-Control-Max-Age: [1728000]
+        # Access-Control-Allow-Credentials: [true]
+      debug:
+         addr: :5001
+    log:
+      accesslog:
+        disabled: false
+      level: info
+      formatter: json
+      # formatter: logstash
+      # formatter: text
+      fields:
+        service: registry
+      # level: debug
+    storage:
+      cache:
+        blobdescriptor: inmemory
+      filesystem:
+        rootdirectory: /var/lib/registry
+      delete:
+        enable: true
+    # storage:
+    #   filesystem:
+    #     rootdirectory: /var/lib/registry
+    #     maxthreads: 100
+    version: 0.1
+
+---
+# Source: docker-registry/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: docker-registry
+  labels:
+    app: docker-registry
+    k8s-app: registry
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: registry
+    version: "2.6.2"
+
+
+  # annotations:
+  #   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  #  nginx.ingress.kubernetes.io/proxy-body-size: \"0\"
+
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5000
+      protocol: TCP
+      name: registry-http
+      targetPort: 5000
+    - port: 5001
+      protocol: TCP
+      name: registry-debug
+      targetPort: 5001
+  selector:
+    app: docker-registry
+    k8s-app: registry
+
+
+---
+# Source: docker-registry/templates/deployment.yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: docker-registry
+  labels:
+    app: docker-registry
+    k8s-app: registry
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: registry
+    version: "2.6.2"
+
+
+spec:
+  replicas: 1
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        app: docker-registry
+        k8s-app: registry
+        kubernetes.io/cluster-service: "true"
+        addonmanager.kubernetes.io/mode: Reconcile
+        boss-part-of: registry
+        version: "2.6.2"
+
+      annotations: {}
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+      containers:
+        - name: docker-registry
+          image: "registry:2.6.2"
+          imagePullPolicy: IfNotPresent
+          command:
+          - /bin/registry
+          - serve
+          - /etc/docker/registry/config.yml
+          ports:
+            - name: registry-http
+              containerPort: 5000
+            - name: registry-debug
+              containerPort: 5001
+
+          resources:
+            {}
+
+          env:
+            # - name: REGISTRY_HTTP_SECRET
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: docker-registry-secret
+            #       key: haSharedSecret
+            - name: REGISTRY_HTTP_ADDR
+              value: ":5000"
+            - name: REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY
+              value: "/var/lib/registry"
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/registry/
+            - name: "docker-registry-config"
+              mountPath: "/etc/docker/registry"
+      volumes:
+        - name: data
+
+          emptyDir: {}
+        - name: docker-registry-config
+          configMap:
+            name: docker-registry-config
+
+---
+# Source: docker-registry/templates/ingress.yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: docker-registry
+  labels:
+    app: docker-registry
+    k8s-app: registry
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: registry
+    version: "2.6.2"
+  # (see issue #2292 - https://github.com/moby/moby/issues/2292)
+  # nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+  annotations:
+      # certmanager.k8s.io/issuer: "selfsigning-issuer"
+      nginx.ingress.kubernetes.io/proxy-body-size: 16384m
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "900"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+      # nginx.ingress.kubernetes.io/rewrite-target: "\\\"/\\\""
+      # nginx.ingress.kubernetes.io/ssl-redirect: "\\\"false\\\""
+      #nginx.ingress.kubernetes.io/proxy-body-size: 0
+      #nginx.ingress.kubernetes.io/proxy-read-timeout: 600
+      #nginx.ingress.kubernetes.io/proxy-send-timeout: 600
+      # nginx.ingress.kubernetes.io/x-forwarded-prefix: \"true\"
+      # nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+      # nginx.ingress.kubernetes.io/rewrite-target: /
+
+      # ingress.kubernetes.io/proxy-body-size: "0"
+      # SOURCE: https://github.com/BA-2017/Infrastructure/blob/24e8a9d18ac89787f53076cce38c3683fdf5f60c/kubernetes/addons/DockerRegistry/ingress.yml
+      # pass on real client's IP
+      #  proxy_set_header Host $host;
+      nginx.ingress.kubernetes.io/configuration-snippet: |
+        chunked_transfer_encoding on;
+        proxy_set_header  X-Real-IP         $remote_addr;
+        proxy_set_header  X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header  X-Forwarded-Proto $scheme;
+        add_header 'Docker-Distribution-Api-Version' 'registry/2.0' always;
+spec:
+  rules:
+    - host: registry.hyenaclan.org
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: docker-registry
+              servicePort: 5000
+          # - path: /v2
+          #   backend:
+          #     serviceName: docker-registry-v2
+          #     servicePort: 5000
+          # - path: /service
+          #   backend:
+          #     serviceName: docker-registry
+          #     servicePort: 5000
+    - host: debug.registry.hyenaclan.org
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: docker-registry
+              servicePort: 5001
+  tls:
+    - hosts:
+      - registry.hyenaclan.org
+  #    secretName: docker-registry-tls-certificate
+  #   - hosts:
+  #     - debug.registry.hyenaclan.org
+  #     secretName: docker-registry-tls-certificate
+
+---
+# Source: docker-registry/templates/pvc.yaml
+
+
+# https://docs.docker.com/registry/configuration/
+# version: 0.1
+# log:
+#   accesslog:
+#     disabled: true
+#   level: debug
+#   formatter: text
+#   fields:
+#     service: registry
+#     environment: staging
+#   hooks:
+#     - type: mail
+#       disabled: true
+#       levels:
+#         - panic
+#       options:
+#         smtp:
+#           addr: mail.example.com:25
+#           username: mailuser
+#           password: password
+#           insecure: true
+#         from: sender@example.com
+#         to:
+#           - errors@example.com
+# loglevel: debug # deprecated: use "log"
+# storage:
+#   filesystem:
+#     rootdirectory: /var/lib/registry
+#     maxthreads: 100
+#   azure:
+#     accountname: accountname
+#     accountkey: base64encodedaccountkey
+#     container: containername
+#   gcs:
+#     bucket: bucketname
+#     keyfile: /path/to/keyfile
+#     rootdirectory: /gcs/object/name/prefix
+#     chunksize: 5242880
+#   s3:
+#     accesskey: awsaccesskey
+#     secretkey: awssecretkey
+#     region: us-west-1
+#     regionendpoint: http://myobjects.local
+#     bucket: bucketname
+#     encrypt: true
+#     keyid: mykeyid
+#     secure: true
+#     v4auth: true
+#     chunksize: 5242880
+#     multipartcopychunksize: 33554432
+#     multipartcopymaxconcurrency: 100
+#     multipartcopythresholdsize: 33554432
+#     rootdirectory: /s3/object/name/prefix
+#   swift:
+#     username: username
+#     password: password
+#     authurl: https://storage.myprovider.com/auth/v1.0 or https://storage.myprovider.com/v2.0 or # https://storage.myprovider.com/v3/auth
+#     tenant: tenantname
+#     tenantid: tenantid
+#     domain: domain name for Openstack Identity v3 API
+#     domainid: domain id for Openstack Identity v3 API
+#     insecureskipverify: true
+#     region: fr
+#     container: containername
+#     rootdirectory: /swift/object/name/prefix
+#   oss:
+#     accesskeyid: accesskeyid
+#     accesskeysecret: accesskeysecret
+#     region: OSS region name
+#     endpoint: optional endpoints
+#     internal: optional internal endpoint
+#     bucket: OSS bucket
+#     encrypt: optional data encryption setting
+#     secure: optional ssl setting
+#     chunksize: optional size valye
+#     rootdirectory: optional root directory
+#   inmemory:  # This driver takes no parameters
+#   delete:
+#     enabled: false
+#   redirect:
+#     disable: false
+#   cache:
+#     blobdescriptor: redis
+#   maintenance:
+#     uploadpurging:
+#       enabled: true
+#       age: 168h
+#       interval: 24h
+#       dryrun: false
+#     readonly:
+#       enabled: false
+# auth:
+#   silly:
+#     realm: silly-realm
+#     service: silly-service
+#   token:
+#     realm: token-realm
+#     service: token-service
+#     issuer: registry-token-issuer
+#     rootcertbundle: /root/certs/bundle
+#   htpasswd:
+#     realm: basic-realm
+#     path: /path/to/htpasswd
+# middleware:
+#   registry:
+#     - name: ARegistryMiddleware
+#       options:
+#         foo: bar
+#   repository:
+#     - name: ARepositoryMiddleware
+#       options:
+#         foo: bar
+#   storage:
+#     - name: cloudfront
+#       options:
+#         baseurl: https://my.cloudfronted.domain.com/
+#         privatekey: /path/to/pem
+#         keypairid: cloudfrontkeypairid
+#         duration: 3000s
+#   storage:
+#     - name: redirect
+#       options:
+#         baseurl: https://example.com/
+# reporting:
+#   bugsnag:
+#     apikey: bugsnagapikey
+#     releasestage: bugsnagreleasestage
+#     endpoint: bugsnagendpoint
+#   newrelic:
+#     licensekey: newreliclicensekey
+#     name: newrelicname
+#     verbose: true
+# http:
+#   addr: localhost:5000
+#   prefix: /my/nested/registry/
+#   host: https://myregistryaddress.org:5000
+#   secret: asecretforlocaldevelopment
+#   relativeurls: false
+#   tls:
+#     certificate: /path/to/x509/public
+#     key: /path/to/x509/private
+#     clientcas:
+#       - /path/to/ca.pem
+#       - /path/to/another/ca.pem
+#     letsencrypt:
+#       cachefile: /path/to/cache-file
+#       email: emailused@letsencrypt.com
+#   debug:
+#     addr: localhost:5001
+#   headers:
+#     X-Content-Type-Options: [nosniff]
+#   http2:
+#     disabled: false
+# notifications:
+#   endpoints:
+#     - name: alistener
+#       disabled: false
+#       url: https://my.listener.com/event
+#       headers: <http.Header>
+#       timeout: 500
+#       threshold: 5
+#       backoff: 1000
+#       ignoredmediatypes:
+#         - application/octet-stream
+# redis:
+#   addr: localhost:6379
+#   password: asecret
+#   db: 0
+#   dialtimeout: 10ms
+#   readtimeout: 10ms
+#   writetimeout: 10ms
+#   pool:
+#     maxidle: 16
+#     maxactive: 64
+#     idletimeout: 300s
+# health:
+#   storagedriver:
+#     enabled: true
+#     interval: 10s
+#     threshold: 3
+#   file:
+#     - file: /path/to/checked/file
+#       interval: 10s
+#   http:
+#     - uri: http://server.to.check/must/return/200
+#       headers:
+#         Authorization: [Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==]
+#       statuscode: 200
+#       timeout: 3s
+#       interval: 10s
+#       threshold: 3
+#   tcp:
+#     - addr: redis-server.domain.com:6379
+#       timeout: 3s
+#       interval: 10s
+#       threshold: 3
+# proxy:
+#   remoteurl: https://registry-1.docker.io
+#   username: [username]
+#   password: [password]
+# compatibility:
+#   schema1:
+#     signingkeyfile: /etc/registry/key.json
+# validation:
+#   enabled: true
+#   manifests:
+#     urls:
+#       allow:
+#         - ^https?://([^/]+\.)*example\.com/
+#       deny:
+#         - ^https?://www\.example\.com/

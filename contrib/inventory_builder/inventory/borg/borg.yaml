@@ -1,0 +1,91 @@
+all:
+  children:
+    all:
+      children:
+        servers: {}
+      hosts:
+        borg-queen-01.scarlettlab.home:
+          ansible_ssh_common_args: -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s -o ControlPath=~/.ansible/cp/ansible-ssh-%h-%p-%r
+          ansible_ssh_host: borg-queen-01
+          ansible_ssh_port: 22
+          ansible_ssh_private_key_file: ~/.ssh/vagrant_id_rsa
+          ansible_ssh_user: vagrant
+          boss__kubernetes__kubeadm__server_type: master
+          ip: 192.168.1.172
+          is_master: true
+        borg-worker-01.scarlettlab.home:
+          ansible_ssh_common_args: -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s -o ControlPath=~/.ansible/cp/ansible-ssh-%h-%p-%r
+          ansible_ssh_host: borg-worker-01
+          ansible_ssh_port: 22
+          ansible_ssh_private_key_file: ~/.ssh/vagrant_id_rsa
+          ansible_ssh_user: vagrant
+          ip: 192.168.1.173
+        borg-worker-02.scarlettlab.home:
+          ansible_ssh_common_args: -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s -o ControlPath=~/.ansible/cp/ansible-ssh-%h-%p-%r
+          ansible_ssh_host: borg-worker-02
+          ansible_ssh_port: 22
+          ansible_ssh_private_key_file: ~/.ssh/vagrant_id_rsa
+          ansible_ssh_user: vagrant
+          ip: 192.168.1.174
+    borg-queen-01:
+      hosts:
+        borg-queen-01.scarlettlab.home: {}
+    borg-worker-01:
+      hosts:
+        borg-worker-01.scarlettlab.home: {}
+    borg-worker-02:
+      hosts:
+        borg-worker-02.scarlettlab.home: {}
+    graphite-master-servers:
+      children:
+        graphite-master1: {}
+    graphite-master1:
+      children:
+        borg-worker-01: {}
+    graphite_master:
+      children:
+        graphite-master1: {}
+    influxdb:
+      children:
+        borg-worker-01: {}
+    local:
+      hosts:
+        localhost:
+          ansible_connection: local
+    masters:
+      children:
+        borg-queen-01: {}
+    netdata_nodes:
+      children:
+        borg-worker-01: {}
+        borg-worker-02: {}
+    netdata_registry:
+      children:
+        masters: {}
+    nfs_clients:
+      children:
+        borg-queen-01: {}
+        borg-worker-01: {}
+    nfs_masters:
+      children:
+        borg-worker-02: {}
+    proxy:
+      children:
+        borg-worker-01: {}
+    rsyslogd_clients:
+      children:
+        borg-queen-01: {}
+        borg-worker-01: {}
+    rsyslogd_masters:
+      children:
+        borg-worker-02: {}
+    servers:
+      children:
+        masters: {}
+        proxy: {}
+        workers: {}
+    workers:
+      children:
+        borg-worker-01: {}
+        borg-worker-02: {}
+

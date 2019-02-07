@@ -73,7 +73,7 @@ mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 current_dir := $(notdir $(patsubst %/,%,$(dir $(mkfile_path))))
 MAKE := make
 
-list_allowed_args := product ip command role tier
+list_allowed_args := product ip command role tier cluster
 
 default: all
 
@@ -115,6 +115,11 @@ raw:
 	$(call check_defined, product, Please set product)
 	$(call check_defined, command, Please set command)
 	@ansible localhost -i inventory-$(product)/ ${PROXY_COMMAND} -m raw -a "$(command)" -f 10
+
+get-ansible-modules:
+	ansible-doc --list | peco
+
+list-ansible-modules: get-ansible-modules
 
 # Compile python modules against homebrew openssl. The homebrew version provides a modern alternative to the one that comes packaged with OS X by default.
 # OS X's older openssl version will fail against certain python modules, namely "cryptography"
@@ -164,8 +169,16 @@ endif
 
 
 .PHONY: pip-tools-osx
-.PHONY: pip-tools-osx
 pip-tools-osx: pip-tools
+
+.PHONY: pip-tools-upgrade
+pip-tools-upgrade:
+ifeq (${DETECTED_OS}, Darwin)
+	ARCHFLAGS="-arch x86_64" LDFLAGS="-L/usr/local/opt/openssl/lib" CFLAGS="-I/usr/local/opt/openssl/include" pip install pip-tools pipdeptree --upgrade
+else
+	pip install pip-tools pipdeptree --upgrade
+endif
+
 
 .PHONY: pip-compile-upgrade-all
 pip-compile-upgrade-all: pip-tools
@@ -178,6 +191,12 @@ pip-compile: pip-tools
 	pip-compile --output-file requirements.txt requirements.in
 	pip-compile --output-file requirements-dev.txt requirements-dev.in
 	pip-compile --output-file requirements-test.txt requirements-test.in
+
+.PHONY: pip-compile-rebuild
+pip-compile-rebuild: pip-tools
+	pip-compile --rebuild --output-file requirements.txt requirements.in
+	pip-compile --rebuild --output-file requirements-dev.txt requirements-dev.in
+	pip-compile --rebuild --output-file requirements-test.txt requirements-test.in
 
 .PHONY: install-deps-all
 install-deps-all:
@@ -641,3 +660,124 @@ show_venv_activate_cmd: ## ** Show activate command when finished
 # Pyenv initilization - 12/23/2018 -- END
 # SOURCE: https://github.com/MacHu-GWU/learn_datasette-project/blob/120b45363aa63bdffe2f1933cf2d4e20bb6cbdb8/make/python_env.mk
 ###########################################################
+
+borg-inventory-ini-to-yaml:
+	@scripts/ini2yaml <${PROJECT_ROOT_DIR}/contrib/inventory_builder/inventory/borg/inventory.ini >${PROJECT_ROOT_DIR}/contrib/inventory_builder/cluster_configs/borg.yaml
+	@cat ${PROJECT_ROOT_DIR}/contrib/inventory_builder/cluster_configs/borg.yaml | highlight
+
+borg-kube-facts:
+	env ANSIBLE_STRATEGY=debug KUBECONFIG=~/dev/bossjones/kubernetes-cluster/borg-admin.conf ansible-playbook -v -i contrib/inventory_builder/inventory/borg/inventory.ini get_k8_facts.yml -v
+
+run-ansible-describe-borg-cluster:
+	env ANSIBLE_STRATEGY=debug KUBECONFIG=~/dev/bossjones/kubernetes-cluster/borg-admin.conf ansible-playbook  -i contrib/inventory_builder/inventory/borg/inventory.ini playbooks/describe_k8_cluster.yml -vvvvvv
+
+run-ansible-module-kube-facts-pdb:
+	python -m pdb ./library/kube_facts.py ./test-kube-facts-args.json
+
+run-ansible-module-kube-facts:
+	python ./library/kube_facts.py ./test-kube-facts-args.json | jq
+
+
+generate-ssh-config:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/generate_ssh_config.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+
+render-manifest-echoserver:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_echoserver.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+
+render-manifest-calico:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_calico.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+
+render-manifest-dashboard:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_dashboard.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+
+
+render-manifest-dashboard-admin:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_dashboard_admin.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+
+render-manifest-efk:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_efk.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+
+
+render-manifest-registry:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_registry.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+
+render-manifest-registry-ui:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_registry_ui.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+
+render-manifest-registry-all:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_registry.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local -vvvvv playbooks/render_registry_ui.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+
+render-manifest-cert-manager:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_cert_manager.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+
+render-manifest-jenkins:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_jenkins.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+
+
+render-manifest-heapster2:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_heapster2.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+
+
+render-manifest-metrics-server:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_metrics_server.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo 'FIXME: USE THIS GUY HERE - https://github.com/kubernetes-incubator/metrics-server/issues/77'
+	@echo 'FIXME: USE THIS GUY HERE - https://github.com/kubernetes-incubator/metrics-server/issues/77'
+	@echo 'FIXME: USE THIS GUY HERE - https://github.com/kubernetes-incubator/metrics-server/issues/77'
+	@echo 'FIXME: USE THIS GUY HERE - https://github.com/kubernetes-incubator/metrics-server/issues/77'
+	@echo 'FIXME: USE THIS GUY HERE - https://github.com/kubernetes-incubator/metrics-server/issues/77'
+	@echo 'FIXME: USE THIS GUY HERE - https://github.com/kubernetes-incubator/metrics-server/issues/77'
+
+
+render-manifest-external-dns:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_external_dns.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+
+render-manifest:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_echoserver.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local -vvvvv playbooks/render_calico.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local -vvvvv playbooks/render_dashboard.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local -vvvvv playbooks/render_dashboard_admin.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local -vvvvv playbooks/render_efk.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local -vvvvv playbooks/render_registry.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local -vvvvv playbooks/render_cert_manager.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local -vvvvv playbooks/render_registry_ui.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local -vvvvv playbooks/render_jenkins.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local -vvvvv playbooks/render_heapster2.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local -vvvvv playbooks/render_metrics_server.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+
+tmp-shell-default:
+	kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash
+
+tmp-shell-kube-system:
+	kubectl -n kube-system run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash
+
+tmp-shell-monitoring:
+	kubectl -n monitoring run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash
+
+zsh-tmp-shell-default:
+	kubectl run zsh-tmp-shell --rm -i --tty --image bossjones/k8s-zsh-debugger -- /bin/zsh
+
+zsh-tmp-shell-kube-system:
+	kubectl -n kube-system run zsh-tmp-shell --rm -i --tty --image bossjones/k8s-zsh-debugger -- /bin/zsh
+
+zsh-tmp-shell-monitoring:
+	kubectl -n monitoring run zsh-tmp-shell --rm -i --tty --image bossjones/k8s-zsh-debugger -- /bin/zsh
+
+# bossjones/k8s-zsh-debugger:
+
+include *.mk

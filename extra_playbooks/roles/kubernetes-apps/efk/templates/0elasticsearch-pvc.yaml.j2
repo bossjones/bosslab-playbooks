@@ -1,0 +1,36 @@
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: elasticsearch-pvc
+  namespace: {{boss__efk__namespace_name}}
+{%   if boss__efk__elasticsearch_persistent_volume_claim_labels is defined %}
+  labels:
+{{ boss__efk__elasticsearch_persistent_volume_claim_labels | indent( width=4, indentfirst=True,blank=True) }}
+{%   endif %}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: "nfs-dynamic-class"
+  resources:
+    requests:
+      storage: "{{boss__efk__elasticsearch_persistent_volume_claim_spec_resources_requests_storage}}"
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: elasticsearch-pv
+  namespace: {{boss__efk__namespace_name}}
+{%   if boss__efk__elasticsearch_persistent_volume_labels is defined %}
+  labels:
+{{ boss__efk__elasticsearch_persistent_volume_labels | indent( width=4, indentfirst=True,blank=True) }}
+{%   endif %}
+spec:
+  capacity:
+    storage: {{boss__efk__elasticsearch_persistent_volume_spec_capacity_storage}}
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: {{boss__efk__nfs_master_node_ip}}
+    path: "{{boss__efk__elasticsearch_persistent_volume_spec_nfs_path}}"

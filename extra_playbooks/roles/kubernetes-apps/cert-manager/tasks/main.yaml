@@ -1,0 +1,44 @@
+---
+
+- name: "certmanager | Create directory: {{boss__certmanager__manifest_path}}"
+  file:
+    path: "{{boss__certmanager__manifest_path}}"
+    state: directory
+
+- name: "certmanager | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__certmanager__manifest_path }}/{{ item }}"
+  with_items:
+    - "cert-manager.yaml"
+    - "cert-self-signed.yaml"
+
+# - name: "certmanager | Create Serviceaccount and Clusterrolebinding (RBAC)"
+#   command: "{{ bin_dir }}/kubectl apply -f {{ boss__certmanager__manifest_path }}/{{ item }} -n kube-system"
+#   with_items:
+#     - "efk-sa.yml"
+#     - "efk-clusterrolebinding.yml"
+#   run_once: true
+#   when: rbac_enabled
+
+# - name: "certmanager | Write ES deployment"
+#   template:
+#     src: certmanager-deployment.yml.j2
+#     dest: "{{ boss__certmanager__manifest_path }}/certmanager-deployment.yaml"
+#   register: es_deployment_manifest
+
+# - name: "certmanager | Create ES deployment"
+#   command: "{{ bin_dir }}/kubectl apply -f {{ boss__certmanager__manifest_path }}/certmanager-deployment.yaml -n kube-system"
+#   run_once: true
+#   when: es_deployment_manifest.changed
+
+# - name: "certmanager | Write ES service "
+#   template:
+#     src: certmanager-service.yml.j2
+#     dest: "{{ boss__certmanager__manifest_path }}/certmanager-service.yaml"
+#   register: es_service_manifest
+
+# - name: "certmanager | Create ES service"
+#   command: "{{ bin_dir }}/kubectl apply -f {{ boss__certmanager__manifest_path }}/certmanager-service.yaml -n kube-system"
+#   run_once: true
+#   when: es_service_manifest.changed

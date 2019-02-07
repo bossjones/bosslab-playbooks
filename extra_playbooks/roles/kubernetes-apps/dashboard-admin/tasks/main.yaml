@@ -1,0 +1,12 @@
+---
+- name: "dashboard-admin | Create directory: {{boss__dashboard__admin__manifest_path}}"
+  file:
+    path: "{{boss__dashboard__admin__manifest_path}}"
+    state: directory
+
+- name: "dashboard-admin | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__dashboard__admin__manifest_path }}/{{ item }}"
+  with_items:
+    - "dashboard-admin.yml"

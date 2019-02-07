@@ -1,0 +1,12 @@
+---
+- name: "jenkins | Create directory: {{boss__jenkins__manifest_path}}"
+  file:
+    path: "{{boss__jenkins__manifest_path}}"
+    state: directory
+
+- name: "jenkins | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__jenkins__manifest_path }}/{{ item }}"
+  with_items:
+    - "99jenkins-from-helm.yaml"

@@ -1,0 +1,36 @@
+# https://medium.com/@awkwardferny/getting-started-with-kubernetes-ingress-nginx-on-minikube-d75e58f52b6c
+
+# USAGE: kubectl apply -f jenkins.deploy.yaml
+# kubectl get deploy
+# kubectl get pods
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: jenkins
+  namespace: jenkins
+  labels:
+    run: nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      # app: jenkins
+      run: nginx
+  template:
+    metadata:
+      labels:
+        # app: jenkins
+        run: nginx
+    spec:
+      containers:
+      - name: jenkins
+        image: bossjones/jenkins:lts
+        resources:
+          limits:
+            memory: 2048i
+            cpu: 1000m
+          requests:
+            cpu: 1000m
+            memory: 2048Mi
+        ports:
+        - containerPort: 8080

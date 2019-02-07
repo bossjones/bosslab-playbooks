@@ -1,0 +1,38 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: es-curator
+  namespace: {{boss__efk__namespace_name}}
+{%   if boss__efk__elasticsearch_curator_deployment_labels is defined %}
+  labels:
+{{ boss__efk__elasticsearch_curator_deployment_labels | indent( width=4, indentfirst=True,blank=True) }}
+{%   endif %}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: es-curator
+  template:
+    metadata:
+      labels:
+        k8s-app: es-curator
+    spec:
+      containers:
+      - name: es-curator
+        image: {{boss__efk__elasticsearch_curator_image_repo}}:{{boss__efk__elasticsearch_curator_image_tag}}
+        imagePullPolicy: IfNotPresent
+        args: ["--config", "/etc/config/config.yml", "/etc/config/action_file.yml"]
+        volumeMounts:
+          - name: config-volume
+            mountPath: /etc/config
+        resources:
+          limits:
+            cpu: {{boss__efk__elasticsearch_curator_cpu_limit}}
+            memory: {{boss__efk__elasticsearch_curator_mem_limit}}
+          requests:
+            cpu: {{boss__efk__elasticsearch_curator_cpu_requests}}
+            memory: {{boss__efk__elasticsearch_curator_mem_requests}}
+      volumes:
+        - name: config-volume
+          secret:
+            secretName: curator-config

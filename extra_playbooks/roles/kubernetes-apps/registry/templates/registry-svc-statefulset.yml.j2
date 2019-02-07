@@ -1,0 +1,146 @@
+# RBAC authn and authz
+# SOURCE: https://www.nearform.com/blog/how-to-run-a-public-docker-registry-in-kubernetes/
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: registry-svc-account
+  namespace: {{boss__registry__namespace_name}}
+{%   if boss__registry__service_account_labels is defined %}
+  labels:
+{{ boss__registry__service_account_labels | indent( width=4, indentfirst=True,blank=True) }}
+{%   endif %}
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: registry-cr
+{%   if boss__registry__cluster_role_labels is defined %}
+  labels:
+{{ boss__registry__cluster_role_labels | indent( width=4, indentfirst=True,blank=True) }}
+{%   endif %}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - "services"
+  - "namespaces"
+  - "endpoints"
+  verbs:
+  - "get"
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  namespace: {{boss__registry__namespace_name}}
+  name: registry-crb
+{%   if boss__registry__cluster_role_binding_labels is defined %}
+  labels:
+{{ boss__registry__cluster_role_binding_labels | indent( width=4, indentfirst=True,blank=True) }}
+{%   endif %}
+subjects:
+- kind: ServiceAccount
+  name: registry-svc-account
+  namespace: {{boss__registry__namespace_name}}
+  apiGroup: ""
+roleRef:
+  kind: ClusterRole
+  name: registry-cr
+  apiGroup: ""
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: registry-statefulset
+  namespace: {{boss__registry__namespace_name}}
+{%   if boss__registry__stateful_set_labels is defined %}
+  labels:
+{{ boss__registry__stateful_set_labels | indent( width=4, indentfirst=True,blank=True) }}
+{%   endif %}
+spec:
+  serviceName: registry-svc-account
+  replicas: {{boss__registry__stateful_set_spec_replicas}}
+  selector:
+{%   if boss__registry__stateful_set_spec_selector_match_labels is defined %}
+    matchLabels:
+{{ boss__registry__stateful_set_spec_selector_match_labels | indent( width=8, indentfirst=True,blank=True) }}
+{%   endif %}
+  template:
+    metadata:
+{%   if boss__registry__stateful_set_spec_template_metadata_labels is defined %}
+      labels:
+{{ boss__registry__stateful_set_spec_template_metadata_labels | indent( width=8, indentfirst=True,blank=True) }}
+{%   endif %}
+    spec:
+      volumes:
+        - name: registry-vol
+{% if boss__registry__enable_pvc %}
+          persistentVolumeClaim:
+            claimName: registry-pvc
+{% else %}
+          emptyDir: {}
+{% endif %}
+{% if boss__registry__enable_tls %}
+        - name: config
+          configMap:
+            name: docker-registry
+            items:
+              - key: registry-config.yml
+                path: config.yml
+        - name: htpasswd
+          secret:
+            secretName: docker-registry
+            items:
+            - key: HTPASSWD
+              path: htpasswd
+{% endif %}
+      serviceAccountName: registry-svc-account
+      containers:
+      - image: {{boss__registry__image_repo}}:{{boss__registry__image_tag}}
+        securityContext:
+          # runAsNonRoot: true
+          # runAsUser: 65534
+          privileged: true
+        name: registry
+        resources:
+          # need more cpu upon initialization, therefore burstable class
+          limits:
+            cpu: {{boss__registry__cpu_limit}}
+            memory: {{boss__registry__mem_limit}}
+          requests:
+            cpu: {{boss__registry__cpu_requests}}
+            memory: {{boss__registry__mem_requests}}
+        ports:
+        - containerPort: 5000
+          name: registry
+          protocol: TCP
+        volumeMounts:
+        - name: registry-vol
+          mountPath: /var/lib/registry
+{% if boss__registry__enable_tls %}
+        - name: config
+          mountPath: /etc/docker/registry
+          readOnly: true
+        - name: htpasswd
+          mountPath: /auth
+          readOnly: true
+{% endif %}
+
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: "NAMESPACE"
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: REGISTRY_HTTP_ADDR
+            value: :5000
+          - name: REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY
+            value: /var/lib/registry
+
+      initContainers:
+      - image: alpine:3.6
+        command: ["/sbin/sysctl", "-w", "vm.max_map_count=262144"]
+        name: registry-logging-init
+        securityContext:
+          privileged: true
+

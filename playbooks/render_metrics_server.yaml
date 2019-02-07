@@ -1,0 +1,52 @@
+# -*- coding: utf-8 -*-
+# USAGE: ansible-playbook -c local -vvvvv playbooks/render_metrics_server.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars 'cluster=borg' --skip-tags "pause"
+# env ANSIBLE_STRATEGY=debug KUBECONFIG=~/dev/bossjones/kubernetes-cluster/borg-admin.conf ansible-playbook  -i contrib/inventory_builder/inventory/borg/inventory.ini playbooks/render_metrics_server.yml -vvvvvv
+---
+##############################################################################
+# file: render_metrics_server.yaml
+# Create an amazon vpc and tag it appropiately
+#
+# Run with:
+#
+#
+# DRY RUN(with pause):
+# ansible-playbook -c local -vvvvv playbooks/render_metrics_server.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg" --check -f 10
+#
+# REAL RUN(w/o pause):
+# ansible-playbook -c local -vvvvv playbooks/render_metrics_server.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg" --skip-tags -f 10 "pause"
+#
+# TAG LOOKUP:
+# ansible-playbook -c local -vvvvv playbooks/render_metrics_server.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg" --tag lookup -f 10
+#
+# REAL RUN:
+# ansible-playbook -c local -vvvvv playbooks/render_metrics_server.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg" -f 10
+##############################################################################
+
+- hosts: localhost
+  # connection: local
+  gather_facts: True
+  vars_prompt:
+    - name: "cluster"
+      prompt: "Name cluster, will be used to locate manifest config variables"
+      private: no
+  vars_files:
+    - "{{ playbook_dir }}/../vars/clear/{{ cluster }}_manifest.yml"
+  pre_tasks:
+
+    # *************************[ BEGIN PRE FLIGHT CHECKS ]********************************* #
+    # Figure out if we should be doing external/internal/all
+    - name: Verify Ansible 2.6 or greater.
+      assert:
+        # TODO: Change this before ansible 2.9 [DEPRECATION WARNING]: Using tests as filters is deprecated. Instead of using `result|version` use `result is version`. This feature will be removed in version 2.9. Deprecation warnings can be disabled by setting deprecation_warnings=False in ansible.cfg.
+        that: "ansible_version.full is defined"
+        msg: >
+          "You must update Ansible to at least 2.6 to use this version of Behance Elb Create Playbook."
+        when: ansible_version.full is version('2.6', '>=')
+
+  tasks:
+    - debug:
+        msg: '{{ playbook_dir }}/../vars/clear/{{ cluster }}_manifest.yml'
+  roles:
+  - role: kubernetes-apps/metrics-server
+    tags:
+      - kubernetes-apps/metrics-server

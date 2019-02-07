@@ -1,0 +1,62 @@
+---
+##############################################################################
+# SERVERS: Install and configure rsyslogd
+##############################################################################
+- hosts: servers
+  name: install tools on all servers
+  gather_facts: True
+  become: yes
+  become_method: sudo
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  tasks:
+
+  - name: mkdir -p ~/dev
+    shell: |
+      mkdir -p ~/dev
+      chdir=$HOME
+    become: '{{ item }}'
+    args:
+      executable: /bin/bash
+      creates: '$HOME/dev'
+    with_items:
+      - true  # Run as vagrant
+      - false  # Run as vagrant
+
+  - name: git clone https://github.com/bossjones/kubeadm-playbook.git
+    shell: |
+      git clone https://github.com/bossjones/kubeadm-playbook.git ~/dev/kubeadm-playbook || (cd ~/dev/kubeadm-playbook ; git pull)
+      chdir=$HOME
+    become: '{{ item }}'
+    args:
+      executable: /bin/bash
+      creates: '$HOME/dev/kubeadm-playbook'
+    with_items:
+      - true  # Run as vagrant
+      - false  # Run as vagrant
+
+
+  - name: git clone https://github.com/bossjones/kubernetes-cluster.git
+    shell: |
+      git clone https://github.com/bossjones/kubernetes-cluster.git ~/dev/kubernetes-cluster || (cd ~/dev/kubernetes-cluster ; git pull)
+      chdir=$HOME
+    become: '{{ item }}'
+    args:
+      executable: /bin/bash
+      creates: '$HOME/dev/kubernetes-cluster'
+    with_items:
+      - true  # Run as vagrant
+      - false  # Run as vagrant
+
+
+  - name: git clone https://github.com/bossjones/bosslab-playbooks.git
+    shell: |
+      git clone https://github.com/bossjones/bosslab-playbooks.git ~/dev/bosslab-playbooks || (cd ~/dev/bosslab-playbooks ; git pull)
+      chdir=$HOME
+    become: '{{ item }}'
+    args:
+      executable: /bin/bash
+      creates: '$HOME/dev/bosslab-playbooks'
+    with_items:
+      - true  # Run as vagrant
+      - false  # Run as vagrant

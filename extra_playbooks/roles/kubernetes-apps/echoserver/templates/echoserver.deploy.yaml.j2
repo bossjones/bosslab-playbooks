@@ -1,0 +1,42 @@
+# https://medium.com/@awkwardferny/getting-started-with-kubernetes-ingress-nginx-on-minikube-d75e58f52b6c
+
+# USAGE: kubectl apply -f echoserver.deploy.yaml
+# kubectl get deploy
+# kubectl get pods
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: echoserver
+  namespace: {{boss__echoserver__namespace_name}}
+  # indent( width=4, indentfirst=True,blank=True)(indent=8)
+{%   if boss__echoserver__deployment_labels is defined %}
+  labels:
+    {{ boss__echoserver__deployment_labels | indent( width=4, indentfirst=True,blank=True) }}
+{%   endif %}
+spec:
+  replicas: {{boss__echoserver__deployment_spec_replicas}}
+  selector:
+    matchLabels:
+      # app: echoserver
+      run: nginx
+  template:
+    metadata:
+{%   if boss__echoserver__deployment_labels is defined %}
+      labels:
+        {{ boss__echoserver__deployment_labels | indent( width=4, indentfirst=True,blank=True) }}
+        # app: echoserver
+        # run: nginx
+{%   endif %}
+    spec:
+      containers:
+      - name: echoserver
+        image: {{ boss__echoserver__echoserver_image_repo }}:{{ boss__echoserver__echoserver_image_tag }}
+        resources:
+          limits:
+            memory: {{boss__echoserver__echoserver_mem_limit}}
+            cpu: {{boss__echoserver__echoserver_cpu_limit}}
+          requests:
+            cpu: {{boss__echoserver__echoserver_cpu_requests}}
+            memory: {{boss__echoserver__echoserver_mem_requests}}
+        ports:
+        - containerPort: 8080

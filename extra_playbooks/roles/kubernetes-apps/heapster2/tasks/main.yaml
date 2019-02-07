@@ -1,0 +1,14 @@
+---
+- name: "heapster | Create directory: {{boss__heapster__manifest_path}}"
+  file:
+    path: "{{boss__heapster__manifest_path}}"
+    state: directory
+
+- name: "heapster | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__heapster__manifest_path }}/{{ item }}"
+  with_items:
+    - "01-kube-heapster-cluster-fix.yml"
+    - "kube-heapster-influxdb.yml"
+    - "kube-heapster.yml"

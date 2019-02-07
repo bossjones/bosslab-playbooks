@@ -1,0 +1,133 @@
+# SOURCE: https://github.com/kubernetes-incubator/external-storage/blob/master/nfs-client/deploy/rbac.yaml
+
+---
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: nfs-client-provisioner
+  namespace: kube-system
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: nfs-client-provisioner-runner
+  namespace: kube-system
+rules:
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "list", "watch", "update"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["endpoints"]
+    verbs: ["create", "update", "patch", "get", "list", "watch", "update"]
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: run-nfs-client-provisioner
+subjects:
+  - kind: ServiceAccount
+    name: nfs-client-provisioner
+    namespace: kube-system
+roleRef:
+  kind: ClusterRole
+  name: nfs-client-provisioner-runner
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: leader-locking-nfs-client-provisioner
+  namespace: kube-system
+rules:
+  - apiGroups: [""]
+    resources: ["endpoints"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: leader-locking-nfs-client-provisioner
+subjects:
+  - kind: ServiceAccount
+    name: nfs-client-provisioner
+    # replace with namespace where provisioner is deployed
+    namespace: kube-system
+roleRef:
+  kind: Role
+  name: leader-locking-nfs-client-provisioner
+  apiGroup: rbac.authorization.k8s.io
+---
+# SOURCE: https://github.com/kubernetes-incubator/external-storage/blob/master/nfs-client/deploy/deployment.yaml
+kind: Deployment
+apiVersion: extensions/v1beta1
+# apiVersion: apps/v1
+metadata:
+  name: nfs-client-provisioner
+  labels:
+    app: nfs-client-provisioner
+  namespace: kube-system
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nfs-client-provisioner
+    spec:
+      serviceAccountName: nfs-client-provisioner
+      containers:
+        - name: nfs-client-provisioner
+          image: quay.io/external_storage/nfs-client-provisioner:latest
+          volumeMounts:
+            - name: nfs-client-root
+              mountPath: /persistentvolumes
+          env:
+            - name: PROVISIONER_NAME
+              # value: fuseim.pri/ifs
+              value: com.scarlettlab.nfs
+            - name: NFS_SERVER
+              value: 192.168.1.174
+            - name: NFS_PATH
+              value: /mnt/publicdata
+      volumes:
+        - name: nfs-client-root
+          nfs:
+            server: 192.168.1.174
+            path: /mnt/publicdata
+
+
+
+# ---
+# # SOURCE: https://github.com/kubernetes-incubator/external-storage/blob/master/nfs-client/deploy/class.yaml
+# apiVersion: storage.k8s.io/v1
+# kind: StorageClass
+# metadata:
+#   name: managed-nfs-storage
+#   namespace: kube-system
+# # provisioner: fuseim.pri/ifs # or choose another name, must match deployment's env PROVISIONER_NAME'
+# provisioner: com.scarlettlab.nfs # or choose another name, must match deployment's env PROVISIONER_NAME'
+# parameters:
+#   archiveOnDelete: "false"
+
+# SOURCE: https://github.com/xiongraorao/Athena/blob/7c78b1636d1989ed1961b501f1870d981edbbad2/yaml/nfs-provisioner/nfs-client-provisioner.yaml
+# SOURCE: https://github.com/kubernetes/kubernetes/blob/214efa9cc4f909254d8eab1025b1f0549615bb41/cluster/juju/layers/kubernetes-worker/templates/nfs-provisioner.yaml
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-dynamic-class
+  namespace: kube-system
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+#此处引用nfs-client-provisioner里面的 com.scarlettlab.nfs
+provisioner: com.scarlettlab.nfs

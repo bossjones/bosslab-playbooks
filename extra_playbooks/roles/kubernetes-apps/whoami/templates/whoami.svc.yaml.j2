@@ -1,0 +1,57 @@
+# https://medium.com/@awkwardferny/getting-started-with-kubernetes-ingress-nginx-on-minikube-d75e58f52b6c
+
+# USAGE: kubectl apply -f whoami.svc.yaml
+# wait a min for the service to be created
+# kubectl get svc
+
+## Expose the grafana service to be accessed from outside the cluster (LoadBalancer service).
+## or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it.
+## ref: http://kubernetes.io/docs/user-guide/services/
+##
+apiVersion: v1
+kind: Service
+metadata:
+  name: whoami-svc
+  # namespace: kube-system
+  # labels:
+  #   # For use as a Cluster add-on (https://github.com/kubernetes/kubernetes/tree/master/cluster/addons)
+  #   # If you are NOT using this as an addon, you should comment out this line.
+  #   kubernetes.io/cluster-service: 'true'
+  #   kubernetes.io/name: whoami-svc
+  #   # INFO: https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/
+  #   # The name of the application
+  #   app.kubernetes.io/name: whoami-svc
+  #   app.kubernetes.io/version: 'latest'
+  #   # The component within the architecture
+  #   app.kubernetes.io/component: 'web'
+  #   # The name of a higher level application this one is part of
+  #   app.kubernetes.io/part-of: 'whoami'
+  #   # The tool being used to manage the operation of an application
+  #   # app.kubernetes.io/managed-by: 'kubectl'
+  # annotations:
+  #   # SOURCE: https://github.com/nginxinc/kubernetes-ingress/tree/master/examples/multiple-ingress-controllers
+  #   # NOTE: To designate that a particular Ingress resource must be handled only by the NGINX or NGINX Plus controller add the following annotation along with the value to the Ingress resource:
+  #   kubernetes.io/ingress.class: "nginx"
+  #   kubernetes.io/tls-acme: "false"
+  #   # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-body-size: \"10m\"
+  #   # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-read-timeout: \"600\"
+  #   # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-send-timeout: \"600\"
+  #   # Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
+  #   # https://github.com/kubernetes/ingress-nginx/issues/1567
+  #   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  #   # SOURCE: https://medium.com/@Oskarr3/setting-up-ingress-on-minikube-6ae825e98f82
+  #   nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  # In a production setup, we recommend accessing Grafana through an external Loadbalancer
+  # or through a public IP.
+  # type: LoadBalancer
+  # You could also use NodePort to expose the service at a randomly-generated port
+  # type: NodePort
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+  selector:
+    app: whoami
+    # k8s-app: whoami

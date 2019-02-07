@@ -1,0 +1,135 @@
+# -*- coding: utf-8 -*-
+---
+# USAGE: ansible-playbook -v sysdig_profile.yml -i inventory.ini --extra-vars "num_seconds='20'"
+##############################################################################
+# file: sysdig_profile.yml
+#
+# Run with:
+#
+# Flush dynamic inventory cache:
+# ansible-playbook -v sysdig_profile.yml -i inventory.ini --extra-vars "num_seconds='20'" --flush-cache
+#
+# DRY RUN(skip proxy tagged):
+# ansible-playbook -v sysdig_profile.yml -i inventory.ini --extra-vars "num_seconds='20'" --check --tags "proxy"
+#
+# REAL RUN(skip proxy tagged):
+# ansible-playbook -v sysdig_profile.yml -i inventory.ini --extra-vars "num_seconds='20'" --tags "proxy" --skip-tags "scp"
+#
+# REAL RUN(use proxy tagged, skip scp):
+# ansible-playbook -v sysdig_profile.yml -i inventory.ini --extra-vars "num_seconds='20'" --tags "proxy"
+#
+# DRY RUN(skip control tagged):
+# ansible-playbook -v sysdig_profile.yml -i inventory.ini --extra-vars "num_seconds='20'" --check --tags "control"
+#
+# REAL RUN(skip control tagged):
+# ansible-playbook -v sysdig_profile.yml -i inventory.ini --extra-vars "num_seconds='20'" --tags "control"
+#
+# REAL RUN(skip control tagged):
+# ansible-playbook -v sysdig_profile.yml -i inventory.ini --extra-vars "num_seconds='20'" --tags "control" --skip-tags "scp"
+#
+# REAL RUN(all):
+# ansible-playbook -v sysdig_profile.yml -i inventory.ini --extra-vars "num_seconds='20'"
+##############################################################################
+- name: dump journald, ps aux, file descriptors, and sysdig trace file on all servers
+  # masters
+  hosts: servers
+  strategy: free
+  gather_facts: False
+  become: yes
+  become_method: sudo
+  vars:
+    debug_folder: '~/.homelab_debugging'
+  vars_prompt:
+    - name: "num_seconds"
+      prompt: "Stop collecting after <num_seconds> reached.'"
+      private: no
+      default: "today"
+  tasks:
+  - name: 'mkdir -p ~/.homelab_debugging'
+    shell: 'mkdir -p ~/.homelab_debugging'
+    changed_when: False
+    check_mode: no
+
+# sudo sysdig -w filename.scap -M {{num_seconds}}
+
+  - name: 'sysdig -w {{debug_folder}}/dump.scap -M {{num_seconds}}'
+    shell: 'sysdig -w {{debug_folder}}/dump.scap -M {{num_seconds}}'
+    become: yes
+    changed_when: False
+    check_mode: no
+
+  - name: 'cat /proc/sys/fs/file-nr > {{debug_folder}}/file_handles.log'
+    shell: 'cat /proc/sys/fs/file-nr > {{debug_folder}}/file_handles.log'
+    changed_when: False
+    check_mode: no
+
+  - name: 'ps auxef > {{debug_folder}}/ps_auxef.log'
+    shell: 'ps auxef > {{debug_folder}}/ps_auxef.log'
+    changed_when: False
+    check_mode: no
+
+  - name: 'df -H > {{debug_folder}}/df_h.log'
+    shell: 'df -H > {{debug_folder}}/df_h.log'
+    changed_when: False
+    check_mode: no
+
+  - name: 'free -m > {{debug_folder}}/free_m.log'
+    shell: 'free -m > {{debug_folder}}/free_m.log'
+    changed_when: False
+    check_mode: no
+
+  - name: 'sysctl -a > {{debug_folder}}/sysctl_a.log'
+    shell: 'sysctl -a > {{debug_folder}}/sysctl_a.log'
+    changed_when: False
+    check_mode: no
+
+  - name: 'systemctl list-units --no-pager > {{debug_folder}}/systemctl_list_units.log'
+    shell: 'systemctl list-units --no-pager > {{debug_folder}}/systemctl_list_units.log'
+    changed_when: False
+    check_mode: no
+
+  - name: "journalctl --since '5 minutes ago' -p {{item}} > {{debug_folder}}/journalctl_{{item}}.log"
+    shell: "journalctl --since '5 minutes ago' -p {{item}} > {{debug_folder}}/journalctl_{{item}}.log"
+    changed_when: False
+    check_mode: no
+    with_items:
+      - warning
+      - err
+      - crit
+      - alert
+      - emerg
+
+  - name: 'find . -name "*" -type f| xargs tar cvf ~/debug.tar.gz'
+    shell: 'find . -name "*" -type f| xargs tar cvf ~/debug.tar.gz'
+    args:
+      chdir: "{{debug_folder}}"
+    changed_when: False
+    check_mode: no
+
+  - name: "tar cjvf ~/debug.tar.gz {{debug_folder}}"
+    shell: "tar cjvf ~/debug.tar.gz {{debug_folder}}"
+    changed_when: False
+    check_mode: no
+###################################################################################################################
+
+- name: retrieve debug files from server
+  hosts: servers
+  strategy: free
+  gather_facts: False
+  become: yes
+  become_method: sudo
+  vars:
+    debug_folder: '~/.homelab_debugging'
+  tasks:
+  - name: "src=~/debug.tar.gz dest=.ansible-logs flat=no fail_on_missing=yes"
+    fetch: src=~/debug.tar.gz dest=.ansible-logs flat=no fail_on_missing=yes
+
+  - name: "rm -rfv ~/debug.tar.gz"
+    shell: "rm -rfv ~/debug.tar.gz"
+    changed_when: False
+    check_mode: no
+
+  - name: "rm -rfv {{debug_folder}}"
+    shell: "rm -rfv {{debug_folder}}"
+    changed_when: False
+    check_mode: no

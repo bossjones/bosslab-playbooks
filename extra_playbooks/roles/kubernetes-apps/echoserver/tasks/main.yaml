@@ -1,0 +1,46 @@
+---
+
+- name: "echoserver | Create directory: {{boss__echoserver__manifest_path}}"
+  file:
+    path: "{{boss__echoserver__manifest_path}}"
+    state: directory
+
+- name: "echoserver | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__echoserver__manifest_path }}/{{ item }}"
+  with_items:
+    - "0echoserver.namespace.yaml"
+    - "echoserver.svc.yaml"
+    - "echoserver.deploy.yaml"
+    - "echoserver.ingress.yaml"
+
+# - name: "echoserver | Create Serviceaccount and Clusterrolebinding (RBAC)"
+#   command: "{{ bin_dir }}/kubectl apply -f {{ boss__echoserver__manifest_path }}/{{ item }} -n kube-system"
+#   with_items:
+#     - "efk-sa.yml"
+#     - "efk-clusterrolebinding.yml"
+#   run_once: true
+#   when: rbac_enabled
+
+# - name: "echoserver | Write ES deployment"
+#   template:
+#     src: echoserver-deployment.yml.j2
+#     dest: "{{ boss__echoserver__manifest_path }}/echoserver-deployment.yaml"
+#   register: es_deployment_manifest
+
+# - name: "echoserver | Create ES deployment"
+#   command: "{{ bin_dir }}/kubectl apply -f {{ boss__echoserver__manifest_path }}/echoserver-deployment.yaml -n kube-system"
+#   run_once: true
+#   when: es_deployment_manifest.changed
+
+# - name: "echoserver | Write ES service "
+#   template:
+#     src: echoserver-service.yml.j2
+#     dest: "{{ boss__echoserver__manifest_path }}/echoserver-service.yaml"
+#   register: es_service_manifest
+
+# - name: "echoserver | Create ES service"
+#   command: "{{ bin_dir }}/kubectl apply -f {{ boss__echoserver__manifest_path }}/echoserver-service.yaml -n kube-system"
+#   run_once: true
+#   when: es_service_manifest.changed

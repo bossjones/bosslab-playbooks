@@ -1,0 +1,5 @@
+---
+boss__echoserver__echoserver_cpu_limit: 100m
+boss__echoserver__echoserver_mem_limit: 55Mi
+boss__echoserver__echoserver_cpu_requests: 100m
+boss__echoserver__echoserver_mem_requests: 20Mi

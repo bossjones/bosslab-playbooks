@@ -1,0 +1,157 @@
+# RBAC authn and authz
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: elasticsearch-logging
+  namespace: {{boss__efk__namespace_name}}
+{%   if boss__efk__elasticsearch_service_account_labels is defined %}
+  labels:
+{{ boss__efk__elasticsearch_service_account_labels | indent( width=4, indentfirst=True,blank=True) }}
+{%   endif %}
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: elasticsearch-logging
+{%   if boss__efk__elasticsearch_cluster_role_labels is defined %}
+  labels:
+{{ boss__efk__elasticsearch_cluster_role_labels | indent( width=4, indentfirst=True,blank=True) }}
+{%   endif %}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - "services"
+  - "namespaces"
+  - "endpoints"
+  verbs:
+  - "get"
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  namespace: {{boss__efk__namespace_name}}
+  name: elasticsearch-logging
+{%   if boss__efk__elasticsearch_cluster_role_binding_labels is defined %}
+  labels:
+{{ boss__efk__elasticsearch_cluster_role_binding_labels | indent( width=4, indentfirst=True,blank=True) }}
+{%   endif %}
+subjects:
+- kind: ServiceAccount
+  name: elasticsearch-logging
+  namespace: {{boss__efk__namespace_name}}
+  apiGroup: ""
+roleRef:
+  kind: ClusterRole
+  name: elasticsearch-logging
+  apiGroup: ""
+---
+# Elasticsearch deployment itself
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: elasticsearch-logging
+  namespace: {{boss__efk__namespace_name}}
+{%   if boss__efk__elasticsearch_stateful_set_labels is defined %}
+  labels:
+{{ boss__efk__elasticsearch_stateful_set_labels | indent( width=4, indentfirst=True,blank=True) }}
+{%   endif %}
+spec:
+  serviceName: elasticsearch-logging
+  # ORIG # replicas: 2
+  replicas: {{boss__efk__elasticsearch_stateful_set_spec_replicas}}
+  selector:
+{%   if boss__efk__elasticsearch_stateful_set_spec_selector_match_labels is defined %}
+    matchLabels:
+{{ boss__efk__elasticsearch_stateful_set_spec_selector_match_labels | indent( width=8, indentfirst=True,blank=True) }}
+{%   endif %}
+    # matchLabels:
+    #   k8s-app: elasticsearch-logging
+    #  version: v5.6.2
+  template:
+    metadata:
+{%   if boss__efk__elasticsearch_stateful_set_spec_template_metadata_labels is defined %}
+      labels:
+{{ boss__efk__elasticsearch_stateful_set_spec_template_metadata_labels | indent( width=8, indentfirst=True,blank=True) }}
+{%   endif %}
+    spec:
+      volumes:
+      - name: elasticsearch-logging
+        persistentVolumeClaim:
+          claimName: elasticsearch-pvc
+      # SOURCE: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+      # nodeSelector:
+      #   kubernetes.io/hostname: "borg-worker-02"
+      serviceAccountName: elasticsearch-logging
+      containers:
+      # - image: k8s.gcr.io/elasticsearch:v5.6.2
+      - image: {{boss__efk__elasticsearch_image_repo}}:{{boss__efk__elasticsearch_image_tag}}
+        imagePullPolicy: Always
+        securityContext:
+          # runAsNonRoot: true
+          # runAsUser: 65534
+          privileged: true
+        name: elasticsearch-logging
+        resources:
+          # need more cpu upon initialization, therefore burstable class
+          limits:
+            cpu: {{boss__efk__elasticsearch_cpu_limit}}
+            memory: {{boss__efk__elasticsearch_mem_limit}}
+            # memory: 2400Mi
+          requests:
+            cpu: {{boss__efk__elasticsearch_cpu_requests}}
+            memory: {{boss__efk__elasticsearch_mem_requests}}
+            # memory: 2350Mi
+            # memory: 2000Mi
+        ports:
+        - containerPort: 9200
+          name: db
+          protocol: TCP
+        - containerPort: 9300
+          name: transport
+          protocol: TCP
+        - containerPort: 1099
+          name: jmx
+          protocol: TCP
+        volumeMounts:
+        - name: elasticsearch-logging
+          mountPath: /data
+        env:
+        - name: "NAMESPACE"
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+          # http.cors.enabled: true
+          # http.cors.allow-origin
+          # NOTE: Needed for: https://github.com/mobz/elasticsearch-head
+        # - name: HTTP_CORS_ENABLED
+        #   value: "true"
+        # - name: HTTP_CORS_ALLOW_ORIGIN
+        #   value: "*"
+        - name: MINIMUM_MASTER_NODES
+          value: "1"
+        - name: ES_JAVA_OPTS
+          # value: "-Xms1024m -Xmx1024m"
+          # value: "-Xms4048m -Xmx4048m"
+          value: "{{boss__efk__elasticsearch_stateful_set_env_ES_JAVA_OPTS}}"
+          # value: "-Xms256m -Xmx256m"
+        # - name: ES_HEAP_SIZE
+        #   # value: "-Xms1024m -Xmx1024m"
+        #   value: "1g"
+        #   # chmod g+rwx esdatadir
+        #   # chgrp 1000 esdatadir
+      initContainers:
+      - image: alpine:3.6
+        command: ["/sbin/sysctl", "-w", "vm.max_map_count=262144"]
+        name: elasticsearch-logging-init
+        securityContext:
+          privileged: true
+  # volumeClaimTemplates:
+  # - metadata:
+  #     name: elasticsearch-logging
+  #   spec:
+  #     accessModes: ["ReadWriteOnce"]
+  #     resources:
+  #       requests:
+  #         storage: 20Gi

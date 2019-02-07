@@ -1,0 +1,26 @@
+# # STEP 3: kubectl create -f ~/dev/bossjones/kubernetes-cluster/ingress-traefik2/cheeses-ingress.yaml
+# # Verification: kubectl get ingress -n=kube-system -o yaml | highlight
+# ---
+# apiVersion: extensions/v1beta1
+# kind: Ingress
+# metadata:
+#   name: cheeses
+#   annotations:
+#     traefik.frontend.rule.type: PathPrefixStrip
+# spec:
+#   rules:
+#   - host: cheeses.hyenaclan.org
+#     http:
+#       paths:
+#       - path: /stilton
+#         backend:
+#           serviceName: stilton
+#           servicePort: http
+#       - path: /cheddar
+#         backend:
+#           serviceName: cheddar
+#           servicePort: http
+#       - path: /wensleydale
+#         backend:
+#           serviceName: wensleydale
+#           servicePort: http
