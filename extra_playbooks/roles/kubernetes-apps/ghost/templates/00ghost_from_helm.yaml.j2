@@ -1,0 +1,439 @@
+---
+# Source: ghost/charts/mariadb/templates/secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: scarlettlab-mariadb
+  labels:
+    app: "mariadb"
+    chart: mariadb-5.2.5
+    release: "scarlettlab"
+    heritage: "Tiller"
+type: Opaque
+data:
+  mariadb-root-password: "aGNqSUZFN25KNQ=="
+
+  mariadb-password: "c0QwN0FVaTFiSg=="
+---
+# Source: ghost/templates/secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: scarlettlab-ghost
+  labels:
+    app: "scarlettlab-ghost"
+    chart: "ghost-6.3.6"
+    release: "scarlettlab"
+    heritage: "Tiller"
+type: Opaque
+data:
+  ghost-password: "cGFzc3dvcmRwYXNzd29yZA=="
+
+---
+# Source: ghost/charts/mariadb/templates/master-configmap.yaml
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scarlettlab-mariadb
+  labels:
+    app: mariadb
+    component: "master"
+    chart: mariadb-5.2.5
+    release: "scarlettlab"
+    heritage: "Tiller"
+data:
+  my.cnf: |-
+    [mysqld]
+    skip-name-resolve
+    explicit_defaults_for_timestamp
+    basedir=/opt/bitnami/mariadb
+    port=3306
+    socket=/opt/bitnami/mariadb/tmp/mysql.sock
+    tmpdir=/opt/bitnami/mariadb/tmp
+    max_allowed_packet=16M
+    bind-address=0.0.0.0
+    pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
+    log-error=/opt/bitnami/mariadb/logs/mysqld.log
+    character-set-server=UTF8
+    collation-server=utf8_general_ci
+
+    [client]
+    port=3306
+    socket=/opt/bitnami/mariadb/tmp/mysql.sock
+    default-character-set=UTF8
+
+    [manager]
+    port=3306
+    socket=/opt/bitnami/mariadb/tmp/mysql.sock
+    pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
+---
+# Source: ghost/charts/mariadb/templates/tests.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scarlettlab-mariadb-tests
+data:
+  run.sh: |-
+    @test "Testing MariaDB is accessible" {
+      mysql -h scarlettlab-mariadb -uroot -p$MARIADB_ROOT_PASSWORD -e 'show databases;'
+    }
+
+---
+# Source: ghost/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: scarlettlab-ghost
+  labels:
+    app: "scarlettlab-ghost"
+    chart: "ghost-6.3.6"
+    release: "scarlettlab"
+    heritage: "Tiller"
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "2Gi"
+---
+# Source: ghost/charts/mariadb/templates/master-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: scarlettlab-mariadb
+  labels:
+    app: "mariadb"
+    component: "master"
+    chart: mariadb-5.2.5
+    release: "scarlettlab"
+    heritage: "Tiller"
+spec:
+  type: ClusterIP
+  ports:
+  - name: mysql
+    port: 3306
+    targetPort: mysql
+  selector:
+    app: "mariadb"
+    component: "master"
+    release: "scarlettlab"
+
+---
+# Source: ghost/templates/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: scarlettlab-ghost
+  labels:
+    app: "scarlettlab-ghost"
+    chart: "ghost-6.3.6"
+    release: "scarlettlab"
+    heritage: "Tiller"
+  annotations:
+
+spec:
+  type: NodePort
+  externalTrafficPolicy: "Cluster"
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+  selector:
+    app: "scarlettlab-ghost"
+
+---
+# Source: ghost/charts/mariadb/templates/test-runner.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "scarlettlab-mariadb-test-do5sd"
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  initContainers:
+    - name: "test-framework"
+      image: "dduportal/bats:0.4.0"
+      command:
+        - "bash"
+        - "-c"
+        - |
+          set -ex
+          # copy bats to tools dir
+          cp -R /usr/local/libexec/ /tools/bats/
+      volumeMounts:
+      - mountPath: /tools
+        name: tools
+  containers:
+    - name: mariadb-test
+      image: docker.io/bitnami/mariadb:10.1.37
+      imagePullPolicy: "IfNotPresent"
+      command: ["/tools/bats/bats", "-t", "/tests/run.sh"]
+      env:
+        - name: MARIADB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: scarlettlab-mariadb
+              key: mariadb-root-password
+      volumeMounts:
+      - mountPath: /tests
+        name: tests
+        readOnly: true
+      - mountPath: /tools
+        name: tools
+  volumes:
+  - name: tests
+    configMap:
+      name: scarlettlab-mariadb-tests
+  - name: tools
+    emptyDir: {}
+  restartPolicy: Never
+
+---
+# Source: ghost/templates/deployment.yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: scarlettlab-ghost
+  labels:
+    app: "scarlettlab-ghost"
+    chart: "ghost-6.3.6"
+    release: "scarlettlab"
+    heritage: "Tiller"
+spec:
+  selector:
+    matchLabels:
+      app: "scarlettlab-ghost"
+      release: "scarlettlab"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: "scarlettlab-ghost"
+        chart: "ghost-6.3.6"
+        release: "scarlettlab"
+    spec:
+      securityContext:
+        fsGroup: 1001
+        runAsUser: 1001
+      containers:
+      - name: scarlettlab-ghost
+        image: docker.io/bitnami/ghost:2.13.1
+        imagePullPolicy: "IfNotPresent"
+        env:
+        - name: ALLOW_EMPTY_PASSWORD
+          value: "yes"
+        - name: MARIADB_HOST
+          value: scarlettlab-mariadb
+        - name: MARIADB_PORT_NUMBER
+          value: "3306"
+        - name: GHOST_DATABASE_NAME
+          value: "bitnami_ghost"
+        - name: GHOST_DATABASE_USER
+          value: "bn_ghost"
+        - name: GHOST_DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: scarlettlab-mariadb
+              key: mariadb-password
+        - name: GHOST_HOST
+          value: "ghost.scarlettlab.com/"
+        - name: GHOST_PROTOCOL
+          value: "http"
+        - name: GHOST_PORT_NUMBER
+          value: "80"
+        - name: GHOST_USERNAME
+          value: "user@example.com"
+        - name: GHOST_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: scarlettlab-ghost
+              key: ghost-password
+        - name: GHOST_EMAIL
+          value: "user@example.com"
+        - name: BLOG_TITLE
+          value: "User's Blog"
+        ports:
+        - name: http
+          containerPort: 2368
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+            httpHeaders:
+            - name: Host
+              value: "ghost.scarlettlab.com/"
+          initialDelaySeconds: 120
+          timeoutSeconds: 5
+          failureThreshold: 6
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+            httpHeaders:
+            - name: Host
+              value: "ghost.scarlettlab.com/"
+          initialDelaySeconds: 30
+          timeoutSeconds: 3
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 300m
+            memory: 512Mi
+
+        volumeMounts:
+        - name: ghost-data
+          mountPath: /bitnami/ghost
+      volumes:
+      - name: ghost-data
+        persistentVolumeClaim:
+          claimName: scarlettlab-ghost
+---
+# Source: ghost/charts/mariadb/templates/master-statefulset.yaml
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: scarlettlab-mariadb
+  labels:
+    app: "mariadb"
+    chart: mariadb-5.2.5
+    component: "master"
+    release: "scarlettlab"
+    heritage: "Tiller"
+spec:
+  selector:
+    matchLabels:
+      release: "scarlettlab"
+      component: "master"
+      app: mariadb
+  serviceName: "scarlettlab-mariadb"
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: "mariadb"
+        component: "master"
+        release: "scarlettlab"
+        chart: mariadb-5.2.5
+    spec:
+      securityContext:
+        fsGroup: 1001
+        runAsUser: 1001
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app: "mariadb"
+                  release: "scarlettlab"
+      containers:
+      - name: "mariadb"
+        image: docker.io/bitnami/mariadb:10.1.37
+        imagePullPolicy: "IfNotPresent"
+        env:
+        - name: MARIADB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: scarlettlab-mariadb
+              key: mariadb-root-password
+        - name: MARIADB_USER
+          value: "bn_ghost"
+        - name: MARIADB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: scarlettlab-mariadb
+              key: mariadb-password
+        - name: MARIADB_DATABASE
+          value: "bitnami_ghost"
+        ports:
+        - name: mysql
+          containerPort: 3306
+        livenessProbe:
+          exec:
+            command: ["sh", "-c", "exec mysqladmin status -uroot -p$MARIADB_ROOT_PASSWORD"]
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command: ["sh", "-c", "exec mysqladmin status -uroot -p$MARIADB_ROOT_PASSWORD"]
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
+        resources:
+          {}
+
+        volumeMounts:
+        - name: data
+          mountPath: /bitnami/mariadb
+        - name: config
+          mountPath: /opt/bitnami/mariadb/conf/my.cnf
+          subPath: my.cnf
+      volumes:
+        - name: config
+          configMap:
+            name: scarlettlab-mariadb
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels:
+          app: "mariadb"
+          component: "master"
+          release: "scarlettlab"
+          heritage: "Tiller"
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "2Gi"
+
+---
+# Source: ghost/templates/ingress.yaml
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: scarlettlab-ghost
+  labels:
+    app: "scarlettlab-ghost"
+    chart: "ghost-6.3.6"
+    release: "scarlettlab"
+    heritage: "Tiller"
+  annotations:
+spec:
+  rules:
+  - host: ghost.scarlettlab.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: scarlettlab-ghost
+          servicePort: http
+  tls:
+
+---
+# Source: ghost/charts/mariadb/templates/initialization-configmap.yaml
+
+
+---
+# Source: ghost/charts/mariadb/templates/slave-configmap.yaml
+
+
+---
+# Source: ghost/charts/mariadb/templates/slave-statefulset.yaml
+
+
+---
+# Source: ghost/charts/mariadb/templates/slave-svc.yaml
+
+
