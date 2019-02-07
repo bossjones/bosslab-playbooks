@@ -1,11 +1,12 @@
 {% for h in groups['servers'] %}
+{% if hostvars[h].get('ansible_ssh_host') is defined %}
 Host {{ hostvars[h].get('ansible_ssh_host') }}*
     User {{ ssh_as_user }}
     Port 22
     UserKnownHostsFile /dev/null
     StrictHostKeyChecking no
     PasswordAuthentication no
-    IdentityFile {% if ansible_ssh_private_key_file is defined %}-i {{ ansible_ssh_private_key_file }}{% endif %}
+    IdentityFile {{ boss__generate__ssh__config__ssh_private_key }}
     IdentitiesOnly yes
     LogLevel FATAL
     ControlMaster auto
@@ -13,4 +14,5 @@ Host {{ hostvars[h].get('ansible_ssh_host') }}*
     ControlPersist 30m
     PreferredAuthentications publickey
     ForwardAgent yes
+{% endif %}
 {% endfor %}

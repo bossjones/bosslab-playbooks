@@ -1,2 +1,3 @@
 boss__generate__ssh__config__user: vagrant
 boss__generate__ssh__config__group: vagrant
+boss__generate__ssh__config__ssh_private_key: ~/.ssh/vagrant_id_rsa
