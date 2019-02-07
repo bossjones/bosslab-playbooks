@@ -1,0 +1,2 @@
+boss__generate__ssh__config__user: vagrant
+boss__generate__ssh__config__group: vagrant

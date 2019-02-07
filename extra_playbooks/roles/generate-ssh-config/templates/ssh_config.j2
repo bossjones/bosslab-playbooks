@@ -1,0 +1,16 @@
+{% for h in groups['servers'] %}
+Host {{ hostvars[h].get('ansible_ssh_host') }}*
+    User {{ ssh_as_user }}
+    Port 22
+    UserKnownHostsFile /dev/null
+    StrictHostKeyChecking no
+    PasswordAuthentication no
+    IdentityFile {% if ansible_ssh_private_key_file is defined %}-i {{ ansible_ssh_private_key_file }}{% endif %}
+    IdentitiesOnly yes
+    LogLevel FATAL
+    ControlMaster auto
+    ControlPath ~/.ansible/cp/ansible-ssh-%h-%p-%r
+    ControlPersist 30m
+    PreferredAuthentications publickey
+    ForwardAgent yes
+{% endfor %}

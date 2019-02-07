@@ -677,6 +677,11 @@ run-ansible-module-kube-facts-pdb:
 run-ansible-module-kube-facts:
 	python ./library/kube_facts.py ./test-kube-facts-args.json | jq
 
+
+generate-ssh-config:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/generate_ssh_config.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+
 render-manifest-echoserver:
 	$(call check_defined, cluster, Please set cluster)
 	ansible-playbook -c local -vvvvv playbooks/render_echoserver.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"

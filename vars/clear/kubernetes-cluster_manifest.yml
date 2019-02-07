@@ -1,6 +1,8 @@
 domain_root: scarlettlab.com
 
-dist_dir_path: ~/dev/bossjones/bosslab-playbooks/dist
+# boss__efk__manifest_path
+base_dir_path: ~/dev/bossjones/bosslab-playbooks
+dist_dir_path: "{{base_dir_path}}/dist"
 manifest_dir_name: manifests/kubernetes-vagrant-manifests
 manifest_dir_path: "{{dist_dir_path}}/{{manifest_dir_name}}"
 path_to_network_disk: "/mnt/publicdata"

@@ -1,6 +1,7 @@
 domain_root: hyenaclan.org
 
-dist_dir_path: ~/dev/bossjones/bosslab-playbooks/dist
+base_dir_path: ~/dev/bossjones/bosslab-playbooks
+dist_dir_path: "{{base_dir_path}}/dist"
 manifest_dir_name: manifests/borg-manifests
 manifest_dir_path: "{{dist_dir_path}}/{{manifest_dir_name}}"
 path_to_network_disk: "/mnt/publicdata"
