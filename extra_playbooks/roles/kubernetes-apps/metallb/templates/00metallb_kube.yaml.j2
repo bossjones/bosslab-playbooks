@@ -13,7 +13,7 @@ metadata:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  namespace: metallb-system
+  namespace: {{boss__metallb__namespace_name}}
   name: controller
   labels:
     app: metallb
@@ -21,7 +21,7 @@ metadata:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  namespace: metallb-system
+  namespace: {{boss__metallb__namespace_name}}
   name: speaker
   labels:
     app: metallb
@@ -58,7 +58,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  namespace: metallb-system
+  namespace: {{boss__metallb__namespace_name}}
   name: config-watcher
   labels:
     app: metallb
@@ -81,7 +81,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: controller
-  namespace: metallb-system
+  namespace: {{boss__metallb__namespace_name}}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -96,7 +96,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: speaker
-  namespace: metallb-system
+  namespace: {{boss__metallb__namespace_name}}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -105,7 +105,7 @@ roleRef:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  namespace: metallb-system
+  namespace: {{boss__metallb__namespace_name}}
   name: config-watcher
   labels:
     app: metallb
@@ -122,7 +122,7 @@ roleRef:
 apiVersion: apps/v1beta2
 kind: DaemonSet
 metadata:
-  namespace: metallb-system
+  namespace: {{boss__metallb__namespace_name}}
   name: speaker
   labels:
     app: metallb
@@ -177,7 +177,7 @@ spec:
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  namespace: metallb-system
+  namespace: {{boss__metallb__namespace_name}}
   name: controller
   labels:
     app: metallb
