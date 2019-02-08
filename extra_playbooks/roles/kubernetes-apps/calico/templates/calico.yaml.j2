@@ -295,6 +295,13 @@ spec:
               value: "info"
             - name: FELIX_HEALTHENABLED
               value: "true"
+            # Set to true to enable the Prometheus metrics server in Felix. [Default: false]
+            - name: FELIX_PROMETHEUSMETRICSENABLED
+              value: "true"
+            - name: FELIX_PROMETHEUSMETRICSPORT
+              value: "9091"
+
+
           securityContext:
             privileged: true
           resources:

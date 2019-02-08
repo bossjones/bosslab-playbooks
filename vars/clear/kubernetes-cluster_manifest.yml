@@ -91,6 +91,8 @@ boss__calico__cni_image_tag: "{{ boss__calico__node_version }}"
 
 boss__calico__node_daemonset_annotations: |
   scheduler.alpha.kubernetes.io/critical-pod: ''
+  prometheus.io/scrape: 'true'
+  prometheus.io/port: '9091'
 
 # {{ calico_node_image_repo }}:{{ calico_node_image_tag }}
 

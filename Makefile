@@ -780,4 +780,8 @@ zsh-tmp-shell-monitoring:
 
 # bossjones/k8s-zsh-debugger:
 
+# SOURCE: https://stackoverflow.com/questions/46419163/what-will-happen-to-evicted-pods-in-kubernetes
+delete-evicted-pods:
+	kubectl get po -a --all-namespaces -o json | jq  '.items[] | select(.status.reason!=null) | select(.status.reason | contains("Evicted")) | "kubectl delete po \(.metadata.name) -n \(.metadata.namespace)"' | xargs -n 1 bash -c
+
 include *.mk
