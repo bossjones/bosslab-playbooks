@@ -11,4 +11,3 @@
   with_items:
     - "00metallb_kube.yaml"
     - "metallb-config.yaml"
-    - "kube-metallb.yml"
