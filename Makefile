@@ -789,7 +789,4 @@ zsh-tmp-shell-monitoring:
 delete-evicted-pods:
 	kubectl get po -a --all-namespaces -o json | jq  '.items[] | select(.status.reason!=null) | select(.status.reason | contains("Evicted")) | "kubectl delete po \(.metadata.name) -n \(.metadata.namespace)"' | xargs -n 1 bash -c
 
-helm-init:
-	helm init --service-account tiller
-
 include *.mk

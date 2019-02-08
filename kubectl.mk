@@ -976,3 +976,24 @@ test-helm-curl:
 lint-helm:
 	$(call check_defined, cluster, Please set cluster)
 	bash -c "find dist/manifests/$(cluster)-manifests/helm -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+bootstrap-helm-init:
+	@printf "create-helm:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy helm$$NC\n"
+	@printf "=======================================\n"
+	-kubectl create -f dist/manifests/$(cluster)-manifests/helm/
+	@echo ""
+	@echo ""
+	helm init --service-account tiller
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	-helm repo add banzaicloud-stable http://kubernetes-charts.banzaicloud.com/branch/master
+	helm repo list
