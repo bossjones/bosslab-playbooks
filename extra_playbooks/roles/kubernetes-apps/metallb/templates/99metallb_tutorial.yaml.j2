@@ -3,18 +3,18 @@
 # Verify: kubectl get pods
 # kubectl get service nginx
 ---
-apiVersion: apps/v1beta2
 kind: Deployment
+apiVersion: apps/v1beta2
 metadata:
-  name: nginx
+  name: nginx-metallb
 spec:
   selector:
     matchLabels:
-      app: nginx
+      app: nginx-metallb
   template:
     metadata:
       labels:
-        app: nginx
+        app: nginx-metallb
     spec:
       containers:
       - name: nginx
@@ -27,7 +27,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: nginx
+  name: nginx-metallb
 spec:
   ports:
   - name: http
@@ -35,7 +35,7 @@ spec:
     protocol: TCP
     targetPort: 80
   selector:
-    app: nginx
+    app: nginx-metallb
   type: LoadBalancer
 
 
