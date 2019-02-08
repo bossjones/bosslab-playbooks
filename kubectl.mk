@@ -901,3 +901,78 @@ test-external-dns-curl:
 lint-external-dns:
 	$(call check_defined, cluster, Please set cluster)
 	bash -c "find dist/manifests/$(cluster)-manifests/external-dns -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+
+
+redeploy-helm:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete helm:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete helm$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/helm/
+
+	@printf "render helm manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render helm manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_external_dns.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "create-helm:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy helm$$NC\n"
+	@printf "=======================================\n"
+	-kubectl create -f dist/manifests/$(cluster)-manifests/helm/
+	@echo ""
+	@echo ""
+
+
+create-helm:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-helm:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy helm$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/helm/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=helm --watch | highlight
+
+apply-helm:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-helm:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy helm$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/helm/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=helm --watch
+
+delete-helm:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/helm/
+
+describe-helm:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/helm/ | highlight
+
+debug-helm: describe-helm
+	kubectl -n kube-system get pod -l app=helm --output=yaml | highlight
+
+test-helm-curl:
+	-curl -v -L 'http://helm.hyenaclan.org'
+
+lint-helm:
+	$(call check_defined, cluster, Please set cluster)
+	bash -c "find dist/manifests/$(cluster)-manifests/helm -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"

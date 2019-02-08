@@ -3,7 +3,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: tiller
-  namespace: {{boss__helm__namespace_name}}
+  namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -16,7 +16,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: tiller
-    namespace: {{boss__helm__namespace_name}}
+    namespace: kube-system
 
 
 
@@ -35,8 +35,8 @@ subjects:
 #  440  cd charts/helm/whoami/
 #  446  helm install --name my-release -f cert-manager-values.yaml cert-manager
 #  447  helm install --name my-release -f cert-manager-values.yaml stable/cert-manager --version v0.3.0
-#  466  helm install stable/nginx-ingress --namespace {{boss__helm__namespace_name}} --set controller.hostNetwork=true,controller.kind=DaemonSet
-#  468  helm upgrade stable/nginx-ingress --name uck-nginx --namespace {{boss__helm__namespace_name}} --set controller.hostNetwork=true,controller.kind=DaemonSet --set rbac.create=true
+#  466  helm install stable/nginx-ingress --namespace kube-system --set controller.hostNetwork=true,controller.kind=DaemonSet
+#  468  helm upgrade stable/nginx-ingress --name uck-nginx --namespace kube-system --set controller.hostNetwork=true,controller.kind=DaemonSet --set rbac.create=true
 #  469  helm get svc
 #  473  helm ls
 #  514  helm delete --help
@@ -45,7 +45,7 @@ subjects:
 #  517  helm delete --purge rolling-bear
 #  518  helm ls -a
 #  519  helm install --help
-#  520  helm install stable/nginx-ingress --name uck-nginx --namespace {{boss__helm__namespace_name}} --set controller.hostNetwork=true,controller.kind=DaemonSet --set rbac.create=true
+#  520  helm install stable/nginx-ingress --name uck-nginx --namespace kube-system --set controller.hostNetwork=true,controller.kind=DaemonSet --set rbac.create=true
 #  522  source <(helm completion bash)
 #  523  helm ls
 #  524  helm delete uck-nginx
@@ -236,10 +236,10 @@ subjects:
 # 3549  helm install -n heapster stable/heapster --debug --dry-run ./debug_helm/
 # 3550  helm install --name heapster stable/heapster --debug --dry-run ./debug_helm/
 # 3551  helm install stable/heapster --name heapster --debug --dry-run ./debug_helm/
-# 3552  helm install --name heapster stable/heapster --set rbac.create=true --namespace {{boss__helm__namespace_name}}
-# 3554  helm install --name heapster stable/heapster --set rbac.create=true --namespace {{boss__helm__namespace_name}} --debug --dry-run ./debug_helm/
+# 3552  helm install --name heapster stable/heapster --set rbac.create=true --namespace kube-system
+# 3554  helm install --name heapster stable/heapster --set rbac.create=true --namespace kube-system --debug --dry-run ./debug_helm/
 # 3555  cd ~/dev/kubernetes/helm-charts/stable/heapster/
-# 3559  helm install --name heapster stable/heapster --set rbac.create=true --namespace {{boss__helm__namespace_name}} --debug --dry-run ~/dev/kubernetes/helm-charts/stable/heapster
+# 3559  helm install --name heapster stable/heapster --set rbac.create=true --namespace kube-system --debug --dry-run ~/dev/kubernetes/helm-charts/stable/heapster
 # 3560  helm get manifest
 # 3561  helm get manifest heapster
 # 3562  helm get manifest heapster | pbcopy
@@ -274,29 +274,29 @@ subjects:
 #11335  git add .;git commit -m "wip: helm template jekins";gp
 #11337  helm template ./jenkins/ | pbcopy
 #11340  git add .;git commit -m "wip: helm template jekins";gp
-#11341  helm --namespace {{boss__helm__namespace_name}} template ./jenkins/ | pbcopy
-#11345  helm --namespace {{boss__helm__namespace_name}} template ./jenkins/ | pbcopy
-#11347  helm --namespace {{boss__helm__namespace_name}} template ./heapster/ | pbcopy
-#11496  helm --namespace {{boss__helm__namespace_name}} template ./stackstorm-ha/ | pbcopy
+#11341  helm --namespace kube-system template ./jenkins/ | pbcopy
+#11345  helm --namespace kube-system template ./jenkins/ | pbcopy
+#11347  helm --namespace kube-system template ./heapster/ | pbcopy
+#11496  helm --namespace kube-system template ./stackstorm-ha/ | pbcopy
 #11497  helm ls
 #11501  brew info helm
 #11503  kubectl create -f helm-rbac-config.yaml
 #11505  helm init --service-account tiller
-#11509  helm --namespace {{boss__helm__namespace_name}} template ./stackstorm-ha/ | pbcopy
+#11509  helm --namespace kube-system template ./stackstorm-ha/ | pbcopy
 #11512  cd ~/dev/helm/charts/
-#11525  helm --namespace {{boss__helm__namespace_name}} install -f stable/ghost/
-#11526  helm --namespace {{boss__helm__namespace_name}} install -f stable/ghost/values.yaml stable/ghost
-#11528  helm install --name scarlettlab-ghost --namespace {{boss__helm__namespace_name}} -f stable/ghost/values.yaml stable/ghost
-#11532  helm install --name scarlettlab-ghost --namespace {{boss__helm__namespace_name}} -f values.yaml stable/ghost
-#11536  helm delete --name scarlettlab-ghost --namespace {{boss__helm__namespace_name}} -f values.yaml stable/ghost
+#11525  helm --namespace kube-system install -f stable/ghost/
+#11526  helm --namespace kube-system install -f stable/ghost/values.yaml stable/ghost
+#11528  helm install --name scarlettlab-ghost --namespace kube-system -f stable/ghost/values.yaml stable/ghost
+#11532  helm install --name scarlettlab-ghost --namespace kube-system -f values.yaml stable/ghost
+#11536  helm delete --name scarlettlab-ghost --namespace kube-system -f values.yaml stable/ghost
 #11537  helm delete stable/ghost
-#11539  helm delete --tiller-namespace={{boss__helm__namespace_name}} stable/ghost
-#11540  helm delete --tiller-namespace={{boss__helm__namespace_name}} --name=scarlettlab-ghost stable/ghost
+#11539  helm delete --tiller-namespace=kube-system stable/ghost
+#11540  helm delete --tiller-namespace=kube-system --name=scarlettlab-ghost stable/ghost
 #11541  helm delete --name=scarlettlab-ghost stable/ghost
 #11542  helm delete --help
 #11543  helm delete --purge scarlettlab-ghost stable/ghost
-#11544  helm delete --name scarlettlab --namespace {{boss__helm__namespace_name}} -f values.yaml stable/ghost
-#11545  helm install --name scarlettlab --namespace {{boss__helm__namespace_name}} -f values.yaml stable/ghost
+#11544  helm delete --name scarlettlab --namespace kube-system -f values.yaml stable/ghost
+#11545  helm install --name scarlettlab --namespace kube-system -f values.yaml stable/ghost
 #11547  history | grep helm | pbcopy
 #11548  history | grep helm | sed 's,^,#,g'
 #11549  history | grep helm | sed 's,^,#,g' | pbcopy
