@@ -1006,7 +1006,8 @@ redeploy-metallb:
 	@printf "=======================================\n"
 	@printf "$$GREEN delete metallb$$NC\n"
 	@printf "=======================================\n"
-	-kubectl delete -f dist/manifests/$(cluster)-manifests/metallb/
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/metallb/00metallb_kube.yaml
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/metallb/metallb-config.yaml
 
 	@printf "render metallb manifest:\n"
 	@printf "=======================================\n"
@@ -1028,7 +1029,8 @@ redeploy-metallb:
 	@printf "=======================================\n"
 	@printf "$$GREEN deploy metallb$$NC\n"
 	@printf "=======================================\n"
-	-kubectl create -f dist/manifests/$(cluster)-manifests/metallb/
+	-kubectl create -f dist/manifests/$(cluster)-manifests/metallb/00metallb_kube.yaml
+	-kubectl create -f dist/manifests/$(cluster)-manifests/metallb/metallb-config.yaml
 	@echo ""
 	@echo ""
 
@@ -1039,7 +1041,8 @@ create-metallb:
 	@printf "=======================================\n"
 	@printf "$$GREEN deploy metallb$$NC\n"
 	@printf "=======================================\n"
-	kubectl create -f dist/manifests/$(cluster)-manifests/metallb/
+	kubectl create -f dist/manifests/$(cluster)-manifests/metallb/00metallb_kube.yaml
+	kubectl create -f dist/manifests/$(cluster)-manifests/metallb/metallb-config.yaml
 	@echo ""
 	@echo ""
 # kubectl get pods --all-namespaces -l app=metallb --watch | highlight
@@ -1050,18 +1053,21 @@ apply-metallb:
 	@printf "=======================================\n"
 	@printf "$$GREEN deploy metallb$$NC\n"
 	@printf "=======================================\n"
-	kubectl apply -f dist/manifests/$(cluster)-manifests/metallb/
+	kubectl apply -f dist/manifests/$(cluster)-manifests/metallb/00metallb_kube.yaml
+	kubectl apply -f dist/manifests/$(cluster)-manifests/metallb/metallb-config.yaml
 	@echo ""
 	@echo ""
 # kubectl get pods --all-namespaces -l app=metallb --watch
 
 delete-metallb:
 	$(call check_defined, cluster, Please set cluster)
-	kubectl delete -f dist/manifests/$(cluster)-manifests/metallb/
+	kubectl delete -f dist/manifests/$(cluster)-manifests/metallb/00metallb_kube.yaml
+	kubectl delete -f dist/manifests/$(cluster)-manifests/metallb/metallb-config.yaml
 
 describe-metallb:
 	$(call check_defined, cluster, Please set cluster)
-	kubectl describe -f dist/manifests/$(cluster)-manifests/metallb/ | highlight
+	kubectl describe -f dist/manifests/$(cluster)-manifests/metallb/00metallb_kube.yaml | highlight
+	kubectl describe -f dist/manifests/$(cluster)-manifests/metallb/metallb-config.yaml | highlight
 
 debug-metallb: describe-metallb
 	kubectl -n kube-system get pod -l app=metallb --output=yaml | highlight
@@ -1072,6 +1078,39 @@ test-metallb-curl:
 lint-metallb:
 	$(call check_defined, cluster, Please set cluster)
 	bash -c "find dist/manifests/$(cluster)-manifests/metallb -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+create-metallb-tutorial:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-metallb-tutorial:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy metallb$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/metallb/99metallb_tutorial.yaml
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=metallb --watch | highlight
+
+apply-metallb-tutorial:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-metallb-tutorial:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy metallb$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/metallb/99metallb_tutorial.yaml
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=metallb --watch
+
+delete-metallb-tutorial:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/metallb/99metallb_tutorial.yaml
+
+describe-metallb-tutorial:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/metallb/99metallb_tutorial.yaml | highlight
+
+debug-metallb-tutorial: describe-metallb-tutorial
+	kubectl get pod -l app=metalnginx-metallblb --output=yaml | highlight
 
 
 redeploy-ingress-nginx:
