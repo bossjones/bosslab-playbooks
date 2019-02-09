@@ -11,14 +11,19 @@ kind: Service
 metadata:
   name: ingress-nginx
   # namespace: ingress-nginx
-  namespace: kube-system
+  namespace: {{boss__ingress__nginx__namespace_name}}
+  # labels:
+  #   # app.kubernetes.io/name: ingress-nginx
+  #   # app.kubernetes.io/part-of: ingress-nginx
+  #   app.kubernetes.io/name: nginx-ingress
+  #   app.kubernetes.io/part-of: nginx-ingress
+
+{%   if boss__ingress__nginx__service_labels is defined %}
   labels:
-    # app.kubernetes.io/name: ingress-nginx
-    # app.kubernetes.io/part-of: ingress-nginx
-    app.kubernetes.io/name: nginx-ingress
-    app.kubernetes.io/part-of: nginx-ingress
+{{ boss__ingress__nginx__service_labels | indent( width=4, indentfirst=True,blank=True) }}
+{%   endif %}
 spec:
-  type: NodePort
+  type: {{boss__ingress__nginx__service_ingress_nginx_spec_type}}
   ports:
     - name: http
       port: 80

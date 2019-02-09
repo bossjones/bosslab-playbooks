@@ -16,7 +16,7 @@ kind: Deployment
 apiVersion: extensions/v1beta1
 metadata:
   name: default-http-backend
-  namespace: kube-system
+  namespace: {{boss__ingress__nginx__namespace_name}}
   labels:
     app.kubernetes.io/name: default-http-backend
     # app.kubernetes.io/part-of: kube-system
@@ -68,39 +68,60 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: nginx-ingress-controller
-  namespace: kube-system
+  namespace: {{boss__ingress__nginx__namespace_name}}
+  # labels:
+  #   app.kubernetes.io/name: nginx-ingress-controller
+  #   # app.kubernetes.io/part-of: kube-system
+  #   app.kubernetes.io/part-of: nginx-ingress
+  #   addonmanager.kubernetes.io/mode: Reconcile
+{%   if boss__ingress__nginx__deployment_labels is defined %}
   labels:
-    app.kubernetes.io/name: nginx-ingress-controller
-    # app.kubernetes.io/part-of: kube-system
-    app.kubernetes.io/part-of: nginx-ingress
-    addonmanager.kubernetes.io/mode: Reconcile
+{{ boss__ingress__nginx__deployment_labels | indent( width=4, indentfirst=True,blank=True) }}
+{%   endif %}
 spec:
-  replicas: 1
+  replicas: {{boss__ingress__nginx__deployment_spec_replicas}}
   selector:
+{%   if boss__ingress__nginx__deployment_spec_selector_match_labels is defined %}
     matchLabels:
-      app.kubernetes.io/name: nginx-ingress-controller
-      # app.kubernetes.io/part-of: kube-system
-      app.kubernetes.io/part-of: nginx-ingress
-      addonmanager.kubernetes.io/mode: Reconcile
+{{ boss__ingress__nginx__deployment_spec_selector_match_labels | indent( width=6, indentfirst=True,blank=True) }}
+{%   endif %}
+    # matchLabels:
+    #   app.kubernetes.io/name: nginx-ingress-controller
+    #   # app.kubernetes.io/part-of: kube-system
+    #   app.kubernetes.io/part-of: nginx-ingress
+    #   addonmanager.kubernetes.io/mode: Reconcile
   template:
     metadata:
+{%   if boss__ingress__nginx__deployment_spec_template_metadata_labels is defined %}
       labels:
-        app.kubernetes.io/name: nginx-ingress-controller
-        # app.kubernetes.io/part-of: kube-system
-        app.kubernetes.io/part-of: nginx-ingress
-        addonmanager.kubernetes.io/mode: Reconcile
+{{ boss__ingress__nginx__deployment_spec_template_metadata_labels | indent( width=6, indentfirst=True,blank=True) }}
+{%   endif %}
+      # labels:
+      #   app.kubernetes.io/name: nginx-ingress-controller
+      #   # app.kubernetes.io/part-of: kube-system
+      #   app.kubernetes.io/part-of: nginx-ingress
+      #   addonmanager.kubernetes.io/mode: Reconcile
+      # annotations:
+      #   prometheus.io/port: "10254"
+      #   prometheus.io/scrape: "true"
+
+{%   if boss__ingress__nginx__deployment_spec_template_metadata_annotations is defined %}
       annotations:
-        prometheus.io/port: "10254"
-        prometheus.io/scrape: "true"
+{{ boss__ingress__nginx__deployment_spec_template_metadata_annotations | indent( width=6, indentfirst=True,blank=True) }}
+{%   endif %}
     spec:
       # SOURCE: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+
+{%   if boss__ingress__nginx__deployment_spec_template_spec_node_selector is defined %}
       nodeSelector:
-        kubernetes.io/hostname: "borg-queen-01"
+{{ boss__ingress__nginx__deployment_spec_template_spec_node_selector | indent( width=6, indentfirst=True,blank=True) }}
+      # nodeSelector:
+      #   kubernetes.io/hostname: "borg-queen-01"
       serviceAccountName: nginx-ingress
       terminationGracePeriodSeconds: 60
       containers:
       # - image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.19.0
-      - image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.21.0
+      - image: {{boss__ingress__nginx__controller_image_repo}}:{{boss__ingress__nginx__controller_image_tag}}
         name: nginx-ingress-controller
 
         # UPSTREAM
@@ -186,4 +207,4 @@ spec:
               add:
               - NET_BIND_SERVICE
           # www-data -> 33
-          runAsUser: 33
+          runAsUser: {{boss__ingress__nginx__controller_runAsUser}}

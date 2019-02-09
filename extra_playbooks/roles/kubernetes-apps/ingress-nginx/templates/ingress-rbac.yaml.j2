@@ -5,11 +5,16 @@ kind: ServiceAccount
 metadata:
   # name: nginx-ingress
   name: nginx-ingress
-  namespace: kube-system
+  namespace: {{boss__ingress__nginx__namespace_name}}
+  # labels:
+  #   addonmanager.kubernetes.io/mode: Reconcile
+  #   app.kubernetes.io/name: ingress-nginx
+  #   app.kubernetes.io/part-of: ingress-nginx
+
+{%   if boss__ingress__nginx__service_account_labels is defined %}
   labels:
-    addonmanager.kubernetes.io/mode: Reconcile
-    app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: ingress-nginx
+{{ boss__ingress__nginx__service_account_labels | indent( width=4, indentfirst=True,blank=True) }}
+{%   endif %}
 
 ---
 
@@ -74,7 +79,7 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: Role
 metadata:
   name: system::nginx-ingress-role
-  namespace: kube-system
+  namespace: {{boss__ingress__nginx__namespace_name}}
   labels:
     kubernetes.io/bootstrapping: rbac-defaults
     addonmanager.kubernetes.io/mode: Reconcile
@@ -120,15 +125,20 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: RoleBinding
 metadata:
   name: system::nginx-ingress-role-binding
-  namespace: kube-system
-  labels:
+  namespace: {{boss__ingress__nginx__namespace_name}}
+  # labels:
     # SOURCE: https://kubernetes.io/docs/reference/access-authn-authz/rbac/
     # Many of these are system: prefixed, which indicates that the resource is “owned” by the infrastructure. Modifications to these resources can result in non-functional clusters. One example is the system:node ClusterRole. This role defines permissions for kubelets. If the role is modified, it can prevent kubelets from working.
     # All of the default cluster roles and rolebindings are labeled with kubernetes.io/bootstrapping=rbac-defaults
-    kubernetes.io/bootstrapping: rbac-defaults
-    addonmanager.kubernetes.io/mode: EnsureExists
-    app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: ingress-nginx
+    # kubernetes.io/bootstrapping: rbac-defaults
+    # addonmanager.kubernetes.io/mode: EnsureExists
+    # app.kubernetes.io/name: ingress-nginx
+    # app.kubernetes.io/part-of: ingress-nginx
+{%   if boss__ingress__nginx__role_binding_labels is defined %}
+  labels:
+{{ boss__ingress__nginx__role_binding_labels | indent( width=4, indentfirst=True,blank=True) }}
+{%   endif %}
+
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -136,7 +146,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: nginx-ingress
-  namespace: kube-system
+  namespace: {{boss__ingress__nginx__namespace_name}}
 
 ---
 
@@ -144,14 +154,18 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
 metadata:
   name: system:nginx-ingress
-  labels:
+  # labels:
     # SOURCE: https://kubernetes.io/docs/reference/access-authn-authz/rbac/
     # Many of these are system: prefixed, which indicates that the resource is “owned” by the infrastructure. Modifications to these resources can result in non-functional clusters. One example is the system:node ClusterRole. This role defines permissions for kubelets. If the role is modified, it can prevent kubelets from working.
     # All of the default cluster roles and rolebindings are labeled with kubernetes.io/bootstrapping=rbac-defaults
-    kubernetes.io/bootstrapping: rbac-defaults
-    addonmanager.kubernetes.io/mode: EnsureExists
-    app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: ingress-nginx
+    # kubernetes.io/bootstrapping: rbac-defaults
+    # addonmanager.kubernetes.io/mode: EnsureExists
+    # app.kubernetes.io/name: ingress-nginx
+    # app.kubernetes.io/part-of: ingress-nginx
+{%   if boss__ingress__nginx__role_binding_labels is defined %}
+  labels:
+{{ boss__ingress__nginx__role_binding_labels | indent( width=4, indentfirst=True,blank=True) }}
+{%   endif %}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -159,4 +173,4 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: nginx-ingress
-  namespace: kube-system
+  namespace: {{boss__ingress__nginx__namespace_name}}

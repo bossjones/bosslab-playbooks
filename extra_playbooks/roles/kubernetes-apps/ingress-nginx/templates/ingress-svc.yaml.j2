@@ -16,16 +16,20 @@ apiVersion: v1
 kind: Service
 metadata:
   name: default-http-backend
-  namespace: kube-system
-  labels:
-    app.kubernetes.io/name: default-http-backend
+  namespace: {{boss__ingress__nginx__namespace_name}}
+  # labels:
+    # app.kubernetes.io/name: default-http-backend
     # app.kubernetes.io/part-of: kube-system
-    app.kubernetes.io/part-of: nginx-ingress
+    # app.kubernetes.io/part-of: nginx-ingress
     # kubernetes.io/minikube-addons: ingress
     # kubernetes.io/minikube-addons-endpoint: ingress
-    addonmanager.kubernetes.io/mode: Reconcile
+    # addonmanager.kubernetes.io/mode: Reconcile
+{%   if boss__ingress__nginx__service__default_http_backend_labels is defined %}
+  labels:
+{{ boss__ingress__nginx__service__default_http_backend_labels | indent( width=4, indentfirst=True,blank=True) }}
+{%   endif %}
 spec:
-  type: NodePort
+  type: {{boss__ingress__nginx__service_default_http_backend_spec_type}}
   ports:
   - port: 80
     # Assign 8080 to <POD-IP>:<targetPort>
