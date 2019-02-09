@@ -1072,3 +1072,83 @@ test-metallb-curl:
 lint-metallb:
 	$(call check_defined, cluster, Please set cluster)
 	bash -c "find dist/manifests/$(cluster)-manifests/metallb -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+
+redeploy-ingress-nginx:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete ingress-nginx:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete ingress-nginx$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/ingress-nginx/
+
+	@printf "render ingress-nginx manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render ingress-nginx manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_external_dns.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "lint ingress-nginx manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint ingress-nginx manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/ingress-nginx -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "create-ingress-nginx:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy ingress-nginx$$NC\n"
+	@printf "=======================================\n"
+	-kubectl create -f dist/manifests/$(cluster)-manifests/ingress-nginx/
+	@echo ""
+	@echo ""
+
+
+create-ingress-nginx:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-ingress-nginx:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy ingress-nginx$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/ingress-nginx/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=ingress-nginx --watch | highlight
+
+apply-ingress-nginx:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-ingress-nginx:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy ingress-nginx$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/ingress-nginx/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=ingress-nginx --watch
+
+delete-ingress-nginx:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/ingress-nginx/
+
+describe-ingress-nginx:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/ingress-nginx/ | highlight
+
+debug-ingress-nginx: describe-ingress-nginx
+	kubectl -n kube-system get pod -l app=ingress-nginx --output=yaml | highlight
+
+test-ingress-nginx-curl:
+	-curl -v -L 'http://ingress-nginx.hyenaclan.org'
+
+lint-ingress-nginx:
+	$(call check_defined, cluster, Please set cluster)
+	bash -c "find dist/manifests/$(cluster)-manifests/ingress-nginx -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
