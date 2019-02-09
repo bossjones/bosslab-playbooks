@@ -24,6 +24,9 @@ metadata:
 {%   endif %}
 spec:
   type: {{boss__ingress__nginx__service_ingress_nginx_spec_type}}
+{%   if boss__ingress__nginx__service_ingress_nginx_spec_type == "LoadBalancer" %}
+  externalTrafficPolicy: Local
+{%   endif %}
   ports:
     - name: http
       port: 80

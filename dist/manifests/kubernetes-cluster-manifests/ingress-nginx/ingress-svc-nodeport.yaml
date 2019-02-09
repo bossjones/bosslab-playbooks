@@ -19,7 +19,8 @@ metadata:
   #   app.kubernetes.io/part-of: nginx-ingress
 
 spec:
-  type: NodePort
+  type: LoadBalancer
+  externalTrafficPolicy: Local
   ports:
     - name: http
       port: 80

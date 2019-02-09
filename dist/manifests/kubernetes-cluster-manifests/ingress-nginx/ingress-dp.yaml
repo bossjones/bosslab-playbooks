@@ -97,11 +97,11 @@ spec:
   template:
     metadata:
       labels:
-      app.kubernetes.io/name: nginx-ingress-controller
-      # app.kubernetes.io/part-of: kube-system
-      app.kubernetes.io/part-of: nginx-ingress
-      addonmanager.kubernetes.io/mode: Reconcile
-      
+        app.kubernetes.io/name: nginx-ingress-controller
+        # app.kubernetes.io/part-of: kube-system
+        app.kubernetes.io/part-of: nginx-ingress
+        addonmanager.kubernetes.io/mode: Reconcile
+        
       # labels:
       #   app.kubernetes.io/name: nginx-ingress-controller
       #   # app.kubernetes.io/part-of: kube-system
@@ -112,15 +112,15 @@ spec:
       #   prometheus.io/scrape: "true"
 
       annotations:
-      prometheus.io/port: "10254"
-      prometheus.io/scrape: "true"
-      
+        prometheus.io/port: "10254"
+        prometheus.io/scrape: "true"
+        
     spec:
       # SOURCE: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
 
       nodeSelector:
-      kubernetes.io/hostname: "k8s-head"
-      
+        kubernetes.io/hostname: "k8s-head"
+        
       # nodeSelector:
       #   kubernetes.io/hostname: "borg-queen-01"
       serviceAccountName: nginx-ingress

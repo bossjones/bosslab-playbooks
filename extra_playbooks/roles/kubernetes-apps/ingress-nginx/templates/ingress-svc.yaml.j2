@@ -30,13 +30,16 @@ metadata:
 {%   endif %}
 spec:
   type: {{boss__ingress__nginx__service_default_http_backend_spec_type}}
+{%   if boss__ingress__nginx__service_ingress_nginx_spec_type == "LoadBalancer" %}
+  externalTrafficPolicy: Local
+{%   endif %}
   ports:
   - port: 80
     # Assign 8080 to <POD-IP>:<targetPort>
     targetPort: 8080
     # nodePort: The Service created in the last section already used NodePort, so your nginx HTTPS replica is ready to serve traffic on the internet if your node has a public IP.
     # curl https://<WORKER-NODE-IP>:<NODE-PORT> -k
-    nodePort: 30001
+    # nodePort: 30001
     # - name: http
     #   port: 80
     #   targetPort: 80

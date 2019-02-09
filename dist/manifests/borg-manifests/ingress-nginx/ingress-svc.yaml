@@ -31,7 +31,7 @@ metadata:
     # kubernetes.io/minikube-addons: ingress
     # kubernetes.io/minikube-addons-endpoint: ingress
     addonmanager.kubernetes.io/mode: Reconcile
-    
+
 spec:
   type: NodePort
   ports:
@@ -40,7 +40,7 @@ spec:
     targetPort: 8080
     # nodePort: The Service created in the last section already used NodePort, so your nginx HTTPS replica is ready to serve traffic on the internet if your node has a public IP.
     # curl https://<WORKER-NODE-IP>:<NODE-PORT> -k
-    nodePort: 30001
+    # nodePort: 30001
     # - name: http
     #   port: 80
     #   targetPort: 80
