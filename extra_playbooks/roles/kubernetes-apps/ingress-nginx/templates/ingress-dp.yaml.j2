@@ -94,7 +94,7 @@ spec:
     metadata:
 {%   if boss__ingress__nginx__deployment_spec_template_metadata_labels is defined %}
       labels:
-{{ boss__ingress__nginx__deployment_spec_template_metadata_labels | indent( width=6, indentfirst=True,blank=True) }}
+{{ boss__ingress__nginx__deployment_spec_template_metadata_labels | indent( width=8, indentfirst=True,blank=True) }}
 {%   endif %}
       # labels:
       #   app.kubernetes.io/name: nginx-ingress-controller
@@ -107,14 +107,14 @@ spec:
 
 {%   if boss__ingress__nginx__deployment_spec_template_metadata_annotations is defined %}
       annotations:
-{{ boss__ingress__nginx__deployment_spec_template_metadata_annotations | indent( width=6, indentfirst=True,blank=True) }}
+{{ boss__ingress__nginx__deployment_spec_template_metadata_annotations | indent( width=8, indentfirst=True,blank=True) }}
 {%   endif %}
     spec:
       # SOURCE: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
 
 {%   if boss__ingress__nginx__deployment_spec_template_spec_node_selector is defined %}
       nodeSelector:
-{{ boss__ingress__nginx__deployment_spec_template_spec_node_selector | indent( width=6, indentfirst=True,blank=True) }}
+{{ boss__ingress__nginx__deployment_spec_template_spec_node_selector | indent( width=8, indentfirst=True,blank=True) }}
 {%   endif %}
       # nodeSelector:
       #   kubernetes.io/hostname: "borg-queen-01"
