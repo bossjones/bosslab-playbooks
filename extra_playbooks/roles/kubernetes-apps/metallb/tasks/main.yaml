@@ -11,3 +11,4 @@
   with_items:
     - "00metallb_kube.yaml"
     - "metallb-config.yaml"
+    - "99metallb_tutorial.yaml"
