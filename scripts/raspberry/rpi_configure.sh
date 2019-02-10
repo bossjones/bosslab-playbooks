@@ -335,6 +335,8 @@ LimitMEMLOCK=infinity
 EOF
     systemctl daemon-reload
 
+    sudo systemctl restart docker
+
     touch /opt/raspberry/step3
 else
     echo "Step3 is already finished"
