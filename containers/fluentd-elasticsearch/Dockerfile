@@ -79,7 +79,7 @@ RUN BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gnupg dirm
     ./configure && make && \
     mv lib/libjemalloc.so.2 /usr/lib \
     && echo 'gem: --no-document' >> /etc/gemrc \
-    && gem install --file Gemfile \
+    && gem install --file /Gemfile \
     && apt-get purge -y --auto-remove \
                      -o APT::AutoRemove::RecommendsImportant=false \
                      $BUILD_DEPS \
