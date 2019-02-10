@@ -309,11 +309,11 @@ EOF
     # NOTE: https://medium.com/@muhammadtriwibowo/set-permanently-ulimit-n-open-files-in-ubuntu-4d61064429a
     # TODO: Put into playbook
     # 93881
-    echo "93881" | sudo tee /proc/sys/fs/file-max
-    echo "session required pam_limits.so" | sudo tee -a /etc/pam.d/common-session
+    # echo "93881" | sudo tee /proc/sys/fs/file-max
+    # echo "session required pam_limits.so" | sudo tee -a /etc/pam.d/common-session
 
-    sudo sysctl -w vm.min_free_kbytes=1024000
-    sudo sync; sudo sysctl -w vm.drop_caches=3; sudo sync
+    # sudo sysctl -w vm.min_free_kbytes=1024000
+    # sudo sync; sudo sysctl -w vm.drop_caches=3; sudo sync
 
     curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
     cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
