@@ -342,7 +342,17 @@ else
     echo "Step3 is already finished"
 fi
 
+apt-get install -y build-essential libssl-dev libffi-dev libffi6
+# python3-dev
+apt-get install -y libzbar-dev libzbar0
+ldconfig
+pip install ansible==2.5.14
 
+
+# apt-get install -y make build-essential libssl-dev zlib1g-dev
+# apt-get install -y libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm
+# apt-get install -y libncurses5-dev libncursesw5-dev xz-utils tk-dev
+# apt-get install -y libsecret-1-dev
 
 # curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
 #   echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list && \
