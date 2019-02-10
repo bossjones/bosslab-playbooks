@@ -375,10 +375,39 @@ EOF
 
     rm /usr/local/bin/fzf
 
+    mkdir -p /usr/share/ca-certificates/local
+    cd /usr/share/ca-certificates/local
+    wget https://entrust.com/root-certificates/entrust_l1k.cer
+    openssl x509 -inform PEM  -in entrust_l1k.cer -outform PEM -out entrust_l1k.crt
+    dpkg-reconfigure ca-certificates
+
     touch /opt/raspberry/step4
 else
     echo "Step4 is already finished"
 fi
+
+# SOURCE: https://github.com/tgogos/rpi_golang#2-with-go-version-manager-gvm
+# sudo apt-get install curl git make binutils bison gcc build-essential
+# # install gvm
+# bash < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer)
+# source /home/pi/.gvm/scripts/gvm
+
+# # install go
+# gvm install go1.4
+# gvm use go1.4
+# export GOROOT_BOOTSTRAP=$GOROOT
+# gvm install go1.7
+# gvm use go1.7 --default
+
+# # Configuration of $PATH, $GOPATH variables
+# export PATH=$PATH:/usr/local/go/bin
+
+# export PATH=$PATH:/usr/local/go/bin
+# export GOPATH=$HOME/go
+
+# and for the `bee` tool:
+export PATH=$PATH:$GOPATH/bin
+
 
 # apt-get install -y make build-essential libssl-dev zlib1g-dev
 # apt-get install -y libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm
