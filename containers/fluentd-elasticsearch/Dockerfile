@@ -83,7 +83,6 @@ RUN BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gnupg dirm
     && apt-get purge -y --auto-remove \
                      -o APT::AutoRemove::RecommendsImportant=false \
                      $BUILD_DEPS \
-    && \
     && clean-apt \
     # Ensure fluent has enough file descriptors
     && ulimit -n 65536
