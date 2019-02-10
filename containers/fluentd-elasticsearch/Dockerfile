@@ -65,7 +65,6 @@ RUN BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gnupg dirm
                      wget \
                      sudo vim tar wget \
     && update-ca-certificates \
-    && mkdir ~/.gnupg \
     && echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf \
     && dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" && \
     wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch" && \
