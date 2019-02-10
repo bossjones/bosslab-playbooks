@@ -163,6 +163,8 @@ EOF
     sudo npm install n -g
     sudo n 10.3.0
 
+    # hostnamectl set-hostname ${NEW_HOSTNAME}
+
     touch /opt/raspberry/step1
 
     echo Please reboot
@@ -256,6 +258,39 @@ fi
 # apt-mark hold kubelet kubeadm kubectl
 
 if [ ! -f /opt/raspberry/step3 ]; then
+
+    modprobe ip_vs_wrr
+    modprobe ip_vs_rr
+    modprobe ip_vs_sh
+    modprobe ip_vs
+    modprobe nf_conntrack_ipv4
+    modprobe bridge
+    modprobe br_netfilter
+
+    cat <<EOF >/etc/modules-load.d/k8s_ip_vs.conf
+    ip_vs_wrr
+    ip_vs_rr
+    ip_vs_sh
+    ip_vs
+    nf_conntrack_ipv4
+EOF
+
+    cat <<EOF >/etc/modules-load.d/k8s_bridge.conf
+    bridge
+EOF
+
+    cat <<EOF >/etc/modules-load.d/k8s_br_netfilter.conf
+    br_netfilter
+EOF
+    # NOTE: https://medium.com/@muhammadtriwibowo/set-permanently-ulimit-n-open-files-in-ubuntu-4d61064429a
+    # TODO: Put into playbook
+    # 93881
+    echo "93881" | sudo tee /proc/sys/fs/file-max
+    echo "session required pam_limits.so" | sudo tee -a /etc/pam.d/common-session
+
+    sudo sysctl -w vm.min_free_kbytes=1024000
+    sudo sync; sudo sysctl -w vm.drop_caches=3; sudo sync
+
     curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
     cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
     deb http://apt.kubernetes.io/ kubernetes-xenial main
