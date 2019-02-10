@@ -65,18 +65,19 @@ RUN BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gnupg dirm
                      wget \
                      sudo vim tar wget \
     && update-ca-certificates \
-    && echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf \
-    && dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" && \
-    wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch" && \
-    wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc" && \
-    export GNUPGHOME="$(mktemp -d)" && \
-    rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc && \
-    chmod +x /usr/local/bin/gosu && \
-    gosu nobody true \
-    && wget -O /tmp/jemalloc-$JEMALLOC_VERSION.tar.bz2 https://github.com/jemalloc/jemalloc/releases/download/$JEMALLOC_VERSION/jemalloc-$JEMALLOC_VERSION.tar.bz2 && \
-    cd /tmp && tar -xjf jemalloc-$JEMALLOC_VERSION.tar.bz2 && cd jemalloc-$JEMALLOC_VERSION/ && \
-    ./configure && make && \
-    mv lib/libjemalloc.so.2 /usr/lib \
+    && dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" \
+    && wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch" \
+    && wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc" \
+    && export GNUPGHOME="$(mktemp -d)" \
+    && rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc \
+    && chmod +x /usr/local/bin/gosu \
+    && gosu nobody true \
+    && wget -O /tmp/jemalloc-$JEMALLOC_VERSION.tar.bz2 https://github.com/jemalloc/jemalloc/releases/download/$JEMALLOC_VERSION/jemalloc-$JEMALLOC_VERSION.tar.bz2 && cd /tmp \
+    && tar -xjf jemalloc-$JEMALLOC_VERSION.tar.bz2 \
+    && cd jemalloc-$JEMALLOC_VERSION/ \
+    && ./configure \
+    && make \
+    && mv lib/libjemalloc.so.2 /usr/lib \
     && echo 'gem: --no-document' >> /etc/gemrc \
     && gem install --file /Gemfile \
     && apt-get purge -y --auto-remove \
@@ -85,10 +86,6 @@ RUN BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gnupg dirm
     && clean-apt \
     # Ensure fluent has enough file descriptors
     && ulimit -n 65536
-
-
-RUN mkdir ~/.gnupg
-RUN echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf
 
 ENV LD_PRELOAD="/usr/lib/libjemalloc.so.2"
 
