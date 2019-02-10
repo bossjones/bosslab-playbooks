@@ -244,6 +244,24 @@ EOF
 
     sudo apt autoremove -y
 
+    mkdir -p /etc/systemd/system/systemd-journald.service.d
+    cat <<EOF >/etc/systemd/system/systemd-journald.service.d/perf.conf
+[Journal]
+MaxLevelConsole=warning
+RateLimitInterval=1s
+RateLimitBurst=20000
+EOF
+    systemctl daemon-reload
+
+
+    cat <<EOF >/usr/local/bin/retry_download
+#!/bin/bash
+
+while ! wget $1 -O $2; do echo "Downloading $1 failed. Retrying in 3s..."; sleep 3; done
+
+EOF
+    chmod +x /usr/local/bin/retry_download
+
     touch /opt/raspberry/step2
     sudo shutdown -r now
 else
@@ -304,6 +322,18 @@ EOF
 
     apt-get update -q
     apt-get install -y kubeadm=1.13.1-00 kubectl=1.13.1-00 kubelet=1.13.1-00
+
+
+
+    mkdir -p /etc/systemd/system/docker.service.d
+    cat <<EOF >/etc/systemd/system/docker.service.d/perf.conf
+[Service]
+StandardOutput=journal+console
+StandardError=journal+console
+Environment="DOCKER_OPTS=--log-driver=json-file --log-opt max-size=50m --log-opt max-file=5"
+LimitMEMLOCK=infinity
+EOF
+    systemctl daemon-reload
 
     touch /opt/raspberry/step3
 else
