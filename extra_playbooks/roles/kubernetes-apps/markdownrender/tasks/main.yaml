@@ -1,0 +1,12 @@
+---
+- name: "markdownrender | Create directory: {{boss__markdownrender__manifest_path}}"
+  file:
+    path: "{{boss__markdownrender__manifest_path}}"
+    state: directory
+
+- name: "markdownrender | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__markdownrender__manifest_path }}/{{ item }}"
+  with_items:
+    - "00markdownrender_alexellis.yaml"

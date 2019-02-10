@@ -182,6 +182,7 @@ tls.crt
 tls.key
 tls.{crt,key}.*
 borg-admin.conf
+scarlett-k8-admin.conf
 playbooks/.ansible-logs/
 
 !.vscode/launch.json
