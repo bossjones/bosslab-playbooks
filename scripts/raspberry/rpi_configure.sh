@@ -33,6 +33,8 @@ COUNTRY="US"
 DOCKER_VERSION="17.12.1"
 NEW_HOSTNAME="$1"
 NON_ROOT_USER="pi"
+MASTERNODE_NAME="scarlett-k8-master-01"
+NON_ROOT_USER_PASSWORD="raspberry"
 
 mkdir -p /opt/raspberry
 
@@ -284,6 +286,17 @@ fi
 
 if [ ! -f /opt/raspberry/step3 ]; then
 
+    sudo sysctl net.bridge.bridge-nf-call-iptables=1
+    sudo sysctl net.bridge.bridge-nf-call-ip6tables=1
+    sudo sysctl net.ipv4.ip_forward=1
+    sudo sysctl net.ipv4.ip_nonlocal_bind=1
+    sudo sysctl -p
+
+    echo "net.bridge.bridge-nf-call-iptables=1" | sudo tee /etc/sysctl.d/kube.conf
+    echo "net.bridge.bridge-nf-call-ip6tables=1" | sudo tee -a /etc/sysctl.d/kube.conf
+    echo "net.ipv4.ip_forward=1" | sudo tee -a /etc/sysctl.d/kube.conf
+    echo "net.ipv4.ip_nonlocal_bind=1" | sudo tee -a /etc/sysctl.d/kube.conf
+
     modprobe ip_vs_wrr
     modprobe ip_vs_rr
     modprobe ip_vs_sh
@@ -355,20 +368,43 @@ apt-get install -y sshpass
 
 # SOURCE: https://gist.github.com/simoncos/49463a8b781d63b5fb8a3b666e566bb5
 if [ ! -f /opt/raspberry/step4 ]; then
-    url=`curl https://golang.org/dl/ | grep armv7l | sort --version-sort | tail -1 | grep -o -E https://dl.google.com/go/go[0-9]+\.[0-9]+((\.[0-9]+)?).linux-armv7l.tar.gz`
-    wget ${url}
-    sudo tar -C /usr/local -xvf `echo ${url} | cut -d '/' -f5`
+    # url=`curl https://golang.org/dl/ | grep armv6l | sort --version-sort | tail -1 | grep -o -E https://dl.google.com/go/go[0-9]+\.[0-9]+((\.[0-9]+)?).linux-armv6l.tar.gz`
+    # wget ${url}
+    # sudo tar -C /usr/local -xvf `echo ${url} | cut -d '/' -f5`
+    wget https://storage.googleapis.com/golang/go1.9.linux-armv6l.tar.gz
+    sudo tar -C /usr/local -xzf go1.9.linux-armv6l.tar.gz
+    mkdir -p $HOME/go
     cat >> ~/.bashrc << 'EOF'
-    export GOPATH=$HOME/go
-    export PATH=/usr/local/go/bin:$PATH:$GOPATH/bin
+export GOPATH=$HOME/go
+export PATH=/usr/local/go/bin:$PATH:$GOPATH/bin
 EOF
+
+    cat >> ~/.zshrc.local << 'EOF'
+export GOPATH=$HOME/go
+export PATH=/usr/local/go/bin:$PATH:$GOPATH/bin
+EOF
+
     source ~/.bashrc
+    source ~/.zshrc.local
+
+
+    sudo curl -L 'https://github.com/kardianos/govendor/releases/download/v1.0.8/govendor_linux_arm' > /usr/local/bin/govendor
+    sudo chmod +x /usr/local/bin/govendor
+
+    go get -d github.com/boz/kail
+    cd $GOPATH/src/github.com/boz/kail
+    make install-deps
 
     git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
     ~/.fzf/install  --all
 
+
     sudo curl -L 'https://github.com/tianon/gosu/releases/download/1.11/gosu-armhf' > /usr/local/bin/gosu
     sudo chmod +x /usr/local/bin/gosu
+
+    sudo curl -L 'https://github.com/moncho/dry/releases/download/v0.9-beta.5/dry-linux-arm' > /usr/local/bin/dry
+    sudo chmod +x /usr/local/bin/dry
+    dry --version
 
     mkdir ~/dev
     cd ~/dev
@@ -377,9 +413,15 @@ EOF
     ansible-galaxy install viasite-ansible.zsh
     ansible-playbook -i inventory.ini -c local playbook.yml
 
+    cd ~/dev
+    git clone https://github.com/astefanutti/kubebox.git
+    cd kubebox
+    npm install
+    # node index.js
+
     rm /usr/local/bin/fzf
 
-    sudo curl -L 'https://github.com/junegunn/fzf-bin/releases/download/0.17.5/fzf-0.17.5-linux_arm7.tgz' > /usr/local/src/fzf.tgz
+    sudo curl -L 'https://github.com/junegunn/fzf-bin/releases/download/0.17.5/fzf-0.17.5-linux_arm6.tgz' > /usr/local/src/fzf.tgz
     sudo tar -C /usr/local/bin/ -xvf /usr/local/src/fzf.tgz
     fzf --help
 
@@ -412,42 +454,65 @@ else
     echo "Step4 is already finished"
 fi
 
-# WEAVE
-# master
-sudo kubeadm config images pull -v3
 
-export IP_ADDR=`ifconfig eth0 | grep mask | awk '{print $2}'| cut -f2 -d:`
-echo "IP_ADDR: ${IP_ADDR}"
-kubeadm init --token-ttl=0 --apiserver-advertise-address=$IP_ADDR --apiserver-cert-extra-sans=$IP_ADDR  --node-name=$HOST_NAME --pod-network-cidr=10.32.0.0/12 --kubernetes-version=v1.13.1
+if [[ $(hostname -s) = *master* ]]; then
+    # WEAVE
+    # master
 
-# Deploy weave:
-# https://cloud.weave.works/k8s/net?k8s-version=v1.11.1&env.IPALLOC_RANGE=10.32.0.0/12
+    # - name: setup kernel parameters for k8s - reboot might be required, but we will not trigger
+    # #here RH asks for reboot: https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/load_balancer_administration/s1-initial-setup-forwarding-vsa
+    # sysctl: name={{item.name}} value={{item.value}} state=present reload=yes sysctl_set=yes
+    # with_items:
+    #     - {name:  "net.bridge.bridge-nf-call-iptables", value: "1" }
+    #     - {name:  "net.bridge.bridge-nf-call-ip6tables", value: "1" }
+    #     - {name:  "net.ipv4.ip_forward", value: "1" }
+    #     # TURNING ON PACKET FORWARDING AND NONLOCAL BINDING
+    #     # In order for the Keepalived service to forward network packets properly to the real servers, each router node must have IP forwarding turned on in the kernel. Log in as root and change the line which reads net.ipv4.ip_forward = 0 in /etc/sysctl.conf to the following:
+    #     # The changes take effect when you reboot the system. Load balancing in HAProxy and Keepalived at the same time also requires the ability to bind to an IP address that are nonlocal, meaning that it is not assigned to a device on the local system. This allows a running load balancer instance to bind to an IP that is not local for failover. To enable, edit the line in /etc/sysctl.conf that reads net.ipv4.ip_nonlocal_bind to the following:
+    #     # SOURCE: https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/load_balancer_administration/s1-initial-setup-forwarding-vsa
+    #     - {name:  "net.ipv4.ip_nonlocal_bind", value: "1" }
 
+    sudo kubeadm config images pull -v3
 
-# install Calico pod network addon
-export KUBECONFIG=/etc/kubernetes/admin.conf
-kubectl apply -f https://git.io/weave-kube-1.6
-kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')&env.IPALLOC_RANGE=10.32.0.0/12"
+    export IP_ADDR=`ifconfig eth0 | grep mask | awk '{print $2}'| cut -f2 -d:`
+    echo "IP_ADDR: ${IP_ADDR}"
+    kubeadm init --token-ttl=0 --apiserver-advertise-address=$IP_ADDR --apiserver-cert-extra-sans=$IP_ADDR  --node-name=$HOST_NAME --pod-network-cidr=10.32.0.0/12 --kubernetes-version=v1.13.1
 
-kubeadm token create --token-ttl=0 --print-join-command >> /etc/kubeadm_join_cmd.sh
-chmod +x /etc/kubeadm_join_cmd.sh
+    sudo sed -i 's/failureThreshold: 8/failureThreshold: 20/g' /etc/kubernetes/manifests/kube-apiserver.yaml && \
+    sudo sed -i 's/initialDelaySeconds: [0-9]\+/initialDelaySeconds: 360/' /etc/kubernetes/manifests/kube-apiserver.yaml
 
-# required for setting up password less ssh between guest VMs
-sudo sed -i "/^[^#]*PasswordAuthentication[[:space:]]no/c\PasswordAuthentication yes" /etc/ssh/sshd_config
-sudo service sshd restart
-# echo 'export KUBECONFIG=/etc/kubernetes/admin.conf' | sudo tee -a ~/.bashrc
-# echo 'export KUBECONFIG=/etc/kubernetes/admin.conf' | sudo tee -a ~/.zshrc.local
-# echo 'export KUBECONFIG=/home/$NON_ROOT_USER/.kube/config' | sudo tee -a /home/$NON_ROOT_USER/.bashrc
-sudo /sbin/iptables -I INPUT 1 -p tcp --dport 10255 -j ACCEPT -m comment --comment "kube-apiserver"
-sudo service iptables save
+    sudo --user=$NON_ROOT_USER mkdir -p /home/$NON_ROOT_USER/.kube
+    cp -i /etc/kubernetes/admin.conf /home/$NON_ROOT_USER/.kube/config
+    chown -R $(id -u $NON_ROOT_USER):$(id -g $NON_ROOT_USER) /home/$NON_ROOT_USER/.kube
 
+    # Deploy weave:
+    # https://cloud.weave.works/k8s/net?k8s-version=v1.11.1&env.IPALLOC_RANGE=10.32.0.0/12
 
+    # install Calico pod network addon
+    export KUBECONFIG=/etc/kubernetes/admin.conf
+    kubectl apply -f https://git.io/weave-kube-1.6
+    kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')&env.IPALLOC_RANGE=10.32.0.0/12"
 
+    kubeadm token create --print-join-command >> /etc/kubeadm_join_cmd.sh
+    chmod +x /etc/kubeadm_join_cmd.sh
+    chown $NON_ROOT_USER:$NON_ROOT_USER /etc/kubeadm_join_cmd.sh
 
-sudo --user=$NON_ROOT_USER mkdir -p /home/$NON_ROOT_USER/.kube
-cp -i /etc/kubernetes/admin.conf /home/$NON_ROOT_USER/.kube/config
-chown -R $(id -u $NON_ROOT_USER):$(id -g $NON_ROOT_USER) /home/$NON_ROOT_USER/.kube
+    # required for setting up password less ssh between guest VMs
+    sudo sed -i "/^[^#]*PasswordAuthentication[[:space:]]no/c\PasswordAuthentication yes" /etc/ssh/sshd_config
+    sudo service ssh restart
+    sudo iptables -I INPUT 1 -p tcp --dport 10255 -j ACCEPT -m comment --comment "kube-apiserver"
+    sudo service iptables save
 
+fi
+
+if [[ $(hostname -s) = *node* ]]; then
+    apt-get install -y sshpass
+    sshpass -p "$NON_ROOT_USER_PASSWORD" scp -o StrictHostKeyChecking=no $NON_ROOT_USER@$MASTERNODE_NAME:/etc/kubeadm_join_cmd.sh .
+    sh ./kubeadm_join_cmd.sh
+    sudo iptables -I INPUT 1 -p tcp --dport 10250 -j ACCEPT -m comment --comment "kubelet"
+    sudo iptables -I INPUT 1 -i docker0 -j ACCEPT -m comment --comment "kube-proxy redirects"
+    sudo iptables -I FORWARD 1 -o docker0 -j ACCEPT -m comment --comment "docker subnet"
+fi
 # --------------------- EXTRA
 
 # SOURCE: https://github.com/tgogos/rpi_golang#2-with-go-version-manager-gvm
@@ -475,6 +540,7 @@ chown -R $(id -u $NON_ROOT_USER):$(id -g $NON_ROOT_USER) /home/$NON_ROOT_USER/.k
 # TODO: master
 # export IP_ADDR=`ifconfig eth0 | grep mask | awk '{print $2}'| cut -f2 -d:`
 # sudo kubeadm init --token-ttl=0 --apiserver-advertise-address=${IP_ADDR} --kubernetes-version v1.13.1
+
 
 # apt-get install -y make build-essential libssl-dev zlib1g-dev
 # apt-get install -y libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm
