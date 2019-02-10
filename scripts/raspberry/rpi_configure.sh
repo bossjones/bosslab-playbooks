@@ -30,7 +30,7 @@ WIFI_COUNTRY="US"
 LOCALE="en_US.UTF-8"
 TIMEZONE="UTC"
 COUNTRY="US"
-DOCKER_VERSION="17.03"
+DOCKER_VERSION="17.12.1"
 NEW_HOSTNAME="$1"
 
 mkdir -p /opt/raspberry
@@ -184,11 +184,21 @@ if [ ! -f /opt/raspberry/step2 ]; then
     #add-apt-repository "deb [arch=armhf] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") $(lsb_release -cs) stable"
 
     cat <<EOF >/etc/apt/sources.list.d/docker.list
-deb [arch=arm64] https://download.docker.com/linux/debian $(lsb_release -cs) stable
+deb [arch=armhf] https://download.docker.com/linux/raspbian $(lsb_release -cs) stable
 EOF
 
+    # dry run: get.docker.com
+    # Executing docker install script, commit: 4957679
+    # apt-get update -qq >/dev/null
+    # apt-get install -y -qq apt-transport-https ca-certificates curl >/dev/null
+    # curl -fsSL "https://download.docker.com/linux/raspbian/gpg" | apt-key add -qq - >/dev/null
+    # echo "deb [arch=armhf] https://download.docker.com/linux/raspbian stretch edge" > /etc/apt/sources.list.d/docker.list
+    # apt-get update -qq >/dev/null
+    # # WARNING: VERSION pinning is not supported in DRY_RUN
+    # apt-get install -y -qq --no-install-recommends docker-ce >/dev/null
 
-    apt-get update && apt-get install -y docker-ce=$(apt-cache madison docker-ce | grep 17.03 | head -1 | awk '{print $3}') --allow-downgrades
+
+    apt-get update && apt-get install -y docker-ce=$(apt-cache madison docker-ce | grep ${DOCKER_VERSION} | head -1 | awk '{print $3}') --allow-downgrades
     # apt-mark hold docker-ce
     echo "docker-ce hold" | sudo dpkg --set-selections
 
