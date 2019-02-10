@@ -1,2 +1,1 @@
-export KUBECONFIG=~/.kube/config
-export KUBECONFIG=$KUBECONFIG:~/dev/bossjones/kubeadm-playbook/vagrant-admin.conf
+export PATH=./bin:$PATH
