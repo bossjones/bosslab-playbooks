@@ -105,6 +105,12 @@ generate-certs-dashboard:
 	@printf "$$GREEN The dashboard.crt file is your certificate suitable for use with Dashboard along with the dashboard.key private key. $$NC\n"
 	@printf "=======================================\n"
 
+apply-mkcert-certs-dashboard:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "kubectl apply secret generic kubernetes-dashboard-certs:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN kubectl create secret generic kubernetes-dashboard-certs --from-file=dist/manifests/$(cluster)-manifests/dashboard-ssl/certs -n kube-system $$NC\n"
+	kubectl create secret generic kubernetes-dashboard-certs --from-file=dist/manifests/$(cluster)-manifests/dashboard-ssl/certs -n kube-system
 
 apply-certs-dashboard:
 	$(call check_defined, cluster, Please set cluster)

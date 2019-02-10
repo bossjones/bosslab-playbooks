@@ -391,6 +391,9 @@ EOF
     sudo curl -L 'https://github.com/kardianos/govendor/releases/download/v1.0.8/govendor_linux_arm' > /usr/local/bin/govendor
     sudo chmod +x /usr/local/bin/govendor
 
+    sudo curl -L 'https://github.com/FiloSottile/mkcert/releases/download/v1.3.0/mkcert-v1.3.0-linux-arm' > /usr/local/bin/mkcert
+    sudo chmod +x /usr/local/bin/mkcert
+
     go get -d github.com/boz/kail
     cd $GOPATH/src/github.com/boz/kail
     make install-deps
