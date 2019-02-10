@@ -65,13 +65,7 @@ RUN BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gnupg dirm
                      wget \
                      sudo vim tar wget \
     && update-ca-certificates \
-    && echo 'gem: --no-document' >> /etc/gemrc \
-    && gem install --file Gemfile \
-    && apt-get purge -y --auto-remove \
-                     -o APT::AutoRemove::RecommendsImportant=false \
-                     $BUILD_DEPS \
-    && \
-    dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" && \
+    && dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" && \
     wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch" && \
     wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc" && \
     export GNUPGHOME="$(mktemp -d)" && \
@@ -84,6 +78,12 @@ RUN BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gnupg dirm
     cd /tmp && tar -xjf jemalloc-$JEMALLOC_VERSION.tar.bz2 && cd jemalloc-$JEMALLOC_VERSION/ && \
     ./configure && make && \
     mv lib/libjemalloc.so.2 /usr/lib \
+    && echo 'gem: --no-document' >> /etc/gemrc \
+    && gem install --file Gemfile \
+    && apt-get purge -y --auto-remove \
+                     -o APT::AutoRemove::RecommendsImportant=false \
+                     $BUILD_DEPS \
+    && \
     && clean-apt \
     # Ensure fluent has enough file descriptors
     && ulimit -n 65536
