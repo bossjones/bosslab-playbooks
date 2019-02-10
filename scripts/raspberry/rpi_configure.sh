@@ -181,7 +181,11 @@ if [ ! -f /opt/raspberry/step2 ]; then
     apt-get install -y apt-transport-https ca-certificates curl software-properties-common
     # curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
     curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg | sudo apt-key add -
-    add-apt-repository "deb [arch=armhf] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") $(lsb_release -cs) stable"
+    #add-apt-repository "deb [arch=armhf] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") $(lsb_release -cs) stable"
+
+    cat <<EOF >/etc/apt/sources.list.d/docker.list
+    deb [arch=arm64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") $(lsb_release -cs) stable
+EOF
     apt-get update && apt-get install -y docker-ce=$(apt-cache madison docker-ce | grep 17.03 | head -1 | awk '{print $3}') --allow-downgrades
     # apt-mark hold docker-ce
     echo "docker-ce hold" | sudo dpkg --set-selections
