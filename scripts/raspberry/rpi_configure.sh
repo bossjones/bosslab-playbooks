@@ -210,6 +210,9 @@ EOF
     #   sudo dphys-swapfile uninstall && \
     #   sudo update-rc.d dphys-swapfile remove
 
+    curl -L 'https://github.com/openfaas/faas-cli/releases/download/0.8.2/faas-cli-armhf' > /usr/local/bin/faas-cli
+    chmod +x /usr/local/bin/faas-cli
+
     sudo swapon --summary
 
     sudo apt autoremove -y
