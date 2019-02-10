@@ -226,6 +226,8 @@ EOF
 
     touch /opt/raspberry/step2
     sudo shutdown -r now
+else
+    echo "Step2 is already finished"
 fi
 
 
@@ -241,13 +243,19 @@ fi
 # apt-get install -y kubelet kubeadm kubectl
 # apt-mark hold kubelet kubeadm kubectl
 
-curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
+if [ ! -f /opt/raspberry/step3 ]; then
+    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+    cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
     deb http://apt.kubernetes.io/ kubernetes-xenial main
 EOF
 
-apt-get update -q
-apt-get install -y kubeadm=1.13.1-00 kubectl=1.13.1-00 kubelet=1.13.1-00
+    apt-get update -q
+    apt-get install -y kubeadm=1.13.1-00 kubectl=1.13.1-00 kubelet=1.13.1-00
+
+    touch /opt/raspberry/step3
+else
+    echo "Step3 is already finished"
+fi
 
 
 
