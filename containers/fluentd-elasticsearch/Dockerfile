@@ -82,7 +82,7 @@ RUN BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gnupg dirm
     && wget -O /tmp/jemalloc-$JEMALLOC_VERSION.tar.bz2 https://github.com/jemalloc/jemalloc/releases/download/$JEMALLOC_VERSION/jemalloc-$JEMALLOC_VERSION.tar.bz2 && \
     cd /tmp && tar -xjf jemalloc-$JEMALLOC_VERSION.tar.bz2 && cd jemalloc-$JEMALLOC_VERSION/ && \
     ./configure && make && \
-    mv lib/libjemalloc.so.2 /usr/lib && \
+    mv lib/libjemalloc.so.2 /usr/lib \
     && clean-apt \
     # Ensure fluent has enough file descriptors
     && ulimit -n 65536
