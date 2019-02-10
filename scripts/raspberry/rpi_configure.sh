@@ -515,6 +515,12 @@ if [[ $(hostname -s) = *node* ]]; then
 fi
 # --------------------- EXTRA
 
+
+# prometheus
+curl -SL https://github.com/prometheus/node_exporter/releases/download/v0.17.0/node_exporter-0.17.0.linux-armv6.tar.gz > node_exporter.tar.gz && \
+sudo tar -xvf node_exporter.tar.gz -C /usr/local/bin/ --strip-components=1
+sudo rm -r /usr/local/bin/{LICENSE,NOTICE}
+
 # SOURCE: https://github.com/tgogos/rpi_golang#2-with-go-version-manager-gvm
 # sudo apt-get install curl git make binutils bison gcc build-essential
 # # install gvm
