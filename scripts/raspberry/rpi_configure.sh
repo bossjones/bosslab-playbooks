@@ -12,11 +12,15 @@ if [[ ! $(whoami) =~ "root" ]]; then
   exit
 fi
 
-if [[ -z $1 || -z $2 ]]; then
+# if [[ -z $1 || -z $2 ]]; then
+#   echo "Usage: rpi_configure.sh scarlett-k8-master-01"
+#   exit
+# fi
+
+if [[ -z $1 ]]; then
   echo "Usage: rpi_configure.sh scarlett-k8-master-01"
   exit
 fi
-
 
 # For Raspbian Stretch Lite
 # wget https://raw.githubusercontent.com/pindanet/Raspberry/master/softap-install.sh
