@@ -26,6 +26,7 @@ WIFI_COUNTRY="US"
 LOCALE="en_US.UTF-8"
 TIMEZONE="UTC"
 COUNTRY="US"
+DOCKER_VERSION="17.03"
 NEW_HOSTNAME="$1"
 
 mkdir -p /opt/raspberry
@@ -174,20 +175,18 @@ if [ ! -f /opt/raspberry/step2 ]; then
 
     apt-get update
     apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-    add-apt-repository "deb https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") $(lsb_release -cs) stable"
-    apt-get update && apt-get install -y docker-ce=$(apt-cache madison docker-ce | grep 17.03 | head -1 | awk '{print $3}')
-    apt-mark hold docker-ce
+    # curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+    curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg | sudo apt-key add -
+    add-apt-repository "deb [arch=armhf] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") $(lsb_release -cs) stable"
+    apt-get update && apt-get install -y docker-ce=$(apt-cache madison docker-ce | grep 17.03 | head -1 | awk '{print $3}') --allow-downgrades
+    # apt-mark hold docker-ce
+    echo "docker-ce hold" | sudo dpkg --set-selections
 
     # run docker commands as vagrant user (sudo not required)
     sudo usermod pi -aG docker
 
     # install kubeadm
     apt-get install -y apt-transport-https curl
-    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-    cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
-        deb http://apt.kubernetes.io/ kubernetes-xenial main
-EOF
 
     # curl -sSL get.docker.com | sh && \
     #   sudo usermod pi -aG docker
@@ -233,6 +232,16 @@ fi
 # apt-get update
 # apt-get install -y kubelet kubeadm kubectl
 # apt-mark hold kubelet kubeadm kubectl
+
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
+    deb http://apt.kubernetes.io/ kubernetes-xenial main
+EOF
+
+apt-get update -q
+apt-get install -y kubeadm=1.13.1-00 kubectl=1.13.1-00 kubelet=1.13.1-00
+
+
 
 # curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
 #   echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list && \
