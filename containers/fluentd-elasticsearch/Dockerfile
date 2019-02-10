@@ -62,6 +62,7 @@ RUN BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gnupg dirm
                      ca-certificates \
                      libjemalloc1 \
                      ruby \
+                     wget \
                      sudo vim tar wget \
     && update-ca-certificates \
     && echo 'gem: --no-document' >> /etc/gemrc \
