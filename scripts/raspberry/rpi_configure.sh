@@ -145,6 +145,12 @@ EOF
     # Change hostname
     sudo raspi-config nonint do_hostname "$NEW_HOSTNAME"
 
+    # Expand root filesystem
+    sudo raspi-config nonint do_expand_rootfs
+
+    # enable vnc
+    sudo raspi-config nonint do_vnc 0
+
     # Change password
     # sudo raspi-config nonint do_change_pass
 
