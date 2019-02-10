@@ -349,6 +349,37 @@ ldconfig
 pip install ansible==2.5.14
 
 
+# SOURCE: https://gist.github.com/simoncos/49463a8b781d63b5fb8a3b666e566bb5
+if [ ! -f /opt/raspberry/step4 ]; then
+    url=`curl https://golang.org/dl/ | grep armv7l | sort --version-sort | tail -1 | grep -o -E https://dl.google.com/go/go[0-9]+\.[0-9]+((\.[0-9]+)?).linux-armv7l.tar.gz`
+    wget ${url}
+    sudo tar -C /usr/local -xvf `echo ${url} | cut -d '/' -f5`
+    cat >> ~/.bashrc << 'EOF'
+    export GOPATH=$HOME/go
+    export PATH=/usr/local/go/bin:$PATH:$GOPATH/bin
+EOF
+    source ~/.bashrc
+
+    git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+    ~/.fzf/install  --all
+
+    sudo curl -L 'https://github.com/tianon/gosu/releases/download/1.11/gosu-armhf' > /usr/local/bin/gosu
+    sudo chmod +x /usr/local/bin/gosu
+
+    mkdir ~/dev
+    cd ~/dev
+    git clone https://github.com/bossjones/k8s-zsh-debugger
+    cd k8s-zsh-debugger
+    ansible-galaxy install viasite-ansible.zsh
+    ansible-playbook -i inventory.ini -c local playbook.yml
+
+    rm /usr/local/bin/fzf
+
+    touch /opt/raspberry/step4
+else
+    echo "Step4 is already finished"
+fi
+
 # apt-get install -y make build-essential libssl-dev zlib1g-dev
 # apt-get install -y libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm
 # apt-get install -y libncurses5-dev libncursesw5-dev xz-utils tk-dev
