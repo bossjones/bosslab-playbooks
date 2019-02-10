@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
       - name: markdownrender
-        image: functions/markdownrender:latest-armhf
+        image: {{boss__markdownrender__image_repo}}:{{boss__markdownrender__version}}
         imagePullPolicy: Always
         ports:
         - containerPort: 8080

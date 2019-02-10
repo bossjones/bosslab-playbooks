@@ -916,7 +916,7 @@ redeploy-helm:
 	@printf "=======================================\n"
 	@printf "$$GREEN render helm manifest$$NC\n"
 	@printf "=======================================\n"
-	-ansible-playbook -c local -vvvvv playbooks/render_external_dns.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	-ansible-playbook -c local -vvvvv playbooks/render_helm.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@echo ""
 	@echo ""
 
@@ -1013,7 +1013,7 @@ redeploy-metallb:
 	@printf "=======================================\n"
 	@printf "$$GREEN render metallb manifest$$NC\n"
 	@printf "=======================================\n"
-	-ansible-playbook -c local -vvvvv playbooks/render_external_dns.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	-ansible-playbook -c local -vvvvv playbooks/render_metallb.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@echo ""
 	@echo ""
 
@@ -1125,7 +1125,7 @@ redeploy-ingress-nginx:
 	@printf "=======================================\n"
 	@printf "$$GREEN render ingress-nginx manifest$$NC\n"
 	@printf "=======================================\n"
-	-ansible-playbook -c local -vvvvv playbooks/render_external_dns.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	-ansible-playbook -c local -vvvvv playbooks/render_ingress-nginx.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@echo ""
 	@echo ""
 
@@ -1191,3 +1191,85 @@ test-ingress-nginx-curl:
 lint-ingress-nginx:
 	$(call check_defined, cluster, Please set cluster)
 	bash -c "find dist/manifests/$(cluster)-manifests/ingress-nginx -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+
+
+
+redeploy-markdownrender:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete markdownrender:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete markdownrender$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/markdownrender/
+
+	@printf "render markdownrender manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render markdownrender manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_markdownrender.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "lint markdownrender manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint markdownrender manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/markdownrender -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "create-markdownrender:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy markdownrender$$NC\n"
+	@printf "=======================================\n"
+	-kubectl create -f dist/manifests/$(cluster)-manifests/markdownrender/
+	@echo ""
+	@echo ""
+
+
+create-markdownrender:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-markdownrender:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy markdownrender$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/markdownrender/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=markdownrender --watch | highlight
+
+apply-markdownrender:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-markdownrender:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy markdownrender$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/markdownrender/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=markdownrender --watch
+
+delete-markdownrender:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/markdownrender/
+
+describe-markdownrender:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/markdownrender/ | highlight
+
+debug-markdownrender: describe-markdownrender
+	kubectl -n kube-system get pod -l app=markdownrender --output=yaml | highlight
+
+test-markdownrender-curl:
+	-curl -v -L 'http://markdownrender.hyenaclan.org'
+
+lint-markdownrender:
+	$(call check_defined, cluster, Please set cluster)
+	bash -c "find dist/manifests/$(cluster)-manifests/markdownrender -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"

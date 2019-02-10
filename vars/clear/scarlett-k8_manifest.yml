@@ -1,15 +1,15 @@
-domain_root: scarlettlab.com
+domain_root: hyenaclan.org
 
-# boss__efk__manifest_path
 base_dir_path: ~/dev/bossjones/bosslab-playbooks
 dist_dir_path: "{{base_dir_path}}/dist"
-manifest_dir_name: manifests/kubernetes-cluster-manifests
+manifest_dir_name: manifests/scarlett-k8-manifests
 manifest_dir_path: "{{dist_dir_path}}/{{manifest_dir_name}}"
 path_to_network_disk: "/mnt/publicdata"
-main_network_interface: 'enp0s8'
+main_network_interface: 'eth0'
 nfs_server_group: nfs_masters
 nfs_client_group: nfs_clients
-nfs_server_ip_override: 192.168.205.12
+# FIXME: THIS NEEDS TO BE CHANGED
+nfs_server_ip_override: 192.168.1.174
 
 #      .########..######..##.....##..#######...######..########.########..##.....##.########.########.
 #      .##.......##....##.##.....##.##.....##.##....##.##.......##.....##.##.....##.##.......##.....##
@@ -187,11 +187,11 @@ boss__efk__elasticsearch_version: v5.6.2
 boss__efk__elasticsearch_image_repo: "bossjones/elasticsearch"
 boss__efk__elasticsearch_image_tag: "{{ boss__efk__elasticsearch_version }}"
 boss__efk__elasticsearch_cpu_limit: 1000m
-boss__efk__elasticsearch_mem_limit: 3048Mi
+boss__efk__elasticsearch_mem_limit: 4048Mi
 boss__efk__elasticsearch_cpu_requests: 100m
 boss__efk__elasticsearch_mem_requests: 2350Mi
 
-boss__efk__elasticsearch_stateful_set_env_ES_JAVA_OPTS: "-Xms1024 -Xmx1024"
+boss__efk__elasticsearch_stateful_set_env_ES_JAVA_OPTS: "-Xms2048m -Xmx2048m"
 boss__efk__elasticsearch_service_account_labels: |
     k8s-app: elasticsearch-logging
     kubernetes.io/cluster-service: "true"
@@ -331,7 +331,7 @@ boss__efk__kibana_deployment_spec_selector_match_labels: |
 boss__efk__kibana_deployment_spec_template_metadata_labels: |
         k8s-app: kibana-logging
 boss__efk__kibana_deployment_spec_template_spec_node_selector: |
-        kubernetes.io/hostname: "k8s-node-1"
+        kubernetes.io/hostname: "scarlett-k8-node-01"
 boss__efk__kibana_ingress_labels: |
     k8s-app: kibana-ingress
     kubernetes.io/cluster-service: "true"
@@ -348,7 +348,7 @@ boss__efk__kibana_service_labels: |
 ############################################
 
 
-boss__efk__elasticsearch_persistent_volume_spec_capacity_storage: 2Gi
+boss__efk__elasticsearch_persistent_volume_spec_capacity_storage: 5Gi
 boss__efk__elasticsearch_persistent_volume_spec_nfs_path: "{{path_to_network_disk}}/elasticsearch"
 # boss__efk__nfs_master_node_ip: "{{ hostvars[groups[nfs_server_group][0]]['ansible_' + main_network_interface].ipv4.address }}"
 boss__efk__nfs_master_node_ip: "{{ nfs_server_ip_override }}"
@@ -453,7 +453,7 @@ boss__registry__stateful_set_spec_template_metadata_labels: |
         version: "{{ boss__registry__version }}"
         kubernetes.io/cluster-service: "true"
 
-boss__registry__persistent_volume_spec_capacity_storage: 2Gi
+boss__registry__persistent_volume_spec_capacity_storage: 10Gi
 boss__registry__persistent_volume_spec_nfs_path: "{{path_to_network_disk}}/registry"
 # TODO: FIXME, this needs to be dynamic going forward, but for now, we need to hardcode it
 # boss__registry__nfs_master_node_ip: "{{ hostvars[groups[nfs_server_group][0]]['ansible_' + main_network_interface].ipv4.address }}"
@@ -572,7 +572,7 @@ boss__registry__ui__stateful_set_spec_template_metadata_labels: |
         version: "{{ boss__registry__ui__version }}"
         kubernetes.io/cluster-service: "true"
 
-boss__registry__ui__persistent_volume_spec_capacity_storage: 2Gi
+boss__registry__ui__persistent_volume_spec_capacity_storage: 10Gi
 boss__registry__ui__persistent_volume_spec_nfs_path: "{{path_to_network_disk}}/registry-ui"
 # TODO: FIXME, this needs to be dynamic going forward, but for now, we need to hardcode it
 # boss__registry__ui__nfs_master_node_ip: "{{ hostvars[groups[nfs_server_group][0]]['ansible_' + main_network_interface].ipv4.address }}"
@@ -610,7 +610,7 @@ boss__jenkins__deployment_spec_selector_match_labels: |
 boss__jenkins__deployment_spec_template_metadata_labels: |
         k8s-app: jenkins
 boss__jenkins__deployment_spec_template_spec_node_selector: |
-        kubernetes.io/hostname: "k8s-node-1"
+        kubernetes.io/hostname: "scarlett-k8-node-01"
 boss__jenkins__ingress_labels: |
     k8s-app: jenkins-ingress
     kubernetes.io/cluster-service: "true"
@@ -841,6 +841,7 @@ boss__external__dns__persistent_volume_spec_nfs_path: "{{path_to_network_disk}}/
 boss__external__dns__nfs_master_node_ip: "{{ nfs_server_ip_override }}"
 
 
+
 ##########################################################################################################
 #              .##.....##.########.##.......##.....##
 #              .##.....##.##.......##.......###...###
@@ -854,9 +855,6 @@ boss__helm__subdomain: helm
 boss__helm__manifest_path: "{{manifest_dir_path}}/helm"
 boss__helm__namespace_name: kube-system
 
-
-
-
 ##########################################################################################################
 #     .##.....##.########.########....###....##...............##.......########.
 #     .###...###.##..........##......##.##...##...............##.......##.....##
@@ -869,7 +867,8 @@ boss__helm__namespace_name: kube-system
 boss__metallb__subdomain: metallb
 boss__metallb__manifest_path: "{{manifest_dir_path}}/metallb"
 boss__metallb__namespace_name: metallb-system
-boss__metallb__address_pools: '192.168.205.10-192.168.205.12'
+boss__metallb__address_pools: '192.168.1.246-192.168.1.254'
+
 
 
 
@@ -885,6 +884,7 @@ boss__metallb__address_pools: '192.168.205.10-192.168.205.12'
 boss__ingress__nginx__subdomain: ingress-nginx
 boss__ingress__nginx__manifest_path: "{{manifest_dir_path}}/ingress-nginx"
 boss__ingress__nginx__namespace_name: kube-system
+
 
 boss__ingress__nginx__controller_version: 0.21.0
 boss__ingress__nginx__controller_image_repo: "quay.io/kubernetes-ingress-controller/nginx-ingress-controller"
@@ -912,7 +912,7 @@ boss__ingress__nginx__deployment_spec_template_metadata_annotations: |
         prometheus.io/port: "10254"
         prometheus.io/scrape: "true"
 boss__ingress__nginx__deployment_spec_template_spec_node_selector: |
-        kubernetes.io/hostname: "k8s-head"
+        kubernetes.io/hostname: "scarlett-k8-master-01"
 
 boss__ingress__nginx__service_account_labels: |
     addonmanager.kubernetes.io/mode: Reconcile
@@ -938,6 +938,7 @@ boss__ingress__nginx__service__default_http_backend_labels: |
     # kubernetes.io/minikube-addons: ingress
     # kubernetes.io/minikube-addons-endpoint: ingress
     addonmanager.kubernetes.io/mode: Reconcile
+
 
 
 ##########################################################################################################
