@@ -32,6 +32,7 @@ TIMEZONE="UTC"
 COUNTRY="US"
 DOCKER_VERSION="17.12.1"
 NEW_HOSTNAME="$1"
+NON_ROOT_USER="pi"
 
 mkdir -p /opt/raspberry
 
@@ -210,7 +211,7 @@ EOF
     # apt-mark hold docker-ce
     echo "docker-ce hold" | sudo dpkg --set-selections
 
-    # run docker commands as vagrant user (sudo not required)
+    # run docker commands as $NON_ROOT_USER user (sudo not required)
     sudo usermod pi -aG docker
 
     # install kubeadm
@@ -347,6 +348,9 @@ apt-get install -y build-essential libssl-dev libffi-dev libffi6
 apt-get install -y libzbar-dev libzbar0
 ldconfig
 pip install ansible==2.5.14
+apt-get install -y zsh-syntax-highlighting
+apt-get install -y sshpass
+
 
 
 # SOURCE: https://gist.github.com/simoncos/49463a8b781d63b5fb8a3b666e566bb5
@@ -377,6 +381,7 @@ EOF
 
     sudo curl -L 'https://github.com/junegunn/fzf-bin/releases/download/0.17.5/fzf-0.17.5-linux_arm7.tgz' > /usr/local/src/fzf.tgz
     sudo tar -C /usr/local/bin/ -xvf /usr/local/src/fzf.tgz
+    fzf --help
 
     mkdir -p /usr/share/ca-certificates/local
     cd /usr/share/ca-certificates/local
@@ -387,7 +392,7 @@ EOF
 
 
     # ip of this box
-    IP_ADDR=`ifconfig enp0s8 | grep Mask | awk '{print $2}'| cut -f2 -d:`
+    export IP_ADDR=`ifconfig eth0 | grep mask | awk '{print $2}'| cut -f2 -d:`
     # set node-ip
     # FIXME: ORIG - 1/5/2018
     # FIXME: sudo sed -i "/^[^#]*KUBELET_EXTRA_ARGS=/c\KUBELET_EXTRA_ARGS=--node-ip=$IP_ADDR" /etc/default/kubelet
@@ -398,6 +403,7 @@ EOF
     # Environment="KUBELET_EXTRA_ARGS=--feature-gates=VolumeScheduling=true"
     # Environment="KUBELET_EXTRA_ARGS=--feature-gates=PersistentLocalVolumes=true"
     sudo sed -i "/^[^#]*KUBELET_EXTRA_ARGS=/c\KUBELET_EXTRA_ARGS=--node-ip=$IP_ADDR --authentication-token-webhook=true --authorization-mode=Webhook --read-only-port=10255" /etc/default/kubelet
+    cat /etc/default/kubelet
     sudo systemctl restart kubelet
     sudo systemctl enable kubelet
 
@@ -405,6 +411,44 @@ EOF
 else
     echo "Step4 is already finished"
 fi
+
+# WEAVE
+# master
+sudo kubeadm config images pull -v3
+
+export IP_ADDR=`ifconfig eth0 | grep mask | awk '{print $2}'| cut -f2 -d:`
+echo "IP_ADDR: ${IP_ADDR}"
+kubeadm init --token-ttl=0 --apiserver-advertise-address=$IP_ADDR --apiserver-cert-extra-sans=$IP_ADDR  --node-name=$HOST_NAME --pod-network-cidr=10.32.0.0/12 --kubernetes-version=v1.13.1
+
+# Deploy weave:
+# https://cloud.weave.works/k8s/net?k8s-version=v1.11.1&env.IPALLOC_RANGE=10.32.0.0/12
+
+
+# install Calico pod network addon
+export KUBECONFIG=/etc/kubernetes/admin.conf
+kubectl apply -f https://git.io/weave-kube-1.6
+kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')&env.IPALLOC_RANGE=10.32.0.0/12"
+
+kubeadm token create --token-ttl=0 --print-join-command >> /etc/kubeadm_join_cmd.sh
+chmod +x /etc/kubeadm_join_cmd.sh
+
+# required for setting up password less ssh between guest VMs
+sudo sed -i "/^[^#]*PasswordAuthentication[[:space:]]no/c\PasswordAuthentication yes" /etc/ssh/sshd_config
+sudo service sshd restart
+# echo 'export KUBECONFIG=/etc/kubernetes/admin.conf' | sudo tee -a ~/.bashrc
+# echo 'export KUBECONFIG=/etc/kubernetes/admin.conf' | sudo tee -a ~/.zshrc.local
+# echo 'export KUBECONFIG=/home/$NON_ROOT_USER/.kube/config' | sudo tee -a /home/$NON_ROOT_USER/.bashrc
+sudo /sbin/iptables -I INPUT 1 -p tcp --dport 10255 -j ACCEPT -m comment --comment "kube-apiserver"
+sudo service iptables save
+
+
+
+
+sudo --user=$NON_ROOT_USER mkdir -p /home/$NON_ROOT_USER/.kube
+cp -i /etc/kubernetes/admin.conf /home/$NON_ROOT_USER/.kube/config
+chown -R $(id -u $NON_ROOT_USER):$(id -g $NON_ROOT_USER) /home/$NON_ROOT_USER/.kube
+
+# --------------------- EXTRA
 
 # SOURCE: https://github.com/tgogos/rpi_golang#2-with-go-version-manager-gvm
 # sudo apt-get install curl git make binutils bison gcc build-essential
@@ -429,7 +473,7 @@ fi
 # export PATH=$PATH:$GOPATH/bin
 
 # TODO: master
-# export IP_ADDR=`ifconfig enp0s8 | grep Mask | awk '{print $2}'| cut -f2 -d:`
+# export IP_ADDR=`ifconfig eth0 | grep mask | awk '{print $2}'| cut -f2 -d:`
 # sudo kubeadm init --token-ttl=0 --apiserver-advertise-address=${IP_ADDR} --kubernetes-version v1.13.1
 
 # apt-get install -y make build-essential libssl-dev zlib1g-dev

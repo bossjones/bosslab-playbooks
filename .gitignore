@@ -185,3 +185,4 @@ borg-admin.conf
 playbooks/.ansible-logs/
 
 !.vscode/launch.json
+badass.txt
