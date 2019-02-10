@@ -109,8 +109,8 @@ boss__calico__node_daemonset_annotations: |
 boss__dashboard__manifest_path: "{{manifest_dir_path}}/dashboard"
 boss__dashboard__namespace_name: kube-system
 
-boss__dashboard__version: v1.10.0
-boss__dashboard__image_repo: "k8s.gcr.io/kubernetes-dashboard-amd64"
+boss__dashboard__version: head
+boss__dashboard__image_repo: "kubernetesdashboarddev/kubernetes-dashboard-arm"
 boss__dashboard__image_tag: "{{ boss__dashboard__version }}"
 
 boss__dashboard__deployment_container_args: |

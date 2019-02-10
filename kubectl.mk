@@ -90,6 +90,21 @@ show-all-pods-not-running:
 get-not-ready-pods:
 	@kubectl get po --all-namespaces | grep -vE '1/1|2/2|3/3' | highlight
 
+# VIA instructions - https://github.com/kubernetes/dashboard/wiki/Certificate-management
+generate-certs-dashboard:
+	$(call check_defined, cluster, Please set cluster)
+	-mkdir -p dist/manifests/$(cluster)-manifests/dashboard-ssl/certs
+	openssl genrsa -des3 -passout pass:x -out dist/manifests/$(cluster)-manifests/dashboard-ssl/certs/dashboard.pass.key 2048
+	openssl rsa -passin pass:x -in dist/manifests/$(cluster)-manifests/dashboard-ssl/certs/dashboard.pass.key -out dist/manifests/$(cluster)-manifests/dashboard-ssl/certs/dashboard.key
+# Writing RSA key
+	rm dist/manifests/$(cluster)-manifests/dashboard-ssl/certs/dashboard.pass.key
+	tree dist/manifests/$(cluster)-manifests/dashboard-ssl/certs/
+	openssl req -new -key dist/manifests/$(cluster)-manifests/dashboard-ssl/certs/dashboard.key -out dist/manifests/$(cluster)-manifests/dashboard-ssl/certs/dashboard.csr
+	openssl x509 -req -sha256 -days 365 -in dist/manifests/$(cluster)-manifests/dashboard-ssl/certs/dashboard.csr -signkey dist/manifests/$(cluster)-manifests/dashboard-ssl/certs/dashboard.key -out dist/manifests/$(cluster)-manifests/dashboard-ssl/certs/dashboard.crt
+	@printf "=======================================\n"
+	@printf "$$GREEN The dashboard.crt file is your certificate suitable for use with Dashboard along with the dashboard.key private key. $$NC\n"
+	@printf "=======================================\n"
+
 
 apply-certs-dashboard:
 	$(call check_defined, cluster, Please set cluster)
