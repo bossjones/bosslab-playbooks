@@ -165,7 +165,7 @@ EOF
     # sudo apt dist-upgrade -y
     sudo apt-get -y install ttf-kochi-gothic fonts-noto uim uim-mozc nodejs npm apache2 vim emacs libnss3-tools
     # インストール失敗しやすいので2回
-    sudo apt-get -y install ttf-kochi-gothic fonts-noto uim uim-mozc nodejs npm apache2 vim emacs libnss3-tools nfs-common zsh python-minimal python-apt python-six python-pip
+    sudo apt-get -y install ttf-kochi-gothic fonts-noto uim uim-mozc nodejs npm apache2 vim emacs libnss3-tools nfs-common zsh python-minimal python-apt python-six python-pip lnav
 
     # node.jsのインストール
     sudo npm cache clean
