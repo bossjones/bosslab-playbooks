@@ -375,11 +375,31 @@ EOF
 
     rm /usr/local/bin/fzf
 
+    sudo curl -L 'https://github.com/junegunn/fzf-bin/releases/download/0.17.5/fzf-0.17.5-linux_arm7.tgz' > /usr/local/src/fzf.tgz
+    sudo tar -C /usr/local/bin/ -xvf /usr/local/src/fzf.tgz
+
     mkdir -p /usr/share/ca-certificates/local
     cd /usr/share/ca-certificates/local
     wget https://entrust.com/root-certificates/entrust_l1k.cer
     openssl x509 -inform PEM  -in entrust_l1k.cer -outform PEM -out entrust_l1k.crt
     dpkg-reconfigure ca-certificates
+
+
+
+    # ip of this box
+    IP_ADDR=`ifconfig enp0s8 | grep Mask | awk '{print $2}'| cut -f2 -d:`
+    # set node-ip
+    # FIXME: ORIG - 1/5/2018
+    # FIXME: sudo sed -i "/^[^#]*KUBELET_EXTRA_ARGS=/c\KUBELET_EXTRA_ARGS=--node-ip=$IP_ADDR" /etc/default/kubelet
+    # NOTE: This is my modified version SOURCE: https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet-authentication-authorization/
+    # SOURCE: https://github.com/DataDog/integrations-core/issues/1829
+    # NOTE: Feature GATES
+    # SOURCE: https://kubernetes.io/docs/reference/command-line-tools-reference/feature-gates/
+    # Environment="KUBELET_EXTRA_ARGS=--feature-gates=VolumeScheduling=true"
+    # Environment="KUBELET_EXTRA_ARGS=--feature-gates=PersistentLocalVolumes=true"
+    sudo sed -i "/^[^#]*KUBELET_EXTRA_ARGS=/c\KUBELET_EXTRA_ARGS=--node-ip=$IP_ADDR --authentication-token-webhook=true --authorization-mode=Webhook --read-only-port=10255" /etc/default/kubelet
+    sudo systemctl restart kubelet
+    sudo systemctl enable kubelet
 
     touch /opt/raspberry/step4
 else
@@ -406,8 +426,11 @@ fi
 # export GOPATH=$HOME/go
 
 # and for the `bee` tool:
-export PATH=$PATH:$GOPATH/bin
+# export PATH=$PATH:$GOPATH/bin
 
+# TODO: master
+# export IP_ADDR=`ifconfig enp0s8 | grep Mask | awk '{print $2}'| cut -f2 -d:`
+# sudo kubeadm init --token-ttl=0 --apiserver-advertise-address=${IP_ADDR} --kubernetes-version v1.13.1
 
 # apt-get install -y make build-essential libssl-dev zlib1g-dev
 # apt-get install -y libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm
