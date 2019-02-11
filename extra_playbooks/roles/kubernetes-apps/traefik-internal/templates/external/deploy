@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+if [ -z "${KUBECONFIG}" ]; then
+    export KUBECONFIG=~/.kube/config
+fi
+
+# CAUTION - setting NAMESPACE will deploy most components to the given namespace
+# however some are hardcoded to 'monitoring'. Only use if you have reviewed all manifests.
+
+if [ -z "${NAMESPACE}" ]; then
+    NAMESPACE=kube-system
+fi
+
+kctl() {
+    kubectl --namespace "$NAMESPACE" "$@"
+}
+
+if ! [ -x "$(command -v helm)" ]; then
+  echo 'Error: helm is not installed. It is required to deploy the Consul cluster.' >&2
+  exit 1
+fi
+
+./deploy_consul_cluster.sh
+
+sleep 20
+# Deploy Traefik RBAC
+kctl apply -f ../traefik-rbac.yaml
+
+# Deploy external Traefik config
+kctl apply -f external-traefik-configmap.yaml
+
+# Deploy external Traefik and it's service
+kctl apply -f external-traefik-service.yaml
+kctl apply -f external-traefik-statefulset.yaml

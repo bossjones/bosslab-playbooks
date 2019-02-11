@@ -777,6 +777,16 @@ render-manifest-markdownrender:
 	@printf "=======================================\n"
 	bash -c "find dist/manifests/$(cluster)-manifests/markdownrender -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
 
+
+render-manifest-internal-traefik:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_internal_traefik.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@printf "lint internal-traefik manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint internal-traefik manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/internal-traefik -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
 render-manifest:
 	$(call check_defined, cluster, Please set cluster)
 	ansible-playbook -c local -vvvvv playbooks/render_echoserver.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"

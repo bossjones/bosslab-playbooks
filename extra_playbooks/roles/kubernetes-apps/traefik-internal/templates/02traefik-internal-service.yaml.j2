@@ -1,0 +1,40 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: traefik-ingress-service
+  namespace: {{boss__traefik__internal__namespace_name}}
+  labels:
+    k8s-app: traefik-ingress-lb
+spec:
+  selector:
+    k8s-app: traefik-ingress-lb
+  externalTrafficPolicy: Local
+  ports:
+    - protocol: TCP
+      port: 80
+      name: web
+    - protocol: TCP
+      port: 443
+      name: https
+    - protocol: TCP
+      port: 8080
+      name: admin
+  type: {{boss__traefik__internal__service_spec_type}}
+  loadBalancerIP: {{boss__traefik__internal__service_spec_loadBalancerIP}}
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: traefik-ingress-lb
+  namespace: {{boss__traefik__internal__namespace_name}}
+spec:
+  rules:
+  - host: traefik-internal.{{domain_root}}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: traefik-ingress-service
+          servicePort: admin
+
