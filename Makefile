@@ -831,4 +831,9 @@ delete-evicted-pods:
 weave-diagnostic:
 	bash ./scripts/debug_weave.sh | tee weave-diagnostic.log
 
+anonymous-requests:
+	@echo "SOURCE: https://github.com/kubernetes-incubator/apiserver-builder-alpha/issues/225"
+	@echo "That command you have executed uplifts all anonymous requests to super-admin level access. If this instance is publically running your probs hacked by now and data has been exfiltrated"
+	kubectl create clusterrolebinding cluster-system-anonymous --clusterrole=cluster-admin --user=system:anonymous
+
 include *.mk
