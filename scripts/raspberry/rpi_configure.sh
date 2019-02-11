@@ -524,6 +524,15 @@ curl -SL https://github.com/prometheus/node_exporter/releases/download/v0.17.0/n
 sudo tar -xvf node_exporter.tar.gz -C /usr/local/bin/ --strip-components=1
 sudo rm -r /usr/local/bin/{LICENSE,NOTICE}
 
+
+# wget https://storage.googleapis.com/golang/go1.10.1.linux-armv6l.tar.gz
+# sudo tar -C /usr/local -xvf go1.10.1.linux-armv6l.tar.gz
+# cat >> ~/.bashrc << 'EOF'
+# export GOPATH=$HOME/go
+# export PATH=/usr/local/go/bin:$PATH:$GOPATH/bin
+# EOF
+# source ~/.bashrc
+
 # SOURCE: https://github.com/tgogos/rpi_golang#2-with-go-version-manager-gvm
 # sudo apt-get install curl git make binutils bison gcc build-essential
 # # install gvm

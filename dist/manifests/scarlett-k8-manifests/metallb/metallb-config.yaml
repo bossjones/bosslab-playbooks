@@ -1,0 +1,14 @@
+# NOTE: Run this first - helm install --name metallb-release stable/metallb --namespace metallb-system
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  namespace: metallb-system
+  name: metallb-config
+data:
+  config: |
+    address-pools:
+    - name: default
+      protocol: layer2
+      addresses:
+      - 192.168.1.60/28

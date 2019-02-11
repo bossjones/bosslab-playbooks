@@ -1,0 +1,225 @@
+# SOURCE: https://gist.github.com/carlosedp/1b72b0d80c960e72f10698e2c95f3f1f
+
+---
+- name: Setup SBC
+  hosts: all
+  #become: true
+  #become_user: root
+  gather_facts: false
+
+  vars:
+    #New user to be created
+    new_user: newuser
+    kubernetes_version: "1.13.1-00"
+    docker_version: "18.06.1~ce~3-0~debian"
+
+  pre_tasks:
+  - name: Install python2 for Ansible
+    raw: bash -c "test -e /usr/bin/python || (apt -qqy update && apt install -qqy python2.7 python-minimal python-setuptools)"
+    register: output
+    changed_when: output.stdout != ""
+
+  - name: Gathering Facts
+    setup:
+
+  tasks:
+  - name: Stop and disable unused services
+    systemd:
+        name: "{{ item }}"
+        state: stopped
+        enabled: no
+    with_items:
+        # - dhcpd
+        - NetworkManager
+        - armbian-zram-config.service
+    retries: 3
+    delay: 2
+    ignore_errors: yes
+
+  - name: Disable global IPv6 with sysctl
+    sysctl:
+      name: "{{ item }}"
+      value: 1
+      state: present
+    with_items:
+      - net.ipv6.conf.all.disable_ipv6
+      - net.ipv6.conf.default.disable_ipv6
+    retries: 3
+    delay: 2
+    ignore_errors: yes
+
+  - name: Disable IPv6 for interfaces with sysctl
+    sysctl:
+      name: net.ipv6.conf.{{item}}.disable_ipv6
+      value: 1
+      state: present
+    with_items:
+      - "{{ ansible_interfaces }}"
+    ignore_errors: True
+
+  - name: Fix MAC creation error on veth interfaces
+    copy:
+      dest: "/etc/systemd/network/99-default.link"
+      content: |
+        # /etc/systemd/network/99-default.link
+        # https://github.com/systemd/systemd/issues/3374
+        [Match]
+        Path=/devices/virtual/net/*
+
+        [Link]
+        NamePolicy=kernel database onboard slot path
+        MACAddressPolicy=none
+      mode: 0644
+
+  - name: Make sure we have a "wheel" group
+    group:
+      name: wheel
+      state: present
+
+  - name: Allow "wheel" group to have passwordless sudo
+    lineinfile:
+      dest: /etc/sudoers
+      state: present
+      regexp: "^%wheel"
+      line: "%wheel ALL=(ALL) NOPASSWD: ALL"
+      validate: "visudo -cf %s"
+
+  - name: Create user and add to sudoers
+    user:
+      name: "{{ new_user }}"
+      groups: wheel
+      append: yes
+      state: present
+      createhome: yes
+
+# Place a public key file in the same dir and uncomment lines below to add key to the new user
+#  - name: Set up authorized keys for the user
+#    authorized_key:
+#      user: "{{ new_user }}"
+#      key: "{{item}}"
+#    with_file:
+#      - ./id_rsa.pub
+
+  - name: Disable swap
+    mount:
+      name: swap
+      fstype: swap
+      state: absent
+  - name: Disable swap
+    command: swapoff -a
+    when: ansible_swaptotal_mb > 0
+
+  - name: Install Docker prerequisites
+    apt:
+      name: "{{packages}}"
+      update_cache: yes
+    vars:
+      packages:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+
+  - name: Add Docker GPG key
+    apt_key: url=https://download.docker.com/linux/ubuntu/gpg
+
+  - name: Add Docker APT repository
+    apt_repository:
+      repo: "deb https://download.docker.com/linux/{{ansible_distribution|lower}} {{ansible_distribution_release}} stable"
+
+  - name: Install Docker
+    apt:
+      name: "{{packages}}"
+      update_cache: yes
+    vars:
+      packages:
+        - docker-ce={{docker_version}}
+        - docker-compose
+
+  - name: Add Kubernetes GPG key
+    apt_key: url=https://packages.cloud.google.com/apt/doc/apt-key.gpg
+
+  - name: Add Kubernetes APT repository
+    apt_repository:
+      repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+
+  - name: Install Kubernetes
+    apt:
+      name: "{{packages}}"
+      update_cache: yes
+      state: present
+    vars:
+      packages:
+        - kubelet={{kubernetes_version}}
+        - kubeadm={{kubernetes_version}}
+        - kubectl={{kubernetes_version}}
+
+  - name: Add user to Docker group
+    command: usermod -aG docker {{ new_user }}
+
+  - name: Update locale
+    command: echo en_US UTF-8 | tee --append /etc/locale.gen
+
+  - name: Generate locale
+    command: locale-gen
+
+  - name: Reconfigure locale
+    command: dpkg-reconfigure locales --frontend noninteractive
+
+  - name: Install additional packages
+    apt:
+      name: "{{packages}}"
+      update_cache: yes
+    vars:
+      packages:
+        - sudo
+        - file
+        - dbus
+        - bc
+        - bash-completion
+        - hdparm
+        - ack
+        - telnet
+        - iotop
+        - sysstat
+        - nfs-common
+        - git
+        - less
+        - vim
+        - build-essential
+        - iptables
+        - ipset
+        - pciutils
+        - lshw
+        - iperf3
+        - net-tools
+        - jq
+
+  - name: Fix ping permission
+    file:
+      path: "{{item}}"
+      mode: a+xs
+    with_fileglob:
+      - "/bin/ping*"
+
+  - name: Cleanup logs
+    file:
+      state: absent
+      path: "{{item}}"
+    with_items:
+      - /var/log/*
+
+  - name: More log cleanup
+    command: "{{item}}"
+    with_items:
+      - "journalctl --flush --rotate"
+      - "journalctl --vacuum-time=1seconds"
+
+  - name: Mount /var/log as a ramdrive to avoid wear to disk
+    mount:
+      backup: yes
+      path: /var/log
+      src: tmpfs
+      fstype: tmpfs
+      opts: defaults,size=200m,noatime,nodev,nosuid,mode=1777
+      state: present

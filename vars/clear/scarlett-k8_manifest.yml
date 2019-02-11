@@ -867,7 +867,7 @@ boss__helm__namespace_name: kube-system
 boss__metallb__subdomain: metallb
 boss__metallb__manifest_path: "{{manifest_dir_path}}/metallb"
 boss__metallb__namespace_name: metallb-system
-boss__metallb__address_pools: '192.168.1.246-192.168.1.254'
+boss__metallb__address_pools: '192.168.1.60/28'
 
 
 
@@ -887,7 +887,7 @@ boss__ingress__nginx__namespace_name: kube-system
 
 
 boss__ingress__nginx__controller_version: 0.21.0
-boss__ingress__nginx__controller_image_repo: "quay.io/kubernetes-ingress-controller/nginx-ingress-controller"
+boss__ingress__nginx__controller_image_repo: "quay.io/repository/kubernetes-ingress-controller/nginx-ingress-controller-arm"
 boss__ingress__nginx__controller_image_tag: "{{ boss__ingress__nginx__controller_version }}"
 
 boss__ingress__nginx__controller_runAsUser: 33
