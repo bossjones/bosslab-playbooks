@@ -50,6 +50,15 @@ for i in $(kubectl get pods --all-namespaces | grep weave | awk '{print $2}' | x
     echo ""
 done;
 
+for i in $(kubectl get pods --all-namespaces | grep weave | awk '{print $2}' | xargs); do
+    echo "---------------------------------------------------------------------------------------------------"
+    echo "[running] kubectl exec -n kube-system ${i} -c weave -- /home/weave/weave ps"
+    kubectl exec -n kube-system ${i} -c weave -- /home/weave/weave ps
+    echo "---------------------------------------------------------------------------------------------------"
+    echo ""
+    echo ""
+done;
+
 echo "---------------------------------------------------------------------------------------------------"
 echo "[running] weave version"
 weave version
