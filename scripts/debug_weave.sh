@@ -11,6 +11,14 @@ for i in $(kubectl get pods --all-namespaces | grep weave | awk '{print $2}' | x
 done;
 
 
+for i in $(kubectl get pods --all-namespaces | grep weave | awk '{print $2}' | xargs); do
+    echo "---------------------------------------------------------------------------------------------------"
+    echo "[running] kubectl exec -n kube-system ${i} -c weave -- /home/weave/weave --local status report"
+    kubectl exec -n kube-system ${i} -c weave -- /home/weave/weave --local status report
+    echo "---------------------------------------------------------------------------------------------------"
+    echo ""
+    echo ""
+done;
 
 echo "---------------------------------------------------------------------------------------------------"
 echo "[running] weave status connections"
