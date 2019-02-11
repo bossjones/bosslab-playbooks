@@ -780,7 +780,7 @@ render-manifest-markdownrender:
 
 render-manifest-traefik-internal:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_internal_traefik.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local -vvvvv playbooks/render_traefik_internal.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@printf "lint traefik-internal manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint traefik-internal manifest$$NC\n"

@@ -1,25 +1,25 @@
 # -*- coding: utf-8 -*-
-# USAGE: ansible-playbook -c local -vvvvv playbooks/render_internal_traefik.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars 'cluster=borg' --skip-tags "pause"
+# USAGE: ansible-playbook -c local -vvvvv playbooks/render_traefik_internal.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars 'cluster=borg' --skip-tags "pause"
 # env ANSIBLE_STRATEGY=debug KUBECONFIG=~/dev/bossjones/kubernetes-cluster/borg-admin.conf ansible-playbook  -i contrib/inventory_builder/inventory/borg/inventory.ini playbooks/render_internal_traefik.yml -vvvvvv
 ---
 ##############################################################################
-# file: render_internal_traefik.yaml
+# file: render_traefik_internal.yaml
 # Create an amazon vpc and tag it appropiately
 #
 # Run with:
 #
 #
 # DRY RUN(with pause):
-# ansible-playbook -c local -vvvvv playbooks/render_internal_traefik.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg" --check -f 10
+# ansible-playbook -c local -vvvvv playbooks/render_traefik_internal.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg" --check -f 10
 #
 # REAL RUN(w/o pause):
-# ansible-playbook -c local -vvvvv playbooks/render_internal_traefik.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg" --skip-tags -f 10 "pause"
+# ansible-playbook -c local -vvvvv playbooks/render_traefik_internal.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg" --skip-tags -f 10 "pause"
 #
 # TAG LOOKUP:
-# ansible-playbook -c local -vvvvv playbooks/render_internal_traefik.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg" --tag lookup -f 10
+# ansible-playbook -c local -vvvvv playbooks/render_traefik_internal.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg" --tag lookup -f 10
 #
 # REAL RUN:
-# ansible-playbook -c local -vvvvv playbooks/render_internal_traefik.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg" -f 10
+# ansible-playbook -c local -vvvvv playbooks/render_traefik_internal.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg" -f 10
 ##############################################################################
 
 - hosts: localhost

@@ -1309,7 +1309,7 @@ redeploy-traefik-internal:
 	@printf "=======================================\n"
 	@printf "$$GREEN render traefik-internal manifest$$NC\n"
 	@printf "=======================================\n"
-	-ansible-playbook -c local -vvvvv playbooks/render_internal_traefik.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	-ansible-playbook -c local -vvvvv playbooks/render_traefik_internal.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@echo ""
 	@echo ""
 
