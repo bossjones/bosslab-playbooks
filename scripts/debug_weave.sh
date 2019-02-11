@@ -10,6 +10,46 @@ for i in $(kubectl get pods --all-namespaces | grep weave | awk '{print $2}' | x
     echo ""
 done;
 
+
+for i in $(kubectl get pods --all-namespaces | grep weave | awk '{print $2}' | xargs); do
+    echo "---------------------------------------------------------------------------------------------------"
+    echo "[running] kubectl exec -n kube-system ${i} -c weave -- /home/weave/weave status connections"
+    kubectl exec -n kube-system ${i} -c weave -- /home/weave/weave status connections
+    echo "---------------------------------------------------------------------------------------------------"
+    echo ""
+    echo ""
+done;
+
+
+for i in $(kubectl get pods --all-namespaces | grep weave | awk '{print $2}' | xargs); do
+    echo "---------------------------------------------------------------------------------------------------"
+    echo "[running] kubectl exec -n kube-system ${i} -c weave -- /home/weave/weave status peers"
+    kubectl exec -n kube-system ${i} -c weave -- /home/weave/weave status peers
+    echo "---------------------------------------------------------------------------------------------------"
+    echo ""
+    echo ""
+done;
+
+
+for i in $(kubectl get pods --all-namespaces | grep weave | awk '{print $2}' | xargs); do
+    echo "---------------------------------------------------------------------------------------------------"
+    echo "[running] kubectl exec -n kube-system ${i} -c weave -- /home/weave/weave report -f '' weave.local."
+    kubectl exec -n kube-system ${i} -c weave -- /home/weave/weave report -f '' weave.local.
+    echo "---------------------------------------------------------------------------------------------------"
+    echo ""
+    echo ""
+done;
+
+
+for i in $(kubectl get pods --all-namespaces | grep weave | awk '{print $2}' | xargs); do
+    echo "---------------------------------------------------------------------------------------------------"
+    echo "[running] kubectl exec -n kube-system ${i} -c weave -- /home/weave/weave status dns"
+    kubectl exec -n kube-system ${i} -c weave -- /home/weave/weave status dns
+    echo "---------------------------------------------------------------------------------------------------"
+    echo ""
+    echo ""
+done;
+
 echo "---------------------------------------------------------------------------------------------------"
 echo "[running] weave version"
 weave version

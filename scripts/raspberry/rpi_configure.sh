@@ -511,6 +511,7 @@ if [[ $(hostname -s) = *master* ]]; then
     sudo sed -i "/^[^#]*PasswordAuthentication[[:space:]]no/c\PasswordAuthentication yes" /etc/ssh/sshd_config
     sudo service ssh restart
     sudo iptables -I INPUT 1 -p tcp --dport 10255 -j ACCEPT -m comment --comment "kube-apiserver"
+    iptables -P FORWARD ACCEPT
     sudo service iptables save
 
 fi
