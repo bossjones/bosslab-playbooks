@@ -1297,27 +1297,27 @@ lint-markdownrender:
 
 
 
-redeploy-internal-traefik:
+redeploy-traefik-internal:
 	$(call check_defined, cluster, Please set cluster)
-	@printf "delete internal-traefik:\n"
+	@printf "delete traefik-internal:\n"
 	@printf "=======================================\n"
-	@printf "$$GREEN delete internal-traefik$$NC\n"
+	@printf "$$GREEN delete traefik-internal$$NC\n"
 	@printf "=======================================\n"
-	-kubectl delete -f dist/manifests/$(cluster)-manifests/internal-traefik/
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/traefik-internal/
 
-	@printf "render internal-traefik manifest:\n"
+	@printf "render traefik-internal manifest:\n"
 	@printf "=======================================\n"
-	@printf "$$GREEN render internal-traefik manifest$$NC\n"
+	@printf "$$GREEN render traefik-internal manifest$$NC\n"
 	@printf "=======================================\n"
 	-ansible-playbook -c local -vvvvv playbooks/render_internal_traefik.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@echo ""
 	@echo ""
 
-	@printf "lint internal-traefik manifest:\n"
+	@printf "lint traefik-internal manifest:\n"
 	@printf "=======================================\n"
-	@printf "$$GREEN lint internal-traefik manifest$$NC\n"
+	@printf "$$GREEN lint traefik-internal manifest$$NC\n"
 	@printf "=======================================\n"
-	bash -c "find dist/manifests/$(cluster)-manifests/internal-traefik -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+	bash -c "find dist/manifests/$(cluster)-manifests/traefik-internal -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
 
 	@printf "quick sleep:\n"
 	@printf "=======================================\n"
@@ -1327,51 +1327,51 @@ redeploy-internal-traefik:
 	@echo ""
 	@echo ""
 
-	@printf "create-internal-traefik:\n"
+	@printf "create-traefik-internal:\n"
 	@printf "=======================================\n"
-	@printf "$$GREEN deploy internal-traefik$$NC\n"
+	@printf "$$GREEN deploy traefik-internal$$NC\n"
 	@printf "=======================================\n"
-	-kubectl create -f dist/manifests/$(cluster)-manifests/internal-traefik/
+	-kubectl create -f dist/manifests/$(cluster)-manifests/traefik-internal/
 	@echo ""
 	@echo ""
 
 
-create-internal-traefik:
+create-traefik-internal:
 	$(call check_defined, cluster, Please set cluster)
-	@printf "create-internal-traefik:\n"
+	@printf "create-traefik-internal:\n"
 	@printf "=======================================\n"
-	@printf "$$GREEN deploy internal-traefik$$NC\n"
+	@printf "$$GREEN deploy traefik-internal$$NC\n"
 	@printf "=======================================\n"
-	kubectl create -f dist/manifests/$(cluster)-manifests/internal-traefik/
+	kubectl create -f dist/manifests/$(cluster)-manifests/traefik-internal/
 	@echo ""
 	@echo ""
-# kubectl get pods --all-namespaces -l app=internal-traefik --watch | highlight
+# kubectl get pods --all-namespaces -l app=traefik-internal --watch | highlight
 
-apply-internal-traefik:
+apply-traefik-internal:
 	$(call check_defined, cluster, Please set cluster)
-	@printf "create-internal-traefik:\n"
+	@printf "create-traefik-internal:\n"
 	@printf "=======================================\n"
-	@printf "$$GREEN deploy internal-traefik$$NC\n"
+	@printf "$$GREEN deploy traefik-internal$$NC\n"
 	@printf "=======================================\n"
-	kubectl apply -f dist/manifests/$(cluster)-manifests/internal-traefik/
+	kubectl apply -f dist/manifests/$(cluster)-manifests/traefik-internal/
 	@echo ""
 	@echo ""
-# kubectl get pods --all-namespaces -l app=internal-traefik --watch
+# kubectl get pods --all-namespaces -l app=traefik-internal --watch
 
-delete-internal-traefik:
+delete-traefik-internal:
 	$(call check_defined, cluster, Please set cluster)
-	kubectl delete -f dist/manifests/$(cluster)-manifests/internal-traefik/
+	kubectl delete -f dist/manifests/$(cluster)-manifests/traefik-internal/
 
-describe-internal-traefik:
+describe-traefik-internal:
 	$(call check_defined, cluster, Please set cluster)
-	kubectl describe -f dist/manifests/$(cluster)-manifests/internal-traefik/ | highlight
+	kubectl describe -f dist/manifests/$(cluster)-manifests/traefik-internal/ | highlight
 
-debug-internal-traefik: describe-internal-traefik
-	kubectl -n kube-system get pod -l app=internal-traefik --output=yaml | highlight
+debug-traefik-internal: describe-traefik-internal
+	kubectl -n kube-system get pod -l app=traefik-internal --output=yaml | highlight
 
-test-internal-traefik-curl:
-	-curl -v -L 'http://internal-traefik.hyenaclan.org'
+test-traefik-internal-curl:
+	-curl -v -L 'http://traefik-internal.hyenaclan.org'
 
-lint-internal-traefik:
+lint-traefik-internal:
 	$(call check_defined, cluster, Please set cluster)
-	bash -c "find dist/manifests/$(cluster)-manifests/internal-traefik -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+	bash -c "find dist/manifests/$(cluster)-manifests/traefik-internal -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"

@@ -47,6 +47,6 @@
     - debug:
         msg: '{{ playbook_dir }}/../vars/clear/{{ cluster }}_manifest.yml'
   roles:
-  - role: kubernetes-apps/internal-traefik
+  - role: kubernetes-apps/traefik-internal
     tags:
-      - kubernetes-apps/internal-traefik
+      - kubernetes-apps/traefik-internal
