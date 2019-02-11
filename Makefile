@@ -836,4 +836,14 @@ anonymous-requests:
 	@echo "That command you have executed uplifts all anonymous requests to super-admin level access. If this instance is publically running your probs hacked by now and data has been exfiltrated"
 	kubectl create clusterrolebinding cluster-system-anonymous --clusterrole=cluster-admin --user=system:anonymous
 
+arm-manifests:
+	kubectl apply -f https://raw.githubusercontent.com/stefanprodan/k8s-scw-baremetal/master/addons/dashboard-rbac.yaml
+	kubectl apply -f https://raw.githubusercontent.com/stefanprodan/k8s-scw-baremetal/master/addons/metrics-server-rbac.yaml
+	kubectl apply -f https://raw.githubusercontent.com/stefanprodan/k8s-scw-baremetal/master/addons/heapster-rbac.yaml
+	curl -s https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/alternative/kubernetes-dashboard-arm.yaml | \
+    sed -e 's/v2.0.0-alpha0/v1.8.3/g' | \
+    kubectl apply -f -;
+	kubectl apply -f https://raw.githubusercontent.com/stefanprodan/k8s-scw-baremetal/master/addons/metrics-server-arm.yaml
+	kubectl apply -f https://raw.githubusercontent.com/stefanprodan/k8s-scw-baremetal/master/addons/heapster-arm.yaml
+
 include *.mk
