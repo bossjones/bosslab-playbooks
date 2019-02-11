@@ -1,0 +1,16 @@
+---
+- name: "traefik-internal | Create directory: {{boss__traefik__internal__manifest_path}}"
+  file:
+    path: "{{boss__traefik__internal__manifest_path}}"
+    state: directory
+
+- name: "traefik-internal | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__traefik__internal__manifest_path }}/{{ item }}"
+  with_items:
+    - "00traefik-rbac.yaml"
+    - "01traefik-internal-configmap.yaml"
+    - "02traefik-internal-service.yaml"
+    - "03traefik-internal-deployment.yaml"
+    # - "grafana-dashboard.json"

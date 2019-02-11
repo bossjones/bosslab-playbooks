@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: traefik-conf-external
+  namespace: {{boss__traefik__internal__namespace_name}}
+data:
+  traefik.toml: |
+    defaultEntryPoints = ["http","https"]
+    debug = false
+    logLevel = "INFO"
+
+    #Config to redirect http to https
+    [entryPoints]
+      [entryPoints.http]
+        address = ":80"
+        compress = true
+        [entryPoints.http.redirect]
+        entryPoint = "https"
+      [entryPoints.https]
+        address = ":443"
+        compress = true
+        [entryPoints.https.tls]
+
+    [api]
+      [api.statistics]
+        recentErrors = 10
+
+    [kubernetes]
+      # Only create ingresses where the object has traffic-type: external label
+      labelselector = "traffic-type=external"
+
+    [metrics]
+      [metrics.prometheus]
+      buckets=[0.1,0.3,1.2,5.0]
+      entryPoint = "traefik"
+
+    [ping]
+      entryPoint = "http"
+
+    [accessLog]
+
+    [consul]
+      endpoint = "consul-traefik-consul.kube-system.svc:8500"
+      watch = true
+      prefix = "traefik-external"
+
+    [acme]
+      email = "carlosedp@gmail.com"
+      storage = "traefik-external-certificates/acme/account"
+      acmeLogging = true
+      entryPoint = "https"
+      OnHostRule = true
+      #caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
+      [acme.httpChallenge]
+        entryPoint="http"

@@ -1,0 +1,14 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: consul-ui
+  namespace: {{boss__traefik__internal__namespace_name}}
+spec:
+  rules:
+  - host: consul-internal.{{domain_root}}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: consul-traefik-consul-ui
+          servicePort: http

@@ -452,6 +452,13 @@ EOF
     sudo systemctl restart kubelet
     sudo systemctl enable kubelet
 
+    # SOURCE: http://gw.tnode.com/docker/weave-network-driver-on-debian-8/
+    iptables -A INPUT -i lo -p tcp --dport=6784 -j ACCEPT
+    iptables -A INPUT -i lo -p udp --dport=53 -j ACCEPT
+    iptables -A INPUT -p tcp --dport=6783 -j ACCEPT
+    iptables -A INPUT -p udp --dport=6783 -j ACCEPT
+    iptables -A INPUT -p udp --dport=6784 -j ACCEPT
+
     touch /opt/raspberry/step4
 else
     echo "Step4 is already finished"
