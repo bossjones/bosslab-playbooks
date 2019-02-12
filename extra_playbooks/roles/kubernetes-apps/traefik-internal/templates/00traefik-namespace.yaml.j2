@@ -1,0 +1,7 @@
+{% if boss__traefik__internal__namespace_name != "kube-system" %}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{boss__traefik__internal__namespace_name}}
+{% endif %}

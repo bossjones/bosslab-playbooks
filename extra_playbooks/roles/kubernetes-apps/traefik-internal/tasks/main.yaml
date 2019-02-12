@@ -9,6 +9,7 @@
     src: "{{ item }}.j2"
     dest: "{{ boss__traefik__internal__manifest_path }}/{{ item }}"
   with_items:
+    - "00traefik-namespace.yaml"
     - "00traefik-rbac.yaml"
     - "01traefik-internal-configmap.yaml"
     - "02traefik-internal-service.yaml"
