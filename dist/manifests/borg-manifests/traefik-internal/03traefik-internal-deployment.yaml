@@ -39,9 +39,8 @@ spec:
          - name: admin
            containerPort: 8080
         args:
-        - --logLevel=DEBUG
-        - --api
-        - --kubernetes
+        # - --api
+        # - --kubernetes
         - --configfile=/config/traefik.toml
         livenessProbe:
           httpGet:

@@ -7,7 +7,7 @@ data:
   traefik.toml: |
     defaultEntryPoints = ["http","https"]
     debug = false
-    logLevel = "INFO"
+    logLevel = "DEBUG"
 
     # Do not verify backend certificates (use https backends)
     InsecureSkipVerify = true
@@ -35,7 +35,6 @@ data:
       address = ":8080"
 
     [kubernetes]
-
       # Array of namespaces to watch.
       #
       # Optional
@@ -50,7 +49,7 @@ data:
       #
       # labelselector = "A and not B"
       # Only create ingresses where the object has traffic-type: external label
-      labelselector = "traffic-type=traefik-internal"
+      labelselector = "traffic-type=internal"
 
       # Value of `kubernetes.io/ingress.class` annotation that identifies Ingress objects to be processed.
       # If the parameter is non-empty, only Ingresses containing an annotation with the same value are processed.

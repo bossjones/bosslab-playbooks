@@ -23,13 +23,18 @@ spec:
   type: {{boss__traefik__internal__service_spec_type}}
   loadBalancerIP: {{boss__traefik__internal__service_spec_loadBalancerIP}}
 ---
+# LOOK AT ME: https://docs.traefik.io/user-guide/kubernetes/
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: traefik-ingress-lb
   namespace: {{boss__traefik__internal__namespace_name}}
   labels:
-    traffic-type: traefik-internal
+    traffic-type: internal
+  # annotations:
+  #   traefik.frontend.rule.type: PathPrefix
+  annotations:
+    kubernetes.io/ingress.class: traefik
 spec:
   rules:
   - host: traefik-internal.{{domain_root}}
