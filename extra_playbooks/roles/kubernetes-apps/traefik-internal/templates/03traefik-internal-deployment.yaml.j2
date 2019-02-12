@@ -12,6 +12,7 @@ metadata:
   namespace: {{boss__traefik__internal__namespace_name}}
   labels:
     k8s-app: traefik-ingress-lb
+    traffic-type: internal
 spec:
   replicas: 2
   selector:
@@ -22,6 +23,7 @@ spec:
       labels:
         k8s-app: traefik-ingress-lb
         name: traefik-ingress-lb
+        traffic-type: internal
     spec:
       serviceAccountName: traefik-ingress-controller
       terminationGracePeriodSeconds: 60

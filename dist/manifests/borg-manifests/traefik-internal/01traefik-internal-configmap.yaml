@@ -58,7 +58,7 @@ data:
       # Optional
       # Default: empty
       #
-      ingressClass = "traefik-internal"
+      # ingressClass = "traefik-internal"
 
     [metrics]
       [metrics.prometheus]
