@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+echo "TRY THIS: https://github.com/ReSearchITEng/kubeadm-playbook/blob/fea83b68b8035f946bfa138c4cad25a35d34f6a7/roles/common/tasks/iptables.yml"
 
 for i in $(kubectl get pods --all-namespaces | grep weave | awk '{print $2}' | xargs); do
     echo "---------------------------------------------------------------------------------------------------"
