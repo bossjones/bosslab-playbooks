@@ -4,11 +4,11 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   namespace: metallb-system
-  name: metallb-config
+  name: config
 data:
   config: |
     address-pools:
     - name: default
       protocol: layer2
       addresses:
-      - 192.168.1.246-192.168.1.254
+      - 192.168.1.30-192.168.1.40
