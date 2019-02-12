@@ -28,6 +28,8 @@ kind: Ingress
 metadata:
   name: traefik-ingress-lb
   namespace: {{boss__traefik__internal__namespace_name}}
+  labels:
+    traffic-type: traefik-internal
 spec:
   rules:
   - host: traefik-internal.{{domain_root}}

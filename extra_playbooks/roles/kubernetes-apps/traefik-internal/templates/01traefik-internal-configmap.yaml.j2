@@ -49,6 +49,8 @@ data:
       # Default: empty (process all Ingresses)
       #
       # labelselector = "A and not B"
+      # Only create ingresses where the object has traffic-type: external label
+      labelselector = "traffic-type=traefik-internal"
 
       # Value of `kubernetes.io/ingress.class` annotation that identifies Ingress objects to be processed.
       # If the parameter is non-empty, only Ingresses containing an annotation with the same value are processed.
