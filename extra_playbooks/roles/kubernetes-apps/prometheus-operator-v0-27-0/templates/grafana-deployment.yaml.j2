@@ -25,13 +25,24 @@ spec:
           httpGet:
             path: /api/health
             port: http
+          # Number of seconds after the container has started before liveness or readiness probes are initiated.
+          initialDelaySeconds: 300
+          # How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1.
+          periodSeconds: 30
+          # Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1.
+          timeoutSeconds: 60
+          # When a Pod starts and the probe fails, Kubernetes will try failureThreshold times before giving up. Giving up in case of liveness probe means restarting the Pod. In case of readiness probe the Pod will be marked Unready. Defaults to 3. Minimum value is 1.
+          failureThreshold: 15
         resources:
           limits:
-            cpu: 200m
+            cpu: 2000m
             memory: 200Mi
           requests:
-            cpu: 100m
+            cpu: 1000m
             memory: 100Mi
+        env:
+        - name: GF_INSTALL_PLUGINS
+          value: ayoungprogrammer-finance-datasource,briangann-gauge-panel,cloudflare-app,digiapulssi-breadcrumb-panel,fzakaria-simple-annotations-datasource,grafana-clock-panel,grafana-kubernetes-app,grafana-piechart-panel,camptocamp-prometheus-alertmanager-datasource,grafana-simple-json-datasource,grafana-worldmap-panel,michaeldmoore-annunciator-panel,mtanda-histogram-panel,natel-influx-admin-panel,percona-percona-app,raintank-worldping-app,sbueringer-consul-datasource,vonage-status-panel
         volumeMounts:
         - mountPath: /var/lib/grafana
           name: grafana-storage
