@@ -311,3 +311,28 @@ https://help.ubnt.com/hc/en-us/sections/200915540-UniFi-Configuration
 * UniFi - system.properties File Explanation - https://help.ubnt.com/hc/en-us/articles/205202580-UniFi-system-properties-File-Explanation
 * UniFi - How to Create and Restore a Backup - https://help.ubnt.com/hc/en-us/articles/204952144-UniFi-How-to-Create-and-Restore-a-Backup
 * UniFi - Explaining the config.properties File - https://help.ubnt.com/hc/en-us/articles/205146040-UniFi-Explaining-the-config-properties-File
+
+
+# Unifi config so far
+
+**/var/lib/unifi/sites/default/config.gateway.json:**
+
+```
+{
+    "system": {
+        "static-host-mapping": {
+            "host-name": {
+                "weave.borglab.duckdns.org": {
+                    "inet": "192.168.1.172"
+                },
+                "weave.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "traefik-internal.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                }
+            }
+        }
+    }
+}
+```

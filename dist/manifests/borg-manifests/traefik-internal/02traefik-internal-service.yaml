@@ -3,10 +3,10 @@ kind: Service
 apiVersion: v1
 metadata:
   name: traefik-ingress-service
-  namespace: traefik-internal-system
+  namespace: traefik-system
   labels:
     k8s-app: traefik-ingress-lb
-    traffic-type: internal
+    # traffic-type: internal
 spec:
   selector:
     k8s-app: traefik-ingress-lb
@@ -29,11 +29,11 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: traefik-ingress-lb
-  namespace: traefik-internal-system
-  labels:
-    traffic-type: internal
-  annotations:
-    traffic-type: internal
+  namespace: traefik-system
+  # labels:
+  #   traffic-type: internal
+  # annotations:
+  #   traffic-type: internal
   # annotations:
   #   kubernetes.io/ingress.class: traefik-internal
   #   traefik.frontend.rule.type: PathPrefix

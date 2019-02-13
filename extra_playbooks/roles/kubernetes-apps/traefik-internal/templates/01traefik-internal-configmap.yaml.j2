@@ -35,30 +35,30 @@ data:
       address = ":8080"
 
     [kubernetes]
-      # Array of namespaces to watch.
-      #
-      # Optional
-      # Default: all namespaces (empty array).
-      #
-      # namespaces = ["default", "production"]
+    # Array of namespaces to watch.
+    #
+    # Optional
+    # Default: all namespaces (empty array).
+    #
+    # namespaces = ["default", "production"]
 
-      # Ingress label selector to filter Ingress objects that should be processed.
-      #
-      # Optional
-      # Default: empty (process all Ingresses)
-      #
-      # labelselector = "A and not B"
-      # Only create ingresses where the object has traffic-type: external label
-      labelselector = "traffic-type=internal"
+    # Ingress label selector to filter Ingress objects that should be processed.
+    #
+    # Optional
+    # Default: empty (process all Ingresses)
+    #
+    # labelselector = "A and not B"
+    # Only create ingresses where the object has traffic-type: external label
+    # labelselector = "traffic-type=internal"
 
-      # Value of `kubernetes.io/ingress.class` annotation that identifies Ingress objects to be processed.
-      # If the parameter is non-empty, only Ingresses containing an annotation with the same value are processed.
-      # Otherwise, Ingresses missing the annotation, having an empty value, or the value `traefik` are processed.
-      #
-      # Optional
-      # Default: empty
-      #
-      # ingressClass = "traefik-internal"
+    # Value of `kubernetes.io/ingress.class` annotation that identifies Ingress objects to be processed.
+    # If the parameter is non-empty, only Ingresses containing an annotation with the same value are processed.
+    # Otherwise, Ingresses missing the annotation, having an empty value, or the value `traefik` are processed.
+    #
+    # Optional
+    # Default: empty
+    #
+    # ingressClass = "traefik-internal"
 
     [metrics]
       [metrics.prometheus]

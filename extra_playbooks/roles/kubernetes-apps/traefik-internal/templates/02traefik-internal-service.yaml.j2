@@ -6,7 +6,7 @@ metadata:
   namespace: {{boss__traefik__internal__namespace_name}}
   labels:
     k8s-app: traefik-ingress-lb
-    traffic-type: internal
+    # traffic-type: internal
 spec:
   selector:
     k8s-app: traefik-ingress-lb
@@ -30,10 +30,10 @@ kind: Ingress
 metadata:
   name: traefik-ingress-lb
   namespace: {{boss__traefik__internal__namespace_name}}
-  labels:
-    traffic-type: internal
-  annotations:
-    traffic-type: internal
+  # labels:
+  #   traffic-type: internal
+  # annotations:
+  #   traffic-type: internal
   # annotations:
   #   kubernetes.io/ingress.class: traefik-internal
   #   traefik.frontend.rule.type: PathPrefix

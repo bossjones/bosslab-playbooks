@@ -954,7 +954,7 @@ boss__ingress__nginx__service__default_http_backend_labels: |
 ##########################################################################################################
 boss__traefik__internal__subdomain: traefik-internal
 boss__traefik__internal__manifest_path: "{{manifest_dir_path}}/traefik-internal"
-boss__traefik__internal__namespace_name: traefik-internal-system
+boss__traefik__internal__namespace_name: traefik-system
 boss__traefik__internal__service_spec_type: LoadBalancer
 boss__traefik__internal__service_spec_loadBalancerIP: 192.168.1.30
 

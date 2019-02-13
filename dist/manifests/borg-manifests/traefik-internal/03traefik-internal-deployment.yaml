@@ -3,16 +3,16 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: traefik-ingress-controller
-  namespace: traefik-internal-system
+  namespace: traefik-system
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
 metadata:
   name: traefik-ingress-controller
-  namespace: traefik-internal-system
+  namespace: traefik-system
   labels:
     k8s-app: traefik-ingress-lb
-    traffic-type: internal
+    # traffic-type: internal
 spec:
   replicas: 2
   selector:
@@ -23,7 +23,7 @@ spec:
       labels:
         k8s-app: traefik-ingress-lb
         name: traefik-ingress-lb
-        traffic-type: internal
+        # traffic-type: internal
     spec:
       serviceAccountName: traefik-ingress-controller
       terminationGracePeriodSeconds: 60
@@ -41,8 +41,8 @@ spec:
          - name: admin
            containerPort: 8080
         args:
-        # - --api
-        # - --kubernetes
+        - --api
+        - --kubernetes
         - --configfile=/config/traefik.toml
         livenessProbe:
           httpGet:
