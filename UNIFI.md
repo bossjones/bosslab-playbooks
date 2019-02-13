@@ -328,6 +328,9 @@ https://help.ubnt.com/hc/en-us/sections/200915540-UniFi-Configuration
                 "weave.borglab.scarlettlab.home": {
                     "inet": "192.168.1.172"
                 },
+                "scope.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
                 "traefik-internal.borglab.scarlettlab.home": {
                     "inet": "192.168.1.172"
                 }
