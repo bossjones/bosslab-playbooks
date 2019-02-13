@@ -1,5 +1,6 @@
 # domain_root: hyenaclan.org
-domain_root: borglab.duckdns.org
+# domain_root: borglab.duckdns.org
+domain_root: borglab.scarlettlab.home
 
 base_dir_path: ~/dev/bossjones/bosslab-playbooks
 dist_dir_path: "{{base_dir_path}}/dist"
@@ -956,6 +957,23 @@ boss__traefik__internal__manifest_path: "{{manifest_dir_path}}/traefik-internal"
 boss__traefik__internal__namespace_name: traefik-internal-system
 boss__traefik__internal__service_spec_type: LoadBalancer
 boss__traefik__internal__service_spec_loadBalancerIP: 192.168.1.30
+
+
+####################################################################################################
+#          .##......##.########....###....##.....##.########..........######...######...#######..########..########
+#          .##..##..##.##.........##.##...##.....##.##...............##....##.##....##.##.....##.##.....##.##......
+#          .##..##..##.##........##...##..##.....##.##...............##.......##.......##.....##.##.....##.##......
+#          .##..##..##.######...##.....##.##.....##.######...#######..######..##.......##.....##.########..######..
+#          .##..##..##.##.......#########..##...##..##.....................##.##.......##.....##.##........##......
+#          .##..##..##.##.......##.....##...##.##...##...............##....##.##....##.##.....##.##........##......
+#          ..###..###..########.##.....##....###....########..........######...######...#######..##........########
+##########################################################################################################
+boss__weave__scope__subdomain: weave-scope
+boss__weave__scope__manifest_path: "{{manifest_dir_path}}/weave-scope"
+boss__weave__scope__namespace_name: weave
+boss__weave__scope__manifest_filename_based_on_networking: "weave-calico-networking.yaml"
+boss__weave__scope__enable_ingress_traefik: "enabled"
+
 # ---
 # local_release_dir: /tmp/releases
 

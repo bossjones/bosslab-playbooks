@@ -39,7 +39,7 @@ metadata:
   #   traefik.frontend.rule.type: PathPrefix
 spec:
   rules:
-  - host: traefik-internal.borglab.duckdns.org
+  - host: traefik-internal.borglab.scarlettlab.home
     http:
       paths:
       - path: /

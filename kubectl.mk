@@ -1375,3 +1375,83 @@ test-traefik-internal-curl:
 lint-traefik-internal:
 	$(call check_defined, cluster, Please set cluster)
 	bash -c "find dist/manifests/$(cluster)-manifests/traefik-internal -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+
+redeploy-weave-scope:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete weave-scope:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete weave-scope$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/weave-scope/
+
+	@printf "render weave-scope manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render weave-scope manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_weave_scope.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "lint weave-scope manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint weave-scope manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/weave-scope -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "create-weave-scope:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy weave-scope$$NC\n"
+	@printf "=======================================\n"
+	-kubectl create -f dist/manifests/$(cluster)-manifests/weave-scope/
+	@echo ""
+	@echo ""
+
+
+create-weave-scope:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-weave-scope:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy weave-scope$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/weave-scope/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=weave-scope --watch | highlight
+
+apply-weave-scope:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-weave-scope:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy weave-scope$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/weave-scope/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=weave-scope --watch
+
+delete-weave-scope:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/weave-scope/
+
+describe-weave-scope:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/weave-scope/ | highlight
+
+debug-weave-scope: describe-weave-scope
+	kubectl -n kube-system get pod -l app=weave-scope --output=yaml | highlight
+
+test-weave-scope-curl:
+	-curl -v -L 'http://weave-scope.hyenaclan.org'
+
+lint-weave-scope:
+	$(call check_defined, cluster, Please set cluster)
+	bash -c "find dist/manifests/$(cluster)-manifests/weave-scope -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
