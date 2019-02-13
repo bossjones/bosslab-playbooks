@@ -42,7 +42,8 @@ spec:
             memory: 100Mi
         env:
         - name: GF_INSTALL_PLUGINS
-          value: ayoungprogrammer-finance-datasource,briangann-gauge-panel,cloudflare-app,digiapulssi-breadcrumb-panel,fzakaria-simple-annotations-datasource,grafana-clock-panel,grafana-kubernetes-app,grafana-piechart-panel,camptocamp-prometheus-alertmanager-datasource,grafana-simple-json-datasource,grafana-worldmap-panel,michaeldmoore-annunciator-panel,mtanda-histogram-panel,natel-influx-admin-panel,percona-percona-app,raintank-worldping-app,sbueringer-consul-datasource,vonage-status-panel
+          # ,sbueringer-consul-datasource Ignored for now becausse binary needs chmod +x
+          value: ayoungprogrammer-finance-datasource,briangann-gauge-panel,cloudflare-app,digiapulssi-breadcrumb-panel,fzakaria-simple-annotations-datasource,grafana-clock-panel,grafana-kubernetes-app,grafana-piechart-panel,camptocamp-prometheus-alertmanager-datasource,grafana-simple-json-datasource,grafana-worldmap-panel,michaeldmoore-annunciator-panel,mtanda-histogram-panel,natel-influx-admin-panel,percona-percona-app,vonage-status-panel
         volumeMounts:
         - mountPath: /var/lib/grafana
           name: grafana-storage
