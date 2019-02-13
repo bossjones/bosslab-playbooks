@@ -333,7 +333,41 @@ https://help.ubnt.com/hc/en-us/sections/200915540-UniFi-Configuration
                 },
                 "traefik-internal.borglab.scarlettlab.home": {
                     "inet": "192.168.1.172"
+                },
+                "whoami.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "echoserver.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "elasticsearch.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "kibana.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "prometheus.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "grafana.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "alertmanager.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "registry.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "debug.registry.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "registry-ui.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "jenkins.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
                 }
+
             }
         }
     }
