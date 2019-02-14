@@ -163,6 +163,7 @@ boss__efk__deployment_name: efk
 ##########################################################################################################
 boss__efk__elasticsearch_ingress_annotations: |
   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  traefik.frontend.rule.type: PathPrefix
 boss__efk__elasticsearch_ingress_labels: |
   k8s-app: elasticsearch-logging
   kubernetes.io/cluster-service: "true"
@@ -341,6 +342,7 @@ boss__efk__kibana_ingress_labels: |
     boss-part-of: efk
 boss__efk__kibana_ingress_annotations: |
     nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+    traefik.frontend.rule.type: PathPrefix
 boss__efk__kibana_service_labels: |
     k8s-app: kibana-logging
     kubernetes.io/cluster-service: "true"
@@ -379,6 +381,7 @@ boss__registry__tls_cert_cluster_issuer_name: selfsigning-issuer
 boss__registry__ingress_annotations: |
   nginx.ingress.kubernetes.io/ssl-redirect: \"true\"
   nginx.ingress.kubernetes.io/rewrite-target: \"/\"
+  traefik.frontend.rule.type: PathPrefix
 
 boss__registry__ingress_labels: |
   k8s-app: registry
@@ -498,6 +501,7 @@ boss__registry__ui__tls_cert_cluster_issuer_name: selfsigning-issuer
 boss__registry__ui__ingress_annotations: |
   nginx.ingress.kubernetes.io/ssl-redirect: \"true\"
   nginx.ingress.kubernetes.io/rewrite-target: \"/\"
+  traefik.frontend.rule.type: PathPrefix
 
 boss__registry__ui__ingress_labels: |
   k8s-app: registry-ui
@@ -619,7 +623,8 @@ boss__jenkins__ingress_labels: |
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: jenkins
 boss__jenkins__ingress_annotations: |
-    nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  traefik.frontend.rule.type: PathPrefix
 boss__jenkins__service_labels: |
     k8s-app: jenkins
     kubernetes.io/cluster-service: "true"
@@ -684,7 +689,8 @@ boss__heapster__ingress_labels: |
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: heapster
 boss__heapster__ingress_annotations: |
-    nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  traefik.frontend.rule.type: PathPrefix
 boss__heapster__service_labels: |
     k8s-app: heapster
     kubernetes.io/cluster-service: "true"
@@ -748,7 +754,8 @@ boss__metrics__server__ingress_labels: |
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: metrics-server
 boss__metrics__server__ingress_annotations: |
-    nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  traefik.frontend.rule.type: PathPrefix
 boss__metrics__server__service_labels: |
     k8s-app: metrics-server
     kubernetes.io/cluster-service: "true"
@@ -813,7 +820,8 @@ boss__external__dns__ingress_labels: |
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: external-dns
 boss__external__dns__ingress_annotations: |
-    nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  traefik.frontend.rule.type: PathPrefix
 boss__external__dns__service_labels: |
     k8s-app: external-dns
     kubernetes.io/cluster-service: "true"
