@@ -65,13 +65,15 @@ COPY Gemfile /Gemfile
 # 2. Install fluentd via ruby.
 # 3. Remove build dependencies.
 # 4. Cleanup leftover caches & files.
-RUN BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gnupg dirmngr" \
+RUN BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gnupg dirmngr zlib1g-dev git" \
     && clean-install $BUILD_DEPS \
                      ca-certificates \
                      libjemalloc1 \
                      ruby \
+                     sudo \
+                     vim \
+                     tar \
                      wget \
-                     sudo vim tar wget \
     && update-ca-certificates \
     && dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" \
     && wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch" \
