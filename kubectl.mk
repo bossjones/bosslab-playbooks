@@ -373,7 +373,7 @@ apply-efk-ingress:
 	@printf "=======================================\n"
 	@printf "$$GREEN deploy efk$$NC\n"
 	@printf "=======================================\n"
-	bash -c "find dist/manifests/borg-manifests/efk/* -type f -name '*ingress.*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	bash -c "find dist/manifests/$(cluster)-manifests/efk/* -type f -name '*ingress.*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
 	@echo ""
 	@echo ""
 
@@ -1536,7 +1536,7 @@ apply-echoserver-ingress:
 	@printf "=======================================\n"
 	@printf "$$GREEN deploy echoserver$$NC\n"
 	@printf "=======================================\n"
-	bash -c "find dist/manifests/borg-manifests/echoserver/* -type f -name '*ingress.*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	bash -c "find dist/manifests/$(cluster)-manifests/echoserver/* -type f -name '*ingress.*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
 	@echo ""
 	@echo ""
 
