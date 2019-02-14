@@ -40,4 +40,4 @@ mkdir -p /var/log/journal
 # fi
 
 
-exec supervisord -n -c /etc/supervisor/supervisord.conf
+supervisord -n -c /etc/supervisor/supervisord.conf
