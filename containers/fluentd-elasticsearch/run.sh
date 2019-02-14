@@ -20,4 +20,21 @@
 # For systems without journald
 mkdir -p /var/log/journal
 
+# /usr/local/bin/fluentd $@
+
+
+# Start Fluentd-ui process
+/usr/local/bin/fluentd-ui start --daemonize
+status=$?
+if [ $status -ne 0 ]; then
+  echo "Failed to start fluentd-ui: $status"
+  exit $status
+fi
+
+# Start Fluentd process
 /usr/local/bin/fluentd $@
+status=$?
+if [ $status -ne 0 ]; then
+  echo "Failed to start fluentd: $status"
+  exit $status
+fi
