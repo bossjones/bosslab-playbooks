@@ -694,6 +694,9 @@ render-manifest-dashboard:
 	$(call check_defined, cluster, Please set cluster)
 	ansible-playbook -c local -vvvvv playbooks/render_dashboard.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 
+render-manifest-dashboard-ssl:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_dashboard_ssl.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 
 render-manifest-dashboard-admin:
 	$(call check_defined, cluster, Please set cluster)
@@ -746,6 +749,54 @@ render-manifest-external-dns:
 	$(call check_defined, cluster, Please set cluster)
 	ansible-playbook -c local -vvvvv playbooks/render_external_dns.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 
+render-manifest-helm:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_helm.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+
+render-manifest-metallb:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_metallb.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+
+
+render-manifest-ingress-nginx:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_ingress_nginx.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@printf "lint ingress-nginx manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint ingress-nginx manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/ingress-nginx -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+
+render-manifest-markdownrender:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_markdownrender.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@printf "lint markdownrender manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint markdownrender manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/markdownrender -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+
+render-manifest-traefik-internal:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_traefik_internal.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@printf "lint traefik-internal manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint traefik-internal manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/traefik-internal -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+
+render-manifest-weave-scope:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_weave_scope.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@printf "lint weave-scope manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint weave-scope manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/weave-scope -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
 render-manifest:
 	$(call check_defined, cluster, Please set cluster)
 	ansible-playbook -c local -vvvvv playbooks/render_echoserver.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
@@ -759,6 +810,10 @@ render-manifest:
 	ansible-playbook -c local -vvvvv playbooks/render_jenkins.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	ansible-playbook -c local -vvvvv playbooks/render_heapster2.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	ansible-playbook -c local -vvvvv playbooks/render_metrics_server.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local -vvvvv playbooks/render_helm.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local -vvvvv playbooks/render_ingress_nginx.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local -vvvvv playbooks/render_markdownrender.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local -vvvvv playbooks/render_weave_scope.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 
 tmp-shell-default:
 	kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash
@@ -779,5 +834,27 @@ zsh-tmp-shell-monitoring:
 	kubectl -n monitoring run zsh-tmp-shell --rm -i --tty --image bossjones/k8s-zsh-debugger -- /bin/zsh
 
 # bossjones/k8s-zsh-debugger:
+
+# SOURCE: https://stackoverflow.com/questions/46419163/what-will-happen-to-evicted-pods-in-kubernetes
+delete-evicted-pods:
+	kubectl get po -a --all-namespaces -o json | jq  '.items[] | select(.status.reason!=null) | select(.status.reason | contains("Evicted")) | "kubectl delete po \(.metadata.name) -n \(.metadata.namespace)"' | xargs -n 1 bash -c
+
+weave-diagnostic:
+	bash ./scripts/debug_weave.sh | tee weave-diagnostic.log
+
+anonymous-requests:
+	@echo "SOURCE: https://github.com/kubernetes-incubator/apiserver-builder-alpha/issues/225"
+	@echo "That command you have executed uplifts all anonymous requests to super-admin level access. If this instance is publically running your probs hacked by now and data has been exfiltrated"
+	kubectl create clusterrolebinding cluster-system-anonymous --clusterrole=cluster-admin --user=system:anonymous
+
+arm-manifests:
+	kubectl apply -f https://raw.githubusercontent.com/stefanprodan/k8s-scw-baremetal/master/addons/dashboard-rbac.yaml
+	kubectl apply -f https://raw.githubusercontent.com/stefanprodan/k8s-scw-baremetal/master/addons/metrics-server-rbac.yaml
+	kubectl apply -f https://raw.githubusercontent.com/stefanprodan/k8s-scw-baremetal/master/addons/heapster-rbac.yaml
+	curl -s https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/alternative/kubernetes-dashboard-arm.yaml | \
+    sed -e 's/v2.0.0-alpha0/v1.8.3/g' | \
+    kubectl apply -f -;
+	kubectl apply -f https://raw.githubusercontent.com/stefanprodan/k8s-scw-baremetal/master/addons/metrics-server-arm.yaml
+	kubectl apply -f https://raw.githubusercontent.com/stefanprodan/k8s-scw-baremetal/master/addons/heapster-arm.yaml
 
 include *.mk

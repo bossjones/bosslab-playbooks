@@ -216,10 +216,10 @@ kind: PersistentVolume
 metadata:
   name: jenkins
   namespace: {{boss__jenkins__namespace_name}}
-{%   if boss__jenkins__persistent_volume_labels is defined %}
+{% if boss__jenkins__persistent_volume_labels is defined %}
   labels:
 {{ boss__jenkins__persistent_volume_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
 spec:
   capacity:
     storage: {{boss__jenkins__persistent_volume_spec_capacity_storage}}

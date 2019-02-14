@@ -1,0 +1,49 @@
+[
+  {
+    "title": "NodeInfo",
+    "description": "Get info about the machine that you're deployed on. Tells CPU count, hostname, OS, and Uptime",
+    "image": "functions/nodeinfo:latest-armhf",
+    "name": "nodeinfo",
+    "fprocess": "node main.js",
+    "repo_url": "https://github.com/openfaas/faas/tree/master/sample-functions/NodeInfo"
+  },
+  {
+    "title": "Figlet",
+    "description": "Generate ASCII logos with the figlet CLI",
+    "image": "functions/figlet:latest-armhf",
+    "name": "figlet",
+    "fprocess": "figlet",
+    "repo_url": "https://github.com/openfaas/faas/tree/master/sample-functions/figlet"
+  },
+  {
+    "title": "Left-Pad",
+    "description": "left-pad on OpenFaaS",
+    "image": "rgee0/faas-leftpad",
+    "name": "leftpad",
+    "repo_url": "https://github.com/faas-and-furious/faas-leftpad"
+  },
+  {
+    "title": "Manifest Query",
+    "description": "Query an image on the Docker Hub for supported architectures - by Phil Estes",
+    "image": "rgee0/of-mquery:1.2",
+    "fprocess": "./mquery", 
+    "name": "mquery",
+    "repo_url": "https://github.com/rgee0/mquery/tree/openfaaschanges"
+  },
+  {
+    "title": "nslookup",
+    "description": "Uses nslookup to return any IP address info on domains and URLs",
+    "image": "jockdarock/nslookup-arm-faas:latest-armhf",
+    "name": "nslookup",
+    "repo_url": "https://github.com/jockdarock/nslookup-arm-faas"
+  },
+    {
+    "icon": "https://raw.githubusercontent.com/stefanprodan/openfaas-certinfo/master/logo.png",
+    "title": "SSL/TLS cert info",
+    "description": "Returns SSL/TLS certificate information for a given URL",
+    "image": "rgee0/certinfo:armhf",
+    "name": "certinfo",
+    "network": "func_functions",
+    "repo_url": "https://github.com/stefanprodan/openfaas-certinfo"
+  }
+]

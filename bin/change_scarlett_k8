@@ -1,0 +1,5 @@
+export KUBECONFIG=~/dev/bossjones/bosslab-playbooks/scarlett-k8-admin.conf
+
+echo "[CHANGED TO] - ${KUBECONFIG}"
+
+kubectl cluster-info

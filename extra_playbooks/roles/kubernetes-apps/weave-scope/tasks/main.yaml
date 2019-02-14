@@ -1,0 +1,12 @@
+---
+- name: "weave-scope | Create directory: {{boss__weave__scope__manifest_path}}"
+  file:
+    path: "{{boss__weave__scope__manifest_path}}"
+    state: directory
+
+- name: "weave-scope | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__weave__scope__manifest_path }}/{{ item }}"
+  with_items:
+    - "{{boss__weave__scope__manifest_filename_based_on_networking}}"

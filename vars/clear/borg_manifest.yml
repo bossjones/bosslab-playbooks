@@ -1,4 +1,6 @@
-domain_root: hyenaclan.org
+# domain_root: hyenaclan.org
+# domain_root: borglab.duckdns.org
+domain_root: borglab.scarlettlab.home
 
 base_dir_path: ~/dev/bossjones/bosslab-playbooks
 dist_dir_path: "{{base_dir_path}}/dist"
@@ -90,6 +92,8 @@ boss__calico__cni_image_tag: "{{ boss__calico__node_version }}"
 
 boss__calico__node_daemonset_annotations: |
   scheduler.alpha.kubernetes.io/critical-pod: ''
+  prometheus.io/scrape: 'true'
+  prometheus.io/port: '9091'
 
 # {{ calico_node_image_repo }}:{{ calico_node_image_tag }}
 
@@ -836,6 +840,139 @@ boss__external__dns__persistent_volume_spec_nfs_path: "{{path_to_network_disk}}/
 # TODO: FIXME, this needs to be dynamic going forward, but for now, we need to hardcode it
 # boss__external__dns__nfs_master_node_ip: "{{ hostvars[groups[nfs_server_group][0]]['ansible_' + main_network_interface].ipv4.address }}"
 boss__external__dns__nfs_master_node_ip: "{{ nfs_server_ip_override }}"
+
+
+
+##########################################################################################################
+#              .##.....##.########.##.......##.....##
+#              .##.....##.##.......##.......###...###
+#              .##.....##.##.......##.......####.####
+#              .#########.######...##.......##.###.##
+#              .##.....##.##.......##.......##.....##
+#              .##.....##.##.......##.......##.....##
+#              .##.....##.########.########.##.....##
+##########################################################################################################
+boss__helm__subdomain: helm
+boss__helm__manifest_path: "{{manifest_dir_path}}/helm"
+boss__helm__namespace_name: kube-system
+
+##########################################################################################################
+#     .##.....##.########.########....###....##...............##.......########.
+#     .###...###.##..........##......##.##...##...............##.......##.....##
+#     .####.####.##..........##.....##...##..##...............##.......##.....##
+#     .##.###.##.######......##....##.....##.##.......#######.##.......########.
+#     .##.....##.##..........##....#########.##...............##.......##.....##
+#     .##.....##.##..........##....##.....##.##...............##.......##.....##
+#     .##.....##.########....##....##.....##.########.........########.########.
+##########################################################################################################
+boss__metallb__subdomain: metallb
+boss__metallb__manifest_path: "{{manifest_dir_path}}/metallb"
+boss__metallb__namespace_name: metallb-system
+boss__metallb__address_pools: '192.168.1.30-192.168.1.40'
+
+
+
+
+##########################################################################################################
+#              .##....##..######...####.##....##.##.....##.........####.##....##..######...########..########..######...######.
+#              .###...##.##....##...##..###...##..##...##...........##..###...##.##....##..##.....##.##.......##....##.##....##
+#              .####..##.##.........##..####..##...##.##............##..####..##.##........##.....##.##.......##.......##......
+#              .##.##.##.##...####..##..##.##.##....###....#######..##..##.##.##.##...####.########..######....######...######.
+#              .##..####.##....##...##..##..####...##.##............##..##..####.##....##..##...##...##.............##.......##
+#              .##...###.##....##...##..##...###..##...##...........##..##...###.##....##..##....##..##.......##....##.##....##
+#              .##....##..######...####.##....##.##.....##.........####.##....##..######...##.....##.########..######...######.
+##########################################################################################################
+boss__ingress__nginx__subdomain: ingress-nginx
+boss__ingress__nginx__manifest_path: "{{manifest_dir_path}}/ingress-nginx"
+boss__ingress__nginx__namespace_name: kube-system
+
+
+boss__ingress__nginx__controller_version: 0.21.0
+boss__ingress__nginx__controller_image_repo: "quay.io/kubernetes-ingress-controller/nginx-ingress-controller"
+boss__ingress__nginx__controller_image_tag: "{{ boss__ingress__nginx__controller_version }}"
+
+boss__ingress__nginx__controller_runAsUser: 33
+
+boss__ingress__nginx__deployment_labels: |
+    app.kubernetes.io/name: nginx-ingress-controller
+    # app.kubernetes.io/part-of: kube-system
+    app.kubernetes.io/part-of: nginx-ingress
+    addonmanager.kubernetes.io/mode: Reconcile
+boss__ingress__nginx__deployment_spec_replicas: 1
+boss__ingress__nginx__deployment_spec_selector_match_labels: |
+      app.kubernetes.io/name: nginx-ingress-controller
+      # app.kubernetes.io/part-of: kube-system
+      app.kubernetes.io/part-of: nginx-ingress
+      addonmanager.kubernetes.io/mode: Reconcile
+boss__ingress__nginx__deployment_spec_template_metadata_labels: |
+        app.kubernetes.io/name: nginx-ingress-controller
+        # app.kubernetes.io/part-of: kube-system
+        app.kubernetes.io/part-of: nginx-ingress
+        addonmanager.kubernetes.io/mode: Reconcile
+boss__ingress__nginx__deployment_spec_template_metadata_annotations: |
+        prometheus.io/port: "10254"
+        prometheus.io/scrape: "true"
+boss__ingress__nginx__deployment_spec_template_spec_node_selector: |
+        kubernetes.io/hostname: "borg-queen-01"
+
+boss__ingress__nginx__service_account_labels: |
+    addonmanager.kubernetes.io/mode: Reconcile
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+
+boss__ingress__nginx__service_default_http_backend_spec_type: NodePort
+boss__ingress__nginx__service_ingress_nginx_spec_type: NodePort
+
+boss__ingress__nginx__role_binding_labels: |
+    # SOURCE: https://kubernetes.io/docs/reference/access-authn-authz/rbac/
+    # Many of these are system: prefixed, which indicates that the resource is “owned” by the infrastructure. Modifications to these resources can result in non-functional clusters. One example is the system:node ClusterRole. This role defines permissions for kubelets. If the role is modified, it can prevent kubelets from working.
+    # All of the default cluster roles and rolebindings are labeled with kubernetes.io/bootstrapping=rbac-defaults
+    kubernetes.io/bootstrapping: rbac-defaults
+    addonmanager.kubernetes.io/mode: EnsureExists
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+
+boss__ingress__nginx__service__default_http_backend_labels: |
+    app.kubernetes.io/name: default-http-backend
+    # app.kubernetes.io/part-of: kube-system
+    app.kubernetes.io/part-of: nginx-ingress
+    # kubernetes.io/minikube-addons: ingress
+    # kubernetes.io/minikube-addons-endpoint: ingress
+    addonmanager.kubernetes.io/mode: Reconcile
+
+
+
+
+####################################################################################################
+#                  .########.########.....###....########.########.####.##....##.........####.##....##.########.########.########..##....##....###....##......
+#                  ....##....##.....##...##.##...##.......##........##..##...##...........##..###...##....##....##.......##.....##.###...##...##.##...##......
+#                  ....##....##.....##..##...##..##.......##........##..##..##............##..####..##....##....##.......##.....##.####..##..##...##..##......
+#                  ....##....########..##.....##.######...######....##..#####....#######..##..##.##.##....##....######...########..##.##.##.##.....##.##......
+#                  ....##....##...##...#########.##.......##........##..##..##............##..##..####....##....##.......##...##...##..####.#########.##......
+#                  ....##....##....##..##.....##.##.......##........##..##...##...........##..##...###....##....##.......##....##..##...###.##.....##.##......
+#                  ....##....##.....##.##.....##.########.##.......####.##....##.........####.##....##....##....########.##.....##.##....##.##.....##.########
+##########################################################################################################
+boss__traefik__internal__subdomain: traefik-internal
+boss__traefik__internal__manifest_path: "{{manifest_dir_path}}/traefik-internal"
+boss__traefik__internal__namespace_name: traefik-system
+boss__traefik__internal__service_spec_type: LoadBalancer
+boss__traefik__internal__service_spec_loadBalancerIP: 192.168.1.30
+
+
+####################################################################################################
+#          .##......##.########....###....##.....##.########..........######...######...#######..########..########
+#          .##..##..##.##.........##.##...##.....##.##...............##....##.##....##.##.....##.##.....##.##......
+#          .##..##..##.##........##...##..##.....##.##...............##.......##.......##.....##.##.....##.##......
+#          .##..##..##.######...##.....##.##.....##.######...#######..######..##.......##.....##.########..######..
+#          .##..##..##.##.......#########..##...##..##.....................##.##.......##.....##.##........##......
+#          .##..##..##.##.......##.....##...##.##...##...............##....##.##....##.##.....##.##........##......
+#          ..###..###..########.##.....##....###....########..........######...######...#######..##........########
+##########################################################################################################
+boss__weave__scope__subdomain: weave-scope
+boss__weave__scope__manifest_path: "{{manifest_dir_path}}/weave-scope"
+boss__weave__scope__namespace_name: weave
+boss__weave__scope__manifest_filename_based_on_networking: "weave-calico-networking.yaml"
+boss__weave__scope__enable_ingress_traefik: "enabled"
 
 # ---
 # local_release_dir: /tmp/releases

@@ -1,0 +1,26 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: traefik-kv-store
+spec:
+  backoffLimit: 3
+  activeDeadlineSeconds: 100
+  template:
+    metadata:
+      name: traefik-kv-store
+    spec:
+      containers:
+      - name: storeconfig
+        image: dtomcej/traefik:master-arm64-3c8c5eb
+        imagePullPolicy: IfNotPresent
+        args: [ "storeconfig", "-c", "/config/traefik.toml" ]
+        volumeMounts:
+        - name: config
+          mountPath: /etc/traefik
+          readOnly: true
+      restartPolicy: Never
+      volumes:
+      - name: config
+        configMap:
+          name: traefik-conf-external

@@ -1,0 +1,302 @@
+# SOURCE: https://docs.helm.sh/using_helm/#role-based-access-control
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tiller
+  namespace: {{boss__helm__namespace_name}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: tiller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: tiller
+    namespace: {{boss__helm__namespace_name}}
+
+
+
+#  246  wget https://raw.githubusercontent.com/Alfresco/acs-deployment/master/docs/helm-deployment-minikube.md
+#  247  wget https://raw.githubusercontent.com/Alfresco/acs-deployment/master/docs/helm-versioning.md
+#  248  wget https://raw.githubusercontent.com/Alfresco/acs-deployment/master/docs/helm-chart-releases.md
+#  251  weget https://raw.githubusercontent.com/Alfresco/acs-deployment/master/docs/troubleshooting-helm-deployment.md
+#  252  wget https://raw.githubusercontent.com/Alfresco/acs-deployment/master/docs/troubleshooting-helm-deployment.md
+#  330  source <(helm completion bash)
+#  343  source <(helm completion bash)
+#  421  helm init --service-account tiller
+#  422  helm ls
+#  423  helm init --service-account tiller --upgrade
+#  437  cp -a example-nodejs-kubernetes/deploy/cert-manager-setup ~/dev/bossjones/boss-kubernetes-lab/charts/helm/whoami/
+#  438  cp -a example-nodejs-kubernetes/deploy/charts ~/dev/bossjones/boss-kubernetes-lab/charts/helm/whoami/
+#  440  cd charts/helm/whoami/
+#  446  helm install --name my-release -f cert-manager-values.yaml cert-manager
+#  447  helm install --name my-release -f cert-manager-values.yaml stable/cert-manager --version v0.3.0
+#  466  helm install stable/nginx-ingress --namespace {{boss__helm__namespace_name}} --set controller.hostNetwork=true,controller.kind=DaemonSet
+#  468  helm upgrade stable/nginx-ingress --name uck-nginx --namespace {{boss__helm__namespace_name}} --set controller.hostNetwork=true,controller.kind=DaemonSet --set rbac.create=true
+#  469  helm get svc
+#  473  helm ls
+#  514  helm delete --help
+#  515  helm ls
+#  516  helm delete rolling-bear
+#  517  helm delete --purge rolling-bear
+#  518  helm ls -a
+#  519  helm install --help
+#  520  helm install stable/nginx-ingress --name uck-nginx --namespace {{boss__helm__namespace_name}} --set controller.hostNetwork=true,controller.kind=DaemonSet --set rbac.create=true
+#  522  source <(helm completion bash)
+#  523  helm ls
+#  524  helm delete uck-nginx
+#  525  helm delete --purge uck-nginx
+#  533  helm ls
+#  556  cd charts/helm/
+#  598  mkdir helm
+#  599  cd helm/
+#  600  gcl git@github.com:helm/charts.git
+#  639  cd charts/helm/
+#  650  helm install --help
+#  736  helm ls
+#  737  cd charts/helm/
+#  742  helm --help
+#  744  make helm-purge name=traefik-ingress
+#  753  helm ls
+#  765  make helm-purge name=whoami-example
+#  766  helm ls
+#  767  make helm-deploy-whoami
+#  770  make helm-deploy-whoami
+#  771  helm install --help
+#  772  helm install --name whoami-example ./deploy/example-whoami
+#  773  make helm-purge name=whoami-example
+#  774  helm install --name whoami-example ./deploy/example-whoami
+#  775  make helm-purge name=whoami-example
+#  785  make helm-purge name=whoami-example
+#  786  make helm-deploy-whoami
+#  787  make helm-purge name=whoami-example
+#  788  make helm-deploy-whoami
+#  789  make helm-purge name=whoami-example
+#  790  make helm-deploy-whoami
+#  791  make helm-purge name=whoami-example
+#  792  make helm-deploy-whoami
+#  793  make helm-purge name=whoami-example
+#  800  make helm-purge name=whoami-example
+#  801  make helm-deploy-whoami
+#  802  make helm-purge name=whoami-example
+#  804  make helm-deploy-whoami
+#  810  make helm-purge name=whoami-example
+#  826  make helm-deploy-whoami
+#  840  cd charts/helm/
+#  851  make helm-purge name=whoami-example
+#  854  make helm-deploy-whoami
+#  855  helm install --name whoami-example -f ./deploy/example-whoami
+#  856  helm install --name whoami-example -f ./deploy/example-whoami/
+#  857  helm install --name whoami-example deploy/example-whoami/
+#  858   helm ls --all whoami-example;
+#  859   helm del --purge whoami-example
+#  860   helm ls --all whoami-example;
+#  862  cd charts/helm/traefik/
+#  880  cd helm/
+#  882  helm create nginx-welcome
+#  884  make helm-dry-run-nginx-welcome
+#  886  make helm-dry-run-nginx-welcome
+#  892  make helm-dry-run-nginx-welcome
+#  894  make helm-dry-run-nginx-welcome
+#  903  make helm-deploy-nginx-welcome
+#  905  helm ls
+#  921  make helm-purge-nginx-welcome
+#  923  make helm-purge-nginx-welcome
+#  925  make helm-dry-run-nginx-welcome
+#  927  make helm-deploy-nginx-welcome
+#  933  make helm-purge-nginx-welcome
+#  958  make helm-dry-run-nginx-welcome
+#  959  make helm-deploy-nginx-welcome
+#  962  make helm-purge-nginx-welcome
+#  964  make helm-deploy-nginx-welcome
+#  992  cd ../helm/charts/
+#  998  cp elastic-stack ~/dev/bossjones/boss-kubernetes-lab/charts/helm/elastic-stack
+#  999  cp -a elastic-stack ~/dev/bossjones/boss-kubernetes-lab/charts/helm/elastic-stack
+# 1000  ls ~/dev/bossjones/boss-kubernetes-lab/charts/helm/elastic-stack
+# 1007  for i in $(ls ~/dev/helm/charts/stable | xargs -n 1 basename); do echo "cp -a ~/dev/helm/charts/stable/$i ~/dev/bossjones/boss-kubernetes-lab/charts/helm/$i";   done;
+# 1008  for i in $(ls ~/dev/helm/charts/stable | xargs -n 1 basename); do echo "cp -a ~/dev/helm/charts/stable/$i ~/dev/bossjones/boss-kubernetes-lab/charts/helm/$i";   done; | pbcopy
+# 1009  cp -a ~/dev/helm/charts/stable/elastic-stack ~/dev/bossjones/boss-kubernetes-lab/charts/helm/elastic-stack
+# 1012  cp -a ~/dev/helm/charts/stable/prometheus ~/dev/bossjones/boss-kubernetes-lab/charts/helm/prometheus
+# 1018  make helm-dry-run-prometheus
+# 1026  make helm-deploy-prometheus
+# 1027  helm upgrade --debug -n prometheus prometheus ./prometheus
+# 1028  helm upgrade --debug prometheus ./prometheus
+# 1029  helm upgrade --debug ./prometheus
+# 1030  make helm-purge-prometheus
+# 1032  clear;make helm-deploy-prometheus
+# 1034  make helm-purge-prometheus
+# 1037  clear;make helm-deploy-prometheus
+# 1042  make helm-purge-prometheus
+# 1044  clear;make helm-deploy-prometheus
+# 1045  helm ls -a
+# 1047  make helm-deploy-prometheus
+# 1048  make helm-purge-prometheus
+# 1051  make helm-deploy-prometheus
+# 1052  make helm-purge-prometheus
+# 1054  make helm-deploy-prometheus
+# 1055  helm ls
+# 1056  helm ls -a
+# 1070  cp -a ~/dev/helm/charts/stable/influxdb ~/dev/bossjones/boss-kubernetes-lab/charts/helm/influxdb
+# 1075  cd charts/helm/
+# 1077  make helm-dry-run-influxdb
+# 1089  make helm-deploy-influxdb
+# 1094  make helm-purge-influxdb
+# 1095  make helm-deploy-influxdb
+# 1124  code charts/helm/random-logger/
+# 1129  cp -a ~/dev/helm/charts/stable/grafana ~/dev/bossjones/boss-kubernetes-lab/charts/helm/grafana
+# 1136  helm inspect chart
+# 1137  helm inspect chart influxdb
+# 1141  cd charts/helm/
+# 1143  helm ls
+# 1144  helm status influxdb
+# 1146  helm get values influxdb
+# 1147  make helm-purge-influxdb
+# 1149  make helm-deploy-influxdb
+# 1150  make helm-purge-influxdb
+# 1152  make helm-purge-prometheus
+# 1158  make helm-deploy-influxdb
+# 1172  helm ls
+# 1173  make helm-deploy-grafana
+# 1174  make helm-purge-grafana
+# 1176  make helm-deploy-grafana
+# 1177  make helm-purge-grafana
+# 1183  make helm-deploy-grafana
+# 1184  helm delete --help
+# 1185  make helm-purge-grafana
+# 1192  make helm-deploy-grafana
+# 1193  make helm-purge-grafana
+# 1195  cp -a ~/dev/helm/charts/stable/prometheus-operator ~/dev/bossjones/boss-kubernetes-lab/charts/helm/prometheus-operator
+# 1196  make helm-deploy-prometheus-operator
+# 1197  make helm-purge-prometheus-operator
+# 1198  helm dependency update ./prometheus-operator/
+# 1199  make helm-dry-run-prometheus-operator
+# 1201  make helm-deploy-prometheus-operator
+# 1207  make helm-purge-prometheus-operator
+# 1209  make helm-deploy-prometheus-operator
+# 1214  make helm-purge-prometheus-operator
+# 1216  make helm-deploy-prometheus-operator
+# 1217  make helm-purge-prometheus-operator
+# 1219  make helm-deploy-prometheus-operator
+# 1220  make helm-purge-prometheus-operator
+# 1222  make helm-deploy-prometheus-operator
+# 1223  make helm-purge-prometheus-operator
+# 1225  make helm-deploy-prometheus-operator
+# 1226  make helm-purge-prometheus-operator
+# 1228  make helm-deploy-prometheus-operator
+# 1233  make helm-purge-prometheus-operator ; clear
+# 1234  make helm-deploy-prometheus-operator
+# 1235  make helm-purge-prometheus-operator ; clear
+# 1236  make helm-deploy-prometheus-operator
+# 2781  helm list
+# 2782  helm install --name my-release stable/weave-scope
+# 2783  helm list
+# 2784  helm delete --purge --name weave-scope stable/weave-scope
+# 2785  helm delete stable/weave-scope
+# 2786  helm delete --purge my-release
+# 2787  helm install --name weave-scope stable/weave-scope
+# 2791  helm list
+# 2792  helm inspect prometheus
+# 2793  helm ls
+# 2794  helm ls prometheus
+# 2795  helm inspect prometheus
+# 2796  helm search vistio
+# 2811  helm list
+# 2812  helm list nginx-ingress
+# 2817  helm list
+# 3042  make helm-dry-run-nginx-welcome
+# 3045  make helm-dry-run-nginx-welcome
+# 3046  make helm-deploy-nginx-welcome
+# 3287  helm install --help
+# 3290  helm --version
+# 3291  helm install --version
+# 3292  helm repo list
+# 3293  helm list stable/kubernetes-dashboard
+# 3294  helm search stable/kubernetes-dashboard -l
+# 3328  helm ls
+# 3329  helm delete --purge prometheus
+# 3331  gcl git@github.com:helm/charts.git helm-charts
+# 3332  code helm-charts/
+# 3376  helm ls
+# 3377  helm delete --purge --name weave-scope stable/weave-scope
+# 3378  helm delete --purge weave-scope
+# 3394  helm ls
+# 3395  helm search stable/heapster -l
+# 3413  helm ls
+# 3414  helm delete --purge heapster
+# 3444  helm ls
+# 3467  helm ls
+# 3468  helm delete --purge nginx-ingress
+# 3469  helm delete --purge nginx-welcome
+# 3547  mkdir debug_helm
+# 3548  helm install stable/heapster --debug --dry-run ./debug_helm/
+# 3549  helm install -n heapster stable/heapster --debug --dry-run ./debug_helm/
+# 3550  helm install --name heapster stable/heapster --debug --dry-run ./debug_helm/
+# 3551  helm install stable/heapster --name heapster --debug --dry-run ./debug_helm/
+# 3552  helm install --name heapster stable/heapster --set rbac.create=true --namespace {{boss__helm__namespace_name}}
+# 3554  helm install --name heapster stable/heapster --set rbac.create=true --namespace {{boss__helm__namespace_name}} --debug --dry-run ./debug_helm/
+# 3555  cd ~/dev/kubernetes/helm-charts/stable/heapster/
+# 3559  helm install --name heapster stable/heapster --set rbac.create=true --namespace {{boss__helm__namespace_name}} --debug --dry-run ~/dev/kubernetes/helm-charts/stable/heapster
+# 3560  helm get manifest
+# 3561  helm get manifest heapster
+# 3562  helm get manifest heapster | pbcopy
+# 3567  helm delete --purge heapster
+# 3584  helm ls
+# 3621  cd charts/helm/
+# 3685  ag "30001" debug_ansible debug_helm dump*
+# 3686  ag "3000" debug_ansible debug_helm dump*
+# 3707  helm ls
+# 3885  code helm-charts/
+# 3968  cd "/Users/malcolm/dev/kubernetes/helm-charts/stable/prometheus-operator"
+# 3976  cp -a ~/dev/bossjones/boss-kubernetes-lab/charts/helm/prometheus-operator prometheus-operator2
+# 3983  rm -rfv debug_helm/
+# 3984  helm install stable/prometheus-operator -f charts/prometheus-operator2/values.yaml --name prometheus-operator --debug --dry-run ./debug_helm/
+# 3985  helm install stable/prometheus-operator -f charts/prometheus-operator2/values.yaml --name prometheus-operator --debug --dry-run
+# 3986  helm install stable/prometheus-operator -f charts/prometheus-operator2/values.yaml --name prometheus-operator --debug --dry-run | pbcopy
+# 3988  helm install stable/prometheus-operator -f charts/prometheus-operator2/values.yaml --name prometheus-operator
+# 3991  helm delete --purge prometheus-operator
+# 3992  helm delete --purge stable/prometheus-operator
+# 3993  helm delete --purge --name prometheus-operator
+# 3994  helm delete --help
+# 3995  helm delete --purge --name prometheus-operator
+# 3996  helm delete --purge prometheus-operator
+# 3997  helm ls
+#11187  cd ~/dev/helm/charts/
+#11199  helm template ./docker-registry
+#11200  helm template ./docker-registry | pbcopy
+#11209  git add .;git commit -m "wip: helm rendered docker-registry";gp
+#11211  git add .;git commit -m "wip: helm rendered docker-registry";gp
+#11213  git add .;git commit -m "wip: helm rendered docker-registry";gp
+#11331  helm template ./jenkins/ | pbcopy
+#11335  git add .;git commit -m "wip: helm template jekins";gp
+#11337  helm template ./jenkins/ | pbcopy
+#11340  git add .;git commit -m "wip: helm template jekins";gp
+#11341  helm --namespace {{boss__helm__namespace_name}} template ./jenkins/ | pbcopy
+#11345  helm --namespace {{boss__helm__namespace_name}} template ./jenkins/ | pbcopy
+#11347  helm --namespace {{boss__helm__namespace_name}} template ./heapster/ | pbcopy
+#11496  helm --namespace {{boss__helm__namespace_name}} template ./stackstorm-ha/ | pbcopy
+#11497  helm ls
+#11501  brew info helm
+#11503  kubectl create -f helm-rbac-config.yaml
+#11505  helm init --service-account tiller
+#11509  helm --namespace {{boss__helm__namespace_name}} template ./stackstorm-ha/ | pbcopy
+#11512  cd ~/dev/helm/charts/
+#11525  helm --namespace {{boss__helm__namespace_name}} install -f stable/ghost/
+#11526  helm --namespace {{boss__helm__namespace_name}} install -f stable/ghost/values.yaml stable/ghost
+#11528  helm install --name scarlettlab-ghost --namespace {{boss__helm__namespace_name}} -f stable/ghost/values.yaml stable/ghost
+#11532  helm install --name scarlettlab-ghost --namespace {{boss__helm__namespace_name}} -f values.yaml stable/ghost
+#11536  helm delete --name scarlettlab-ghost --namespace {{boss__helm__namespace_name}} -f values.yaml stable/ghost
+#11537  helm delete stable/ghost
+#11539  helm delete --tiller-namespace={{boss__helm__namespace_name}} stable/ghost
+#11540  helm delete --tiller-namespace={{boss__helm__namespace_name}} --name=scarlettlab-ghost stable/ghost
+#11541  helm delete --name=scarlettlab-ghost stable/ghost
+#11542  helm delete --help
+#11543  helm delete --purge scarlettlab-ghost stable/ghost
+#11544  helm delete --name scarlettlab --namespace {{boss__helm__namespace_name}} -f values.yaml stable/ghost
+#11545  helm install --name scarlettlab --namespace {{boss__helm__namespace_name}} -f values.yaml stable/ghost
+#11547  history | grep helm | pbcopy
+#11548  history | grep helm | sed 's,^,#,g'
+#11549  history | grep helm | sed 's,^,#,g' | pbcopy

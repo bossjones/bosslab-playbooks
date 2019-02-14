@@ -3,10 +3,10 @@ kind: Deployment
 metadata:
   name: es-curator
   namespace: {{boss__efk__namespace_name}}
-{%   if boss__efk__elasticsearch_curator_deployment_labels is defined %}
+{% if boss__efk__elasticsearch_curator_deployment_labels is defined %}
   labels:
 {{ boss__efk__elasticsearch_curator_deployment_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
 spec:
   replicas: 1
   selector:

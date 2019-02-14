@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 
 {% macro print_config(element) %}
-{%   if element is mapping %}
+{% if element is mapping %}
 {%     if element.state is undefined or element.state != 'absent' %}
 {%       if element.comment|d() %}
 {{ element.comment | comment }}
@@ -22,7 +22,7 @@
 {%     for thing in element %}
 {{ print_config(thing) -}}
 {%     endfor %}
-{%   endif %}
+{% endif %}
 {% endmacro %}
 {% if item.sections|d() %}
 {%   for section in item.sections %}

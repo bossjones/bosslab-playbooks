@@ -90,6 +90,27 @@ show-all-pods-not-running:
 get-not-ready-pods:
 	@kubectl get po --all-namespaces | grep -vE '1/1|2/2|3/3' | highlight
 
+# VIA instructions - https://github.com/kubernetes/dashboard/wiki/Certificate-management
+generate-certs-dashboard:
+	$(call check_defined, cluster, Please set cluster)
+	-mkdir -p dist/manifests/$(cluster)-manifests/dashboard-ssl/certs
+	openssl genrsa -des3 -passout pass:x -out dist/manifests/$(cluster)-manifests/dashboard-ssl/certs/dashboard.pass.key 2048
+	openssl rsa -passin pass:x -in dist/manifests/$(cluster)-manifests/dashboard-ssl/certs/dashboard.pass.key -out dist/manifests/$(cluster)-manifests/dashboard-ssl/certs/dashboard.key
+# Writing RSA key
+	rm dist/manifests/$(cluster)-manifests/dashboard-ssl/certs/dashboard.pass.key
+	tree dist/manifests/$(cluster)-manifests/dashboard-ssl/certs/
+	openssl req -new -key dist/manifests/$(cluster)-manifests/dashboard-ssl/certs/dashboard.key -out dist/manifests/$(cluster)-manifests/dashboard-ssl/certs/dashboard.csr
+	openssl x509 -req -sha256 -days 365 -in dist/manifests/$(cluster)-manifests/dashboard-ssl/certs/dashboard.csr -signkey dist/manifests/$(cluster)-manifests/dashboard-ssl/certs/dashboard.key -out dist/manifests/$(cluster)-manifests/dashboard-ssl/certs/dashboard.crt
+	@printf "=======================================\n"
+	@printf "$$GREEN The dashboard.crt file is your certificate suitable for use with Dashboard along with the dashboard.key private key. $$NC\n"
+	@printf "=======================================\n"
+
+apply-mkcert-certs-dashboard:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "kubectl apply secret generic kubernetes-dashboard-certs:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN kubectl create secret generic kubernetes-dashboard-certs --from-file=dist/manifests/$(cluster)-manifests/dashboard-ssl/certs -n kube-system $$NC\n"
+	kubectl create secret generic kubernetes-dashboard-certs --from-file=dist/manifests/$(cluster)-manifests/dashboard-ssl/certs -n kube-system
 
 apply-certs-dashboard:
 	$(call check_defined, cluster, Please set cluster)
@@ -901,3 +922,536 @@ test-external-dns-curl:
 lint-external-dns:
 	$(call check_defined, cluster, Please set cluster)
 	bash -c "find dist/manifests/$(cluster)-manifests/external-dns -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+
+
+redeploy-helm:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete helm:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete helm$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/helm/
+
+	@printf "render helm manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render helm manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_helm.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "create-helm:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy helm$$NC\n"
+	@printf "=======================================\n"
+	-kubectl create -f dist/manifests/$(cluster)-manifests/helm/
+	@echo ""
+	@echo ""
+
+
+create-helm:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-helm:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy helm$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/helm/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=helm --watch | highlight
+
+apply-helm:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-helm:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy helm$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/helm/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=helm --watch
+
+delete-helm:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/helm/
+
+describe-helm:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/helm/ | highlight
+
+debug-helm: describe-helm
+	kubectl -n kube-system get pod -l app=helm --output=yaml | highlight
+
+test-helm-curl:
+	-curl -v -L 'http://helm.hyenaclan.org'
+
+lint-helm:
+	$(call check_defined, cluster, Please set cluster)
+	bash -c "find dist/manifests/$(cluster)-manifests/helm -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+bootstrap-helm-init:
+	@printf "create-helm:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy helm$$NC\n"
+	@printf "=======================================\n"
+	-kubectl create -f dist/manifests/$(cluster)-manifests/helm/
+	@echo ""
+	@echo ""
+	helm init --service-account tiller
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	-helm repo add banzaicloud-stable http://kubernetes-charts.banzaicloud.com/branch/master
+	helm repo list
+
+
+
+redeploy-metallb:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete metallb:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete metallb$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/metallb/00metallb_kube.yaml
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/metallb/metallb-config.yaml
+
+	@printf "render metallb manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render metallb manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_metallb.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "create-metallb:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy metallb$$NC\n"
+	@printf "=======================================\n"
+	-kubectl create -f dist/manifests/$(cluster)-manifests/metallb/00metallb_kube.yaml
+	-kubectl create -f dist/manifests/$(cluster)-manifests/metallb/metallb-config.yaml
+	@echo ""
+	@echo ""
+
+
+create-metallb:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-metallb:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy metallb$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/metallb/00metallb_kube.yaml
+	kubectl create -f dist/manifests/$(cluster)-manifests/metallb/metallb-config.yaml
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=metallb --watch | highlight
+
+apply-metallb:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-metallb:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy metallb$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/metallb/00metallb_kube.yaml
+	kubectl apply -f dist/manifests/$(cluster)-manifests/metallb/metallb-config.yaml
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=metallb --watch
+
+delete-metallb:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/metallb/00metallb_kube.yaml
+	kubectl delete -f dist/manifests/$(cluster)-manifests/metallb/metallb-config.yaml
+
+describe-metallb:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/metallb/00metallb_kube.yaml | highlight
+	kubectl describe -f dist/manifests/$(cluster)-manifests/metallb/metallb-config.yaml | highlight
+
+debug-metallb: describe-metallb
+	kubectl -n kube-system get pod -l app=metallb --output=yaml | highlight
+
+test-metallb-curl:
+	-curl -v -L 'http://metallb.hyenaclan.org'
+
+lint-metallb:
+	$(call check_defined, cluster, Please set cluster)
+	bash -c "find dist/manifests/$(cluster)-manifests/metallb -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+create-metallb-tutorial:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-metallb-tutorial:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy metallb$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/metallb/99metallb_tutorial.yaml
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=metallb --watch | highlight
+
+apply-metallb-tutorial:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-metallb-tutorial:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy metallb$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/metallb/99metallb_tutorial.yaml
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=metallb --watch
+
+delete-metallb-tutorial:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/metallb/99metallb_tutorial.yaml
+
+describe-metallb-tutorial:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/metallb/99metallb_tutorial.yaml | highlight
+
+debug-metallb-tutorial: describe-metallb-tutorial
+	kubectl get pod -l app=metalnginx-metallblb --output=yaml | highlight
+
+
+redeploy-ingress-nginx:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete ingress-nginx:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete ingress-nginx$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/ingress-nginx/
+
+	@printf "render ingress-nginx manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render ingress-nginx manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_ingress-nginx.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "lint ingress-nginx manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint ingress-nginx manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/ingress-nginx -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "create-ingress-nginx:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy ingress-nginx$$NC\n"
+	@printf "=======================================\n"
+	-kubectl create -f dist/manifests/$(cluster)-manifests/ingress-nginx/
+	@echo ""
+	@echo ""
+
+
+create-ingress-nginx:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-ingress-nginx:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy ingress-nginx$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/ingress-nginx/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=ingress-nginx --watch | highlight
+
+apply-ingress-nginx:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-ingress-nginx:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy ingress-nginx$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/ingress-nginx/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=ingress-nginx --watch
+
+delete-ingress-nginx:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/ingress-nginx/
+
+describe-ingress-nginx:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/ingress-nginx/ | highlight
+
+debug-ingress-nginx: describe-ingress-nginx
+	kubectl -n kube-system get pod -l app=ingress-nginx --output=yaml | highlight
+
+test-ingress-nginx-curl:
+	-curl -v -L 'http://ingress-nginx.hyenaclan.org'
+
+lint-ingress-nginx:
+	$(call check_defined, cluster, Please set cluster)
+	bash -c "find dist/manifests/$(cluster)-manifests/ingress-nginx -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+
+
+
+redeploy-markdownrender:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete markdownrender:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete markdownrender$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/markdownrender/
+
+	@printf "render markdownrender manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render markdownrender manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_markdownrender.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "lint markdownrender manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint markdownrender manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/markdownrender -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "create-markdownrender:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy markdownrender$$NC\n"
+	@printf "=======================================\n"
+	-kubectl create -f dist/manifests/$(cluster)-manifests/markdownrender/
+	@echo ""
+	@echo ""
+
+
+create-markdownrender:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-markdownrender:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy markdownrender$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/markdownrender/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=markdownrender --watch | highlight
+
+apply-markdownrender:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-markdownrender:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy markdownrender$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/markdownrender/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=markdownrender --watch
+
+delete-markdownrender:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/markdownrender/
+
+describe-markdownrender:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/markdownrender/ | highlight
+
+debug-markdownrender: describe-markdownrender
+	kubectl -n kube-system get pod -l app=markdownrender --output=yaml | highlight
+
+test-markdownrender-curl:
+	-curl -v -L 'http://markdownrender.hyenaclan.org'
+
+lint-markdownrender:
+	$(call check_defined, cluster, Please set cluster)
+	bash -c "find dist/manifests/$(cluster)-manifests/markdownrender -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+
+
+redeploy-traefik-internal:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete traefik-internal:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete traefik-internal$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/traefik-internal/
+
+	@printf "render traefik-internal manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render traefik-internal manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_traefik_internal.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "lint traefik-internal manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint traefik-internal manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/traefik-internal -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "create-traefik-internal:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy traefik-internal$$NC\n"
+	@printf "=======================================\n"
+	-kubectl create -f dist/manifests/$(cluster)-manifests/traefik-internal/
+	@echo ""
+	@echo ""
+
+
+create-traefik-internal:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-traefik-internal:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy traefik-internal$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/traefik-internal/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=traefik-internal --watch | highlight
+
+apply-traefik-internal:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-traefik-internal:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy traefik-internal$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/traefik-internal/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=traefik-internal --watch
+
+delete-traefik-internal:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/traefik-internal/
+
+describe-traefik-internal:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/traefik-internal/ | highlight
+
+debug-traefik-internal: describe-traefik-internal
+	kubectl -n kube-system get pod -l app=traefik-internal --output=yaml | highlight
+
+test-traefik-internal-curl:
+	-curl -v -L 'http://traefik-internal.hyenaclan.org'
+
+lint-traefik-internal:
+	$(call check_defined, cluster, Please set cluster)
+	bash -c "find dist/manifests/$(cluster)-manifests/traefik-internal -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+
+redeploy-weave-scope:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete weave-scope:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete weave-scope$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/weave-scope/
+
+	@printf "render weave-scope manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render weave-scope manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_weave_scope.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "lint weave-scope manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint weave-scope manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/weave-scope -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "create-weave-scope:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy weave-scope$$NC\n"
+	@printf "=======================================\n"
+	-kubectl create -f dist/manifests/$(cluster)-manifests/weave-scope/
+	@echo ""
+	@echo ""
+
+
+create-weave-scope:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-weave-scope:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy weave-scope$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/weave-scope/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=weave-scope --watch | highlight
+
+apply-weave-scope:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-weave-scope:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy weave-scope$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/weave-scope/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=weave-scope --watch
+
+delete-weave-scope:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/weave-scope/
+
+describe-weave-scope:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/weave-scope/ | highlight
+
+debug-weave-scope: describe-weave-scope
+	kubectl -n kube-system get pod -l app=weave-scope --output=yaml | highlight
+
+test-weave-scope-curl:
+	-curl -v -L 'http://weave-scope.hyenaclan.org'
+
+lint-weave-scope:
+	$(call check_defined, cluster, Please set cluster)
+	bash -c "find dist/manifests/$(cluster)-manifests/weave-scope -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"

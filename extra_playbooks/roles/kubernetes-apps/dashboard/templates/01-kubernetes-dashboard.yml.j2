@@ -314,14 +314,14 @@ spec:
         - containerPort: 8443
           protocol: TCP
           hostPort: 8443
-{%   if boss__dashboard__deployment_container_args is defined %}
+{% if boss__dashboard__deployment_container_args is defined %}
         args:
           {{ boss__dashboard__deployment_container_args | indent( width=4, indentfirst=True,blank=True) }}
           # Uncomment the following line to manually specify Kubernetes API server Host
           # If not specified, Dashboard will attempt to auto discover the API server and connect
           # to it. Uncomment only if the default does not work.
           # - --apiserver-host=http://my-address:port
-{%   endif %}
+{% endif %}
         volumeMounts:
         - name: kubernetes-dashboard-certs
           mountPath: /certs

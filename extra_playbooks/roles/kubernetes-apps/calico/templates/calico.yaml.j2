@@ -141,14 +141,14 @@ spec:
             value: "kubernetes"
           - name: TYPHA_HEALTHENABLED
             value: "true"
-{%   if ( (boss__calico__prometheus_metrics_enabled is defined) and (boss__calico__prometheus_metrics_enabled) ) %}
+{% if ( (boss__calico__prometheus_metrics_enabled is defined) and (boss__calico__prometheus_metrics_enabled) ) %}
           # Uncomment these lines to enable prometheus metrics.  Since Typha is host-networked,
           # this opens a port on the host, which may need to be secured.
           - name: TYPHA_PROMETHEUSMETRICSENABLED
             value: "true"
           - name: TYPHA_PROMETHEUSMETRICSPORT
             value: "9093"
-{%   endif %}
+{% endif %}
         livenessProbe:
           exec:
             command:
@@ -206,14 +206,14 @@ spec:
     metadata:
       labels:
         k8s-app: calico-node
-{%   if boss__calico__node_daemonset_annotations is defined %}
+{% if boss__calico__node_daemonset_annotations is defined %}
       annotations:
         # This, along with the CriticalAddonsOnly toleration below,
         # marks the pod as a critical add-on, ensuring it gets
         # priority scheduling and that its resources are reserved
         # if it ever gets evicted.
         {{ boss__calico__node_daemonset_annotations | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
     spec:
       nodeSelector:
         beta.kubernetes.io/os: linux
@@ -295,6 +295,13 @@ spec:
               value: "info"
             - name: FELIX_HEALTHENABLED
               value: "true"
+            # Set to true to enable the Prometheus metrics server in Felix. [Default: false]
+            - name: FELIX_PROMETHEUSMETRICSENABLED
+              value: "true"
+            - name: FELIX_PROMETHEUSMETRICSPORT
+              value: "9091"
+
+
           securityContext:
             privileged: true
           resources:

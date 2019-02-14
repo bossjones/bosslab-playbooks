@@ -18,20 +18,20 @@ kind: ServiceAccount
 metadata:
   name: fluentd-es
   namespace: {{boss__efk__namespace_name}}
-{%   if boss__efk__fluentd_service_account_labels is defined %}
+{% if boss__efk__fluentd_service_account_labels is defined %}
   labels:
 {{ boss__efk__fluentd_service_account_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: fluentd-es
   # namespace: {{boss__efk__namespace_name}}
-{%   if boss__efk__fluentd_cluster_role_labels is defined %}
+{% if boss__efk__fluentd_cluster_role_labels is defined %}
   labels:
 {{ boss__efk__fluentd_cluster_role_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
 rules:
 - apiGroups:
   - ""
@@ -48,10 +48,10 @@ apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: fluentd-es
   # FIXME: DON'T WE NEED THIS?? # namespace: {{boss__efk__namespace_name}} ( Answer is, no we dont )
-{%   if boss__efk__fluentd_cluster_role_binding_labels is defined %}
+{% if boss__efk__fluentd_cluster_role_binding_labels is defined %}
   labels:
 {{ boss__efk__fluentd_cluster_role_binding_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
 subjects:
 - kind: ServiceAccount
   name: fluentd-es
@@ -71,29 +71,29 @@ kind: DaemonSet
 metadata:
   name: fluentd-es-v2.2.1
   namespace: {{boss__efk__namespace_name}}
-{%   if boss__efk__fluentd_daemon_set_labels is defined %}
+{% if boss__efk__fluentd_daemon_set_labels is defined %}
   labels:
 {{ boss__efk__fluentd_daemon_set_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
 spec:
   selector:
-{%   if boss__efk__fluentd_daemon_set_spec_selector_match_labels is defined %}
+{% if boss__efk__fluentd_daemon_set_spec_selector_match_labels is defined %}
     matchLabels:
 {{ boss__efk__fluentd_daemon_set_spec_selector_match_labels | indent( width=8, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
   template:
     metadata:
-{%   if boss__efk__fluentd_daemon_set_spec_template_metadata_labels is defined %}
+{% if boss__efk__fluentd_daemon_set_spec_template_metadata_labels is defined %}
       labels:
 {{ boss__efk__fluentd_daemon_set_spec_template_metadata_labels | indent( width=8, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
       # This annotation ensures that fluentd does not get evicted if the node
       # supports critical pod annotation based priority scheme.
       # Note that this does not guarantee admission on the nodes (#40573).
-{%   if boss__efk__fluentd_daemon_set_spec_template_metadata_annotations is defined %}
+{% if boss__efk__fluentd_daemon_set_spec_template_metadata_annotations is defined %}
       annotations:
 {{ boss__efk__fluentd_daemon_set_spec_template_metadata_annotations | indent( width=8, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
     spec:
       priorityClassName: system-node-critical
       # serviceAccount: fluentd-es

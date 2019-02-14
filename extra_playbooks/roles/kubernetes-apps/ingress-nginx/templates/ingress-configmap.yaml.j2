@@ -20,7 +20,7 @@ data:
   hsts: "false"
 metadata:
   name: nginx-load-balancer-conf
-  namespace: kube-system
+  namespace: {{boss__ingress__nginx__namespace_name}}
   labels:
     addonmanager.kubernetes.io/mode: EnsureExists
     app.kubernetes.io/name: ingress-nginx
@@ -30,7 +30,7 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: tcp-services
-  namespace: kube-system
+  namespace: {{boss__ingress__nginx__namespace_name}}
   labels:
     addonmanager.kubernetes.io/mode: EnsureExists
     app.kubernetes.io/name: ingress-nginx
@@ -40,7 +40,7 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: udp-services
-  namespace: kube-system
+  namespace: {{boss__ingress__nginx__namespace_name}}
   labels:
     addonmanager.kubernetes.io/mode: EnsureExists
     app.kubernetes.io/name: ingress-nginx
