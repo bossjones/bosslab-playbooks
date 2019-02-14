@@ -97,8 +97,7 @@ RUN set -x; BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gn
                      $BUILD_DEPS \
     && clean-apt \
     # Ensure fluent has enough file descriptors
-    && ulimit -n 65536 \
-    && /usr/local/bin/fluentd-ui setup
+    && ulimit -n 65536
 
 ENV LD_PRELOAD="/usr/lib/libjemalloc.so.2"
 
