@@ -366,6 +366,17 @@ apply-efk:
 	@echo ""
 	kubectl describe storageclass | highlight
 
+# https://github.com/kubernetes/kubernetes/blob/3d7d35ee8f099f4611dca06de4453f958b4b8492/cluster/addons/storage-class/local/default.yaml
+apply-efk-ingress:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-efk:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy efk$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/borg-manifests/efk/* -type f -name '*ingress.*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	@echo ""
+	@echo ""
+
 delete-efk:
 	$(call check_defined, cluster, Please set cluster)
 	kubectl delete -f dist/manifests/$(cluster)-manifests/efk/
@@ -1455,3 +1466,94 @@ test-weave-scope-curl:
 lint-weave-scope:
 	$(call check_defined, cluster, Please set cluster)
 	bash -c "find dist/manifests/$(cluster)-manifests/weave-scope -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+
+redeploy-echoserver:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete echoserver:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete echoserver$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/echoserver/
+
+	@printf "render echoserver manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render echoserver manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_echoserver.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "lint echoserver manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint echoserver manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/echoserver -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "create-echoserver:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy echoserver$$NC\n"
+	@printf "=======================================\n"
+	-kubectl create -f dist/manifests/$(cluster)-manifests/echoserver/
+	@echo ""
+	@echo ""
+
+
+create-echoserver:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-echoserver:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy echoserver$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/echoserver/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=echoserver --watch | highlight
+
+apply-echoserver:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-echoserver:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy echoserver$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/echoserver/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=echoserver --watch
+
+# https://github.com/kubernetes/kubernetes/blob/3d7d35ee8f099f4611dca06de4453f958b4b8492/cluster/addons/storage-class/local/default.yaml
+apply-echoserver-ingress:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-echoserver:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy echoserver$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/borg-manifests/echoserver/* -type f -name '*ingress.*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	@echo ""
+	@echo ""
+
+delete-echoserver:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/echoserver/
+
+describe-echoserver:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/echoserver/ | highlight
+
+debug-echoserver: describe-echoserver
+	kubectl -n kube-system get pod -l app=echoserver --output=yaml | highlight
+
+test-echoserver-curl:
+	-curl -v -L 'http://echoserver.hyenaclan.org'
+
+lint-echoserver:
+	$(call check_defined, cluster, Please set cluster)
+	bash -c "find dist/manifests/$(cluster)-manifests/echoserver -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"

@@ -10,7 +10,7 @@ metadata:
   namespace: echoserver
   # indent( width=4, indentfirst=True,blank=True)(indent=8)
   labels:
-        run: nginx
+    run: nginx
     
 spec:
   replicas: 2

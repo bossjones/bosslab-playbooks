@@ -11,7 +11,7 @@ metadata:
   # indent( width=4, indentfirst=True,blank=True)(indent=8)
 {% if boss__echoserver__deployment_labels is defined %}
   labels:
-    {{ boss__echoserver__deployment_labels | indent( width=4, indentfirst=True,blank=True) }}
+{{ boss__echoserver__deployment_labels | indent( width=4, indentfirst=True,blank=True) }}
 {% endif %}
 spec:
   replicas: {{boss__echoserver__deployment_spec_replicas}}
