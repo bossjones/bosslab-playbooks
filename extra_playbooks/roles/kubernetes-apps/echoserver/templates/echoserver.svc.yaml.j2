@@ -10,7 +10,7 @@ metadata:
   namespace: {{boss__echoserver__namespace_name}}
 {% if boss__echoserver__service_labels is defined %}
   labels:
-    {{ boss__echoserver__service_labels | indent( width=4, indentfirst=True,blank=True) }}
+{{ boss__echoserver__service_labels | indent( width=4, indentfirst=True,blank=True) }}
 {% endif %}
 spec:
   # In a production setup, we recommend accessing Grafana through an external Loadbalancer
@@ -34,5 +34,5 @@ spec:
     name: http
 {% if boss__echoserver__service__spec_selector is defined %}
   selector:
-    {{ boss__echoserver__service__spec_selector | indent( width=4, indentfirst=True,blank=True) }}
+{{ boss__echoserver__service__spec_selector | indent( width=4, indentfirst=True,blank=True) }}
 {% endif %}

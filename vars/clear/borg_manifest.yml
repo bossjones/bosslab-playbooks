@@ -45,6 +45,7 @@ boss__echoserver__ingress_labels: |
   run: nginx
 boss__echoserver__ingress_annotations: |
   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  traefik.frontend.rule.type: PathPrefix
 boss__echoserver__service_labels: |
   run: nginx
 boss__echoserver__service__spec_selector: |

@@ -374,9 +374,17 @@ metadata:
   namespace: weave
   annotations:
     traefik.frontend.rule.type: PathPrefix
+    
 spec:
   rules:
   - host: scope.borglab.scarlettlab.home
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: weave-scope-app
+          servicePort: 80
+  - host: weave.borglab.scarlettlab.home
     http:
       paths:
       - path: /
