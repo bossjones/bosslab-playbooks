@@ -111,8 +111,8 @@ COPY run.sh /run.sh
 EXPOSE 80 9292 24224 161 9880 5160 5170 5170 5170 24231 24220 5140
 
 # forward request and error logs to docker log collector
-# RUN ln -sf /dev/stdout /var/log/nginx/access.log \
-#     && ln -sf /dev/stderr /var/log/nginx/error.log
+RUN mkdir -p /var/log/supervisor/ \
+    && ln -sf /dev/stdout /var/log/supervisor/supervisord.log
 
 # ENTRYPOINT ["/run.sh"]
 CMD ["/run.sh"]
