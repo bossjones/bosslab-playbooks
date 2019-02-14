@@ -53,6 +53,14 @@ COPY Gemfile /Gemfile
 
 # && curl -L https://toolbelt.treasuredata.com/sh/install-debian-stretch-td-agent3.sh | sh && \
 
+# RUN set -ex && \
+#     \
+#     groupadd -r elasticsearch && useradd -r -m -g elasticsearch elasticsearch && \
+#     groupadd -r kibana && useradd -r -m -g kibana kibana && \
+#     apt-get update && \
+#     apt-get install -y curl locales && locale-gen en_US.UTF-8 && \
+#     apt-get install -y wget supervisor openjdk-8-jre unzip
+
 # 1. Install & configure dependencies.
 # 2. Install fluentd via ruby.
 # 3. Remove build dependencies.
@@ -80,6 +88,7 @@ RUN BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gnupg dirm
     && mv lib/libjemalloc.so.2 /usr/lib \
     && echo 'gem: --no-document' >> /etc/gemrc \
     && gem install --file /Gemfile \
+    && apt-get install supervisor -y \
     && apt-get purge -y --auto-remove \
                      -o APT::AutoRemove::RecommendsImportant=false \
                      $BUILD_DEPS \
@@ -92,9 +101,16 @@ ENV LD_PRELOAD="/usr/lib/libjemalloc.so.2"
 
 EXPOSE 24224 24220 5170 5140
 
+# Custom Supervisord config
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY run.sh /run.sh
 
 # Expose prometheus metrics / fluentd ui / out_forward / snmp / in_http / in_udp / in_tcp / in_syslog / promitheus-metrics / monitor-agent
 EXPOSE 80 9292 24224 161 9880 5160 5170 5170 5170 24231 24220 5140
+
+ENTRYPOINT ["/run.sh"]
+
+CMD ["supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
 
 # libjemalloc1
 
