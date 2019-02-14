@@ -111,9 +111,10 @@ COPY run.sh /run.sh
 EXPOSE 80 9292 24224 161 9880 5160 5170 5170 5170 24231 24220 5140
 
 # forward request and error logs to docker log collector
-RUN mkdir -p /var/log/supervisor \
-    && touch /var/log/supervisor/supervisord.log \
-    && ln -sf /dev/stdout /var/log/supervisor/supervisord.log
+# RUN mkdir -p /var/log/supervisor \
+#     && touch /var/log/supervisor/supervisord.log \
+#     && ln -sf /dev/stdout /var/log/supervisor/supervisord.log
+RUN mkdir -p /var/log/supervisor
 
 # ENTRYPOINT ["/run.sh"]
 CMD ["/run.sh"]
