@@ -974,6 +974,9 @@ boss__weave__scope__namespace_name: weave
 boss__weave__scope__manifest_filename_based_on_networking: "weave-calico-networking.yaml"
 boss__weave__scope__enable_ingress_traefik: "enabled"
 
+boss__weave__scope__ingress_metadata_annotations: |
+  traefik.frontend.rule.type: PathPrefix
+
 # ---
 # local_release_dir: /tmp/releases
 

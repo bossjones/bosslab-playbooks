@@ -373,12 +373,21 @@ metadata:
   name: scope-dashboard
   namespace: weave
 {% if boss__weave__scope__enable_ingress_traefik == "enabled" %}
+{% if boss__weave__scope__ingress_metadata_annotations is defined %}
   annotations:
-    traefik.frontend.rule.type: PathPrefix
+{{ boss__weave__scope__ingress_metadata_annotations | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 {% endif %}
 spec:
   rules:
   - host: scope.{{domain_root}}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: weave-scope-app
+          servicePort: 80
+  - host: weave.{{domain_root}}
     http:
       paths:
       - path: /
