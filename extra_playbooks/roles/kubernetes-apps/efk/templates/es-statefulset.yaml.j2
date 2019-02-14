@@ -5,19 +5,19 @@ kind: ServiceAccount
 metadata:
   name: elasticsearch-logging
   namespace: {{boss__efk__namespace_name}}
-{%   if boss__efk__elasticsearch_service_account_labels is defined %}
+{% if boss__efk__elasticsearch_service_account_labels is defined %}
   labels:
 {{ boss__efk__elasticsearch_service_account_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: elasticsearch-logging
-{%   if boss__efk__elasticsearch_cluster_role_labels is defined %}
+{% if boss__efk__elasticsearch_cluster_role_labels is defined %}
   labels:
 {{ boss__efk__elasticsearch_cluster_role_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
 rules:
 - apiGroups:
   - ""
@@ -33,10 +33,10 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   namespace: {{boss__efk__namespace_name}}
   name: elasticsearch-logging
-{%   if boss__efk__elasticsearch_cluster_role_binding_labels is defined %}
+{% if boss__efk__elasticsearch_cluster_role_binding_labels is defined %}
   labels:
 {{ boss__efk__elasticsearch_cluster_role_binding_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
 subjects:
 - kind: ServiceAccount
   name: elasticsearch-logging
@@ -53,28 +53,28 @@ kind: StatefulSet
 metadata:
   name: elasticsearch-logging
   namespace: {{boss__efk__namespace_name}}
-{%   if boss__efk__elasticsearch_stateful_set_labels is defined %}
+{% if boss__efk__elasticsearch_stateful_set_labels is defined %}
   labels:
 {{ boss__efk__elasticsearch_stateful_set_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
 spec:
   serviceName: elasticsearch-logging
   # ORIG # replicas: 2
   replicas: {{boss__efk__elasticsearch_stateful_set_spec_replicas}}
   selector:
-{%   if boss__efk__elasticsearch_stateful_set_spec_selector_match_labels is defined %}
+{% if boss__efk__elasticsearch_stateful_set_spec_selector_match_labels is defined %}
     matchLabels:
 {{ boss__efk__elasticsearch_stateful_set_spec_selector_match_labels | indent( width=8, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
     # matchLabels:
     #   k8s-app: elasticsearch-logging
     #  version: v5.6.2
   template:
     metadata:
-{%   if boss__efk__elasticsearch_stateful_set_spec_template_metadata_labels is defined %}
+{% if boss__efk__elasticsearch_stateful_set_spec_template_metadata_labels is defined %}
       labels:
 {{ boss__efk__elasticsearch_stateful_set_spec_template_metadata_labels | indent( width=8, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
     spec:
       volumes:
       - name: elasticsearch-logging

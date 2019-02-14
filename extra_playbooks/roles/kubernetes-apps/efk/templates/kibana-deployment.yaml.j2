@@ -4,28 +4,28 @@ kind: Deployment
 metadata:
   name: kibana-logging
   namespace: {{boss__efk__namespace_name}}
-{%   if boss__efk__kibana_deployment_labels is defined %}
+{% if boss__efk__kibana_deployment_labels is defined %}
   labels:
 {{ boss__efk__kibana_deployment_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
 spec:
   replicas: {{boss__efk__kibana_deployment_spec_replicas}}
   selector:
-{%   if boss__efk__kibana_deployment_spec_selector_match_labels is defined %}
+{% if boss__efk__kibana_deployment_spec_selector_match_labels is defined %}
     matchLabels:
 {{ boss__efk__kibana_deployment_spec_selector_match_labels | indent( width=6, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
   template:
     metadata:
-{%   if boss__efk__kibana_deployment_spec_template_metadata_labels is defined %}
+{% if boss__efk__kibana_deployment_spec_template_metadata_labels is defined %}
       labels:
 {{ boss__efk__kibana_deployment_spec_template_metadata_labels | indent( width=8, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
     spec:
-{%   if boss__efk__kibana_deployment_spec_template_spec_node_selector is defined %}
+{% if boss__efk__kibana_deployment_spec_template_spec_node_selector is defined %}
       nodeSelector:
 {{ boss__efk__kibana_deployment_spec_template_spec_node_selector | indent( width=8, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
       # SOURCE: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
       containers:
       - name: kibana-logging

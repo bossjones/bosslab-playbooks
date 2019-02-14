@@ -14,7 +14,7 @@ kind: Ingress
 metadata:
   name: echoserver-ingress
   namespace: {{boss__echoserver__namespace_name}}
-{%   if boss__echoserver__ingress_annotations is defined %}
+{% if boss__echoserver__ingress_annotations is defined %}
   annotations:
     {{ boss__echoserver__ingress_annotations | indent( width=4, indentfirst=True,blank=True) }}
     # # Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
@@ -23,11 +23,11 @@ metadata:
     # # NOTE: you need this when the value of path below is more than just '/'
     # # nginx.ingress.kubernetes.io/rewrite-target: /
     # # kubernetes.io/ingress.class: \"nginx\"
-{%   endif %}
-{%   if boss__echoserver__ingress_labels is defined %}
+{% endif %}
+{% if boss__echoserver__ingress_labels is defined %}
   labels:
     {{ boss__echoserver__ingress_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
 spec:
   rules:
   - host: {{boss__echoserver__echoserver_subdomain}}.{{ domain_root }}

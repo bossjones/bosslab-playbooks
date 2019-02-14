@@ -6,19 +6,19 @@ kind: ServiceAccount
 metadata:
   name: registry-svc-account
   namespace: {{boss__registry__namespace_name}}
-{%   if boss__registry__service_account_labels is defined %}
+{% if boss__registry__service_account_labels is defined %}
   labels:
 {{ boss__registry__service_account_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: registry-cr
-{%   if boss__registry__cluster_role_labels is defined %}
+{% if boss__registry__cluster_role_labels is defined %}
   labels:
 {{ boss__registry__cluster_role_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
 rules:
 - apiGroups:
   - ""
@@ -34,10 +34,10 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   namespace: {{boss__registry__namespace_name}}
   name: registry-crb
-{%   if boss__registry__cluster_role_binding_labels is defined %}
+{% if boss__registry__cluster_role_binding_labels is defined %}
   labels:
 {{ boss__registry__cluster_role_binding_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
 subjects:
 - kind: ServiceAccount
   name: registry-svc-account
@@ -53,24 +53,24 @@ kind: StatefulSet
 metadata:
   name: registry-statefulset
   namespace: {{boss__registry__namespace_name}}
-{%   if boss__registry__stateful_set_labels is defined %}
+{% if boss__registry__stateful_set_labels is defined %}
   labels:
 {{ boss__registry__stateful_set_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
 spec:
   serviceName: registry-svc-account
   replicas: {{boss__registry__stateful_set_spec_replicas}}
   selector:
-{%   if boss__registry__stateful_set_spec_selector_match_labels is defined %}
+{% if boss__registry__stateful_set_spec_selector_match_labels is defined %}
     matchLabels:
 {{ boss__registry__stateful_set_spec_selector_match_labels | indent( width=8, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
   template:
     metadata:
-{%   if boss__registry__stateful_set_spec_template_metadata_labels is defined %}
+{% if boss__registry__stateful_set_spec_template_metadata_labels is defined %}
       labels:
 {{ boss__registry__stateful_set_spec_template_metadata_labels | indent( width=8, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
     spec:
       volumes:
         - name: registry-vol

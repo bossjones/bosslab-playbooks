@@ -11,10 +11,10 @@ metadata:
   #   app.kubernetes.io/name: ingress-nginx
   #   app.kubernetes.io/part-of: ingress-nginx
 
-{%   if boss__ingress__nginx__service_account_labels is defined %}
+{% if boss__ingress__nginx__service_account_labels is defined %}
   labels:
 {{ boss__ingress__nginx__service_account_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
 
 ---
 
@@ -134,10 +134,10 @@ metadata:
     # addonmanager.kubernetes.io/mode: EnsureExists
     # app.kubernetes.io/name: ingress-nginx
     # app.kubernetes.io/part-of: ingress-nginx
-{%   if boss__ingress__nginx__role_binding_labels is defined %}
+{% if boss__ingress__nginx__role_binding_labels is defined %}
   labels:
 {{ boss__ingress__nginx__role_binding_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
 
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -162,10 +162,10 @@ metadata:
     # addonmanager.kubernetes.io/mode: EnsureExists
     # app.kubernetes.io/name: ingress-nginx
     # app.kubernetes.io/part-of: ingress-nginx
-{%   if boss__ingress__nginx__role_binding_labels is defined %}
+{% if boss__ingress__nginx__role_binding_labels is defined %}
   labels:
 {{ boss__ingress__nginx__role_binding_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole

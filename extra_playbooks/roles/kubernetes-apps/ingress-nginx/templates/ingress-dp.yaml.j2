@@ -74,17 +74,17 @@ metadata:
   #   # app.kubernetes.io/part-of: kube-system
   #   app.kubernetes.io/part-of: nginx-ingress
   #   addonmanager.kubernetes.io/mode: Reconcile
-{%   if boss__ingress__nginx__deployment_labels is defined %}
+{% if boss__ingress__nginx__deployment_labels is defined %}
   labels:
 {{ boss__ingress__nginx__deployment_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
 spec:
   replicas: {{boss__ingress__nginx__deployment_spec_replicas}}
   selector:
-{%   if boss__ingress__nginx__deployment_spec_selector_match_labels is defined %}
+{% if boss__ingress__nginx__deployment_spec_selector_match_labels is defined %}
     matchLabels:
 {{ boss__ingress__nginx__deployment_spec_selector_match_labels | indent( width=6, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
     # matchLabels:
     #   app.kubernetes.io/name: nginx-ingress-controller
     #   # app.kubernetes.io/part-of: kube-system
@@ -92,10 +92,10 @@ spec:
     #   addonmanager.kubernetes.io/mode: Reconcile
   template:
     metadata:
-{%   if boss__ingress__nginx__deployment_spec_template_metadata_labels is defined %}
+{% if boss__ingress__nginx__deployment_spec_template_metadata_labels is defined %}
       labels:
 {{ boss__ingress__nginx__deployment_spec_template_metadata_labels | indent( width=8, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
       # labels:
       #   app.kubernetes.io/name: nginx-ingress-controller
       #   # app.kubernetes.io/part-of: kube-system
@@ -105,17 +105,17 @@ spec:
       #   prometheus.io/port: "10254"
       #   prometheus.io/scrape: "true"
 
-{%   if boss__ingress__nginx__deployment_spec_template_metadata_annotations is defined %}
+{% if boss__ingress__nginx__deployment_spec_template_metadata_annotations is defined %}
       annotations:
 {{ boss__ingress__nginx__deployment_spec_template_metadata_annotations | indent( width=8, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
     spec:
       # SOURCE: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
 
-{%   if boss__ingress__nginx__deployment_spec_template_spec_node_selector is defined %}
+{% if boss__ingress__nginx__deployment_spec_template_spec_node_selector is defined %}
       nodeSelector:
 {{ boss__ingress__nginx__deployment_spec_template_spec_node_selector | indent( width=8, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
       # nodeSelector:
       #   kubernetes.io/hostname: "borg-queen-01"
       serviceAccountName: nginx-ingress

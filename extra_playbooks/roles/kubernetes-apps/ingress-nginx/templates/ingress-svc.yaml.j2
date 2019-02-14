@@ -24,15 +24,15 @@ metadata:
     # kubernetes.io/minikube-addons: ingress
     # kubernetes.io/minikube-addons-endpoint: ingress
     # addonmanager.kubernetes.io/mode: Reconcile
-{%   if boss__ingress__nginx__service__default_http_backend_labels is defined %}
+{% if boss__ingress__nginx__service__default_http_backend_labels is defined %}
   labels:
 {{ boss__ingress__nginx__service__default_http_backend_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
 spec:
   type: {{boss__ingress__nginx__service_default_http_backend_spec_type}}
-{%   if boss__ingress__nginx__service_ingress_nginx_spec_type == "LoadBalancer" %}
+{% if boss__ingress__nginx__service_ingress_nginx_spec_type == "LoadBalancer" %}
   externalTrafficPolicy: Local
-{%   endif %}
+{% endif %}
   ports:
   - port: 80
     # Assign 8080 to <POD-IP>:<targetPort>

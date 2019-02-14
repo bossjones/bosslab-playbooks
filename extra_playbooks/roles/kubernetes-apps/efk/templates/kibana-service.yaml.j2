@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: kibana-logging
   namespace: {{boss__efk__namespace_name}}
-{%   if boss__efk__kibana_service_labels is defined %}
+{% if boss__efk__kibana_service_labels is defined %}
   labels:
 {{ boss__efk__kibana_service_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
 spec:
   ports:
   - port: 5601

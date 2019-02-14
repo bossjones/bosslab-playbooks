@@ -18,15 +18,15 @@ metadata:
   #   app.kubernetes.io/name: nginx-ingress
   #   app.kubernetes.io/part-of: nginx-ingress
 
-{%   if boss__ingress__nginx__service_labels is defined %}
+{% if boss__ingress__nginx__service_labels is defined %}
   labels:
 {{ boss__ingress__nginx__service_labels | indent( width=4, indentfirst=True,blank=True) }}
-{%   endif %}
+{% endif %}
 spec:
   type: {{boss__ingress__nginx__service_ingress_nginx_spec_type}}
-{%   if boss__ingress__nginx__service_ingress_nginx_spec_type == "LoadBalancer" %}
+{% if boss__ingress__nginx__service_ingress_nginx_spec_type == "LoadBalancer" %}
   externalTrafficPolicy: Local
-{%   endif %}
+{% endif %}
   ports:
     - name: http
       port: 80
