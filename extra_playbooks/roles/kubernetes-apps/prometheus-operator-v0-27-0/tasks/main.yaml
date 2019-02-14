@@ -1,0 +1,11 @@
+---
+- name: "prometheus-operator | Create directory: {{boss__prometheus__operator__manifest_path}}"
+  file:
+    path: "{{boss__prometheus__operator__manifest_path}}"
+    state: directory
+
+- name: "prometheus-operator | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__prometheus__operator__manifest_path }}/{{ item }}"
+  with_items: []
