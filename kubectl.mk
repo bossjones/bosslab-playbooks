@@ -366,6 +366,17 @@ apply-efk:
 	@echo ""
 	kubectl describe storageclass | highlight
 
+# https://github.com/kubernetes/kubernetes/blob/3d7d35ee8f099f4611dca06de4453f958b4b8492/cluster/addons/storage-class/local/default.yaml
+apply-efk-ingress:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-efk:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy efk$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/borg-manifests/efk/* -type f -name '*ingress.*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	@echo ""
+	@echo ""
+
 delete-efk:
 	$(call check_defined, cluster, Please set cluster)
 	kubectl delete -f dist/manifests/$(cluster)-manifests/efk/
@@ -1517,6 +1528,17 @@ apply-echoserver:
 	@echo ""
 	@echo ""
 # kubectl get pods --all-namespaces -l app=echoserver --watch
+
+# https://github.com/kubernetes/kubernetes/blob/3d7d35ee8f099f4611dca06de4453f958b4b8492/cluster/addons/storage-class/local/default.yaml
+apply-echoserver-ingress:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-echoserver:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy echoserver$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/borg-manifests/echoserver/* -type f -name '*ingress.*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	@echo ""
+	@echo ""
 
 delete-echoserver:
 	$(call check_defined, cluster, Please set cluster)
