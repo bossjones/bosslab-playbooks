@@ -43,6 +43,7 @@ boss__echoserver__deployment_spec_replicas: 2
 boss__echoserver__ingress_labels: |
   run: nginx
 boss__echoserver__ingress_annotations: |
+  traefik.frontend.rule.type: PathPrefix
   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
 boss__echoserver__service_labels: |
   run: nginx
@@ -375,6 +376,7 @@ boss__registry__enable_tls: true
 boss__registry__tls_cert_cluster_issuer_name: selfsigning-issuer
 
 boss__registry__ingress_annotations: |
+  traefik.frontend.rule.type: PathPrefix
   nginx.ingress.kubernetes.io/ssl-redirect: \"true\"
   nginx.ingress.kubernetes.io/rewrite-target: \"/\"
 
@@ -494,6 +496,7 @@ boss__registry__ui__enable_tls: true
 boss__registry__ui__tls_cert_cluster_issuer_name: selfsigning-issuer
 
 boss__registry__ui__ingress_annotations: |
+  traefik.frontend.rule.type: PathPrefix
   nginx.ingress.kubernetes.io/ssl-redirect: \"true\"
   nginx.ingress.kubernetes.io/rewrite-target: \"/\"
 
@@ -617,6 +620,7 @@ boss__jenkins__ingress_labels: |
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: jenkins
 boss__jenkins__ingress_annotations: |
+  traefik.frontend.rule.type: PathPrefix
     nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
 boss__jenkins__service_labels: |
     k8s-app: jenkins
@@ -682,6 +686,7 @@ boss__heapster__ingress_labels: |
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: heapster
 boss__heapster__ingress_annotations: |
+  traefik.frontend.rule.type: PathPrefix
     nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
 boss__heapster__service_labels: |
     k8s-app: heapster
@@ -746,6 +751,7 @@ boss__metrics__server__ingress_labels: |
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: metrics-server
 boss__metrics__server__ingress_annotations: |
+  traefik.frontend.rule.type: PathPrefix
     nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
 boss__metrics__server__service_labels: |
     k8s-app: metrics-server
@@ -811,6 +817,7 @@ boss__external__dns__ingress_labels: |
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: external-dns
 boss__external__dns__ingress_annotations: |
+  traefik.frontend.rule.type: PathPrefix
     nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
 boss__external__dns__service_labels: |
     k8s-app: external-dns
