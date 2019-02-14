@@ -65,6 +65,9 @@ build-push: build tag
 build-push-version: build tag
 	docker push $(username)/$(container_name):$(TAG)
 
+build-push-version-force: build-force tag
+	docker push $(username)/$(container_name):$(TAG)
+
 build-push-version-dump: build tag
 	echo docker push $(username)/$(container_name):$(TAG)
 
