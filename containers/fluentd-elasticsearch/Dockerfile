@@ -65,7 +65,7 @@ COPY Gemfile /Gemfile
 # 2. Install fluentd via ruby.
 # 3. Remove build dependencies.
 # 4. Cleanup leftover caches & files.
-RUN BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gnupg dirmngr zlib1g-dev git" \
+RUN set -x; BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gnupg dirmngr zlib1g-dev git" \
     && clean-install $BUILD_DEPS \
                      ca-certificates \
                      libjemalloc1 \
