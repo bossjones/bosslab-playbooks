@@ -39,6 +39,7 @@ metadata:
     # INFO: Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
     # https://github.com/kubernetes/ingress-nginx/issues/1567
     nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+    traefik.frontend.rule.type: PathPrefix
     
     # INFO: Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
     # SOURCE: https://medium.com/@Oskarr3/setting-up-ingress-on-minikube-6ae825e98f82
