@@ -49,5 +49,20 @@ mkdir -p /var/log/journal
 #   exit $status
 # fi
 
+# TODO: Maybe enable this
+# SOURCE: https://medium.com/lucjuggery/running-a-container-with-a-non-root-user-e35830d1f42a
+# allow the container to be started with ` — user
+# all mongo* commands should be dropped to the correct user
+# if [[ "$originalArgOne" == mongo* ]] && [ "$(id -u)" = '0' ]; then
+#     if [ "$originalArgOne" = 'mongod' ];
+#         then chown -R mongodb /data/configdb /data/db
+#     fi
+#     # make sure we can write to stdout and stderr as "mongodb"
+#     # (for our "initdb" code later; see " — logpath" below)
+#     chown --dereference mongodb "/proc/$$/fd/1" "/proc/$$/fd/2" || :
+#     exec gosu mongodb "$BASH_SOURCE" "$@"
+# fi
+# Even better than article: https://github.com/docker-library/mongo/blob/master/4.0/docker-entrypoint.sh
+
 
 exec supervisord -n -c /etc/supervisor/supervisord.conf
