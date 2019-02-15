@@ -163,7 +163,7 @@ RUN set -x; BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gn
     && echo 'gem: --no-document' >> /etc/gemrc \
     && gem install --file /Gemfile \
     && apt-get update \
-    && apt-get install supervisor -y \
+    && apt-get install supervisor nettools -y \
     && apt-get purge -y --auto-remove \
                      -o APT::AutoRemove::RecommendsImportant=false \
                      $BUILD_DEPS \

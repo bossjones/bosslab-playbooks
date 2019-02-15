@@ -27,7 +27,6 @@ kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: fluentd-es
-  # namespace: {{boss__efk__namespace_name}}
 {% if boss__efk__fluentd_cluster_role_labels is defined %}
   labels:
 {{ boss__efk__fluentd_cluster_role_labels | indent( width=4, indentfirst=True,blank=True) }}
