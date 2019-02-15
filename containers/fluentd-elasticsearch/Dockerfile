@@ -179,6 +179,8 @@ EXPOSE 24224 24220 5170 5140
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY supervisord-main.conf /etc/supervisor/supervisord.conf
 COPY supervisord.logrotate /etc/logrotate.d/supervisord
+COPY fluentd-run /usr/local/bin/fluentd-ui-run
+COPY fluentd-ui-run /usr/local/bin/fluentd-ui-run
 COPY run.sh /run.sh
 
 # Expose prometheus metrics / fluentd ui / out_forward / snmp / in_http / in_udp / in_tcp / in_syslog / promitheus-metrics / monitor-agent
