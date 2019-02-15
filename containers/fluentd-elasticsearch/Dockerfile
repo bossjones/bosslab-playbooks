@@ -162,14 +162,16 @@ RUN set -x; BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gn
     && mv lib/libjemalloc.so.2 /usr/lib \
     && echo 'gem: --no-document' >> /etc/gemrc \
     && gem install --file /Gemfile \
-    && apt-get update \
-    && apt-get install supervisor net-tools procps tree tcpdump netcat bash-completion htop -y \
     && apt-get purge -y --auto-remove \
                      -o APT::AutoRemove::RecommendsImportant=false \
                      $BUILD_DEPS \
     && clean-apt \
     # Ensure fluent has enough file descriptors
     && ulimit -n 65536
+
+RUN apt-get update \
+    && apt-get install supervisor net-tools procps tree tcpdump netcat bash-completion htop -y \
+    && clean-apt
 
 ENV LD_PRELOAD="/usr/lib/libjemalloc.so.2"
 
