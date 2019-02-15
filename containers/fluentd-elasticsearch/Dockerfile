@@ -105,6 +105,8 @@ EXPOSE 24224 24220 5170 5140
 
 # Custom Supervisord config
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY supervisord-main.conf /etc/supervisor/supervisord.conf
+COPY supervisord.logrotate /etc/logrotate.d/supervisord
 COPY run.sh /run.sh
 
 # Expose prometheus metrics / fluentd ui / out_forward / snmp / in_http / in_udp / in_tcp / in_syslog / promitheus-metrics / monitor-agent
@@ -114,7 +116,8 @@ EXPOSE 80 9292 24224 161 9880 5160 5170 5170 5170 24231 24220 5140
 # RUN mkdir -p /var/log/supervisor \
 #     && touch /var/log/supervisor/supervisord.log \
 #     && ln -sf /dev/stdout /var/log/supervisor/supervisord.log
-RUN mkdir -p /var/log/supervisor
+RUN mkdir -p /opt/supervisor/log/supervisor/ && \
+    mkdir -p /opt/supervisor/run/
 
 # ENTRYPOINT ["/run.sh"]
 CMD ["/run.sh"]
