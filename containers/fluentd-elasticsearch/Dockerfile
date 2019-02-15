@@ -33,6 +33,78 @@ ENV RBSPY_RELEASE="https://github.com/rbspy/rbspy/releases/download/v0.3.3/rbspy
 #     && mkdir -p /opt/rbspy \
 #     && tar -xvzf /tmp/rbspy.tar.gz -C /opt/rbspy
 
+# s6-overlay-amd64.tar.gz - includes binaries for 64-bit Intel/AMD platforms
+# s6-overlay-x86.tar.gz - includes binaries for 32-bit Intel/AMD platforms
+# s6-overlay-armhf.tar.gz - includes binaries for 32-bit ARM (hard-float) platforms, ie, Raspberry Pi
+# s6-overlay-arm.tar.gz - includes binaries for 32-bit ARM platforms
+# s6-overlay-aarch64.tar.gz - includes binaries for 64-bit ARM platforms.
+
+
+
+###############################################################
+#  ..######...#######...........#######..##.....##.########.########..##..........###....##....##
+#  .##....##.##.....##.........##.....##.##.....##.##.......##.....##.##.........##.##....##..##.
+#  .##.......##................##.....##.##.....##.##.......##.....##.##........##...##....####..
+#  ..######..########..#######.##.....##.##.....##.######...########..##.......##.....##....##...
+#  .......##.##.....##.........##.....##..##...##..##.......##...##...##.......#########....##...
+#  .##....##.##.....##.........##.....##...##.##...##.......##....##..##.......##.....##....##...
+#  ..######...#######...........#######.....###....########.##.....##.########.##.....##....##...
+###############################################################
+# SOURCE: https://github.com/christiansteier/moodle-docker/blob/591b24642dc5c0988b5512746ecffd45f19f24d5/apache/Dockerfile
+# ARG minimal_apt_get_install='apt-get install -y --no-install-recommends'
+# ENV DEBIAN_FRONTEND=noninteractive \
+#     DEBCONF_NONINTERACTIVE_SEEN=true
+# RUN /scripts/prepare.sh && \
+#     \
+#     # System services \
+#     echo "\n[i] Install s6-overlay\n" && \
+#     $minimal_apt_get_install curl gnupg && \
+#     GPG="DB30 1BA3 F6F8 07E0 D0E6  CCB8 6101 B278 3B2F D161" && \
+#     S6OVERLAY=$(curl -s https://api.github.com/repos/just-containers/s6-overlay/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")') && \
+#     if [ $(uname -m) = "armv6l" ] || [ $(uname -m) = "armv7l" ]; then ARCHTAG=armhf ; elif [ $(uname -m) = "aarch64" ]; then ARCHTAG=aarch64 ; elif [ $(uname -m) = "x86_64" ]; then ARCHTAG=amd64 ; fi && \
+#     curl -o /tmp/s6-overlay.tar.gz -L https://github.com/just-containers/s6-overlay/releases/download/${S6OVERLAY}/s6-overlay-${ARCHTAG}.tar.gz && \
+#     curl -o /tmp/s6-overlay.tar.gz.sig -L https://github.com/just-containers/s6-overlay/releases/download/${S6OVERLAY}/s6-overlay-${ARCHTAG}.tar.gz.sig && \
+#     curl https://keybase.io/justcontainers/key.asc | gpg --import && \
+#     FINGERPRINT="$(LANG=C gpg --verify /tmp/s6-overlay.tar.gz.sig /tmp/s6-overlay.tar.gz 2>&1 | sed -n "s#Primary key fingerprint: \(.*\)#\1#p")" && \
+#     gpg --verify /tmp/s6-overlay.tar.gz.sig /tmp/s6-overlay.tar.gz && \
+#     if [ -z "${FINGERPRINT}" ]; then echo "[!!] Invalid GPG signature!" && exit 1; fi && \
+#     if [ "${FINGERPRINT}" != "${GPG}" ]; then echo "[!!] Wrong GPG fingerprint!" && exit 1; fi && \
+#     echo "[i] All seems good, now unpacking s6-overlay.tar.gz" && \
+#     tar xzf /tmp/s6-overlay.tar.gz -C / && \
+#     \
+#     echo -e "\n[i] Install socklog-overlay\n" && \
+#     SOCKLOG=$(curl -s https://api.github.com/repos/just-containers/socklog-overlay/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")') && \
+#     curl -o /tmp/socklog-overlay-amd64.tar.gz -L https://github.com/just-containers/socklog-overlay/releases/download/${SOCKLOG}/socklog-overlay-${ARCHTAG}.tar.gz && \
+#     tar xzf /tmp/socklog-overlay-amd64.tar.gz -C / && \
+#     \
+#     echo -e "\n[i] Install cron\n" && \
+#     $minimal_apt_get_install cron && \
+#     \
+#     # Utilities \
+#     echo -e "\n[i] Install often used tools\n" && \
+#     $minimal_apt_get_install bzip2 vim-tiny curl git-core rsync unzip graphviz && \
+#     ln -s /usr/bin/vim.tiny /usr/bin/vim && \
+#     \
+#     # Cleanup \
+#     apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false bzip2 vim-tiny git-core && \
+#     apt-get clean
+#     # \
+#     # && \
+#     # rm -rf /var/lib/apt/lists/* /etc/dpkg/dpkg.cfg.d/02apt-speedup /etc/ssh/ssh_host_* /var/cache/ldconfig/aux-cache /usr/share/doc /usr/share/man/ /usr/share/info/* /var/cache/man/* /tmp/* /etc/fstab /scripts
+
+# set -eux; \
+#     dpkgArch="$(dpkg --print-architecture)"; \
+#     case "${dpkgArch##*-}" in \
+#         amd64) rustArch='x86_64-unknown-linux-gnu'; rustupSha256='2d4ddf4e53915a23dda722608ed24e5c3f29ea1688da55aa4e98765fc6223f71' ;; \
+#         armhf) rustArch='armv7-unknown-linux-gnueabihf'; rustupSha256='be85f50dc70ee239c5bb6acb60080797841a1e7c45fbf6bae15d6bd4b37ce0e5' ;; \
+#         arm64) rustArch='aarch64-unknown-linux-gnu'; rustupSha256='454f00a86be75ab070149bac1f541a7b39e5d3383d6da96ad2b929867ed40167' ;; \
+#         i386) rustArch='i686-unknown-linux-gnu'; rustupSha256='179e3b39f11037a708874e750081f7c0d3e1a6a4c431c2ecee2295acc7b696af' ;; \
+#         *) echo >&2 "unsupported architecture: ${dpkgArch}"; exit 1 ;; \
+#     esac; \
+#     url="https://static.rust-lang.org/rustup/archive/1.16.0/${rustArch}/rustup-init"; \
+#     wget "$url"; \
+#     echo "${rustupSha256} *rustup-init" | sha256sum -c -; \
+
 ARG DEBIAN_FRONTEND=noninteractive
 
 # COPY clean-apt /usr/bin
