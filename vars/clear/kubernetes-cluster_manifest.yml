@@ -929,7 +929,7 @@ boss__helm__namespace_name: kube-system
 boss__metallb__subdomain: metallb
 boss__metallb__manifest_path: "{{manifest_dir_path}}/metallb"
 boss__metallb__namespace_name: metallb-system
-boss__metallb__address_pools: '192.168.205.10-192.168.205.12'
+boss__metallb__address_pools: '192.168.205.13-192.168.205.14'
 
 
 
@@ -1031,7 +1031,7 @@ boss__traefik__internal__subdomain: traefik-internal
 boss__traefik__internal__manifest_path: "{{manifest_dir_path}}/traefik-internal"
 boss__traefik__internal__namespace_name: traefik-system
 boss__traefik__internal__service_spec_type: LoadBalancer
-boss__traefik__internal__service_spec_loadBalancerIP: 192.168.205.10
+boss__traefik__internal__service_spec_loadBalancerIP: 192.168.205.13
 
 
 ####################################################################################################
