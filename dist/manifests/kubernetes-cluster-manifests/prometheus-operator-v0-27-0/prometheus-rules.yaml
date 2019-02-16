@@ -6,7 +6,7 @@ metadata:
     role: alert-rules
   name: prometheus-k8s-rules
   namespace: monitoring
-{% raw %}
+
 spec:
   groups:
   - name: k8s.rules
@@ -952,4 +952,3 @@ spec:
       for: 10m
       labels:
         severity: warning
-{% endraw %}

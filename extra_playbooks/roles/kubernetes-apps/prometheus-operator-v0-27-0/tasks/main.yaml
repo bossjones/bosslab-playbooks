@@ -78,4 +78,4 @@
     - "prometheus-serviceMonitorKubeControllerManager.yaml"
     - "prometheus-serviceMonitorKubeScheduler.yaml"
     - "prometheus-serviceMonitorKubelet.yaml"
-    - "additional-scrape-configs.yaml"
+    # - "additional-scrape-configs.yaml"

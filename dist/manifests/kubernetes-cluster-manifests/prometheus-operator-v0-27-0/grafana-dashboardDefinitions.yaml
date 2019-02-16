@@ -1,7 +1,7 @@
 apiVersion: v1
 items:
 - apiVersion: v1
-{% raw %}
+
   data:
     k8s-cluster-rsrc-use.json: |-
       {
@@ -7350,7 +7350,6 @@ items:
           "uid": "a31c1f46e6f727cb37c0d731a7245005",
           "version": 0
       }
-{% endraw %}
   kind: ConfigMap
   metadata:
     name: grafana-dashboard-statefulset

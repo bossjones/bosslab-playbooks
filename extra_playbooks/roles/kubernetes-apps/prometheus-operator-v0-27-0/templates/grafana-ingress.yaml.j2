@@ -8,16 +8,18 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: grafana-ingress
-  namespace: {{boss__prometheus__operator__namespace_name: monitoring}}
+  namespace: {{ boss__prometheus__operator__namespace_name }}
 {% if boss__prometheus__operator__grafana_ingress_metadata_annotations is defined %}
   annotations:
 {{ boss__prometheus__operator__grafana_ingress_metadata_annotations | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 {% if boss__prometheus__operator__grafana_ingress_metadata_labels is defined %}
   labels:
 {{ boss__prometheus__operator__grafana_ingress_metadata_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 spec:
   rules:
-  - host: {{boss__prometheus__operator__grafana_subdomain}}.{{domain_root}}
+  - host: {{ boss__prometheus__operator__grafana_subdomain }}.{{ domain_root }}
     http:
       paths:
       - path: /

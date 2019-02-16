@@ -12,9 +12,11 @@ metadata:
 {% if boss__prometheus__operator__alertmanager_ingress_metadata_annotations is defined %}
   annotations:
 {{ boss__prometheus__operator__alertmanager_ingress_metadata_annotations | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 {% if boss__prometheus__operator__alertmanager_ingress_metadata_labels is defined %}
   labels:
 {{ boss__prometheus__operator__alertmanager_ingress_metadata_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 spec:
   rules:
   - host: {{boss__prometheus__operator__alertmanager_subdomain}}.{{domain_root}}
