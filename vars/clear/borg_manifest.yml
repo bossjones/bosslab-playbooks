@@ -1020,6 +1020,111 @@ boss__weave__scope__enable_ingress_traefik: "enabled"
 boss__weave__scope__ingress_metadata_annotations: |
   traefik.frontend.rule.type: PathPrefix
 
+
+###########################
+
+boss__prometheus__operator__subdomain: prometheus-operator
+boss__prometheus__operator__manifest_path: "{{manifest_dir_path}}/prometheus-operator-v0-27-0"
+boss__prometheus__operator__namespace_name: monitoring
+
+# This doesn't have a last tag or anything like that
+boss__prometheus__operator__alertmanager_subdomain: alertmanager
+boss__prometheus__operator__alertmanager_version: v0.15.3
+boss__prometheus__operator__alertmanager_crd_baseImage: "quay.io/prometheus/alertmanager"
+boss__prometheus__operator__alertmanager_image_tag: "{{ boss__prometheus__operator__alertmanager_version }}"
+
+boss__prometheus__operator__grafana_subdomain: grafana
+boss__prometheus__operator__grafana_version: 5.2.4
+boss__prometheus__operator__grafana_image_repo: "grafana/grafana"
+boss__prometheus__operator__grafana_image_tag: "{{ boss__prometheus__operator__grafana_version }}"
+
+boss__prometheus__operator__prometheus_subdomain: prometheus
+boss__prometheus__operator__prometheus_version: v2.5.0
+boss__prometheus__operator__prometheus_crd_baseImage: "quay.io/prometheus/prometheus"
+boss__prometheus__operator__prometheus_image_tag: "{{ boss__prometheus__operator__prometheus_version }}"
+
+boss__prometheus__operator__prometheus_operator_version: v0.26.0
+boss__prometheus__operator__prometheus_operator_image_repo: "quay.io/coreos/prometheus-operator"
+boss__prometheus__operator__prometheus_operator_image_tag: "{{ boss__prometheus__operator__prometheus_operator_version }}"
+
+
+boss__prometheus__operator__alertmanager_ingress_metadata_annotations: |
+  # Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
+  # https://github.com/kubernetes/ingress-nginx/issues/1567
+  # SOURCE: https://github.com/nginxinc/kubernetes-ingress/tree/master/examples/multiple-ingress-controllers
+  # NOTE: To designate that a particular Ingress resource must be handled only by the NGINX or NGINX Plus controller add the following annotation along with the value to the Ingress resource:
+
+  # to designate that a particular Ingress resource must be handled only by the NGINX or NGINX Plus controller add the following annotation along with the value to the Ingress resource
+  # kubernetes.io/ingress.class: "nginx"
+  # kubernetes.io/tls-acme: "false"
+  # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-body-size: \"0\"
+  # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-read-timeout: \"600\"
+  # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-send-timeout: \"600\"
+  # INFO: Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
+  # https://github.com/kubernetes/ingress-nginx/issues/1567
+  nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  # INFO: Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
+  # SOURCE: https://medium.com/@Oskarr3/setting-up-ingress-on-minikube-6ae825e98f82
+  # nginx.ingress.kubernetes.io/rewrite-target: /
+  traefik.frontend.rule.type: PathPrefix
+
+boss__prometheus__operator__alertmanager_ingress_metadata_labels: |
+  run: nginx
+  alertmanager: main
+  app: alertmanager
+
+
+boss__prometheus__operator__prometheus_ingress_metadata_annotations: |
+  # Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
+  # https://github.com/kubernetes/ingress-nginx/issues/1567
+  # SOURCE: https://github.com/nginxinc/kubernetes-ingress/tree/master/examples/multiple-ingress-controllers
+  # NOTE: To designate that a particular Ingress resource must be handled only by the NGINX or NGINX Plus controller add the following annotation along with the value to the Ingress resource:
+
+  # to designate that a particular Ingress resource must be handled only by the NGINX or NGINX Plus controller add the following annotation along with the value to the Ingress resource
+  # kubernetes.io/ingress.class: "nginx"
+  # kubernetes.io/tls-acme: "false"
+  # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-body-size: \"0\"
+  # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-read-timeout: \"600\"
+  # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-send-timeout: \"600\"
+  # INFO: Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
+  # https://github.com/kubernetes/ingress-nginx/issues/1567
+  nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  # INFO: Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
+  # SOURCE: https://medium.com/@Oskarr3/setting-up-ingress-on-minikube-6ae825e98f82
+  # nginx.ingress.kubernetes.io/rewrite-target: /
+  traefik.frontend.rule.type: PathPrefix
+
+boss__prometheus__operator__prometheus_ingress_metadata_labels: |
+  app: prometheus
+  prometheus: k8s
+  run: nginx
+  k8s-app: prometheus-operator
+
+
+boss__prometheus__operator__grafana_ingress_metadata_annotations: |
+  # Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
+  # https://github.com/kubernetes/ingress-nginx/issues/1567
+  # SOURCE: https://github.com/nginxinc/kubernetes-ingress/tree/master/examples/multiple-ingress-controllers
+  # NOTE: To designate that a particular Ingress resource must be handled only by the NGINX or NGINX Plus controller add the following annotation along with the value to the Ingress resource:
+
+  # to designate that a particular Ingress resource must be handled only by the NGINX or NGINX Plus controller add the following annotation along with the value to the Ingress resource
+  # kubernetes.io/ingress.class: "nginx"
+  # kubernetes.io/tls-acme: "false"
+  # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-body-size: \"0\"
+  # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-read-timeout: \"600\"
+  # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-send-timeout: \"600\"
+  # INFO: Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
+  # https://github.com/kubernetes/ingress-nginx/issues/1567
+  nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  # INFO: Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
+  # SOURCE: https://medium.com/@Oskarr3/setting-up-ingress-on-minikube-6ae825e98f82
+  # nginx.ingress.kubernetes.io/rewrite-target: /
+  traefik.frontend.rule.type: PathPrefix
+
+boss__prometheus__operator__grafana_ingress_metadata_labels: |
+  run: nginx
+  app: grafana
+
 # ---
 # local_release_dir: /tmp/releases
 

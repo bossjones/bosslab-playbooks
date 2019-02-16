@@ -1557,3 +1557,93 @@ test-echoserver-curl:
 lint-echoserver:
 	$(call check_defined, cluster, Please set cluster)
 	bash -c "find dist/manifests/$(cluster)-manifests/echoserver -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+redeploy-prometheus-operator:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete prometheus-operator:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete prometheus-operator$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0/
+
+	@printf "render prometheus-operator manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render prometheus-operator manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_prometheus_operator.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "lint prometheus-operator manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint prometheus-operator manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/prometheus-operator -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "create-prometheus-operator:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy prometheus-operator$$NC\n"
+	@printf "=======================================\n"
+	-kubectl create -f dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0/
+	@echo ""
+	@echo ""
+
+
+create-prometheus-operator:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-prometheus-operator:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy prometheus-operator$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=prometheus-operator --watch | highlight
+
+apply-prometheus-operator:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-prometheus-operator:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy prometheus-operator$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=prometheus-operator --watch
+
+# https://github.com/kubernetes/kubernetes/blob/3d7d35ee8f099f4611dca06de4453f958b4b8492/cluster/addons/storage-class/local/default.yaml
+apply-prometheus-operator-ingress:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-prometheus-operator:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy prometheus-operator$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0/* -type f -name '*ingress.*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	@echo ""
+	@echo ""
+
+delete-prometheus-operator:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0/
+
+describe-prometheus-operator:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0/ | highlight
+
+debug-prometheus-operator: describe-prometheus-operator
+	kubectl -n kube-system get pod -l app=prometheus-operator --output=yaml | highlight
+
+test-prometheus-operator-curl:
+	-curl -v -L 'http://prometheus-operator.hyenaclan.org'
+
+lint-prometheus-operator:
+	$(call check_defined, cluster, Please set cluster)
+	bash -c "find dist/manifests/$(cluster)-manifests/prometheus-operator -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"

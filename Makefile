@@ -942,4 +942,17 @@ arm-manifests:
 	kubectl apply -f https://raw.githubusercontent.com/stefanprodan/k8s-scw-baremetal/master/addons/metrics-server-arm.yaml
 	kubectl apply -f https://raw.githubusercontent.com/stefanprodan/k8s-scw-baremetal/master/addons/heapster-arm.yaml
 
+multi-ssh-homelab:
+	i2cssh -XF=$(PROJECT_ROOT_DIR)/ssh_config.borg.conf -Xi=~/.ssh/vagrant_id_rsa borg-homelab
+
+multi-ssh-vagrant:
+	i2cssh -XF=$(PROJECT_ROOT_DIR)/ssh_config.kubernetes-cluster.conf -Xi=~/.ssh/vagrant_id_rsa vagrant-kube
+
+i2cssh-vagrant: multi-ssh-vagrant
+
+i2cssh-borg: multi-ssh-homelab
+
+borg-ssh: multi-ssh-homelab
+
+
 include *.mk
