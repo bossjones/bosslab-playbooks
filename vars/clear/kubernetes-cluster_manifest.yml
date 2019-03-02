@@ -1266,7 +1266,7 @@ boss__prometheus__operator__prometheus_additional_scrape_configs: |
     honor_labels: true
 
     static_configs:
-      - targets: ['192.168.205.10:19999','192.168.205.12:19999','192.168.205.13:19999']
+      - targets: ['192.168.205.10:19999','192.168.205.11:19999','192.168.205.12:19999']
 # ---
 # local_release_dir: /tmp/releases
 
