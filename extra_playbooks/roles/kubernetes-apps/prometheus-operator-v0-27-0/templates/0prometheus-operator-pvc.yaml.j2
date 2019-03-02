@@ -95,10 +95,10 @@ kind: PersistentVolume
 metadata:
   name: prometheus-adapter-volume-serving-cert-pv
   namespace: monitoring
-  {% if boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pv_labels is defined %}
-    labels:
-  {{ boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pv_labels | indent( width=4, indentfirst=True,blank=True) }}
-  {% endif %}
+{% if boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pv_labels is defined %}
+  labels:
+{{ boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pv_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 spec:
   capacity:
     storage: {{boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pv_spec_capacity_storage}}

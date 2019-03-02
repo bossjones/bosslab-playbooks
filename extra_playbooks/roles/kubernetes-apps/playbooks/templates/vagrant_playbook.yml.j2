@@ -14,111 +14,141 @@
   environment:
     DEBIAN_FRONTEND: noninteractive
   roles:
-    # - role: boss-ansible-role-core
-    #   tags:
-    #     - boss-ansible-role-core
+{% if vagrant_playbook_enable_role_core is defined %}
+{% if vagrant_playbook_enable_role_core == "enabled" %}
+   - role: boss-ansible-role-core
+     tags:
+       - boss-ansible-role-core
+{% endif %}
+{% endif %}
 
-    # - role: boss-ansible-role-update-hosts
-    #   boss__update__hosts__hosts_file: /etc/hosts
-    #   # ansible group to use when finding ip addresses
-    #   boss__update__hosts__ansible_group: "servers"
+{% if vagrant_playbook_enable_role_update_hosts is defined %}
+{% if vagrant_playbook_enable_role_update_hosts == "enabled" %}
+   - role: boss-ansible-role-update-hosts
+     boss__update__hosts__hosts_file: /etc/hosts
+     # ansible group to use when finding ip addresses
+     boss__update__hosts__ansible_group: "servers"
 
-    #   boss__update__hosts__networking_interface: "ens192" # ens192 (if vagrant)
+     boss__update__hosts__networking_interface: "ens192" # ens192 (if vagrant)
 
-    #   ### NEW vars
-    #   # SOURCE: https://github.com/bertvv/ansible-role-hosts/blob/master/defaults/main.yml
+     ### NEW vars
+     # SOURCE: https://github.com/bertvv/ansible-role-hosts/blob/master/defaults/main.yml
 
-    #   boss__update__hosts__hosts_playbook_version: "1.0.1"
+     boss__update__hosts__hosts_playbook_version: "1.0.1"
 
-    #   # If set to true, an entry for `ansible_hostname`, bound to the host's default IPv4 address is added added.
-    #   boss__update__hosts__hosts_add_default_ipv4: true
+     # If set to true, an entry for `ansible_hostname`, bound to the host's default IPv4 address is added added.
+     boss__update__hosts__hosts_add_default_ipv4: true
 
-    #   # If set to true, basic IPv6 entries (localhost6, ip6-localnet, etc) are added.
-    #   boss__update__hosts__hosts_add_basic_ipv6: true
+     # If set to true, basic IPv6 entries (localhost6, ip6-localnet, etc) are added.
+     boss__update__hosts__hosts_add_basic_ipv6: true
 
-    #   # If set to true, an entry for every host managed by Ansible is added. Remark that this makes `boss__update__hosts__hosts_add_default_ipv4` unnecessary, as it will be added as wel by this setting.
-    #   boss__update__hosts__hosts_add_ansible_managed_hosts: true
+     # If set to true, an entry for every host managed by Ansible is added. Remark that this makes `boss__update__hosts__hosts_add_default_ipv4` unnecessary, as it will be added as wel by this setting.
+     boss__update__hosts__hosts_add_ansible_managed_hosts: true
 
-    #   # Select specific groups of Ansible managed hosts to be added in the hosts file.
-    #   boss__update__hosts__hosts_add_ansible_managed_hosts_groups: ['servers']
+     # Select specific groups of Ansible managed hosts to be added in the hosts file.
+     boss__update__hosts__hosts_add_ansible_managed_hosts_groups: ['servers']
 
-    #   # Custom hosts entries to be added
-    #   boss__update__hosts__hosts_entries: []
+     # Custom hosts entries to be added
+     boss__update__hosts__hosts_entries: []
 
-    #   # Custom host file snippets to be added
-    #   boss__update__hosts__hosts_file_snippets: []
+     # Custom host file snippets to be added
+     boss__update__hosts__hosts_file_snippets: []
 
-    #   # IP protocol to use
-    #   boss__update__hosts__hosts_ip_protocol: 'ipv4'
+     # IP protocol to use
+     boss__update__hosts__hosts_ip_protocol: 'ipv4'
 
-    #   # Network interface to use
-    #   boss__update__hosts__hosts_network_interface: "{{ boss__update__hosts__networking_interface }}"
+     # Network interface to use
+     boss__update__hosts__hosts_network_interface: "{{ boss__update__hosts__networking_interface }}"
 
-    #   # convenience variable that has ansible_ as part of name for dynamic loading
-    #   boss__update__hosts__hosts_ansible_network_interface: "ansible_{{ boss__update__hosts__networking_interface }}"
+     # convenience variable that has ansible_ as part of name for dynamic loading
+     boss__update__hosts__hosts_ansible_network_interface: "ansible_{{ boss__update__hosts__networking_interface }}"
 
-    #   # Backup of previous host
-    #   boss__update__hosts__host_file_backup: yes
+     # Backup of previous host
+     boss__update__hosts__host_file_backup: yes
 
-    #   # Use old 'override' style or new 'smart' style
-    #   boss__update__hosts__default_task: "smart"
-    #   tags:
-    #     - boss-ansible-role-update-hosts
+     # Use old 'override' style or new 'smart' style
+     boss__update__hosts__default_task: "smart"
+     tags:
+       - boss-ansible-role-update-hosts
+{% endif %}
+{% endif %}
 
-    # - role: boss-ansible-role-bootstrap
-    #   # Disable raw commands to avoid sudo issues.
-    #   boss__bootstrap_raw: False
-    #   # Don't set domain on Travis.
-    #   boss__bootstrap_domain: ''
-    #   # Try bootstrapping a different IP address to avoid idempotency loop.
-    #   # boss__bootstrap_ipv4: '127.0.1.2'
-    #   # boss__hosts_file: /etc/hosts.molecule
-    #   boss__bootstrap_admin_default_users:
-    #     - name: bossjones
-    #   boss__bootstrap_admin_groups: [ 'admins', 'staff', 'adm', 'sudo', 'bossjones' ]
-    #   boss__bootstrap_admin_system: False
-    #   tags:
-    #     - boss-ansible-role-bootstrap
+{% if vagrant_playbook_enable_role_bootstrap is defined %}
+{% if vagrant_playbook_enable_role_bootstrap == "enabled" %}
+   - role: boss-ansible-role-bootstrap
+     # Disable raw commands to avoid sudo issues.
+     boss__bootstrap_raw: False
+     # Don't set domain on Travis.
+     boss__bootstrap_domain: ''
+     # Try bootstrapping a different IP address to avoid idempotency loop.
+     # boss__bootstrap_ipv4: '127.0.1.2'
+     # boss__hosts_file: /etc/hosts.molecule
+     boss__bootstrap_admin_default_users:
+       - name: bossjones
+     boss__bootstrap_admin_groups: [ 'admins', 'staff', 'adm', 'sudo', 'bossjones' ]
+     boss__bootstrap_admin_system: False
+     tags:
+       - boss-ansible-role-bootstrap
+{% endif %}
+{% endif %}
 
-    # - role: boss-ansible-role-fact
-    #   tags:
-    #     - boss-ansible-role-fact
+{% if vagrant_playbook_enable_role_fact is defined %}
+{% if vagrant_playbook_enable_role_fact == "enabled" %}
+   - role: boss-ansible-role-fact
+     tags:
+       - boss-ansible-role-fact
+{% endif %}
+{% endif %}
 
-    # - role: boss-ansible-role-environment
-    #   tags:
-    #     - boss-ansible-role-environment
+{% if vagrant_playbook_enable_role_environment is defined %}
+{% if vagrant_playbook_enable_role_environment == "enabled" %}
+   - role: boss-ansible-role-environment
+     tags:
+       - boss-ansible-role-environment
+{% endif %}
+{% endif %}
 
-    # - role: boss-ansible-role-etckeeper
-    #   tags:
-    #     - boss-ansible-role-etckeeper
+{% if vagrant_playbook_enable_role_etckeeper is defined %}
+{% if vagrant_playbook_enable_role_etckeeper == "enabled" %}
+   - role: boss-ansible-role-etckeeper
+     tags:
+       - boss-ansible-role-etckeeper
+{% endif %}
+{% endif %}
 
-    # # # - role: geerlingguy.pip
+   # # - role: geerlingguy.pip
 
-    # - role: boss-ansible-role-timezone
-    #   timezone: 'UTC'
-    #   timezone_update_hardware_clock: False
-    #   tags:
-    #     - boss-ansible-role-timezone
+{% if vagrant_playbook_enable_role_timezone is defined %}
+{% if vagrant_playbook_enable_role_timezone == "enabled" %}
+   - role: boss-ansible-role-timezone
+     timezone: 'UTC'
+     timezone_update_hardware_clock: False
+     tags:
+       - boss-ansible-role-timezone
+{% endif %}
+{% endif %}
 
-    # - role: boss-ansible-role-ntp
-    #   task: install
-    #   bossjones__user: vagrant
-    #   bossjones__group: vagrant
-    #   timezone: 'UTC'
-    #   timezone_update_hardware_clock: False
-    #   # defaults file for ansible-ntp
-    #   # Defines if host is ntp_master
-    #   # set ntp_master to true on specific group_vars/group
-    #   ntp_master: False
+{% if vagrant_playbook_enable_role_ntp is defined %}
+{% if vagrant_playbook_enable_role_ntp == "enabled" %}
+   - role: boss-ansible-role-ntp
+     task: install
+     bossjones__user: vagrant
+     bossjones__group: vagrant
+     timezone: 'UTC'
+     timezone_update_hardware_clock: False
+     # defaults file for ansible-ntp
+     # Defines if host is ntp_master
+     # set ntp_master to true on specific group_vars/group
+     ntp_master: False
 
-    #   # Define your ntp_master_servers
-    #   ntp_master_servers:
-    #     - 0.ubuntu.pool.ntp.org
-    #     - 1.ubuntu.pool.ntp.org
-    #     - 2.ubuntu.pool.ntp.org
-    #     - 3.ubuntu.pool.ntp.org
-    #   tags:
-    #     - boss-ansible-role-ntp
+     # Define your ntp_master_servers
+     ntp_master_servers:
+       - 0.ubuntu.pool.ntp.org
+       - 1.ubuntu.pool.ntp.org
+       - 2.ubuntu.pool.ntp.org
+       - 3.ubuntu.pool.ntp.org
+     tags:
+       - boss-ansible-role-ntp
 
     - role: boss-ansible-role-debug
       boss__debug__debug_variables_file: '/tmp/ansible_variables'
@@ -126,7 +156,11 @@
       boss__debug__dump_type: 'seperate' # seperate
       tags:
         - boss-ansible-role-debug
+{% endif %}
+{% endif %}
 
+{% if vagrant_playbook_enable_role_tools is defined %}
+{% if vagrant_playbook_enable_role_tools == "enabled" %}
     - role: boss-ansible-role-tools
       task: tools
       bossjones__user: vagrant
@@ -136,14 +170,22 @@
       boss__tools__install_rust_tools: True
       tags:
         - boss-ansible-role-tools
+{% endif %}
+{% endif %}
 
+{% if vagrant_playbook_enable_role_journald is defined %}
+{% if vagrant_playbook_enable_role_journald == "enabled" %}
     - role: boss-ansible-role-journald
       bossjones__user: vagrant
       bossjones__group: vagrant
       tags:
         - boss-ansible-role-journald
+{% endif %}
+{% endif %}
 
 ###############################################################################
+{% if vagrant_playbook_enable_role_netdata is defined %}
+{% if vagrant_playbook_enable_role_netdata == "enabled" %}
 - hosts: netdata_registry
   gather_facts: True
   become: yes
@@ -184,7 +226,11 @@
       nginx_listen_port: 8080
       tags:
         - boss-ansible-role-netdata
+{% endif %}
+{% endif %}
 
+{% if vagrant_playbook_enable_role_logrotate is defined %}
+{% if vagrant_playbook_enable_role_logrotate == "enabled" %}
     - role: ansible-logrotate
       # defaults file for ansible-logrotate
       # Defines if you want your log files compressed
@@ -240,8 +286,11 @@
 
       tags:
         - ansible-logrotate
+{% endif %}
+{% endif %}
 
-
+{% if vagrant_playbook_enable_role_netdata is defined %}
+{% if vagrant_playbook_enable_role_netdata == "enabled" %}
 - hosts: netdata_nodes
   gather_facts: True
   become: yes
@@ -316,8 +365,11 @@
       tags:
         - ansible-logrotate
 
+{% endif %}
+{% endif %}
 
-
+{% if vagrant_playbook_enable_role_nfs_master is defined %}
+{% if vagrant_playbook_enable_role_nfs_master == "enabled" %}
 - hosts: nfs_masters
   name: (nfs_masters) - Install and configure nfs
   gather_facts: True
@@ -342,8 +394,12 @@
       boss__nfs__master_node_ip: "{{ hostvars[groups[boss__nfs__nfs_server_group][0]]['ansible_' + boss__nfs__nfs_interface].ipv4.address }}"
       tags:
         - boss-ansible-role-nfs
+{% endif %}
+{% endif %}
 
 
+{% if vagrant_playbook_enable_role_nfs_client is defined %}
+{% if vagrant_playbook_enable_role_nfs_client == "enabled" %}
 - hosts: nfs_clients
   name: (nfs_clients) - Install and configure nfs
   gather_facts: True
@@ -369,9 +425,11 @@
       # boss__nfs__nfs_interface: 'enp0s3'
       tags:
         - boss-ansible-role-nfs
+{% endif %}
+{% endif %}
 
-
-
+{% if vagrant_playbook_enable_role_rsyslogd is defined %}
+{% if vagrant_playbook_enable_role_rsyslogd == "enabled" %}
 - hosts: rsyslogd_masters
   name: (masters) - Install and configure rsyslogd
   gather_facts: True
@@ -437,8 +495,11 @@
 
       tags:
         - boss-ansible-role-rsyslogd
+{% endif %}
+{% endif %}
 
-
+{% if vagrant_playbook_enable_role_rsyslogd is defined %}
+{% if vagrant_playbook_enable_role_rsyslogd == "enabled" %}
 - hosts: rsyslogd_clients
   name: (nodes) - Install and configure rsyslogd
   gather_facts: True
@@ -463,3 +524,6 @@
         - '*.* @{{boss__rsyslogd__rsyslog_master_ip}}:{{boss__rsyslogd__rsyslog_tcp_port}}'
       tags:
         - boss-ansible-role-rsyslogd
+
+{% endif %}
+{% endif %}

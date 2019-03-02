@@ -1209,6 +1209,398 @@ boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pv_spec_nfs: 
     server: 192.168.1.174
     path: "/mnt/publicdata/prometheus-adapter-volume-serving-cert"
 
+
+#######################
+
+vagrant_playbook_enable_role_tools: "enabled"
+vagrant_playbook_enable_role_bootstrap: "enabled"
+vagrant_playbook_enable_role_nfs_master: "enabled"
+vagrant_playbook_enable_role_nfs_client: "enabled"
+vagrant_playbook_enable_role_rsyslogd: "enabled"
+vagrant_playbook_enable_role_journald: "enabled"
+vagrant_playbook_enable_role_core: "enabled"
+vagrant_playbook_enable_role_update_hosts: "enabled"
+vagrant_playbook_enable_role_fact: "enabled"
+vagrant_playbook_enable_role_environment: "enabled"
+vagrant_playbook_enable_role_etckeeper: "enabled"
+vagrant_playbook_enable_role_timezone: "enabled"
+vagrant_playbook_enable_role_ntp: "enabled"
+vagrant_playbook_enable_role_debug: "enabled"
+vagrant_playbook_enable_role_logrotate: "disabled"
+vagrant_playbook_enable_role_netdata: "disabled"
+
+
+# Template playbooks
+vagrant_tools_roles: |
+  - role: boss-ansible-role-tools
+    task: tools
+    timezone: 'UTC'
+    bossjones__user: vagrant
+    bossjones__group: vagrant
+    boss__tools__install_docker_tools: True
+    boss__tools__install_kube_tools: True
+    boss__tools__install_rust_tools: False
+    tags:
+      - boss-ansible-role-tools
+  - role: boss-ansible-role-tools
+    task: kube
+    timezone: 'UTC'
+    bossjones__user: vagrant
+    bossjones__group: vagrant
+    boss__tools__install_docker_tools: True
+    boss__tools__install_kube_tools: True
+    boss__tools__install_rust_tools: False
+    tags:
+      - boss-ansible-role-tools
+  - role: boss-ansible-role-tools
+    task: docker
+    timezone: 'UTC'
+    bossjones__user: vagrant
+    bossjones__group: vagrant
+    boss__tools__install_docker_tools: True
+    boss__tools__install_kube_tools: True
+    boss__tools__install_rust_tools: False
+    tags:
+      - boss-ansible-role-tools
+  - role: boss-ansible-role-tools
+    task: glances
+    timezone: 'UTC'
+    bossjones__user: vagrant
+    bossjones__group: vagrant
+    boss__tools__install_docker_tools: True
+    boss__tools__install_kube_tools: True
+    boss__tools__install_rust_tools: False
+    tags:
+      - boss-ansible-role-tools
+  - role: boss-ansible-role-tools
+    task: rust
+    timezone: 'UTC'
+    bossjones__user: vagrant
+    bossjones__group: vagrant
+    boss__tools__install_docker_tools: True
+    boss__tools__install_kube_tools: True
+    boss__tools__install_rust_tools: False
+    tags:
+      - boss-ansible-role-tools
+
+vagrant_tools_all_roles: |
+    - role: boss-ansible-role-tools
+      task: tools
+      timezone: 'UTC'
+      bossjones__user: vagrant
+      bossjones__group: vagrant
+      boss__tools__install_docker_tools: True
+      boss__tools__install_kube_tools: True
+      boss__tools__install_rust_tools: False
+      tags:
+        - boss-ansible-role-tools
+    - role: boss-ansible-role-tools
+      task: kube
+      timezone: 'UTC'
+      bossjones__user: vagrant
+      bossjones__group: vagrant
+      boss__tools__install_docker_tools: True
+      boss__tools__install_kube_tools: True
+      boss__tools__install_rust_tools: False
+      tags:
+        - boss-ansible-role-tools
+    - role: boss-ansible-role-tools
+      task: docker
+      timezone: 'UTC'
+      bossjones__user: vagrant
+      bossjones__group: vagrant
+      boss__tools__install_docker_tools: True
+      boss__tools__install_kube_tools: True
+      boss__tools__install_rust_tools: False
+      tags:
+        - boss-ansible-role-tools
+    - role: boss-ansible-role-tools
+      task: glances
+      timezone: 'UTC'
+      bossjones__user: vagrant
+      bossjones__group: vagrant
+      boss__tools__install_docker_tools: True
+      boss__tools__install_kube_tools: True
+      boss__tools__install_rust_tools: False
+      tags:
+        - boss-ansible-role-tools
+    - role: boss-ansible-role-tools
+      task: rust
+      timezone: 'UTC'
+      bossjones__user: vagrant
+      bossjones__group: vagrant
+      boss__tools__install_docker_tools: True
+      boss__tools__install_kube_tools: True
+      boss__tools__install_rust_tools: False
+      tags:
+        - boss-ansible-role-tools
+    - role: boss-ansible-role-tools
+      task: npm
+      timezone: 'UTC'
+      bossjones__user: vagrant
+      bossjones__group: vagrant
+      boss__tools__install_docker_tools: True
+      boss__tools__install_kube_tools: True
+      boss__tools__install_rust_tools: False
+      tags:
+        - boss-ansible-role-tools
+
+vagrant_playbook_role_core_data: |
+    - role: boss-ansible-role-core
+      tags:
+        - boss-ansible-role-core
+
+vagrant_playbook_role_update_hosts_data: |
+    - role: boss-ansible-role-update-hosts
+      boss__update__hosts__hosts_file: /etc/hosts
+      # ansible group to use when finding ip addresses
+      boss__update__hosts__ansible_group: "servers"
+
+      boss__update__hosts__networking_interface: "{{main_network_interface}}" # {{main_network_interface}} (if vagrant)
+
+      ### NEW vars
+      # SOURCE: https://github.com/bertvv/ansible-role-hosts/blob/master/defaults/main.yml
+
+      boss__update__hosts__hosts_playbook_version: "1.0.1"
+
+      # If set to true, an entry for `ansible_hostname`, bound to the host's default IPv4 address is added added.
+      boss__update__hosts__hosts_add_default_ipv4: true
+
+      # If set to true, basic IPv6 entries (localhost6, ip6-localnet, etc) are added.
+      boss__update__hosts__hosts_add_basic_ipv6: true
+
+      # If set to true, an entry for every host managed by Ansible is added. Remark that this makes `boss__update__hosts__hosts_add_default_ipv4` unnecessary, as it will be added as wel by this setting.
+      boss__update__hosts__hosts_add_ansible_managed_hosts: true
+
+      # Select specific groups of Ansible managed hosts to be added in the hosts file.
+      boss__update__hosts__hosts_add_ansible_managed_hosts_groups: ['servers']
+
+      # Custom hosts entries to be added
+      boss__update__hosts__hosts_entries: []
+
+      # Custom host file snippets to be added
+      boss__update__hosts__hosts_file_snippets: []
+
+      # IP protocol to use
+      boss__update__hosts__hosts_ip_protocol: 'ipv4'
+
+      # Network interface to use
+      boss__update__hosts__hosts_network_interface: "{{ boss__update__hosts__networking_interface }}"
+
+      # convenience variable that has ansible_ as part of name for dynamic loading
+      boss__update__hosts__hosts_ansible_network_interface: "ansible_{{ boss__update__hosts__networking_interface }}"
+
+      # Backup of previous host
+      boss__update__hosts__host_file_backup: yes
+
+      # Use old 'override' style or new 'smart' style
+      boss__update__hosts__default_task: "smart"
+      tags:
+        - boss-ansible-role-update-hosts
+
+vagrant_playbook_role_bootstrap_data: |
+    - role: boss-ansible-role-bootstrap
+      # Disable raw commands to avoid sudo issues.
+      boss__bootstrap_raw: False
+      # Don't set domain on Travis.
+      boss__bootstrap_domain: ''
+      # Try bootstrapping a different IP address to avoid idempotency loop.
+      # boss__bootstrap_ipv4: '127.0.1.2'
+      # boss__hosts_file: /etc/hosts.molecule
+      boss__bootstrap_admin_default_users:
+        - name: bossjones
+      boss__bootstrap_admin_groups: [ 'admins', 'staff', 'adm', 'sudo', 'bossjones' ]
+      boss__bootstrap_admin_system: False
+      tags:
+        - boss-ansible-role-bootstrap
+
+vagrant_playbook_role_fact_data: |
+    - role: boss-ansible-role-fact
+      tags:
+        - boss-ansible-role-fact
+
+vagrant_playbook_role_environment_data: |
+    - role: boss-ansible-role-environment
+      tags:
+        - boss-ansible-role-environment
+
+vagrant_playbook_role_etckeeper_data: |
+    - role: boss-ansible-role-etckeeper
+      tags:
+        - boss-ansible-role-etckeeper
+
+    # # - role: geerlingguy.pip
+vagrant_playbook_role_timezone_data: |
+    - role: boss-ansible-role-timezone
+      timezone: 'UTC'
+      timezone_update_hardware_clock: False
+      tags:
+        - boss-ansible-role-timezone
+
+vagrant_playbook_role_ntp_data: |
+    - role: boss-ansible-role-ntp
+      task: install
+      bossjones__user: vagrant
+      bossjones__group: vagrant
+      timezone: 'UTC'
+      timezone_update_hardware_clock: False
+      # defaults file for ansible-ntp
+      # Defines if host is ntp_master
+      # set ntp_master to true on specific group_vars/group
+      ntp_master: False
+
+      # Define your ntp_master_servers
+      ntp_master_servers:
+        - 0.ubuntu.pool.ntp.org
+        - 1.ubuntu.pool.ntp.org
+        - 2.ubuntu.pool.ntp.org
+        - 3.ubuntu.pool.ntp.org
+      tags:
+        - boss-ansible-role-ntp
+
+vagrant_playbook_role_tools: |
+      bossjones__user: vagrant
+      bossjones__group: vagrant
+      boss__tools__install_docker_tools: True
+      boss__tools__install_kube_tools: True
+      boss__tools__install_rust_tools: True
+      tags:
+        - boss-ansible-role-tools
+
+vagrant_playbook_role_journald: |
+      bossjones__user: vagrant
+      bossjones__group: vagrant
+      tags:
+        - boss-ansible-role-journald
+
+vagrant_playbook_role_nfs_master_data: |
+    - role: boss-ansible-role-nfs
+      boss__nfs__sysctl_fileno: 30000
+      boss__nfs__systemd_limit_mem_lock: infinity
+      boss__nfs__systemd_limit_no_file: 30000
+      boss__nfs__systemd_limit_nproc: infinity
+      boss__nfs__systemd_limit_core: infinity
+      boss__nfs__etc_default_nfs_rpcnfsdcount: 64
+      boss__nfs__nfs_server_group: nfs_masters
+      boss__nfs__nfs_client_group: nfs_clients
+      task: master
+      boss__nfs__nfs_interface: '{{main_network_interface}}'
+      # FIXME:(3/2/2019) THIS IS NORMALLY ENABLED, USING OVERRIDE FOR NOW # boss__nfs__master_node_ip: "{{ hostvars[groups[boss__nfs__nfs_server_group][0]]['ansible_' + boss__nfs__nfs_interface].ipv4.address }}"
+      boss__nfs__master_node_ip: "{{nfs_server_ip_override}}"
+      tags:
+        - boss-ansible-role-nfs
+
+vagrant_playbook_role_nfs_client_data: |
+    - role: boss-ansible-role-nfs
+      boss__nfs__sysctl_fileno: 30000
+      boss__nfs__systemd_limit_mem_lock: infinity
+      boss__nfs__systemd_limit_no_file: 30000
+      boss__nfs__systemd_limit_nproc: infinity
+      boss__nfs__systemd_limit_core: infinity
+      boss__nfs__etc_default_nfs_rpcnfsdcount: 64
+      boss__nfs__nfs_server_group: nfs_masters
+      boss__nfs__nfs_client_group: nfs_clients
+      task: client
+      boss__nfs__nfs_interface: '{{main_network_interface}}'
+      # FIXME:(3/2/2019) THIS IS NORMALLY ENABLED, USING OVERRIDE FOR NOW # boss__nfs__master_node_ip: "{{ hostvars[groups[boss__nfs__nfs_server_group][0]]['ansible_' + boss__nfs__nfs_interface].ipv4.address }}"
+      boss__nfs__master_node_ip: "{{nfs_server_ip_override}}"
+      # boss__nfs__nfs_interface: 'enp0s3'
+      tags:
+        - boss-ansible-role-nfs
+
+# vagrant_playbook_role_netdata: |
+#     - role: boss-ansible-role-netdata
+#       ##############################################################
+#       # SOURCE: https://blog.codybunch.com/2018/03/26/Metrics-Part-2-InfluxDB/
+#       ##############################################################
+#       # netdata_configure_archive: true
+#       # netdata_archive_enabled: 'yes'
+#       # netdata_archive_type: 'opentsdb'
+#       # netdata_archive_destination: ":4242"
+#       # netdata_archive_prefix: 'netdata'
+#       # netdata_archive_data_source: 'average'
+#       # netdata_archive_update: 1
+#       # netdata_archive_buffer_on_failures: 30
+#       # netdata_archive_timeout: 20000
+#       # netdata_archive_send_names: true
+#       ##############################################################
+#       boss__netdata__netdata_proxy_enabled: False
+#       boss__netdata__netdata_nginx_enabled: False
+#       # graphite_secret_key: testtest123
+#       # version: 1.1.3
+#       # graphite_install_version: "{{ version }}"
+#       # graphite_cache_graphite_url: 'http://127.0.0.1:8080'
+#       # bossjones__user: vagrant
+#       # bossjones__group: vagrant
+#       boss__netdata__netdata_interface: '{{main_network_interface}}'
+
+#       netdata_registry_enabled: True
+#       netdata_registry_to_announce: "http://{{ netdata_stream_master_node }}:{{ netdata_default_port }}"
+#       pri_domain_name: scarlett-office.local
+#       netdata_stream_enabled: True
+#       # You can generate API keys, with the linux command: uuidgen
+#       netdata_stream_api_key: 6E6C3CA0-7B78-4115-AE2C-9681032F71D1
+#       netdata_stream_master_node: "{{boss__netdata__netdata_master_ip}}"
+#       nginx_listen_port: 8080
+#       tags:
+#         - boss-ansible-role-netdata
+
+vagrant_playbook_role_logrotate: |
+  # defaults file for ansible-logrotate
+  # Defines if you want your log files compressed
+  logrotate_compress: false
+
+  # packages drop log rotation information into this directory
+  logrotate_conf_dir: '/etc/logrotate.d/'
+
+  logrotate_config: true
+
+  logrotate_configs:
+    - name: 'netdata'
+      compress: true
+      copytruncate: false
+      create:
+        mode: '640'
+        owner: 'netdata'
+        group: 'netdata'
+      delaycompress: true
+      logs:
+        - '/var/log/netdata/*.log'
+      # If the log file is missing, go on to the next one without
+      # issuing an error message.
+      missingok: true
+      # Do not rotate the log if it is empty
+      notifempty: true
+      postrotate:
+        - '/bin/kill -HUP `pidof netdata 2>/dev/null` 2>/dev/null || true'
+      rotate: '14'
+      rotation: 'daily'
+      sharedscripts: true
+
+
+
+  # create new (empty) log files after rotating old ones
+  logrotate_create_new: true
+
+  logrotate_default_backlogs_rotate: '4'
+
+  logroate_default_configs:
+    - 'apt'
+    - 'dpkg'
+    - 'rsyslog'
+    - 'ufw'
+
+  # Defines the default rotate schedule
+  # hourly | daily | weekly | monthly
+  logrotate_default_rotate: 'daily'
+
+  # Defines if logrotate configs defined in logroate_default_configs
+  # should be removed or not
+  logrotate_remove_default_configs: false
+
+  tags:
+    - ansible-logrotate
+
 # ---
 # local_release_dir: /tmp/releases
 
