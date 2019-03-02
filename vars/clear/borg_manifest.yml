@@ -93,8 +93,11 @@ boss__calico__cni_image_tag: "{{ boss__calico__node_version }}"
 
 boss__calico__node_daemonset_annotations: |
   scheduler.alpha.kubernetes.io/critical-pod: ''
-  prometheus.io/scrape: 'true'
-  prometheus.io/port: '9091'
+  prometheus.io/scrape: "true"
+  prometheus.io/path: /metrics
+  prometheus.io/port: "9091"
+
+boss__calico__typha_deployment_spec_replicas: 3
 
 # {{ calico_node_image_repo }}:{{ calico_node_image_tag }}
 
@@ -1054,7 +1057,7 @@ boss__prometheus__operator__prometheus_version: v2.5.0
 boss__prometheus__operator__prometheus_crd_baseImage: "quay.io/prometheus/prometheus"
 boss__prometheus__operator__prometheus_image_tag: "{{ boss__prometheus__operator__prometheus_version }}"
 
-boss__prometheus__operator__prometheus_operator_version: v0.26.0
+boss__prometheus__operator__prometheus_operator_version: v0.29.0
 boss__prometheus__operator__prometheus_operator_image_repo: "quay.io/coreos/prometheus-operator"
 boss__prometheus__operator__prometheus_operator_image_tag: "{{ boss__prometheus__operator__prometheus_operator_version }}"
 
@@ -1062,7 +1065,7 @@ boss__prometheus__operator__configmap_reload_version: v0.0.1
 boss__prometheus__operator__configmap_reload_image_repo: "quay.io/coreos/configmap-reload"
 boss__prometheus__operator__configmap_reload_image_tag: "{{ boss__prometheus__operator__configmap_reload_version }}"
 
-boss__prometheus__operator__prometheus_operator_config_reloader_version: v0.26.0
+boss__prometheus__operator__prometheus_operator_config_reloader_version: v0.29.0
 boss__prometheus__operator__prometheus_operator_config_reloader_image_repo: "quay.io/coreos/prometheus-config-reloader"
 boss__prometheus__operator__prometheus_operator_config_reloader_image_tag: "{{ boss__prometheus__operator__prometheus_operator_config_reloader_version }}"
 
