@@ -1,0 +1,284 @@
+diff --git a/dist/manifests/kubernetes-cluster-manifests/efk/fluentd-es-configmap.yaml b/dist/manifests/kubernetes-cluster-manifests/efk/fluentd-es-configmap.yaml
+index b38179f..44de795 100644
+--- a/dist/manifests/kubernetes-cluster-manifests/efk/fluentd-es-configmap.yaml
++++ b/dist/manifests/kubernetes-cluster-manifests/efk/fluentd-es-configmap.yaml
+@@ -7,8 +7,9 @@ metadata:
+   labels:
+     addonmanager.kubernetes.io/mode: Reconcile
+     boss-part-of: efk
+-    
++
+ data:
++
+   containers.input.conf: |-
+     # This configuration file for Fluentd / td-agent is used
+     # to watch changes to Docker log files. The kubelet creates symlinks that
+@@ -352,23 +353,27 @@ data:
+       type kubernetes_metadata
+     </filter>
+ 
++    # <match **>
++    #    type elasticsearch
++    #    log_level info
++    #    include_tag_key true
++    #    host elasticsearch-logging
++    #    port 9200
++    #    logstash_format true
++    #    # Set the chunk limits.
++    #    buffer_chunk_limit 2M
++    #    buffer_queue_limit 8
++    #    flush_interval 5s
++    #    # Never wait longer than 5 minutes between retries.
++    #    max_retry_wait 30
++    #    # Disable the limit on the number of retries (retry forever).
++    #    disable_retry_limit
++    #    # Use multiple threads for processing.
++    #    num_threads 2
++    # </match>
++
+     <match **>
+-       type elasticsearch
+-       log_level info
+-       include_tag_key true
+-       host elasticsearch-logging
+-       port 9200
+-       logstash_format true
+-       # Set the chunk limits.
+-       buffer_chunk_limit 2M
+-       buffer_queue_limit 8
+-       flush_interval 5s
+-       # Never wait longer than 5 minutes between retries.
+-       max_retry_wait 30
+-       # Disable the limit on the number of retries (retry forever).
+-       disable_retry_limit
+-       # Use multiple threads for processing.
+-       num_threads 2
++      @type stdout
+     </match>
+ 
+ ---
+@@ -381,7 +386,7 @@ metadata:
+   labels:
+     addonmanager.kubernetes.io/mode: Reconcile
+     boss-part-of: efk
+-    
++
+ data:
+   system.conf: |-
+     <system>
+@@ -806,26 +811,31 @@ data:
+       separator ""
+     </filter>
+ 
++    # <match **>
++    #   @id elasticsearch
++    #   @type elasticsearch
++    #   @log_level info
++    #   type_name fluentd
++    #   include_tag_key true
++    #   host elasticsearch-logging
++    #   port 9200
++    #   logstash_format true
++    #   <buffer>
++    #     @type file
++    #     path /var/log/fluentd-buffers/kubernetes.system.buffer
++    #     flush_mode interval
++    #     retry_type exponential_backoff
++    #     flush_thread_count 2
++    #     flush_interval 5s
++    #     retry_forever
++    #     retry_max_interval 30
++    #     chunk_limit_size 2M
++    #     queue_limit_length 8
++    #     overflow_action block
++    #   </buffer>
++    # </match>
++
++
+     <match **>
+-      @id elasticsearch
+-      @type elasticsearch
+-      @log_level info
+-      type_name fluentd
+-      include_tag_key true
+-      host elasticsearch-logging
+-      port 9200
+-      logstash_format true
+-      <buffer>
+-        @type file
+-        path /var/log/fluentd-buffers/kubernetes.system.buffer
+-        flush_mode interval
+-        retry_type exponential_backoff
+-        flush_thread_count 2
+-        flush_interval 5s
+-        retry_forever
+-        retry_max_interval 30
+-        chunk_limit_size 2M
+-        queue_limit_length 8
+-        overflow_action block
+-      </buffer>
++      @type stdout
+     </match>
+diff --git a/dist/manifests/kubernetes-cluster-manifests/efk/fluentd-es-ds.yaml b/dist/manifests/kubernetes-cluster-manifests/efk/fluentd-es-ds.yaml
+index 897878f..4eaad4a 100644
+--- a/dist/manifests/kubernetes-cluster-manifests/efk/fluentd-es-ds.yaml
++++ b/dist/manifests/kubernetes-cluster-manifests/efk/fluentd-es-ds.yaml
+@@ -23,7 +23,7 @@ metadata:
+     kubernetes.io/cluster-service: "true"
+     addonmanager.kubernetes.io/mode: Reconcile
+     boss-part-of: efk
+-    
++
+ ---
+ kind: ClusterRole
+ apiVersion: rbac.authorization.k8s.io/v1
+@@ -35,17 +35,26 @@ metadata:
+     kubernetes.io/cluster-service: "true"
+     addonmanager.kubernetes.io/mode: Reconcile
+     boss-part-of: efk
+-    
++
+ rules:
+ - apiGroups:
+   - ""
+   resources:
+   - "namespaces"
+   - "pods"
++  - "pods/log"
++  - "deployments"
++  - "batch"
++  - "extensions"
++  - "crontabs"
++  - "configmaps"
++  - "secrets"
+   verbs:
+   - "get"
+-  - "watch"
+   - "list"
++  - "post"
++  - "update"
++  - "watch"
+ ---
+ kind: ClusterRoleBinding
+ apiVersion: rbac.authorization.k8s.io/v1
+@@ -57,7 +66,7 @@ metadata:
+     kubernetes.io/cluster-service: "true"
+     addonmanager.kubernetes.io/mode: Reconcile
+     boss-part-of: efk
+-    
++
+ subjects:
+ - kind: ServiceAccount
+   name: fluentd-es
+@@ -83,13 +92,13 @@ metadata:
+     kubernetes.io/cluster-service: "true"
+     addonmanager.kubernetes.io/mode: Reconcile
+     boss-part-of: efk
+-    
++
+ spec:
+   selector:
+     matchLabels:
+         k8s-app: fluentd-es
+         version: v2.2.1
+-        
++
+   template:
+     metadata:
+       labels:
+@@ -97,14 +106,14 @@ spec:
+         kubernetes.io/cluster-service: "true"
+         version: v2.2.1
+         boss-part-of: efk
+-        
++
+       # This annotation ensures that fluentd does not get evicted if the node
+       # supports critical pod annotation based priority scheme.
+       # Note that this does not guarantee admission on the nodes (#40573).
+       annotations:
+         scheduler.alpha.kubernetes.io/critical-pod: ''
+         seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
+-        
++
+     spec:
+       priorityClassName: system-node-critical
+       # serviceAccount: fluentd-es
+@@ -115,7 +124,7 @@ spec:
+         # SOURCE: https://github.com/kubernetes/kubernetes/blob/master/cluster/addons/fluentd-elasticsearch/fluentd-es-image/Dockerfile
+         # image: gcr.io/google-containers/fluentd-elasticsearch:v2.2.1
+         # image: k8s.gcr.io/fluentd-elasticsearch:v2.2.0
+-        image: bossjones/fluentd-elasticsearch:v2.2.0
++        image: bossjones/fluentd-elasticsearch:v4.0.0
+         imagePullPolicy: Always
+         # FIXME: Try using this guy instead
+         # SOURCE: https://github.com/fluent/fluentd-kubernetes-daemonset/tree/master/docker-image/v1.3/debian-elasticsearch
+@@ -135,6 +144,12 @@ spec:
+         #   value: "elastic"
+         # - name: FLUENT_ELASTICSEARCH_PASSWORD
+         #   value: "changeme"
++        # securityContext:
++        #    privileged: true
++        securityContext:
++          runAsNonRoot: false
++          # runAsUser: 65534
++          privileged: true
+         resources:
+           limits:
+             memory: 500Mi
+@@ -143,31 +158,47 @@ spec:
+             cpu: 100m
+             memory: 200Mi
+         volumeMounts:
++        # - name: libsystemddir
++        #   mountPath: /host/lib
++        #   readOnly: true
+         - name: varlog
+           mountPath: /var/log
+         - name: varlibdockercontainers
+           mountPath: /var/lib/docker/containers
+           readOnly: true
+-        # - name: libsystemddir
+-        #   mountPath: /host/lib
+-        #   readOnly: true
+         - name: config-volume
+           mountPath: /etc/fluent/config.d
+-      nodeSelector:
+-        beta.kubernetes.io/fluentd-ds-ready: "true"
++        - name: docker-sock
++          mountPath: /var/run/docker.sock
++        - name: varrun
++          mountPath: /var/run
++        - name: libsystemd
++          mountPath: /usr/lib64/libsystemd.so.0
++      # nodeSelector:
++        # beta.kubernetes.io/fluentd-ds-ready: "true"
+       terminationGracePeriodSeconds: 30
+       volumes:
++      # It is needed to copy systemd library to decompress journals
++      # - name: libsystemddir
++      #   hostPath:
++      #     path: /usr/lib64
+       - name: varlog
+         hostPath:
+           path: /var/log
+       - name: varlibdockercontainers
+         hostPath:
+           path: /var/lib/docker/containers
+-      # It is needed to copy systemd library to decompress journals
+-      # - name: libsystemddir
+-      #   hostPath:
+-      #     path: /usr/lib64
+       - name: config-volume
+         configMap:
+           # name: fluentd-es-config-v0.1.0
+           name: fluentd-es-config-v0.1.6
++
++      - name: docker-sock
++        hostPath:
++          path: /var/run/docker/libcontainerd/docker-containerd.sock
++      - name: varrun
++        hostPath:
++          path: /var/run
++      - name: libsystemd
++        hostPath:
++          path: /usr/lib64/libsystemd.so.0
