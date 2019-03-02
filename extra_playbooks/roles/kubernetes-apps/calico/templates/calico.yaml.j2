@@ -74,7 +74,8 @@ spec:
       targetPort: calico-typha
       name: calico-typha
     - containerPort: 9091
-      name: metrics
+      targetPort: calico-metrics
+      name: calico-metrics
       protocol: TCP
   selector:
     k8s-app: calico-typha
