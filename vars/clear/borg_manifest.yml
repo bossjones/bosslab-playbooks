@@ -11,6 +11,8 @@ main_network_interface: 'ens192'
 nfs_server_group: nfs_masters
 nfs_client_group: nfs_clients
 nfs_server_ip_override: 192.168.1.174
+k8_admin_config_dir: ~/dev/bossjones/bosslab-playbooks
+k8_admin_config_path: "{{k8_admin_config_dir}}/borg-admin.conf"
 
 #      .########..######..##.....##..#######...######..########.########..##.....##.########.########.
 #      .##.......##....##.##.....##.##.....##.##....##.##.......##.....##.##.....##.##.......##.....##

@@ -892,6 +892,15 @@ render-manifest-prometheus-operator:
 	@printf "=======================================\n"
 	bash -c "find dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0 -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
 
+render-manifest-prometheus-operator-custom:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_prometheus_operator_custom.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@printf "lint prometheus-operator-v0-27-0 manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint prometheus-operator-v0-27-0 manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0 -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
 render-manifest:
 	$(call check_defined, cluster, Please set cluster)
 	ansible-playbook -c local -vvvvv playbooks/render_echoserver.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"

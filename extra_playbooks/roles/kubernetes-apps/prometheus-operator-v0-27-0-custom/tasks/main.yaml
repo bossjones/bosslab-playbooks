@@ -1,11 +1,24 @@
 ---
-- name: "prometheus-operator-custom | Create directory: {{boss__prometheus__operator__custom__manifest_path}}"
+- name: "prometheus-operator-custom | Create directory: {{boss__prometheus__operator__manifest_path}}"
   file:
-    path: "{{boss__prometheus__operator__custom__manifest_path}}"
+    path: "{{boss__prometheus__operator__manifest_path}}"
     state: directory
 
 - name: "prometheus-operator-custom | Write manifests (RBAC)"
   template:
     src: "{{ item }}.j2"
-    dest: "{{ boss__prometheus__operator__custom__manifest_path }}/{{ item }}"
-  with_items: []
+    dest: "{{ boss__prometheus__operator__manifest_path }}/{{ item }}"
+  with_items:
+  - "prometheus-additional.yaml"
+
+- name: kubectl create additional-scrape-configs
+  shell: |
+    kubectl --namespace={{boss__prometheus__operator__namespace_name}} create secret generic additional-scrape-configs --from-file={{ boss__prometheus__operator__manifest_path | expanduser }}/prometheus-additional.yaml --dry-run -oyaml > {{ boss__prometheus__operator__manifest_path }}/additional-scrape-configs.yaml
+    rm {{ boss__prometheus__operator__manifest_path | expanduser }}/prometheus-additional.yaml
+  become: '{{ item }}'
+  args:
+    executable: /bin/bash
+  environment:
+    KUBECONFIG: "{{ k8_admin_config_path }}"
+  with_items:
+    - false  # Run as vagrant
