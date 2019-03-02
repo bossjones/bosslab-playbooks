@@ -16,7 +16,7 @@ spec:
         app: grafana
     spec:
       containers:
-      - image: grafana/grafana:5.2.4
+      - image: {{boss__prometheus__operator__grafana_image_repo}}:{{boss__prometheus__operator__grafana_version}}
         name: grafana
         ports:
         - containerPort: 3000
@@ -33,13 +33,10 @@ spec:
           timeoutSeconds: 60
           # When a Pod starts and the probe fails, Kubernetes will try failureThreshold times before giving up. Giving up in case of liveness probe means restarting the Pod. In case of readiness probe the Pod will be marked Unready. Defaults to 3. Minimum value is 1.
           failureThreshold: 15
+{% if boss__prometheus__operator__grafana_deployment_spec_template_spec_containers_resources is defined %}
         resources:
-          limits:
-            cpu: 2000m
-            memory: 200Mi
-          requests:
-            cpu: 1000m
-            memory: 100Mi
+{{ boss__prometheus__operator__grafana_deployment_spec_template_spec_containers_resources | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
         env:
         - name: GF_INSTALL_PLUGINS
           # ,sbueringer-consul-datasource Ignored for now becausse binary needs chmod +x
