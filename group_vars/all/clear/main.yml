@@ -1,2 +1,4 @@
 ---
 datadog_api_key: "{{ vault_datadog_api_key }}"
+unifi_exporter_username: "{{ vault_unifi_exporter_username }}"
+unifi_exporter_password: "{{ vault_unifi_exporter_password }}"

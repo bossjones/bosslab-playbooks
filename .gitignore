@@ -187,3 +187,7 @@ playbooks/.ansible-logs/
 
 !.vscode/launch.json
 badass.txt
+
+
+# secrets
+unifi-exporter-credentials.yaml

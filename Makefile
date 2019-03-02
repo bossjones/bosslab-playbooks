@@ -901,6 +901,16 @@ render-manifest-prometheus-operator-custom:
 	@printf "=======================================\n"
 	bash -c "find dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0 -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
 
+
+render-manifest-unifi-exporter:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_unifi_exporter.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@printf "lint unifi-exporter manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint unifi-exporter manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/unifi-exporter -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
 render-manifest:
 	$(call check_defined, cluster, Please set cluster)
 	ansible-playbook -c local -vvvvv playbooks/render_echoserver.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
@@ -919,6 +929,7 @@ render-manifest:
 	ansible-playbook -c local -vvvvv playbooks/render_markdownrender.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	ansible-playbook -c local -vvvvv playbooks/render_weave_scope.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	ansible-playbook -c local -vvvvv playbooks/render_prometheus_operator.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local -vvvvv playbooks/render_unifi_exporter.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 
 tmp-shell-default:
 	kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash
