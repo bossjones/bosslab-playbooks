@@ -73,6 +73,9 @@ spec:
       protocol: TCP
       targetPort: calico-typha
       name: calico-typha
+    - containerPort: 9091
+      name: metrics
+      protocol: TCP
   selector:
     k8s-app: calico-typha
 
@@ -141,13 +144,15 @@ spec:
             value: "kubernetes"
           - name: TYPHA_HEALTHENABLED
             value: "true"
-{% if ( (boss__calico__prometheus_metrics_enabled is defined) and (boss__calico__prometheus_metrics_enabled) ) %}
+{% if boss__calico__prometheus_metrics_enabled is defined %}
+{% if boss__calico__prometheus_metrics_enabled == "enabled" %}
           # Uncomment these lines to enable prometheus metrics.  Since Typha is host-networked,
           # this opens a port on the host, which may need to be secured.
           - name: TYPHA_PROMETHEUSMETRICSENABLED
             value: "true"
           - name: TYPHA_PROMETHEUSMETRICSPORT
             value: "9093"
+{% endif %}
 {% endif %}
         livenessProbe:
           exec:
@@ -212,7 +217,7 @@ spec:
         # marks the pod as a critical add-on, ensuring it gets
         # priority scheduling and that its resources are reserved
         # if it ever gets evicted.
-        {{ boss__calico__node_daemonset_annotations | indent( width=4, indentfirst=True,blank=True) }}
+{{ boss__calico__node_daemonset_annotations | indent( width=8, indentfirst=True,blank=True) }}
 {% endif %}
     spec:
       nodeSelector:
@@ -300,8 +305,6 @@ spec:
               value: "true"
             - name: FELIX_PROMETHEUSMETRICSPORT
               value: "9091"
-
-
           securityContext:
             privileged: true
           resources:

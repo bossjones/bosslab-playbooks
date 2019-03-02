@@ -81,7 +81,7 @@ boss__echoserver__service__spec_selector: |
 
 boss__calico__manifest_path: "{{manifest_dir_path}}/calico"
 boss__calico__namespace_name: kube-system
-boss__calico__prometheus_metrics_enabled: true
+boss__calico__prometheus_metrics_enabled: "enabled"
 
 boss__calico__node_version: v3.3.2
 boss__calico__node_image_repo: "quay.io/calico/node"
