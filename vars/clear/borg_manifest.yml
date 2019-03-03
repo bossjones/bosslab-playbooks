@@ -101,6 +101,10 @@ boss__calico__node_daemonset_annotations: |
 
 boss__calico__typha_deployment_spec_replicas: 3
 
+boss__calico__typha_service_annotations: |
+  prometheus.io/scrape: 'true'
+  prometheus.io/port: '9091'
+
 # {{ calico_node_image_repo }}:{{ calico_node_image_tag }}
 
 ##########################################################################################################
@@ -1226,6 +1230,11 @@ boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pv_spec_nfs: 
 boss__unifi__exporter__subdomain: unifi-exporter
 boss__unifi__exporter__manifest_path: "{{manifest_dir_path}}/unifi-exporter"
 boss__unifi__exporter__namespace_name: monitoring
+
+
+boss__unifi__exporter__service_annotations: |
+  prometheus.io/scrape: 'true'
+  prometheus.io/port: '9091'
 
 #######################
 

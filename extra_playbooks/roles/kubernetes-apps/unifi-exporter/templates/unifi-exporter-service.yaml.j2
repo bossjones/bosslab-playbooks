@@ -5,6 +5,10 @@ metadata:
     app: unifi-exporter
   name: unifi-exporter
   namespace: {{boss__unifi__exporter__namespace_name}}
+{% if boss__unifi__exporter__service_annotations is defined %}
+  annotations:
+{{ boss__unifi__exporter__service_annotations | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 spec:
   ports:
   - name: http-metrics
