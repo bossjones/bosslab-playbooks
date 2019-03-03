@@ -20,8 +20,6 @@
   shell: |
     kubectl --namespace={{boss__unifi__exporter__namespace_name}} create secret generic unifi-exporter-credentials --from-file={{ boss__unifi__exporter__manifest_path | expanduser }}/unifi-exporter-secret-config.yaml --dry-run -oyaml > {{ boss__unifi__exporter__manifest_path }}/unifi-exporter-credentials.yaml
     cat {{ boss__unifi__exporter__manifest_path }}/unifi-exporter-credentials.yaml
-    rm {{ boss__unifi__exporter__manifest_path | expanduser }}/unifi-exporter-credentials.yaml
-    rm {{ boss__unifi__exporter__manifest_path | expanduser }}/unifi-exporter-secret-config.yaml
   become: '{{ item }}'
   args:
     executable: /bin/bash
@@ -29,3 +27,30 @@
     KUBECONFIG: "{{ k8_admin_config_path }}"
   with_items:
     - false  # Run as vagrant
+
+- name: "RUN | kubectl --namespace={{boss__unifi__exporter__namespace_name}} apply -f {{ boss__unifi__exporter__manifest_path }}/unifi-exporter-credentials.yaml"
+  shell: |
+    kubectl --namespace={{boss__unifi__exporter__namespace_name}} apply -f {{ boss__unifi__exporter__manifest_path }}/unifi-exporter-credentials.yaml
+  become: '{{ item }}'
+  args:
+    executable: /bin/bash
+  environment:
+    KUBECONFIG: "{{ k8_admin_config_path }}"
+  with_items:
+    - false  # Run as vagrant
+  when: boss__unifi__exporter__apply_changes_immediately is defined and boss__unifi__exporter__apply_changes_immediately
+
+
+- name: "RUN | rm {{ boss__unifi__exporter__manifest_path | expanduser }}/unifi-exporter-credentials.yaml; rm {{ boss__unifi__exporter__manifest_path | expanduser }}/unifi-exporter-secret-config.yaml"
+  shell: |
+    rm {{ boss__unifi__exporter__manifest_path | expanduser }}/unifi-exporter-credentials.yaml
+    rm {{ boss__unifi__exporter__manifest_path | expanduser }}/unifi-exporter-secret-config.yaml
+  become: '{{ item }}'
+  ignore_errors: True
+  args:
+    executable: /bin/bash
+  environment:
+    KUBECONFIG: "{{ k8_admin_config_path }}"
+  with_items:
+    - false  # Run as vagrant
+  when: boss__unifi__exporter__delete_secrets is defined and boss__unifi__exporter__delete_secrets

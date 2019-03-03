@@ -1282,6 +1282,8 @@ boss__prometheus__operator__prometheus_additional_scrape_configs: |
 boss__unifi__exporter__subdomain: unifi-exporter
 boss__unifi__exporter__manifest_path: "{{manifest_dir_path}}/unifi-exporter"
 boss__unifi__exporter__namespace_name: monitoring
+boss__unifi__exporter__apply_changes_immediately: False
+boss__unifi__exporter__delete_secrets: True
 
 # ---
 # local_release_dir: /tmp/releases
