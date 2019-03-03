@@ -20,6 +20,7 @@
   shell: |
     kubectl --namespace={{boss__unifi__exporter__namespace_name}} create secret generic unifi-exporter-credentials --from-file={{ boss__unifi__exporter__manifest_path | expanduser }}/unifi-exporter-secret-config.yaml --dry-run -oyaml > {{ boss__unifi__exporter__manifest_path }}/unifi-exporter-credentials.yaml
     cat {{ boss__unifi__exporter__manifest_path }}/unifi-exporter-credentials.yaml
+    rm {{ boss__unifi__exporter__manifest_path | expanduser }}/unifi-exporter-secret-config.yaml
   become: '{{ item }}'
   args:
     executable: /bin/bash
@@ -44,7 +45,6 @@
 - name: "RUN | rm {{ boss__unifi__exporter__manifest_path | expanduser }}/unifi-exporter-credentials.yaml; rm {{ boss__unifi__exporter__manifest_path | expanduser }}/unifi-exporter-secret-config.yaml"
   shell: |
     rm {{ boss__unifi__exporter__manifest_path | expanduser }}/unifi-exporter-credentials.yaml
-    rm {{ boss__unifi__exporter__manifest_path | expanduser }}/unifi-exporter-secret-config.yaml
   become: '{{ item }}'
   ignore_errors: True
   args:
