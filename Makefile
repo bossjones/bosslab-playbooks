@@ -1012,6 +1012,11 @@ ansible-ping:
 
 ansible-debug-k8:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook playbooks/kubectl_debug.yaml   -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause" -f 10
+	ansible-playbook playbooks/kubectl_debug.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause" -f 10
+
+
+ansible-debug-k8-master-only:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook playbooks/kubectl_debug.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster) variable_host=masters" --skip-tags "pause" -f 10
 
 include *.mk
