@@ -996,5 +996,9 @@ i2cssh-borg: multi-ssh-homelab
 
 borg-ssh: multi-ssh-homelab
 
+install-rpi-monitoring:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -vvvvv playbooks/install_rpi_monitoring.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause" -f 10
+
 
 include *.mk
