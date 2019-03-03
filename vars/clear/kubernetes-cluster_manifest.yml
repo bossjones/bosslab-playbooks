@@ -10,6 +10,10 @@ main_network_interface: 'enp0s8'
 nfs_server_group: nfs_masters
 nfs_client_group: nfs_clients
 nfs_server_ip_override: 192.168.205.12
+k8_admin_config_dir: ~/dev/bossjones/bosslab-playbooks
+k8_admin_config_path: "{{k8_admin_config_dir}}/borg-admin.conf"
+
+# export KUBECONFIG=~/dev/bossjones/bosslab-playbooks/borg-admin.conf
 
 #      .########..######..##.....##..#######...######..########.########..##.....##.########.########.
 #      .##.......##....##.##.....##.##.....##.##....##.##.......##.....##.##.....##.##.......##.....##
@@ -44,6 +48,7 @@ boss__echoserver__ingress_labels: |
   run: nginx
 boss__echoserver__ingress_annotations: |
   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  traefik.frontend.rule.type: PathPrefix
 boss__echoserver__service_labels: |
   run: nginx
 boss__echoserver__service__spec_selector: |
@@ -89,10 +94,37 @@ boss__calico__cni_version: v3.3.2
 boss__calico__cni_image_repo: "quay.io/calico/cni"
 boss__calico__cni_image_tag: "{{ boss__calico__node_version }}"
 
+boss__calico__enable_prometheus_exporter_servicemonitor: "enabled"
+
+boss__calico__prometheus_exporter_namespace_name: monitoring
+
+boss__calico__felix_PrometheusMetricsPort: 9091
+boss__calico__typha_PrometheusMetricsPort: 9093
+
 boss__calico__node_daemonset_annotations: |
   scheduler.alpha.kubernetes.io/critical-pod: ''
-  prometheus.io/scrape: 'true'
-  prometheus.io/port: '9091'
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "{{boss__calico__felix_PrometheusMetricsPort}}"
+
+boss__calico__enable_typha: "enabled"
+boss__calico__typha_service_name: calico-typha  # or none
+
+boss__calico__typha_deployment_spec_replicas: 3
+
+boss__calico__typha_service_annotations: |
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "{{boss__calico__typha_PrometheusMetricsPort}}"
+
+boss__calico__typha_deployment_annotations: |
+  # This, along with the CriticalAddonsOnly toleration below, marks the pod as a critical
+  # add-on, ensuring it gets priority scheduling and that its resources are reserved
+  # if it ever gets evicted.
+  scheduler.alpha.kubernetes.io/critical-pod: ''
+  cluster-autoscaler.kubernetes.io/safe-to-evict: 'true'
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "{{boss__calico__typha_PrometheusMetricsPort}}"
+
+
 
 # {{ calico_node_image_repo }}:{{ calico_node_image_tag }}
 
@@ -161,6 +193,7 @@ boss__efk__deployment_name: efk
 ##########################################################################################################
 boss__efk__elasticsearch_ingress_annotations: |
   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  traefik.frontend.rule.type: PathPrefix
 boss__efk__elasticsearch_ingress_labels: |
   k8s-app: elasticsearch-logging
   kubernetes.io/cluster-service: "true"
@@ -301,6 +334,57 @@ boss__efk__fluentd_daemon_set_spec_template_metadata_annotations: |
         scheduler.alpha.kubernetes.io/critical-pod: ''
         seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
 
+
+boss__efk__fluentd_daemon_set_spec_template_spec_securityContext: |
+  runAsNonRoot: false
+  # runAsUser: 65534
+  privileged: true
+
+boss__efk__fluentd_daemon_set_spec_template_spec_volumeMounts: |
+  # - name: libsystemddir
+  #   mountPath: /host/lib
+  #   readOnly: true
+  - name: varlog
+    mountPath: /var/log
+  - name: varlibdockercontainers
+    mountPath: /var/lib/docker/containers
+    readOnly: true
+  - name: config-volume
+    mountPath: /etc/fluent/config.d
+  - name: docker-sock
+    mountPath: /var/run/docker.sock
+  - name: varrun
+    mountPath: /var/run
+  - name: libsystemd
+    mountPath: /usr/lib64/libsystemd.so.0
+
+boss__efk__fluentd_daemon_set_spec_template_spec_volumes: |
+  # It is needed to copy systemd library to decompress journals
+  # - name: libsystemddir
+  #   hostPath:
+  #     path: /usr/lib64
+  - name: varlog
+    hostPath:
+      path: /var/log
+  - name: varlibdockercontainers
+    hostPath:
+      path: /var/lib/docker/containers
+  - name: config-volume
+    configMap:
+      # name: fluentd-es-config-v0.1.0
+      name: fluentd-es-config-v0.1.6
+  - name: docker-sock
+    hostPath:
+      path: /var/run/docker/libcontainerd/docker-containerd.sock
+  - name: varrun
+    hostPath:
+      path: /var/run
+  - name: libsystemd
+    hostPath:
+      path: /usr/lib64/libsystemd.so.0
+
+
+
 ############################################
 
 
@@ -339,6 +423,7 @@ boss__efk__kibana_ingress_labels: |
     boss-part-of: efk
 boss__efk__kibana_ingress_annotations: |
     nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+    traefik.frontend.rule.type: PathPrefix
 boss__efk__kibana_service_labels: |
     k8s-app: kibana-logging
     kubernetes.io/cluster-service: "true"
@@ -375,6 +460,7 @@ boss__registry__enable_tls: true
 boss__registry__tls_cert_cluster_issuer_name: selfsigning-issuer
 
 boss__registry__ingress_annotations: |
+  traefik.frontend.rule.type: PathPrefix
   nginx.ingress.kubernetes.io/ssl-redirect: \"true\"
   nginx.ingress.kubernetes.io/rewrite-target: \"/\"
 
@@ -494,6 +580,7 @@ boss__registry__ui__enable_tls: true
 boss__registry__ui__tls_cert_cluster_issuer_name: selfsigning-issuer
 
 boss__registry__ui__ingress_annotations: |
+  traefik.frontend.rule.type: PathPrefix
   nginx.ingress.kubernetes.io/ssl-redirect: \"true\"
   nginx.ingress.kubernetes.io/rewrite-target: \"/\"
 
@@ -618,6 +705,7 @@ boss__jenkins__ingress_labels: |
     boss-part-of: jenkins
 boss__jenkins__ingress_annotations: |
     nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+    traefik.frontend.rule.type: PathPrefix
 boss__jenkins__service_labels: |
     k8s-app: jenkins
     kubernetes.io/cluster-service: "true"
@@ -683,6 +771,7 @@ boss__heapster__ingress_labels: |
     boss-part-of: heapster
 boss__heapster__ingress_annotations: |
     nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+    traefik.frontend.rule.type: PathPrefix
 boss__heapster__service_labels: |
     k8s-app: heapster
     kubernetes.io/cluster-service: "true"
@@ -747,6 +836,7 @@ boss__metrics__server__ingress_labels: |
     boss-part-of: metrics-server
 boss__metrics__server__ingress_annotations: |
     nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+    traefik.frontend.rule.type: PathPrefix
 boss__metrics__server__service_labels: |
     k8s-app: metrics-server
     kubernetes.io/cluster-service: "true"
@@ -812,6 +902,7 @@ boss__external__dns__ingress_labels: |
     boss-part-of: external-dns
 boss__external__dns__ingress_annotations: |
     nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+    traefik.frontend.rule.type: PathPrefix
 boss__external__dns__service_labels: |
     k8s-app: external-dns
     kubernetes.io/cluster-service: "true"
@@ -869,7 +960,7 @@ boss__helm__namespace_name: kube-system
 boss__metallb__subdomain: metallb
 boss__metallb__manifest_path: "{{manifest_dir_path}}/metallb"
 boss__metallb__namespace_name: metallb-system
-boss__metallb__address_pools: '192.168.205.10-192.168.205.12'
+boss__metallb__address_pools: '192.168.205.13-192.168.205.14'
 
 
 
@@ -957,6 +1048,355 @@ boss__markdownrender__namespace_name: default
 boss__markdownrender__version: latest-armhf
 boss__markdownrender__image_repo: "functions/markdownrender"
 boss__markdownrender__image_tag: "{{ boss__markdownrender__version }}"
+
+####################################################################################################
+#                  .########.########.....###....########.########.####.##....##.........####.##....##.########.########.########..##....##....###....##......
+#                  ....##....##.....##...##.##...##.......##........##..##...##...........##..###...##....##....##.......##.....##.###...##...##.##...##......
+#                  ....##....##.....##..##...##..##.......##........##..##..##............##..####..##....##....##.......##.....##.####..##..##...##..##......
+#                  ....##....########..##.....##.######...######....##..#####....#######..##..##.##.##....##....######...########..##.##.##.##.....##.##......
+#                  ....##....##...##...#########.##.......##........##..##..##............##..##..####....##....##.......##...##...##..####.#########.##......
+#                  ....##....##....##..##.....##.##.......##........##..##...##...........##..##...###....##....##.......##....##..##...###.##.....##.##......
+#                  ....##....##.....##.##.....##.########.##.......####.##....##.........####.##....##....##....########.##.....##.##....##.##.....##.########
+##########################################################################################################
+boss__traefik__internal__subdomain: traefik-internal
+boss__traefik__internal__manifest_path: "{{manifest_dir_path}}/traefik-internal"
+boss__traefik__internal__namespace_name: traefik-system
+boss__traefik__internal__service_spec_type: LoadBalancer
+boss__traefik__internal__service_spec_loadBalancerIP: 192.168.205.13
+
+
+####################################################################################################
+#          .##......##.########....###....##.....##.########..........######...######...#######..########..########
+#          .##..##..##.##.........##.##...##.....##.##...............##....##.##....##.##.....##.##.....##.##......
+#          .##..##..##.##........##...##..##.....##.##...............##.......##.......##.....##.##.....##.##......
+#          .##..##..##.######...##.....##.##.....##.######...#######..######..##.......##.....##.########..######..
+#          .##..##..##.##.......#########..##...##..##.....................##.##.......##.....##.##........##......
+#          .##..##..##.##.......##.....##...##.##...##...............##....##.##....##.##.....##.##........##......
+#          ..###..###..########.##.....##....###....########..........######...######...#######..##........########
+##########################################################################################################
+boss__weave__scope__subdomain: weave-scope
+boss__weave__scope__manifest_path: "{{manifest_dir_path}}/weave-scope"
+boss__weave__scope__namespace_name: weave
+boss__weave__scope__manifest_filename_based_on_networking: "weave-calico-networking.yaml"
+boss__weave__scope__enable_ingress_traefik: "enabled"
+
+boss__weave__scope__ingress_metadata_annotations: |
+  traefik.frontend.rule.type: PathPrefix
+
+boss__prometheus__operator__subdomain: prometheus-operator
+boss__prometheus__operator__manifest_path: "{{manifest_dir_path}}/prometheus-operator-v0-27-0"
+boss__prometheus__operator__namespace_name: monitoring
+
+# This doesn't have a last tag or anything like that
+boss__prometheus__operator__alertmanager_subdomain: alertmanager
+boss__prometheus__operator__alertmanager_version: v0.15.3
+boss__prometheus__operator__alertmanager_crd_baseImage: "quay.io/prometheus/alertmanager"
+boss__prometheus__operator__alertmanager_image_tag: "{{ boss__prometheus__operator__alertmanager_version }}"
+
+boss__prometheus__operator__grafana_subdomain: grafana
+boss__prometheus__operator__grafana_version: 5.2.4
+boss__prometheus__operator__grafana_image_repo: "grafana/grafana"
+boss__prometheus__operator__grafana_image_tag: "{{ boss__prometheus__operator__grafana_version }}"
+boss__prometheus__operator__grafana_cpu_limit: 2000m
+boss__prometheus__operator__grafana_mem_limit: 500Mi
+boss__prometheus__operator__grafana_cpu_requests: 1000m
+boss__prometheus__operator__grafana_mem_requests: 200Mi
+boss__prometheus__operator__grafana_deployment_spec_template_spec_containers_resources: |
+  limits:
+    cpu: 2000m
+    memory: 200Mi
+  requests:
+    cpu: 1000m
+    memory: 100Mi
+
+boss__prometheus__operator__prometheus_subdomain: prometheus
+boss__prometheus__operator__prometheus_version: v2.5.0
+boss__prometheus__operator__prometheus_crd_baseImage: "quay.io/prometheus/prometheus"
+boss__prometheus__operator__prometheus_image_tag: "{{ boss__prometheus__operator__prometheus_version }}"
+
+boss__prometheus__operator__node_exporter_version: v0.16.0
+boss__prometheus__operator__node_exporter_image_repo: "quay.io/prometheus/node-exporter"
+boss__prometheus__operator__node_exporter_image_tag: "{{ boss__prometheus__operator__node_exporter_version }}"
+boss__prometheus__operator__node_exporter_daemonset_spec_template_spec_containers_resources: |
+  limits:
+    cpu: 250m
+    memory: 180Mi
+  requests:
+    cpu: 102m
+    memory: 180Mi
+
+boss__prometheus__operator__kube_rbac_proxy_version: v0.4.0
+boss__prometheus__operator__kube_rbac_proxy_image_repo: "quay.io/coreos/kube-rbac-proxy"
+boss__prometheus__operator__kube_rbac_proxy_image_tag: "{{ boss__prometheus__operator__kube_rbac_proxy_version }}"
+boss__prometheus__operator__kube_rbac_proxy_daemonset_spec_template_spec_containers_resources: |
+  # NOTE: Orig below ( 3/3/2019 )
+  #limits:
+  #  cpu: 20m
+  #  memory: 40Mi
+  #requests:
+  #  cpu: 10m
+  #  memory: 20Mi
+  limits:
+    cpu: 100m
+    memory: 120Mi
+  requests:
+    cpu: 90m
+    memory: 60Mi
+
+boss__prometheus__operator__kube_rbac_proxy_deployment_spec_template_spec_containers_resources: |
+  limits:
+    cpu: 20m
+    memory: 40Mi
+  requests:
+    cpu: 10m
+    memory: 20Mi
+
+boss__prometheus__operator__kube_state_metrics_version: v1.4.0
+boss__prometheus__operator__kube_state_metrics_image_repo: "quay.io/coreos/kube-state-metrics"
+boss__prometheus__operator__kube_state_metrics_image_tag: "{{ boss__prometheus__operator__kube_state_metrics_version }}"
+boss__prometheus__operator__kube_state_metrics_deployment_spec_template_spec_containers_resources: |
+  limits:
+    cpu: 100m
+    memory: 150Mi
+  requests:
+    cpu: 100m
+    memory: 150Mi
+
+boss__prometheus__operator__addon_resizer_version: 1.0
+boss__prometheus__operator__addon_resizer_image_repo: "quay.io/coreos/addon-resizer"
+boss__prometheus__operator__addon_resizer_image_tag: "{{ boss__prometheus__operator__addon_resizer_version }}"
+boss__prometheus__operator__addon_resizer_deployment_spec_template_spec_containers_resources: |
+  limits:
+    cpu: 50m
+    memory: 30Mi
+  requests:
+    cpu: 10m
+    memory: 30Mi
+
+boss__prometheus__operator__prometheus_operator_version: v0.29.0
+boss__prometheus__operator__prometheus_operator_image_repo: "quay.io/coreos/prometheus-operator"
+boss__prometheus__operator__prometheus_operator_image_tag: "{{ boss__prometheus__operator__prometheus_operator_version }}"
+boss__prometheus__operator__prometheus_operator_deployment_spec_template_spec_containers_resources: |
+  limits:
+    cpu: 200m
+    memory: 200Mi
+  requests:
+    cpu: 100m
+    memory: 100Mi
+
+boss__prometheus__operator__configmap_reload_version: v0.0.1
+boss__prometheus__operator__configmap_reload_image_repo: "quay.io/coreos/configmap-reload"
+boss__prometheus__operator__configmap_reload_image_tag: "{{ boss__prometheus__operator__configmap_reload_version }}"
+
+boss__prometheus__operator__prometheus_operator_config_reloader_version: v0.29.0
+boss__prometheus__operator__prometheus_operator_config_reloader_image_repo: "quay.io/coreos/prometheus-config-reloader"
+boss__prometheus__operator__prometheus_operator_config_reloader_image_tag: "{{ boss__prometheus__operator__prometheus_operator_config_reloader_version }}"
+boss__prometheus__operator__prometheus_operator_config_reloader_deployment_spec_template_spec_containers_resources: |
+  limits:
+    cpu: 200m
+    memory: 200Mi
+  requests:
+    cpu: 100m
+    memory: 100Mi
+
+
+boss__prometheus__operator__alertmanager_ingress_metadata_annotations: |
+  # Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
+  # https://github.com/kubernetes/ingress-nginx/issues/1567
+  # SOURCE: https://github.com/nginxinc/kubernetes-ingress/tree/master/examples/multiple-ingress-controllers
+  # NOTE: To designate that a particular Ingress resource must be handled only by the NGINX or NGINX Plus controller add the following annotation along with the value to the Ingress resource:
+
+  # to designate that a particular Ingress resource must be handled only by the NGINX or NGINX Plus controller add the following annotation along with the value to the Ingress resource
+  # kubernetes.io/ingress.class: "nginx"
+  # kubernetes.io/tls-acme: "false"
+  # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-body-size: \"0\"
+  # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-read-timeout: \"600\"
+  # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-send-timeout: \"600\"
+  # INFO: Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
+  # https://github.com/kubernetes/ingress-nginx/issues/1567
+  nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  # INFO: Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
+  # SOURCE: https://medium.com/@Oskarr3/setting-up-ingress-on-minikube-6ae825e98f82
+  # nginx.ingress.kubernetes.io/rewrite-target: /
+  traefik.frontend.rule.type: PathPrefix
+
+boss__prometheus__operator__alertmanager_ingress_metadata_labels: |
+  run: nginx
+  alertmanager: main
+  app: alertmanager
+
+
+boss__prometheus__operator__prometheus_ingress_metadata_annotations: |
+  # Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
+  # https://github.com/kubernetes/ingress-nginx/issues/1567
+  # SOURCE: https://github.com/nginxinc/kubernetes-ingress/tree/master/examples/multiple-ingress-controllers
+  # NOTE: To designate that a particular Ingress resource must be handled only by the NGINX or NGINX Plus controller add the following annotation along with the value to the Ingress resource:
+
+  # to designate that a particular Ingress resource must be handled only by the NGINX or NGINX Plus controller add the following annotation along with the value to the Ingress resource
+  # kubernetes.io/ingress.class: "nginx"
+  # kubernetes.io/tls-acme: "false"
+  # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-body-size: \"0\"
+  # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-read-timeout: \"600\"
+  # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-send-timeout: \"600\"
+  # INFO: Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
+  # https://github.com/kubernetes/ingress-nginx/issues/1567
+  nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  # INFO: Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
+  # SOURCE: https://medium.com/@Oskarr3/setting-up-ingress-on-minikube-6ae825e98f82
+  # nginx.ingress.kubernetes.io/rewrite-target: /
+  traefik.frontend.rule.type: PathPrefix
+
+boss__prometheus__operator__prometheus_ingress_metadata_labels: |
+  app: prometheus
+  prometheus: k8s
+  run: nginx
+  k8s-app: prometheus-operator
+
+
+boss__prometheus__operator__grafana_ingress_metadata_annotations: |
+  # Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
+  # https://github.com/kubernetes/ingress-nginx/issues/1567
+  # SOURCE: https://github.com/nginxinc/kubernetes-ingress/tree/master/examples/multiple-ingress-controllers
+  # NOTE: To designate that a particular Ingress resource must be handled only by the NGINX or NGINX Plus controller add the following annotation along with the value to the Ingress resource:
+
+  # to designate that a particular Ingress resource must be handled only by the NGINX or NGINX Plus controller add the following annotation along with the value to the Ingress resource
+  # kubernetes.io/ingress.class: "nginx"
+  # kubernetes.io/tls-acme: "false"
+  # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-body-size: \"0\"
+  # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-read-timeout: \"600\"
+  # FIXME: something wrong with this # nginx.ingress.kubernetes.io/proxy-send-timeout: \"600\"
+  # INFO: Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
+  # https://github.com/kubernetes/ingress-nginx/issues/1567
+  nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  # INFO: Note the nginx.ingress.kubernetes.io/ssl-redirect annotation. It is used since we are not specifying a host. When no host is specified, then the default-server is hit, which is configured with a self-signed certificate, and redirects http to https. This issue explains more.
+  # SOURCE: https://medium.com/@Oskarr3/setting-up-ingress-on-minikube-6ae825e98f82
+  # nginx.ingress.kubernetes.io/rewrite-target: /
+  traefik.frontend.rule.type: PathPrefix
+
+boss__prometheus__operator__grafana_ingress_metadata_labels: |
+  run: nginx
+  app: grafana
+
+
+################# Persistent volume claims
+
+# persistent volume claim - grafana
+boss__prometheus__operator__grafana_pvc_labels: |
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  k8s-app: prometheus-operator
+
+boss__prometheus__operator__grafana_pvc_spec_storageClassName: "nfs-dynamic-class"
+boss__prometheus__operator__grafana_pvc_spec_resources_requests_storage: "2Gi"
+
+# persistent volume - grafana
+boss__prometheus__operator__grafana_pv_labels: |
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    k8s-app: prometheus-operator
+    boss-part-of: prometheus-operator
+
+boss__prometheus__operator__grafana_pv_spec_capacity_storage: 2Gi
+boss__prometheus__operator__grafana_pv_spec_nfs: |
+    server: 192.168.205.12
+    path: "/mnt/publicdata/grafana"
+
+
+# persistent volume claim - prometheus-adapter-tmpfs
+boss__prometheus__operator__prometheus_adapter_tmpfs_pvc_labels: |
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    k8s-app: prometheus-operator
+
+boss__prometheus__operator__prometheus_adapter_tmpfs_pvc_spec_storageClassName: "nfs-dynamic-class"
+boss__prometheus__operator__prometheus_adapter_tmpfs_pvc_spec_resources_requests_storage: "250Mi"
+
+# persistent volume - prometheus-adapter-tmpfs
+boss__prometheus__operator__prometheus_adapter_tmpfs_pv_labels: |
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  k8s-app: prometheus-operator
+  boss-part-of: prometheus-operator
+
+boss__prometheus__operator__prometheus_adapter_tmpfs_pv_spec_capacity_storage: 250Mi
+boss__prometheus__operator__prometheus_adapter_tmpfs_pv_spec_nfs: |
+    server: 192.168.205.12
+    path: "/mnt/publicdata/prometheus-adapter-tmpfs"
+
+# persistent volume claim - prometheus-adapter-volume-serving-cert
+boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pvc_labels: |
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    k8s-app: prometheus-operator
+
+boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pvc_spec_storageClassName: "nfs-dynamic-class"
+boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pvc_spec_resources_requests_storage: "250Mi"
+
+# persistent volume - prometheus-adapter-volume-serving-cert
+boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pv_labels: |
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    k8s-app: prometheus-operator
+    boss-part-of: prometheus-operator
+
+boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pv_spec_capacity_storage: 250Mi
+boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pv_spec_nfs: |
+    server: 192.168.205.12
+    path: "/mnt/publicdata/prometheus-adapter-volume-serving-cert"
+
+boss__prometheus__operator__prometheus_additional_scrape_configs: |
+  # RUN: kubectl --namespace monitoring create secret generic additional-scrape-configs --from-file=PLAINTEXT-SECRET-prometheus-additional.yaml --dry-run -oyaml > additional-scrape-configs.yaml
+  - job_name: 'netdata-scrape'
+
+    metrics_path: '/api/v1/allmetrics'
+    params:
+      # format: prometheus | prometheus_all_hosts
+      # You can use `prometheus_all_hosts` if you want Prometheus to set the `instance` to your hostname instead of IP
+      format: [prometheus]
+      #
+      # sources: as-collected | raw | average | sum | volume
+      # default is: average
+      #source: [as-collected]
+      #
+      # server name for this prometheus - the default is the client IP
+      # for netdata to uniquely identify it
+      #server: ['prometheus1']
+    honor_labels: true
+
+    static_configs:
+      - targets: ['192.168.205.10:19999','192.168.205.11:19999','192.168.205.12:19999']
+
+# SOURCE: https://techtran.science/2018/06/11/unifi-to-grafana-using-prometheus-and-unifi_exporter/
+# - job_name: 'unifi_exporter'
+#   static_configs:
+#     - targets: ['dockerswarm:9130']
+#       labels:
+#         alias: unifi_exporter
+
+
+
+####################################################################################################
+#   .##.....##.##....##.####.########.####.........########.##.....##.########...#######..########..########.########.########.
+#   .##.....##.###...##..##..##........##..........##........##...##..##.....##.##.....##.##.....##....##....##.......##.....##
+#   .##.....##.####..##..##..##........##..........##.........##.##...##.....##.##.....##.##.....##....##....##.......##.....##
+#   .##.....##.##.##.##..##..######....##..#######.######......###....########..##.....##.########.....##....######...########.
+#   .##.....##.##..####..##..##........##..........##.........##.##...##........##.....##.##...##......##....##.......##...##..
+#   .##.....##.##...###..##..##........##..........##........##...##..##........##.....##.##....##.....##....##.......##....##.
+#   ..#######..##....##.####.##.......####.........########.##.....##.##.........#######..##.....##....##....########.##.....##
+####################################################################################################
+boss__unifi__exporter__subdomain: unifi-exporter
+boss__unifi__exporter__manifest_path: "{{manifest_dir_path}}/unifi-exporter"
+boss__unifi__exporter__namespace_name: monitoring
+boss__unifi__exporter__apply_changes_immediately: False
+boss__unifi__exporter__delete_secrets: True
+
+boss__unifi__exporter__port: 9130
+boss__unifi__exporter__listen_address: ":{{boss__unifi__exporter__port}}"
+boss__unifi__exporter__listen_metricspath: /metrics
+boss__unifi__exporter__unifi_address: https://192.168.1.8:8443
+boss__unifi__exporter__unifi_site: Hyenanet
+boss__unifi__exporter__unifi_insecure: true
+boss__unifi__exporter__unifi_timeout: 5s
 
 # ---
 # local_release_dir: /tmp/releases

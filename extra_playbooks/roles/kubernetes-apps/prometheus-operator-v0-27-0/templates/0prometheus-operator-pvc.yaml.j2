@@ -4,36 +4,36 @@ apiVersion: v1
 metadata:
   name: grafana-pvc
   namespace: monitoring
+{% if boss__prometheus__operator__grafana_pvc_labels is defined %}
   labels:
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    k8s-app: prometheus-operator
+{{ boss__prometheus__operator__grafana_pvc_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: "nfs-dynamic-class"
+  storageClassName: "{{ boss__prometheus__operator__grafana_pvc_spec_storageClassName }}"
   resources:
     requests:
-      storage: "2Gi"
+      storage: "{{ boss__prometheus__operator__grafana_pvc_spec_resources_requests_storage }}"
 ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: grafana-pv
   namespace: monitoring
+{% if boss__prometheus__operator__grafana_pv_labels is defined %}
   labels:
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    k8s-app: prometheus-operator
-    boss-part-of: prometheus-operator
+{{ boss__prometheus__operator__grafana_pv_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 spec:
   capacity:
-    storage: 2Gi
+    storage: {{boss__prometheus__operator__grafana_pv_spec_capacity_storage}}
   accessModes:
     - ReadWriteMany
+{% if boss__prometheus__operator__grafana_pv_spec_nfs is defined %}
   nfs:
-    server: 192.168.1.174
-    path: "/mnt/publicdata/grafana"
+{{ boss__prometheus__operator__grafana_pv_spec_nfs | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 
 ---
 kind: PersistentVolumeClaim
@@ -41,37 +41,36 @@ apiVersion: v1
 metadata:
   name: prometheus-adapter-tmpfs-pvc
   namespace: monitoring
+{% if boss__prometheus__operator__prometheus_adapter_tmpfs_pvc_labels is defined %}
   labels:
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    k8s-app: prometheus-operator
+{{ boss__prometheus__operator__prometheus_adapter_tmpfs_pvc_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: "nfs-dynamic-class"
+  storageClassName: "{{ boss__prometheus__operator__prometheus_adapter_tmpfs_pvc_spec_storageClassName }}"
   resources:
     requests:
-      storage: "2Gi"
+      storage: "{{boss__prometheus__operator__prometheus_adapter_tmpfs_pvc_spec_resources_requests_storage}}"
 ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: prometheus-adapter-tmpfs-pv
   namespace: monitoring
+{% if boss__prometheus__operator__prometheus_adapter_tmpfs_pv_labels is defined %}
   labels:
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    k8s-app: prometheus-operator
-    boss-part-of: prometheus-operator
+{{ boss__prometheus__operator__prometheus_adapter_tmpfs_pv_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 spec:
   capacity:
-    storage: 2Gi
+    storage: {{boss__prometheus__operator__prometheus_adapter_tmpfs_pv_spec_capacity_storage}}
   accessModes:
     - ReadWriteMany
+{% if boss__prometheus__operator__prometheus_adapter_tmpfs_pv_spec_nfs is defined %}
   nfs:
-    server: 192.168.1.174
-    path: "/mnt/publicdata/prometheus-adapter-tmpfs"
-
+{{ boss__prometheus__operator__prometheus_adapter_tmpfs_pv_spec_nfs | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 
 ---
 kind: PersistentVolumeClaim
@@ -79,33 +78,33 @@ apiVersion: v1
 metadata:
   name: prometheus-adapter-volume-serving-cert-pvc
   namespace: monitoring
+{% if boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pvc_labels is defined %}
   labels:
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    k8s-app: prometheus-operator
+{{ boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pvc_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: "nfs-dynamic-class"
+  storageClassName: "{{ boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pvc_spec_storageClassName }}"
   resources:
     requests:
-      storage: "2Gi"
+      storage: "{{boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pvc_spec_resources_requests_storage}}"
 ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: prometheus-adapter-volume-serving-cert-pv
   namespace: monitoring
+{% if boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pv_labels is defined %}
   labels:
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    k8s-app: prometheus-operator
-    boss-part-of: prometheus-operator
+{{ boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pv_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 spec:
   capacity:
-    storage: 2Gi
+    storage: {{boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pv_spec_capacity_storage}}
   accessModes:
     - ReadWriteMany
+{% if boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pv_spec_nfs is defined %}
   nfs:
-    server: 192.168.1.174
-    path: "/mnt/publicdata/prometheus-adapter-volume-serving-cert"
+{{ boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pv_spec_nfs | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}

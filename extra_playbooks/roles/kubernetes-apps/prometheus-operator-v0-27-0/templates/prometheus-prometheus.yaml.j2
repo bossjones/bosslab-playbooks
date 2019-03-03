@@ -55,5 +55,11 @@ spec:
   #     app.kubernetes.io/name: prometheus
   #     app.kubernetes.io/part-of: ingress-nginx
   #     prometheus: k8s
+{% if boss__prometheus__operator__monitoring_spec_additionalScrapeConfigs is defined %}
+  additionalScrapeConfigs:
+{{ boss__prometheus__operator__monitoring_spec_additionalScrapeConfigs | indent( width=4, indentfirst=True,blank=True) }}
+    # name: additional-scrape-configs
+    # key: prometheus-additional.yaml
+{% endif %}
 
   version: v2.5.0

@@ -26,13 +26,10 @@ spec:
         ports:
         - containerPort: 8080
           name: http
+{% if boss__prometheus__operator__prometheus_operator_config_reloader_deployment_spec_template_spec_containers_resources is defined %}
         resources:
-          limits:
-            cpu: 200m
-            memory: 200Mi
-          requests:
-            cpu: 100m
-            memory: 100Mi
+{{ boss__prometheus__operator__prometheus_operator_config_reloader_deployment_spec_template_spec_containers_resources | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true

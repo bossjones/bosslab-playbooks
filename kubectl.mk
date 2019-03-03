@@ -373,7 +373,7 @@ apply-efk-ingress:
 	@printf "=======================================\n"
 	@printf "$$GREEN deploy efk$$NC\n"
 	@printf "=======================================\n"
-	bash -c "find dist/manifests/borg-manifests/efk/* -type f -name '*ingress.*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	bash -c "find dist/manifests/$(cluster)-manifests/efk/* -type f -name '*ingress.*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
 	@echo ""
 	@echo ""
 
@@ -1536,7 +1536,7 @@ apply-echoserver-ingress:
 	@printf "=======================================\n"
 	@printf "$$GREEN deploy echoserver$$NC\n"
 	@printf "=======================================\n"
-	bash -c "find dist/manifests/borg-manifests/echoserver/* -type f -name '*ingress.*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	bash -c "find dist/manifests/$(cluster)-manifests/echoserver/* -type f -name '*ingress.*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
 	@echo ""
 	@echo ""
 
@@ -1557,3 +1557,209 @@ test-echoserver-curl:
 lint-echoserver:
 	$(call check_defined, cluster, Please set cluster)
 	bash -c "find dist/manifests/$(cluster)-manifests/echoserver -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+redeploy-prometheus-operator:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete prometheus-operator:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete prometheus-operator$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0/
+
+	@printf "render prometheus-operator manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render prometheus-operator manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_prometheus_operator.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "lint prometheus-operator manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint prometheus-operator manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/prometheus-operator -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "create-prometheus-operator:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy prometheus-operator$$NC\n"
+	@printf "=======================================\n"
+	-kubectl create -f dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0/
+	@echo ""
+	@echo ""
+
+	@printf "Post deployment steps:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN A NOTE ABOUT - Prometheus kubelet metrics server returned HTTP status 403 Forbidden$$NC\n"
+	@printf "=======================================\n"
+	@printf "READ MORE: https://github.com/coreos/prometheus-operator/blob/9468bf9f1f1219dfd996364f8aa496fce5dbd5fb/Documentation/troubleshooting.md\n"
+	@echo ""
+	@echo ""
+	@printf "$$GREEN Prometheus is installed, all looks good, however the Targets are all showing as down. All permissions seem to be good, yet no joy. Prometheus pulling metrics from all namespaces expect kube-system, and Prometheus has access to all namespaces including kube-system.$$NC\n"
+	@printf "$$RED Did you check the webhooks?$$NC\n"
+	@printf "$$GREEN Issue has been resolved by amending the webhooks to use 0.0.0.0 instead of 127.0.0.1. Follow the below commands and it will update the webhooks which allows connections to all clusterIP's in all namespaces and not just 127.0.0.1.$$NC\n"
+	@echo ""
+	@echo ""
+	@printf "$$GREEN RUN THIS: sed -e \"s/--authentication-token-webhook=true/--authentication-token-webhook=true --authorization-mode=Webhook/\" -i /etc/default/kubelet $$NC\n"
+
+post-deployment-prometheus-operator:
+	@printf "Post deployment steps:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN A NOTE ABOUT - Prometheus kubelet metrics server returned HTTP status 403 Forbidden$$NC\n"
+	@printf "=======================================\n"
+	@printf "READ MORE: https://github.com/coreos/prometheus-operator/blob/9468bf9f1f1219dfd996364f8aa496fce5dbd5fb/Documentation/troubleshooting.md\n"
+	@echo ""
+	@echo ""
+	@printf "$$GREEN Prometheus is installed, all looks good, however the Targets are all showing as down. All permissions seem to be good, yet no joy. Prometheus pulling metrics from all namespaces expect kube-system, and Prometheus has access to all namespaces including kube-system.$$NC\n"
+	@printf "$$RED Did you check the webhooks?$$NC\n"
+	@printf "$$GREEN Issue has been resolved by amending the webhooks to use 0.0.0.0 instead of 127.0.0.1. Follow the below commands and it will update the webhooks which allows connections to all clusterIP's in all namespaces and not just 127.0.0.1.$$NC\n"
+	@echo ""
+	@echo ""
+	@printf "=======================================\n"
+	@printf "$$GREEN RUN THIS ON ALL NODES$$NC\n"
+	@printf "=======================================\n"
+	@printf "$$BLUE RUN THIS: sed -e \"s/--authentication-token-webhook=true/--authentication-token-webhook=true --authorization-mode=Webhook/\" -i /etc/default/kubelet $$NC\n"
+	@printf "$$BLUE RUN THIS: systemctl daemon-reload;systemctl restart kubelet$$NC\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN RUN THIS ON ALL MASTERS$$NC\n"
+	@printf "=======================================\n"
+	@printf "$$BLUE sed -e \"s/- --address=127.0.0.1/- --address=0.0.0.0/\" -i /etc/kubernetes/manifests/kube-controller-manager.yaml$$NC\n"
+	@printf "$$BLUE sed -e \"s/- --address=127.0.0.1/- --address=0.0.0.0/\" -i /etc/kubernetes/manifests/kube-scheduler.yaml$$NC\n"
+
+
+create-prometheus-operator:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-prometheus-operator:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy prometheus-operator$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=prometheus-operator --watch | highlight
+
+apply-prometheus-operator:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-prometheus-operator:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy prometheus-operator$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=prometheus-operator --watch
+
+# https://github.com/kubernetes/kubernetes/blob/3d7d35ee8f099f4611dca06de4453f958b4b8492/cluster/addons/storage-class/local/default.yaml
+apply-prometheus-operator-ingress:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-prometheus-operator:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy prometheus-operator$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0/* -type f -name '*ingress.*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	@echo ""
+	@echo ""
+
+delete-prometheus-operator:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0/
+
+describe-prometheus-operator:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0/ | highlight
+
+debug-prometheus-operator: describe-prometheus-operator
+	kubectl -n kube-system get pod -l app=prometheus-operator --output=yaml | highlight
+
+test-prometheus-operator-curl:
+	-curl -v -L 'http://prometheus-operator.hyenaclan.org'
+
+lint-prometheus-operator:
+	$(call check_defined, cluster, Please set cluster)
+	bash -c "find dist/manifests/$(cluster)-manifests/prometheus-operator -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+
+
+redeploy-unifi-exporter:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete unifi-exporter:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete unifi-exporter$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/unifi-exporter/
+
+	@printf "render unifi-exporter manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render unifi-exporter manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_unifi_exporter.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause" --vault-password-file ./vault_password
+	@echo ""
+	@echo ""
+
+	@printf "lint unifi-exporter manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint unifi-exporter manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/unifi-exporter -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "create-unifi-exporter:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy unifi-exporter$$NC\n"
+	@printf "=======================================\n"
+	-kubectl create -f dist/manifests/$(cluster)-manifests/unifi-exporter/
+	@echo ""
+	@echo ""
+
+create-unifi-exporter:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-unifi-exporter:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy unifi-exporter$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/unifi-exporter/
+	@echo ""
+	@echo ""
+
+apply-unifi-exporter:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-unifi-exporter:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy unifi-exporter$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/unifi-exporter/
+	@echo ""
+	@echo ""
+
+delete-unifi-exporter:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/unifi-exporter/
+
+describe-unifi-exporter:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/unifi-exporter/ | highlight
+
+debug-unifi-exporter: describe-unifi-exporter
+	kubectl -n kube-system get pod -l app=unifi-exporter --output=yaml | highlight
+
+test-unifi-exporter-curl:
+	-curl -v -L 'http://unifi-exporter.hyenaclan.org'
+
+lint-unifi-exporter:
+	$(call check_defined, cluster, Please set cluster)
+	bash -c "find dist/manifests/$(cluster)-manifests/unifi-exporter -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"

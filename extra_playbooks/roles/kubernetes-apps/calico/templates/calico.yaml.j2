@@ -15,7 +15,7 @@ data:
   # To enable Typha, set this to "calico-typha" *and* set a non-zero value for Typha replicas
   # below.  We recommend using Typha if you have more than 50 nodes. Above 100 nodes it is
   # essential.
-  typha_service_name: "none"
+  typha_service_name: "{{boss__calico__typha_service_name}}"
   # Configure the Calico backend to use.
   calico_backend: "bird"
 
@@ -67,12 +67,21 @@ metadata:
   namespace: {{ boss__calico__namespace_name }}
   labels:
     k8s-app: calico-typha
+    # component: calico-typha
+# {% if boss__calico__typha_service_annotations is defined %}
+#   annotations:
+# {{ boss__calico__typha_service_annotations | indent( width=4, indentfirst=True,blank=True) }}
+# {% endif %}
 spec:
   ports:
     - port: 5473
       protocol: TCP
       targetPort: calico-typha
       name: calico-typha
+    - port: {{boss__calico__typha_PrometheusMetricsPort}}
+      targetPort: calico-metrics
+      name: calico-metrics
+      protocol: TCP
   selector:
     k8s-app: calico-typha
 
@@ -94,18 +103,16 @@ spec:
   # We recommend using Typha if you have more than 50 nodes.  Above 100 nodes it is essential
   # (when using the Kubernetes datastore).  Use one replica for every 100-200 nodes.  In
   # production, we recommend running at least 3 replicas to reduce the impact of rolling upgrade.
-  replicas: 0
+  replicas: {{ boss__calico__typha_deployment_spec_replicas }}
   revisionHistoryLimit: 2
   template:
     metadata:
       labels:
         k8s-app: calico-typha
+{% if boss__calico__typha_deployment_annotations is defined %}
       annotations:
-        # This, along with the CriticalAddonsOnly toleration below, marks the pod as a critical
-        # add-on, ensuring it gets priority scheduling and that its resources are reserved
-        # if it ever gets evicted.
-        scheduler.alpha.kubernetes.io/critical-pod: ''
-        cluster-autoscaler.kubernetes.io/safe-to-evict: 'true'
+{{ boss__calico__typha_deployment_annotations | indent( width=8, indentfirst=True,blank=True) }}
+{% endif %}
     spec:
       nodeSelector:
         beta.kubernetes.io/os: linux
@@ -124,6 +131,9 @@ spec:
         - containerPort: 5473
           name: calico-typha
           protocol: TCP
+        - containerPort: {{boss__calico__typha_PrometheusMetricsPort}}
+          name: calico-metrics
+          protocol: TCP
         env:
           # Enable "info" logging by default.  Can be set to "debug" to increase verbosity.
           - name: TYPHA_LOGSEVERITYSCREEN
@@ -141,13 +151,17 @@ spec:
             value: "kubernetes"
           - name: TYPHA_HEALTHENABLED
             value: "true"
-{% if ( (boss__calico__prometheus_metrics_enabled is defined) and (boss__calico__prometheus_metrics_enabled) ) %}
+{% if boss__calico__prometheus_metrics_enabled is defined %}
+{% if boss__calico__prometheus_metrics_enabled == "enabled" %}
           # Uncomment these lines to enable prometheus metrics.  Since Typha is host-networked,
           # this opens a port on the host, which may need to be secured.
           - name: TYPHA_PROMETHEUSMETRICSENABLED
             value: "true"
+          # - name: TYPHA_PROMETHEUSMETRICSPORT
+          #  value: "{{boss__calico__typha_PrometheusMetricsPort}}"
           - name: TYPHA_PROMETHEUSMETRICSPORT
-            value: "9093"
+            value: "{{boss__calico__typha_PrometheusMetricsPort}}"
+{% endif %}
 {% endif %}
         livenessProbe:
           exec:
@@ -194,6 +208,7 @@ metadata:
   namespace: {{ boss__calico__namespace_name }}
   labels:
     k8s-app: calico-node
+    component: calico-node
 spec:
   selector:
     matchLabels:
@@ -208,11 +223,7 @@ spec:
         k8s-app: calico-node
 {% if boss__calico__node_daemonset_annotations is defined %}
       annotations:
-        # This, along with the CriticalAddonsOnly toleration below,
-        # marks the pod as a critical add-on, ensuring it gets
-        # priority scheduling and that its resources are reserved
-        # if it ever gets evicted.
-        {{ boss__calico__node_daemonset_annotations | indent( width=4, indentfirst=True,blank=True) }}
+{{ boss__calico__node_daemonset_annotations | indent( width=8, indentfirst=True,blank=True) }}
 {% endif %}
     spec:
       nodeSelector:
@@ -293,15 +304,22 @@ spec:
             # Set Felix logging to "info"
             - name: FELIX_LOGSEVERITYSCREEN
               value: "info"
+            # SOURCE: https://docs.projectcalico.org/v3.4/reference/felix/configuration
             - name: FELIX_HEALTHENABLED
               value: "true"
             # Set to true to enable the Prometheus metrics server in Felix. [Default: false]
             - name: FELIX_PROMETHEUSMETRICSENABLED
               value: "true"
+            # Set to false to disable process metrics collection, which the Prometheus client does by default. This reduces the number of metrics reported, reducing Prometheus load. [Default: true]
+            # Enable Prometheus process metrics collection
+            - name: FELIX_PROMETHEUSPROCESSMETRICSENABLED
+              value: "true"
+            # Set to false to disable Go runtime metrics collection, which the Prometheus client does by default. This reduces the number of metrics reported, reducing Prometheus load. [Default: true]
+            - name: FELIX_PROMETHEUSGOMETRICSENABLED
+              value: "false"
+            # TCP port that the Prometheus metrics server should bind to
             - name: FELIX_PROMETHEUSMETRICSPORT
-              value: "9091"
-
-
+              value: "{{ boss__calico__felix_PrometheusMetricsPort }}"
           securityContext:
             privileged: true
           resources:

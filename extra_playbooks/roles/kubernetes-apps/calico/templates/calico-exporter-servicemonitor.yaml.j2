@@ -1,0 +1,20 @@
+# SOURCE: https://github.com/deimosfr/kubernetes-helm-chart-exporter-calico/tree/master/kubernetes/templates
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: exporter-calico
+  namespace: {{boss__unifi__exporter__namespace_name}}
+  labels:
+    app: exporter-calico
+    component: calico-node
+spec:
+  jobLabel: component
+  selector:
+    matchLabels:
+      component: calico-node
+  namespaceSelector:
+    matchNames:
+      - {{boss__calico__prometheus_exporter_namespace_name}}
+  endpoints:
+  - port: metrics
+    interval: 15s

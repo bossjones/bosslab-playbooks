@@ -1,0 +1,3 @@
+{% if boss__prometheus__operator__prometheus_additional_scrape_configs is defined %}
+{{ boss__prometheus__operator__prometheus_additional_scrape_configs | indent( width=0, indentfirst=True,blank=True) }}
+{% endif %}

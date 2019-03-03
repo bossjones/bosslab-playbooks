@@ -5,7 +5,7 @@ metadata:
   namespace: kube-system
 
   labels:
-        addonmanager.kubernetes.io/mode: Reconcile
+    addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk
     
 data:
@@ -379,7 +379,7 @@ metadata:
   name: fluentd-es-config-v0.1.6
   namespace: kube-system
   labels:
-        addonmanager.kubernetes.io/mode: Reconcile
+    addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk
     
 data:
