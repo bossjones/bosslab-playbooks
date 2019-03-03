@@ -21,3 +21,6 @@
 * UniFi AP Dashboardby waterbywind(SNMP) - https://grafana.com/dashboards/1486
 * Unifi Controller Dashboardby voomik - https://grafana.com/dashboards/6885
 * Kubernetes All Nodesby Bart Van Bos - https://grafana.com/dashboards/3131
+* Analysis by Podby stono - https://grafana.com/dashboards/6879
+* Analysis by Clusterby stono - https://grafana.com/dashboards/6873
+* Analysis by Namespaceby stono - https://grafana.com/dashboards/6876
