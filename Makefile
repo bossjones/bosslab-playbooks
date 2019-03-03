@@ -73,7 +73,7 @@ mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 current_dir := $(notdir $(patsubst %/,%,$(dir $(mkfile_path))))
 MAKE := make
 
-list_allowed_args := product ip command role tier cluster
+list_allowed_args := product ip command role tier cluster non_root_user
 
 default: all
 
@@ -1012,11 +1012,12 @@ ansible-ping:
 
 ansible-debug-k8:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook playbooks/kubectl_debug.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause" -f 10
+	ansible-playbook playbooks/kubectl_debug.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "variable_non_rootuser=$(variable_non_rootuser) cluster=$(cluster)" --skip-tags "pause"
 
 
 ansible-debug-k8-master-only:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook playbooks/kubectl_debug.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster) variable_host=masters" --skip-tags "pause" -f 10
+	$(call check_defined, non_root_user, Please set non_root_user)
+	ansible-playbook playbooks/kubectl_debug.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "variable_non_rootuser=$(variable_non_rootuser) cluster=$(cluster) variable_host=masters" --skip-tags "pause"
 
 include *.mk
