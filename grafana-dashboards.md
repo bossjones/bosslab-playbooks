@@ -17,3 +17,6 @@
 * Alertmanagerby Martin Chodur - https://grafana.com/dashboards/9578
 * Kubernetes Pods (Prometheus)by sekka1 - https://grafana.com/dashboards/6336
 * Netdataby essen - https://grafana.com/dashboards/7107
+* Stats at a Glance for Home Infrastructureby Conrad Castelo(Weather - Ubiquiti Unifi Router - Synology NAS - Pi-Hole - ActionTiles for Smartthings - Plex / Tautulli) - https://grafana.com/dashboards/8702
+* UniFi AP Dashboardby waterbywind(SNMP) - https://grafana.com/dashboards/1486
+* Unifi Controller Dashboardby voomik - https://grafana.com/dashboards/6885
