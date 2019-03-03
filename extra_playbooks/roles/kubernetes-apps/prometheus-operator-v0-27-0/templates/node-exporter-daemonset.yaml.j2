@@ -56,12 +56,19 @@ spec:
           hostPort: 9100
           name: https
         resources:
+          # NOTE: Orig below ( 3/3/2019 )
+          #limits:
+          #  cpu: 20m
+          #  memory: 40Mi
+          #requests:
+          #  cpu: 10m
+          #  memory: 20Mi
           limits:
-            cpu: 20m
-            memory: 40Mi
+            cpu: 100m
+            memory: 120Mi
           requests:
-            cpu: 10m
-            memory: 20Mi
+            cpu: 90m
+            memory: 60Mi
       hostNetwork: true
       hostPID: true
       nodeSelector:
