@@ -1,0 +1,173 @@
+# -*- coding: utf-8 -*-
+# USAGE: ansible-playbook playbooks/kubectl_debug.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars 'cluster=borg' --skip-tags "pause"
+# env ANSIBLE_STRATEGY=debug KUBECONFIG=~/dev/bossjones/kubernetes-cluster/borg-admin.conf ansible-playbook  -i contrib/inventory_builder/inventory/borg/inventory.ini playbooks/kubectl_debug.yml -vvvvvv
+---
+##############################################################################
+# file: kubectl_debug.yaml
+# Create an amazon vpc and tag it appropiately
+#
+# Run with:
+#
+#
+# DRY RUN(with pause):
+# ansible-playbook playbooks/kubectl_debug.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg" --check -f 10
+#
+# REAL RUN(w/o pause):
+# ansible-playbook playbooks/kubectl_debug.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg" --skip-tags -f 10 "pause"
+#
+# TAG LOOKUP:
+# ansible-playbook playbooks/kubectl_debug.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg" --tag lookup -f 10
+#
+# REAL RUN:
+# ansible-playbook playbooks/kubectl_debug.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg" -f 10
+##############################################################################
+- name: debug kubernetes cluster
+  # masters
+  hosts: servers
+  strategy: free
+  gather_facts: False
+  become: yes
+  become_method: sudo
+  vars:
+    debug_folder: '~/.homelab_debugging'
+    docker_bin_dir: /usr/bin
+    bin_dir: /usr/local/bin
+    ansible_ssh_pipelining: true
+    # etcd_cert_dir: /etc/ssl/etcd/ssl
+    kube_network_plugin: calico
+    archive_dirname: collect-info
+    # SOURCE: https://github.com/kubernetes-sigs/kubespray/blob/2e1e27219eeb736df6b45e9025e0d7067683b8b6/scripts/collect-info.yaml
+    commands:
+      - name: timedate_info
+        cmd: timedatectl status
+      - name: kernel_info
+        cmd: uname -r
+      - name: docker_info
+        cmd: "{{ docker_bin_dir }}/docker info"
+      - name: ip_info
+        cmd: ip -4 -o a
+      - name: route_info
+        cmd: ip ro
+      - name: proc_info
+        cmd: ps auxf | grep -v ]$
+      - name: systemctl_failed_info
+        cmd: systemctl --state=failed --no-pager
+      - name: k8s_info
+        cmd: "{{ bin_dir }}/kubectl get all --all-namespaces -o wide"
+      - name: errors_info
+        cmd: journalctl -p err --no-pager
+      - name: file_nr_info
+        cmd: cat /proc/sys/fs/file-nr
+      - name: df_h_info
+        cmd: df -H
+      - name: free_m_info
+        cmd: free -m
+      - name: sysctl_a_info
+        cmd: sysctl -a
+      # - name: etcd_info
+      #   cmd: "{{ bin_dir }}/etcdctl --peers={{ etcd_access_addresses | default('http://127.0.0.1:2379') }} cluster-health"
+      # - name: calico_info
+      #   cmd: "{{bin_dir}}/calicoctl node status"
+      #   when: '{{ kube_network_plugin == "calico" }}'
+      # - name: calico_workload_info
+      #   cmd: "{{bin_dir}}/calicoctl get workloadEndpoint -o wide"
+      #   when: '{{ kube_network_plugin == "calico" }}'
+      # - name: calico_pool_info
+      #   cmd: "{{bin_dir}}/calicoctl get ippool -o wide"
+      #   when: '{{ kube_network_plugin == "calico" }}'
+      # - name: weave_info
+      #   cmd: weave report
+      #   when: '{{ kube_network_plugin == "weave" }}'
+      # - name: weave_logs
+      #   cmd: "{{ docker_bin_dir }}/docker logs weave"
+      #   when: '{{ kube_network_plugin == "weave" }}'
+      - name: kubelet_info
+        cmd: journalctl -u kubelet.service --no-pager
+      - name: kube_describe_all
+        cmd: "{{ bin_dir }}/kubectl describe all --all-namespaces"
+      - name: kube_describe_nodes
+        cmd: "{{ bin_dir }}/kubectl describe nodes"
+      - name: kubelet_logs
+        cmd: journalctl -u kubelet --no-pager
+      - name: coredns_logs
+        cmd: "for i in `{{ bin_dir }}/kubectl get pods -n kube-system -l k8s-app=coredns -o jsonpath={.items..metadata.name}`;
+          do {{ bin_dir }}/kubectl logs ${i} -n kube-system; done"
+      - name: apiserver_logs
+        cmd: "for i in `{{ bin_dir }}/kubectl get pods -n kube-system -l component=kube-apiserver -o jsonpath={.items..metadata.name}`;
+          do {{ bin_dir }}/kubectl logs ${i} -n kube-system; done"
+      - name: controller_logs
+        cmd: "for i in `{{ bin_dir }}/kubectl get pods -n kube-system -l component=kube-controller-manager -o jsonpath={.items..metadata.name}`;
+          do {{ bin_dir }}/kubectl logs ${i} -n kube-system; done"
+      - name: scheduler_logs
+        cmd: "for i in `{{ bin_dir }}/kubectl get pods -n kube-system -l component=kube-scheduler -o jsonpath={.items..metadata.name}`;
+          do {{ bin_dir }}/kubectl logs ${i} -n kube-system; done"
+      - name: proxy_logs
+        cmd: "for i in `{{ bin_dir }}/kubectl get pods -n kube-system -l k8s-app=kube-proxy -o jsonpath={.items..metadata.name}`;
+          do {{ bin_dir }}/kubectl logs ${i} -n kube-system; done"
+      - name: nginx_logs
+        cmd: "for i in `{{ bin_dir }}/kubectl get pods -n kube-system -l k8s-app=kube-nginx -o jsonpath={.items..metadata.name}`;
+          do {{ bin_dir }}/kubectl logs ${i} -n kube-system; done"
+      - name: flannel_logs
+        cmd: "for i in `{{ bin_dir }}/kubectl get pods -n kube-system -l app=flannel -o jsonpath={.items..metadata.name}`;
+          do {{ bin_dir }}/kubectl logs ${i} -n kube-system flannel-container; done"
+        when: '{{ kube_network_plugin == "flannel" }}'
+      - name: canal_logs
+        cmd: "for i in `{{ bin_dir }}/kubectl get pods -n kube-system -l k8s-app=canal-node -o jsonpath={.items..metadata.name}`;
+          do {{ bin_dir }}/kubectl logs ${i} -n kube-system flannel; done"
+        when: '{{ kube_network_plugin == "canal" }}'
+      - name: calico_policy_logs
+        cmd: "for i in `{{ bin_dir }}/kubectl get pods -n kube-system -l k8s-app=calico-kube-controllers -o jsonpath={.items..metadata.name}`;
+          do {{ bin_dir }}/kubectl logs ${i} -n kube-system ; done"
+        when: '{{ kube_network_plugin in ["canal", "calico"] }}'
+      - name: helm_show_releases_history
+        cmd: "for i in `{{ bin_dir }}/helm list -q`; do {{ bin_dir }}/helm history ${i} --col-width=0; done"
+        when: "{{ helm_enabled|default(true) }}"
+
+    logs:
+      - /var/log/syslog
+      - /var/log/daemon.log
+      - /var/log/kern.log
+      - /var/log/dpkg.log
+      - /var/log/apt/history.log
+      - /var/log/yum.log
+      - /var/log/messages
+      - /var/log/dmesg
+
+  tasks:
+    - name: 'mkdir -p ~/.homelab_debugging'
+      shell: 'mkdir -p ~/.homelab_debugging'
+      changed_when: False
+      check_mode: no
+
+    - name: Storing commands output
+      shell: "{{ item.cmd }} 2>&1 | tee {{ item.name }}"
+      failed_when: false
+      with_items: "{{commands}}"
+      when: item.when | default(True)
+      no_log: True
+
+    - name: Fetch results
+      fetch: src={{ item.name }} dest=/tmp/{{ archive_dirname }}/commands
+      with_items: "{{commands}}"
+      when: item.when | default(True)
+      failed_when: false
+
+    - name: Fetch logs
+      fetch: src={{ item }} dest=/tmp/{{ archive_dirname }}/logs
+      with_items: "{{logs}}"
+      failed_when: false
+
+    - name: Pack results and logs
+      archive:
+        path: "/tmp/{{ archive_dirname }}"
+        dest: "{{ dir|default('.') }}/logs.tar.gz"
+        remove: true
+      delegate_to: localhost
+      become: false
+      run_once: true
+
+    - name: Clean up collected command outputs
+      file: path={{ item.name }} state=absent
+      with_items: "{{commands}}"
+
+    - debug: msg="you can now find the files in /tmp/{{ archive_dirname }}/commands /tmp/{{ archive_dirname }}/logs"
