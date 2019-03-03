@@ -1143,9 +1143,46 @@ boss__prometheus__operator__kube_rbac_proxy_daemonset_spec_template_spec_contain
     cpu: 90m
     memory: 60Mi
 
+boss__prometheus__operator__kube_rbac_proxy_deployment_spec_template_spec_containers_resources: |
+  limits:
+    cpu: 20m
+    memory: 40Mi
+  requests:
+    cpu: 10m
+    memory: 20Mi
+
+boss__prometheus__operator__kube_state_metrics_version: v1.4.0
+boss__prometheus__operator__kube_state_metrics_image_repo: "quay.io/coreos/kube-state-metrics"
+boss__prometheus__operator__kube_state_metrics_image_tag: "{{ boss__prometheus__operator__kube_state_metrics_version }}"
+boss__prometheus__operator__kube_state_metrics_deployment_spec_template_spec_containers_resources: |
+  limits:
+    cpu: 100m
+    memory: 150Mi
+  requests:
+    cpu: 100m
+    memory: 150Mi
+
+boss__prometheus__operator__addon_resizer_version: 1.0
+boss__prometheus__operator__addon_resizer_image_repo: "quay.io/coreos/addon-resizer"
+boss__prometheus__operator__addon_resizer_image_tag: "{{ boss__prometheus__operator__addon_resizer_version }}"
+boss__prometheus__operator__addon_resizer_deployment_spec_template_spec_containers_resources: |
+  limits:
+    cpu: 50m
+    memory: 30Mi
+  requests:
+    cpu: 10m
+    memory: 30Mi
+
 boss__prometheus__operator__prometheus_operator_version: v0.29.0
 boss__prometheus__operator__prometheus_operator_image_repo: "quay.io/coreos/prometheus-operator"
 boss__prometheus__operator__prometheus_operator_image_tag: "{{ boss__prometheus__operator__prometheus_operator_version }}"
+boss__prometheus__operator__prometheus_operator_deployment_spec_template_spec_containers_resources: |
+  limits:
+    cpu: 200m
+    memory: 200Mi
+  requests:
+    cpu: 100m
+    memory: 100Mi
 
 boss__prometheus__operator__configmap_reload_version: v0.0.1
 boss__prometheus__operator__configmap_reload_image_repo: "quay.io/coreos/configmap-reload"

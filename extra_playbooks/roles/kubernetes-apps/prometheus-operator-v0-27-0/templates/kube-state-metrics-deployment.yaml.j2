@@ -24,13 +24,10 @@ spec:
         ports:
         - containerPort: 8443
           name: https-main
+{% if boss__prometheus__operator__kube_rbac_proxy_deployment_spec_template_spec_containers_resources is defined %}
         resources:
-          limits:
-            cpu: 20m
-            memory: 40Mi
-          requests:
-            cpu: 10m
-            memory: 20Mi
+{{ boss__prometheus__operator__kube_rbac_proxy_deployment_spec_template_spec_containers_resources | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
       - args:
         - --secure-listen-address=:9443
         - --upstream=http://127.0.0.1:8082/
@@ -39,13 +36,10 @@ spec:
         ports:
         - containerPort: 9443
           name: https-self
+{% if boss__prometheus__operator__kube_rbac_proxy_deployment_spec_template_spec_containers_resources is defined %}
         resources:
-          limits:
-            cpu: 20m
-            memory: 40Mi
-          requests:
-            cpu: 10m
-            memory: 20Mi
+{{ boss__prometheus__operator__kube_rbac_proxy_deployment_spec_template_spec_containers_resources | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
       - args:
         - --host=127.0.0.1
         - --port=8081
@@ -53,13 +47,10 @@ spec:
         - --telemetry-port=8082
         image: quay.io/coreos/kube-state-metrics:v1.4.0
         name: kube-state-metrics
+{% if boss__prometheus__operator__kube_state_metrics_deployment_spec_template_spec_containers_resources is defined %}
         resources:
-          limits:
-            cpu: 100m
-            memory: 150Mi
-          requests:
-            cpu: 100m
-            memory: 150Mi
+{{ boss__prometheus__operator__kube_state_metrics_deployment_spec_template_spec_containers_resources | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
       - command:
         - /pod_nanny
         - --container=kube-state-metrics
@@ -82,13 +73,10 @@ spec:
               fieldPath: metadata.namespace
         image: quay.io/coreos/addon-resizer:1.0
         name: addon-resizer
+{% if boss__prometheus__operator__addon_resizer_deployment_spec_template_spec_containers_resources is defined %}
         resources:
-          limits:
-            cpu: 50m
-            memory: 30Mi
-          requests:
-            cpu: 10m
-            memory: 30Mi
+{{ boss__prometheus__operator__addon_resizer_deployment_spec_template_spec_containers_resources | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
       nodeSelector:
         beta.kubernetes.io/os: linux
       securityContext:
