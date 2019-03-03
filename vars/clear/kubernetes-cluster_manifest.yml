@@ -1398,6 +1398,97 @@ boss__unifi__exporter__unifi_site: Hyenanet
 boss__unifi__exporter__unifi_insecure: true
 boss__unifi__exporter__unifi_timeout: 5s
 
+
+##########################################################################################################
+#   .####.##....##.########.##.......##.....##.##.....##.########..########...........#######..########..########.########.....###....########..#######..########.
+#   ..##..###...##.##.......##.......##.....##..##...##..##.....##.##.....##.........##.....##.##.....##.##.......##.....##...##.##......##....##.....##.##.....##
+#   ..##..####..##.##.......##.......##.....##...##.##...##.....##.##.....##.........##.....##.##.....##.##.......##.....##..##...##.....##....##.....##.##.....##
+#   ..##..##.##.##.######...##.......##.....##....###....##.....##.########..#######.##.....##.########..######...########..##.....##....##....##.....##.########.
+#   ..##..##..####.##.......##.......##.....##...##.##...##.....##.##.....##.........##.....##.##........##.......##...##...#########....##....##.....##.##...##..
+#   ..##..##...###.##.......##.......##.....##..##...##..##.....##.##.....##.........##.....##.##........##.......##....##..##.....##....##....##.....##.##....##.
+#   .####.##....##.##.......########..#######..##.....##.########..########...........#######..##........########.##.....##.##.....##....##.....#######..##.....##
+##########################################################################################################
+boss__influxdb__operator__subdomain: influxdb
+boss__influxdb__operator__manifest_path: "{{manifest_dir_path}}/influxdb-operator"
+boss__influxdb__operator__namespace_name: monitoring
+boss__influxdb__operator__name: influxdata-operator
+
+
+boss__influxdb__operator__ingress_annotations: |
+  nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  traefik.frontend.rule.type: PathPrefix
+
+boss__influxdb__operator__ingress_labels: |
+  k8s-app: influxdata-operator
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  boss-part-of: influxdb
+  app: influxdata-operator
+
+boss__influxdb__operator__deployment_labels: |
+  app: influxdata-operator
+  name: influxdata-operator
+
+boss__influxdb__operator__service_labels: |
+    k8s-app: influxdata-operator
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    kubernetes.io/name: "influxdata-operator"
+    name: influxdata-operator
+    boss-part-of: influxdb
+    app: influxdata-operator
+
+boss__influxdb__operator__persistent_volume_claim_labels: |
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  k8s-app: influxdata-operator
+  kubernetes.io/name: "influxdata-operator"
+  name: influxdata-operator
+  boss-part-of: influxdb
+  app: influxdata-operator
+
+boss__influxdb__operator__persistent_volume_claim_spec_resources_requests_storage: "250Mi"
+
+boss__influxdb__operator__persistent_volume_labels: |
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  k8s-app: influxdata-operator
+  kubernetes.io/name: "influxdata-operator"
+  name: influxdata-operator
+  boss-part-of: influxdb
+  app: influxdata-operator
+
+boss__influxdb__operator__version: 1.6.6
+boss__influxdb__operator__image_repo: "influxdb"
+boss__influxdb__operator__image_tag: "{{ boss__influxdb__operator__version }}"
+
+boss__influxdb__operator__service_account_labels: |
+  k8s-app: influxdata-operator
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  kubernetes.io/name: "influxdata-operator"
+  name: influxdata-operator
+  boss-part-of: influxdb
+  app: influxdata-operator
+
+boss__influxdb__operator__cluster_role_labels: |
+  k8s-app: influxdata-operator
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  kubernetes.io/name: "influxdata-operator"
+  name: influxdata-operator
+  boss-part-of: influxdb
+  app: influxdata-operator
+
+boss__influxdb__operator__cluster_role_binding_labels: |
+  k8s-app: influxdata-operator
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  kubernetes.io/name: "influxdata-operator"
+  name: influxdata-operator
+  boss-part-of: influxdb
+  app: influxdata-operator
+
 # ---
 # local_release_dir: /tmp/releases
 

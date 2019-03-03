@@ -1,0 +1,22 @@
+---
+- name: "efk | Create directory: {{boss__efk__manifest_path}}"
+  file:
+    path: "{{boss__efk__manifest_path}}"
+    state: directory
+
+- name: "efk | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__efk__manifest_path }}/{{ item }}"
+  with_items:
+    - "0elasticsearch-pvc.yaml"
+    - "elasticsearch-ingress.yaml"
+    - "es-curator-secret.yaml"
+    - "es-curator.yaml"
+    - "es-service.yaml"
+    - "es-statefulset.yaml"
+    - "fluentd-es-configmap.yaml"
+    - "fluentd-es-ds.yaml"
+    - "kibana-deployment.yaml"
+    - "kibana-ingress.yaml"
+    - "kibana-service.yaml"

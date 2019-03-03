@@ -911,6 +911,16 @@ render-manifest-unifi-exporter:
 	@printf "=======================================\n"
 	bash -c "find dist/manifests/$(cluster)-manifests/unifi-exporter -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
 
+
+render-manifest-influxdb-operator:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_influxdb_operator.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@printf "lint influxdb-operator manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint influxdb-operator manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/influxdb-operator -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
 render-manifest:
 	$(call check_defined, cluster, Please set cluster)
 	ansible-playbook -c local -vvvvv playbooks/render_echoserver.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
@@ -930,6 +940,7 @@ render-manifest:
 	ansible-playbook -c local -vvvvv playbooks/render_weave_scope.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	ansible-playbook -c local -vvvvv playbooks/render_prometheus_operator.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	ansible-playbook -c local -vvvvv playbooks/render_unifi_exporter.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause" --vault-password-file ./vault_password
+	ansible-playbook -c local -vvvvv playbooks/render_influxdb_operator.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 
 tmp-shell-default:
 	kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash

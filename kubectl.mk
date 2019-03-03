@@ -1763,3 +1763,95 @@ test-unifi-exporter-curl:
 lint-unifi-exporter:
 	$(call check_defined, cluster, Please set cluster)
 	bash -c "find dist/manifests/$(cluster)-manifests/unifi-exporter -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+
+redeploy-influxdb-operator:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete influxdb-operator:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete influxdb-operator$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/influxdb-operator/
+
+	@printf "render influxdb-operator manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render influxdb-operator manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_influxdb_operator.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "lint influxdb-operator manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint influxdb-operator manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/influxdb-operator -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "create-influxdb-operator:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy influxdb-operator$$NC\n"
+	@printf "=======================================\n"
+	-kubectl create -f dist/manifests/$(cluster)-manifests/influxdb-operator/
+	@echo ""
+	@echo ""
+
+
+
+create-influxdb-operator:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-influxdb-operator:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy influxdb-operator$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/influxdb-operator/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=influxdb-operator --watch | highlight
+
+apply-influxdb-operator:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-influxdb-operator:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy influxdb-operator$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/influxdb-operator/
+	@echo ""
+	@echo ""
+# kubectl get pods --all-namespaces -l app=influxdb-operator --watch
+
+# https://github.com/kubernetes/kubernetes/blob/3d7d35ee8f099f4611dca06de4453f958b4b8492/cluster/addons/storage-class/local/default.yaml
+apply-influxdb-operator-ingress:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-influxdb-operator:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy influxdb-operator$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/influxdb-operator/* -type f -name '*ingress.*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	@echo ""
+	@echo ""
+
+delete-influxdb-operator:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/influxdb-operator/
+
+describe-influxdb-operator:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/influxdb-operator/ | highlight
+
+debug-influxdb-operator: describe-influxdb-operator
+	kubectl -n kube-system get pod -l app=influxdb-operator --output=yaml | highlight
+
+test-influxdb-operator-curl:
+	-curl -v -L 'http://influxdb-operator.hyenaclan.org'
+
+lint-influxdb-operator:
+	$(call check_defined, cluster, Please set cluster)
+	bash -c "find dist/manifests/$(cluster)-manifests/influxdb-operator -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"

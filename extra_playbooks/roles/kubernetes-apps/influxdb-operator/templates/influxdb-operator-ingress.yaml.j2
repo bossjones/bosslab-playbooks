@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{boss__influxdb__operator__name}}
+  namespace: {{boss__influxdb__operator__namespace_name}}
+{% if boss__influxdb__operator__ingress_labels is defined %}
+  labels:
+{{ boss__influxdb__operator__ingress_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+{% if boss__influxdb__operator__ingress_annotations is defined %}
+  annotations:
+{{ boss__influxdb__operator__ingress_annotations | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+spec:
+  rules:
+  - host: {{boss__influxdb__operator__subdomain}}.{{domain_root}}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{boss__influxdb__operator__name}}
+          servicePort: 60000
