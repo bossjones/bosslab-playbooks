@@ -19,14 +19,14 @@ spec:
         command:
         - /bin/unifi_exporter
         args:
-        - "-config.file=/unifi_exporter/config.yml"
+        - "-config.file=/unifi_exporter/unifi-exporter-secret-config.yaml"
         ports:
         - containerPort: 9130
           name: metrics
         volumeMounts:
           - name: config
-            mountPath: /unifi_exporter/config.yml
-            subPath: config.yml
+            mountPath: /unifi_exporter/unifi-exporter-secret-config.yaml
+            subPath: unifi-exporter-secret-config.yaml
             readOnly: true
       volumes:
         - name: config
