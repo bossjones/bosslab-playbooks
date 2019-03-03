@@ -1293,6 +1293,13 @@ boss__prometheus__operator__prometheus_additional_scrape_configs: |
     static_configs:
       - targets: ['192.168.205.10:19999','192.168.205.11:19999','192.168.205.12:19999']
 
+# SOURCE: https://techtran.science/2018/06/11/unifi-to-grafana-using-prometheus-and-unifi_exporter/
+# - job_name: 'unifi_exporter'
+#   static_configs:
+#     - targets: ['dockerswarm:9130']
+#       labels:
+#         alias: unifi_exporter
+
 
 
 ####################################################################################################
@@ -1310,7 +1317,8 @@ boss__unifi__exporter__namespace_name: monitoring
 boss__unifi__exporter__apply_changes_immediately: False
 boss__unifi__exporter__delete_secrets: True
 
-boss__unifi__exporter__listen_address: :9130
+boss__unifi__exporter__port: 9130
+boss__unifi__exporter__listen_address: ":{{boss__unifi__exporter__port}}"
 boss__unifi__exporter__listen_metricspath: /metrics
 boss__unifi__exporter__unifi_address: https://192.168.1.8:8443
 boss__unifi__exporter__unifi_site: Hyenanet

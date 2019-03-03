@@ -12,7 +12,7 @@ metadata:
 spec:
   ports:
   - name: http-metrics
-    port: 9130
+    port: {{boss__unifi__exporter__port}}
     protocol: TCP
     targetPort: metrics
   selector:

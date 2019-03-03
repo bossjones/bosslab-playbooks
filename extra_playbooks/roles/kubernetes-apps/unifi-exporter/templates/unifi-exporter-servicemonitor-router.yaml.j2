@@ -3,6 +3,7 @@ kind: ServiceMonitor
 metadata:
   labels:
     k8s-app: unifi-exporter
+    component: unifi-exporter
   name: unifi-exporter
   namespace: {{boss__unifi__exporter__namespace_name}}
 spec:
@@ -15,5 +16,6 @@ spec:
   endpoints:
   - interval: 60s
     port: http-metrics
-    path: "/unifi"
-    targetPort: 9130
+    # path: "/unifi"
+    path: "{{boss__unifi__exporter__listen_metricspath}}"
+    targetPort: {{boss__unifi__exporter__port}}
