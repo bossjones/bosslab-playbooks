@@ -20,3 +20,4 @@
 * Stats at a Glance for Home Infrastructureby Conrad Castelo(Weather - Ubiquiti Unifi Router - Synology NAS - Pi-Hole - ActionTiles for Smartthings - Plex / Tautulli) - https://grafana.com/dashboards/8702
 * UniFi AP Dashboardby waterbywind(SNMP) - https://grafana.com/dashboards/1486
 * Unifi Controller Dashboardby voomik - https://grafana.com/dashboards/6885
+* Kubernetes All Nodesby Bart Van Bos - https://grafana.com/dashboards/3131
