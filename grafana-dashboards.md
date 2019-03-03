@@ -16,3 +16,4 @@
 * Kubelesssby shyamtech - https://grafana.com/dashboards/9673
 * Alertmanagerby Martin Chodur - https://grafana.com/dashboards/9578
 * Kubernetes Pods (Prometheus)by sekka1 - https://grafana.com/dashboards/6336
+* Netdataby essen - https://grafana.com/dashboards/7107
