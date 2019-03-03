@@ -191,3 +191,4 @@ badass.txt
 
 # secrets
 unifi-exporter-credentials.yaml
+unifi-exporter-secret-config.yaml

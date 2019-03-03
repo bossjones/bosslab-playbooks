@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# USAGE: ansible-playbook -c local -vvvvv playbooks/render_unifi_exporter.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars 'cluster=borg' --skip-tags "pause"
-# env ANSIBLE_STRATEGY=debug KUBECONFIG=~/dev/bossjones/kubernetes-cluster/borg-admin.conf ansible-playbook  -i contrib/inventory_builder/inventory/borg/inventory.ini playbooks/render_unifi_exporter.yml -vvvvvv
+# USAGE: ansible-playbook -c local -vvvvv playbooks/render_unifi_exporter.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --vault-password-file ./vault_password --extra-vars 'cluster=borg' --skip-tags "pause"
+# env ANSIBLE_STRATEGY=debug KUBECONFIG=~/dev/bossjones/kubernetes-cluster/borg-admin.conf ansible-playbook --vault-password-file ./vault_password -i contrib/inventory_builder/inventory/borg/inventory.ini playbooks/render_unifi_exporter.yml -vvvvvv
 ---
 ##############################################################################
 # file: render_unifi_exporter.yaml
@@ -10,16 +10,16 @@
 #
 #
 # DRY RUN(with pause):
-# ansible-playbook -c local -vvvvv playbooks/render_unifi_exporter.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg" --check -f 10
+# ansible-playbook -c local -vvvvv playbooks/render_unifi_exporter.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --vault-password-file ./vault_password --extra-vars "cluster=borg" --check -f 10
 #
 # REAL RUN(w/o pause):
-# ansible-playbook -c local -vvvvv playbooks/render_unifi_exporter.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg" --skip-tags -f 10 "pause"
+# ansible-playbook -c local -vvvvv playbooks/render_unifi_exporter.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --vault-password-file ./vault_password --extra-vars "cluster=borg" --skip-tags -f 10 "pause"
 #
 # TAG LOOKUP:
-# ansible-playbook -c local -vvvvv playbooks/render_unifi_exporter.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg" --tag lookup -f 10
+# ansible-playbook -c local -vvvvv playbooks/render_unifi_exporter.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --vault-password-file ./vault_password --extra-vars "cluster=borg" --tag lookup -f 10
 #
 # REAL RUN:
-# ansible-playbook -c local -vvvvv playbooks/render_unifi_exporter.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg" -f 10
+# ansible-playbook -c local -vvvvv playbooks/render_unifi_exporter.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --vault-password-file ./vault_password --extra-vars "cluster=borg" -f 10
 ##############################################################################
 
 - hosts: localhost
@@ -42,6 +42,14 @@
         msg: >
           "You must update Ansible to at least 2.6 to use this version of Behance Elb Create Playbook."
         when: ansible_version.full is version('2.6', '>=')
+
+    - include_vars: "{{ item }}"
+      with_fileglob:
+        - "{{ playbook_dir }}/../vars/secret/*"
+        - "{{ playbook_dir }}/../vars/clear/main.yml"
+      tags: ['always']
+      # unifi_exporter_username: "{{ vault_unifi_exporter_username }}"
+      # unifi_exporter_password: "{{ vault_unifi_exporter_password }}"
 
   tasks:
     - debug:

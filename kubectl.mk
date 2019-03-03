@@ -1685,3 +1685,81 @@ test-prometheus-operator-curl:
 lint-prometheus-operator:
 	$(call check_defined, cluster, Please set cluster)
 	bash -c "find dist/manifests/$(cluster)-manifests/prometheus-operator -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+
+
+redeploy-unifi-exporter:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete unifi-exporter:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete unifi-exporter$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/unifi-exporter/
+
+	@printf "render unifi-exporter manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render unifi-exporter manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_unifi_exporter.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause" --vault-password-file ./vault_password
+	@echo ""
+	@echo ""
+
+	@printf "lint unifi-exporter manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint unifi-exporter manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/unifi-exporter -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "create-unifi-exporter:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy unifi-exporter$$NC\n"
+	@printf "=======================================\n"
+	-kubectl create -f dist/manifests/$(cluster)-manifests/unifi-exporter/
+	@echo ""
+	@echo ""
+
+create-unifi-exporter:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-unifi-exporter:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy unifi-exporter$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/unifi-exporter/
+	@echo ""
+	@echo ""
+
+apply-unifi-exporter:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-unifi-exporter:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy unifi-exporter$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/unifi-exporter/
+	@echo ""
+	@echo ""
+
+delete-unifi-exporter:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/unifi-exporter/
+
+describe-unifi-exporter:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/unifi-exporter/ | highlight
+
+debug-unifi-exporter: describe-unifi-exporter
+	kubectl -n kube-system get pod -l app=unifi-exporter --output=yaml | highlight
+
+test-unifi-exporter-curl:
+	-curl -v -L 'http://unifi-exporter.hyenaclan.org'
+
+lint-unifi-exporter:
+	$(call check_defined, cluster, Please set cluster)
+	bash -c "find dist/manifests/$(cluster)-manifests/unifi-exporter -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
