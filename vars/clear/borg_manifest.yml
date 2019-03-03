@@ -83,7 +83,7 @@ boss__echoserver__service__spec_selector: |
 
 boss__calico__manifest_path: "{{manifest_dir_path}}/calico"
 boss__calico__namespace_name: kube-system
-boss__calico__prometheus_metrics_enabled: "enabled"
+boss__calico__prometheus_metrics_enabled: true
 
 boss__calico__node_version: v3.3.2
 boss__calico__node_image_repo: "quay.io/calico/node"
@@ -93,17 +93,35 @@ boss__calico__cni_version: v3.3.2
 boss__calico__cni_image_repo: "quay.io/calico/cni"
 boss__calico__cni_image_tag: "{{ boss__calico__node_version }}"
 
+boss__calico__enable_prometheus_exporter_servicemonitor: "enabled"
+
+boss__calico__prometheus_exporter_namespace_name: monitoring
+
+boss__calico__felix_PrometheusMetricsPort: 9091
+boss__calico__typha_PrometheusMetricsPort: 9093
+
 boss__calico__node_daemonset_annotations: |
   scheduler.alpha.kubernetes.io/critical-pod: ''
   prometheus.io/scrape: "true"
-  prometheus.io/path: /metrics
-  prometheus.io/port: "9091"
+  prometheus.io/port: "{{boss__calico__felix_PrometheusMetricsPort}}"
+
+boss__calico__enable_typha: "enabled"
+boss__calico__typha_service_name: calico-typha  # or none
 
 boss__calico__typha_deployment_spec_replicas: 3
 
 boss__calico__typha_service_annotations: |
-  prometheus.io/scrape: 'true'
-  prometheus.io/port: '9091'
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "{{boss__calico__typha_PrometheusMetricsPort}}"
+
+boss__calico__typha_deployment_annotations: |
+  # This, along with the CriticalAddonsOnly toleration below, marks the pod as a critical
+  # add-on, ensuring it gets priority scheduling and that its resources are reserved
+  # if it ever gets evicted.
+  scheduler.alpha.kubernetes.io/critical-pod: ''
+  cluster-autoscaler.kubernetes.io/safe-to-evict: 'true'
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "{{boss__calico__typha_PrometheusMetricsPort}}"
 
 # {{ calico_node_image_repo }}:{{ calico_node_image_tag }}
 
