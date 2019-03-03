@@ -21,15 +21,12 @@ spec:
         - --path.sysfs=/host/sys
         - --collector.filesystem.ignored-mount-points=^/(dev|proc|sys|var/lib/docker/.+)($|/)
         - --collector.filesystem.ignored-fs-types=^(autofs|binfmt_misc|cgroup|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|sysfs|tracefs)$
-        image: quay.io/prometheus/node-exporter:v0.16.0
+        image: {{boss__prometheus__operator__node_exporter_image_repo}}:{{boss__prometheus__operator__node_exporter_version}}
         name: node-exporter
+{% if boss__prometheus__operator__node_exporter_daemonset_spec_template_spec_containers_resources is defined %}
         resources:
-          limits:
-            cpu: 250m
-            memory: 180Mi
-          requests:
-            cpu: 102m
-            memory: 180Mi
+{{ boss__prometheus__operator__node_exporter_daemonset_spec_template_spec_containers_resources | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
         volumeMounts:
         - mountPath: /host/proc
           name: proc
@@ -49,26 +46,16 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
-        image: quay.io/coreos/kube-rbac-proxy:v0.4.0
+        image: {{boss__prometheus__operator__kube_rbac_proxy_image_repo}}:{{boss__prometheus__operator__kube_rbac_proxy_version}}
         name: kube-rbac-proxy
         ports:
         - containerPort: 9100
           hostPort: 9100
           name: https
+{% if boss__prometheus__operator__kube_rbac_proxy_daemonset_spec_template_spec_containers_resources is defined %}
         resources:
-          # NOTE: Orig below ( 3/3/2019 )
-          #limits:
-          #  cpu: 20m
-          #  memory: 40Mi
-          #requests:
-          #  cpu: 10m
-          #  memory: 20Mi
-          limits:
-            cpu: 100m
-            memory: 120Mi
-          requests:
-            cpu: 90m
-            memory: 60Mi
+{{ boss__prometheus__operator__kube_rbac_proxy_daemonset_spec_template_spec_containers_resources | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
       hostNetwork: true
       hostPID: true
       nodeSelector:

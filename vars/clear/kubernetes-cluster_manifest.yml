@@ -1114,6 +1114,35 @@ boss__prometheus__operator__prometheus_version: v2.5.0
 boss__prometheus__operator__prometheus_crd_baseImage: "quay.io/prometheus/prometheus"
 boss__prometheus__operator__prometheus_image_tag: "{{ boss__prometheus__operator__prometheus_version }}"
 
+boss__prometheus__operator__node_exporter_version: v0.16.0
+boss__prometheus__operator__node_exporter_image_repo: "quay.io/prometheus/node-exporter"
+boss__prometheus__operator__node_exporter_image_tag: "{{ boss__prometheus__operator__node_exporter_version }}"
+boss__prometheus__operator__node_exporter_daemonset_spec_template_spec_containers_resources: |
+  limits:
+    cpu: 250m
+    memory: 180Mi
+  requests:
+    cpu: 102m
+    memory: 180Mi
+
+boss__prometheus__operator__kube_rbac_proxy_version: v0.4.0
+boss__prometheus__operator__kube_rbac_proxy_image_repo: "quay.io/coreos/kube-rbac-proxy"
+boss__prometheus__operator__kube_rbac_proxy_image_tag: "{{ boss__prometheus__operator__kube_rbac_proxy_version }}"
+boss__prometheus__operator__kube_rbac_proxy_daemonset_spec_template_spec_containers_resources: |
+  # NOTE: Orig below ( 3/3/2019 )
+  #limits:
+  #  cpu: 20m
+  #  memory: 40Mi
+  #requests:
+  #  cpu: 10m
+  #  memory: 20Mi
+  limits:
+    cpu: 100m
+    memory: 120Mi
+  requests:
+    cpu: 90m
+    memory: 60Mi
+
 boss__prometheus__operator__prometheus_operator_version: v0.29.0
 boss__prometheus__operator__prometheus_operator_image_repo: "quay.io/coreos/prometheus-operator"
 boss__prometheus__operator__prometheus_operator_image_tag: "{{ boss__prometheus__operator__prometheus_operator_version }}"
@@ -1324,7 +1353,6 @@ boss__unifi__exporter__unifi_address: https://192.168.1.8:8443
 boss__unifi__exporter__unifi_site: Hyenanet
 boss__unifi__exporter__unifi_insecure: true
 boss__unifi__exporter__unifi_timeout: 5s
-
 
 # ---
 # local_release_dir: /tmp/releases
