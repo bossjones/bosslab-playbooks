@@ -94,6 +94,8 @@ boss__calico__cni_version: v3.3.2
 boss__calico__cni_image_repo: "quay.io/calico/cni"
 boss__calico__cni_image_tag: "{{ boss__calico__node_version }}"
 
+boss__calico__enable_prometheus_exporter_servicemonitor: "enabled"
+
 boss__calico__felix_PrometheusMetricsPort: 9091
 boss__calico__typha_PrometheusMetricsPort: 9093
 

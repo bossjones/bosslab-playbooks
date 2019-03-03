@@ -12,3 +12,12 @@
   with_items:
     - "calico.yaml"
     - "rbac-kdd.yaml"
+
+- name: "calico-exporter | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__calico__manifest_path }}/{{ item }}"
+  with_items:
+    - "calico-exporter-service.yaml"
+    - "calico-exporter-servicemonitor.yaml"
+  when: boss__calico__enable_prometheus_exporter_servicemonitor is defined and boss__calico__enable_prometheus_exporter_servicemonitor == "enabled"
