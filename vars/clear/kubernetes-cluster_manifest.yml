@@ -1489,6 +1489,13 @@ boss__influxdb__operator__cluster_role_binding_labels: |
   boss-part-of: influxdb
   app: influxdata-operator
 
+
+
+boss__influxdb__operator__persistent_volume_spec_capacity_storage: 250Mi
+boss__influxdb__operator__persistent_volume_spec_nfs_path: "{{path_to_network_disk}}/influxdb-operator"
+# boss__influxdb__operator__nfs_master_node_ip: "{{ hostvars[groups[nfs_server_group][0]]['ansible_' + main_network_interface].ipv4.address }}"
+boss__influxdb__operator__nfs_master_node_ip: "{{ nfs_server_ip_override }}"
+
 # ---
 # local_release_dir: /tmp/releases
 
