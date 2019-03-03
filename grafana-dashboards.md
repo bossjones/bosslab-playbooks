@@ -24,3 +24,4 @@
 * Analysis by Podby stono - https://grafana.com/dashboards/6879
 * Analysis by Clusterby stono - https://grafana.com/dashboards/6873
 * Analysis by Namespaceby stono - https://grafana.com/dashboards/6876
+* Kubernetes Cluster Autoscaler (via Prometheus)by bookchair - https://grafana.com/dashboards/3831
