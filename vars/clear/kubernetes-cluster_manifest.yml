@@ -1191,6 +1191,13 @@ boss__prometheus__operator__configmap_reload_image_tag: "{{ boss__prometheus__op
 boss__prometheus__operator__prometheus_operator_config_reloader_version: v0.29.0
 boss__prometheus__operator__prometheus_operator_config_reloader_image_repo: "quay.io/coreos/prometheus-config-reloader"
 boss__prometheus__operator__prometheus_operator_config_reloader_image_tag: "{{ boss__prometheus__operator__prometheus_operator_config_reloader_version }}"
+boss__prometheus__operator__prometheus_operator_config_reloader_deployment_spec_template_spec_containers_resources: |
+  limits:
+    cpu: 200m
+    memory: 200Mi
+  requests:
+    cpu: 100m
+    memory: 100Mi
 
 
 boss__prometheus__operator__alertmanager_ingress_metadata_annotations: |

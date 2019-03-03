@@ -6,10 +6,12 @@ metadata:
   name: kube-controller-manager-prometheus-discovery
   namespace: kube-system
 spec:
+  type: ClusterIP
   clusterIP: None
   ports:
   - name: http-metrics
     port: 10252
     targetPort: 10252
+    protocol: TCP
   selector:
     component: kube-controller-manager
