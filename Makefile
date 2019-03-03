@@ -990,11 +990,16 @@ multi-ssh-homelab:
 multi-ssh-vagrant:
 	i2cssh -XF=$(PROJECT_ROOT_DIR)/ssh_config.kubernetes-cluster.conf -Xi=~/.ssh/vagrant_id_rsa vagrant-kube
 
+multi-ssh-scarlett-k8:
+	i2cssh -XF=$(PROJECT_ROOT_DIR)/ssh_config.scarlett-k8.conf -Xi=~/.ssh/id_rsa scarlett-k8-homelab
+
 i2cssh-vagrant: multi-ssh-vagrant
 
 i2cssh-borg: multi-ssh-homelab
 
 borg-ssh: multi-ssh-homelab
+
+scarlett-k8-ssh: multi-ssh-scarlett-k8
 
 install-rpi-monitoring:
 	$(call check_defined, cluster, Please set cluster)
