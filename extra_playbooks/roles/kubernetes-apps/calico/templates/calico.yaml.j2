@@ -78,7 +78,7 @@ spec:
       protocol: TCP
       targetPort: calico-typha
       name: calico-typha
-    - port: 9093
+    - port: {{boss__calico__typha_PrometheusMetricsPort}}
       targetPort: calico-metrics
       name: calico-metrics
       protocol: TCP
@@ -131,7 +131,7 @@ spec:
         - containerPort: 5473
           name: calico-typha
           protocol: TCP
-        - containerPort: 9093
+        - containerPort: {{boss__calico__typha_PrometheusMetricsPort}}
           name: calico-metrics
           protocol: TCP
         env:
@@ -158,9 +158,9 @@ spec:
           - name: TYPHA_PROMETHEUSMETRICSENABLED
             value: "true"
           # - name: TYPHA_PROMETHEUSMETRICSPORT
-          #  value: "9093"
+          #  value: "{{boss__calico__typha_PrometheusMetricsPort}}"
           - name: TYPHA_PROMETHEUSMETRICSPORT
-            value: "9093"
+            value: "{{boss__calico__typha_PrometheusMetricsPort}}"
 {% endif %}
 {% endif %}
         livenessProbe:
@@ -319,7 +319,7 @@ spec:
               value: "false"
             # TCP port that the Prometheus metrics server should bind to
             - name: FELIX_PROMETHEUSMETRICSPORT
-              value: "9091"
+              value: "{{ boss__calico__felix_PrometheusMetricsPort }}"
           securityContext:
             privileged: true
           resources:

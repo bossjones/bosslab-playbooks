@@ -94,10 +94,13 @@ boss__calico__cni_version: v3.3.2
 boss__calico__cni_image_repo: "quay.io/calico/cni"
 boss__calico__cni_image_tag: "{{ boss__calico__node_version }}"
 
+boss__calico__felix_PrometheusMetricsPort: 9091
+boss__calico__typha_PrometheusMetricsPort: 9093
+
 boss__calico__node_daemonset_annotations: |
   scheduler.alpha.kubernetes.io/critical-pod: ''
   prometheus.io/scrape: "true"
-  prometheus.io/port: "9091"
+  prometheus.io/port: "{{boss__calico__felix_PrometheusMetricsPort}}"
 
 boss__calico__enable_typha: "enabled"
 boss__calico__typha_service_name: calico-typha  # or none
@@ -106,7 +109,7 @@ boss__calico__typha_deployment_spec_replicas: 3
 
 boss__calico__typha_service_annotations: |
   prometheus.io/scrape: "true"
-  prometheus.io/port: "9093"
+  prometheus.io/port: "{{boss__calico__typha_PrometheusMetricsPort}}"
 
 boss__calico__typha_deployment_annotations: |
   # This, along with the CriticalAddonsOnly toleration below, marks the pod as a critical
@@ -115,7 +118,7 @@ boss__calico__typha_deployment_annotations: |
   scheduler.alpha.kubernetes.io/critical-pod: ''
   cluster-autoscaler.kubernetes.io/safe-to-evict: 'true'
   prometheus.io/scrape: "true"
-  prometheus.io/port: "9093"
+  prometheus.io/port: "{{boss__calico__typha_PrometheusMetricsPort}}"
 
 
 
