@@ -1000,5 +1000,8 @@ install-rpi-monitoring:
 	$(call check_defined, cluster, Please set cluster)
 	ansible-playbook -vvvvv playbooks/install_rpi_monitoring.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause" -f 10
 
+ansible-ping:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook ping.yml  -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause" -f 10
 
 include *.mk
