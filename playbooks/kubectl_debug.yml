@@ -67,7 +67,8 @@
     tags: sync-push
     synchronize:
       src: "./kube.tar.gz"
-      dest: "rsync://{{inventory_hostname}}/kube.tar.gz"
+      # dest: "rsync://{{non_rootuser}}@{{inventory_hostname}}:kube.tar.gz"
+      dest: "/home/{{non_rootuser}}/kube.tar.gz"
       mode: push
       set_remote_user: yes
     # delegate_to: "{{groups['masters'][0]}}"
