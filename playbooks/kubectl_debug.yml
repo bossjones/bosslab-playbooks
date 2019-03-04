@@ -36,7 +36,7 @@
   tasks:
     - name: WITHOUT DELEGATE kube.tar.gz | bring down the tar file locally on ansible controller
       archive:
-        path: "{{ dir|default('.') }}/.kube/config"
+        path: "{{kube_config_path}}"
         dest: "{{ dir|default('.') }}/kube.tar.gz"
       become: yes
       become_method:
