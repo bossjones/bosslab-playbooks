@@ -347,7 +347,7 @@ EOF
 # StandardOutput=journal+console
 # StandardError=journal+console
 Environment="DOCKER_OPTS=--log-driver=json-file --log-opt max-size=50m --log-opt max-file=5"
-LimitMEMLOCK=infinity
+# LimitMEMLOCK=infinity
 EOF
     systemctl daemon-reload
 
@@ -504,7 +504,7 @@ if [[ $(hostname -s) = *master* ]]; then
 
     # install Calico pod network addon
     export KUBECONFIG=/etc/kubernetes/admin.conf
-    kubectl apply -f https://git.io/weave-kube-1.6
+    # (only need one of these? ) kubectl apply -f https://git.io/weave-kube-1.6
     kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')&env.IPALLOC_RANGE=10.32.0.0/12"
 
     kubeadm token create --print-join-command >> /etc/kubeadm_join_cmd.sh
