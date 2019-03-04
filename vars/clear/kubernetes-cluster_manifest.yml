@@ -1363,8 +1363,9 @@ boss__prometheus__operator__prometheus_additional_scrape_configs: |
       #server: ['prometheus1']
     honor_labels: true
 
+    # 217 is rpi cluster
     static_configs:
-      - targets: ['192.168.205.10:19999','192.168.205.11:19999','192.168.205.12:19999']
+      - targets: ['192.168.205.10:19999','192.168.205.11:19999','192.168.205.12:19999', '192.168.1.217:19999','192.168.1.184:19999','192.168.1.22:19999', '192.168.1.23:19999', '192.168.1.175:19999']
 
 # SOURCE: https://techtran.science/2018/06/11/unifi-to-grafana-using-prometheus-and-unifi_exporter/
 # - job_name: 'unifi_exporter'
