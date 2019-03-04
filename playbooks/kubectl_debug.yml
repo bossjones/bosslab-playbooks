@@ -36,12 +36,14 @@
   tasks:
     - name: WITHOUT DELEGATE kube.tar.gz | bring down the tar file locally on ansible controller
       archive:
-        path: "/home/{{non_rootuser}}/.kube"
+        path: "{{ dir|default('.') }}/.kube"
         dest: "{{ dir|default('.') }}/kube.tar.gz"
-      become: false
+      become: yes
+      become_method:
+      become_user: "{{ variable_non_rootuser | default('pi') }}"
 
     - name: Fetch kube.tar.gz locally
-      fetch: src=/home/{{non_rootuser}}/kube.tar.gz dest={{ dir|default('.') }}/kube.tar.gz
+      fetch: src=/home/{{non_rootuser}}/kube.tar.gz dest={{ dir|default('.') }}/kube.tar.gz flat=yes
       failed_when: false
 
     # - name: kube.tar.gz | bring down the tar file locally on ansible controller
