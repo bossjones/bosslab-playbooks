@@ -10,6 +10,8 @@ SOURCE: https://lzone.de/cheat-sheet/ulimit
 
 SOURCE: https://blog.openai.com/scaling-kubernetes-to-2500-nodes/
 
+SOURCE: http://www.brendangregg.com/ebpf.html
+
 ### Lets say I want my new 'ulimit -n' to read 131072.
 
 ```
