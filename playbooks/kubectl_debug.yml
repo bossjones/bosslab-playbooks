@@ -40,12 +40,16 @@
         dest: "{{ dir|default('.') }}/kube.tar.gz"
       become: false
 
-    - name: kube.tar.gz | bring down the tar file locally on ansible controller
-      archive:
-        path: "/home/{{non_rootuser}}/.kube"
-        dest: "{{ dir|default('.') }}/kube.tar.gz"
-      delegate_to: localhost
-      become: false
+    - name: Fetch kube.tar.gz locally
+      fetch: src=/home/{{non_rootuser}}/kube.tar.gz dest={{ dir|default('.') }}/kube.tar.gz
+      failed_when: false
+
+    # - name: kube.tar.gz | bring down the tar file locally on ansible controller
+    #   archive:
+    #     path: "/home/{{non_rootuser}}/.kube"
+    #     dest: "{{ dir|default('.') }}/kube.tar.gz"
+    #   delegate_to: localhost
+    #   become: false
 
 ##############################################################################################################################
 ##############################################################################################################################
