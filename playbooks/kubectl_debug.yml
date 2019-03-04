@@ -111,6 +111,9 @@
         cmd: ip ro
       - name: proc_info
         cmd: ps auxf | grep -v ]$
+
+      - name: ps_rss_info
+        cmd: ps aux --sort -rss
       - name: systemctl_failed_info
         cmd: systemctl --state=failed --no-pager
       - name: k8s_info
