@@ -1026,7 +1026,7 @@ analyze-k8-container-resource-usage:
 	@printf "=======================================\n"
 	@printf "$$GREEN analyze-k8-container-resource-usage$$NC\n"
 	@printf "=======================================\n"
-	@bash scripts/analyze-k8-container-resource-usage
+	@bash scripts/analyze-k8-container-resource-usage.sh
 	@echo ""
 	@echo ""
 
