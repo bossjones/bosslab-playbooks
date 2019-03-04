@@ -81,6 +81,9 @@
       dest: "/home/{{non_rootuser}}/kube.tar.gz"
       mode: push
       set_remote_user: yes
+      rsync_opts:
+      - "--chown={{non_rootuser}}:{{non_rootuser}}"
+      - "--chmod=F644"
     # delegate_to: "{{groups['masters'][0]}}"
     register: syncfile
     when: check_admin_config_path.stat.exists == false
