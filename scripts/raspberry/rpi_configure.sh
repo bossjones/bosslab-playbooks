@@ -64,6 +64,8 @@ if [ ! -f /opt/raspberry/step1 ]; then
 
 # uncomment if you get no picture on HDMI for a default "safe" mode
 #hdmi_safe=1
+hdmi_force_hotplug=1
+hdmi_drive=2
 
 # uncomment this if your display has a black border of unused pixels visible
 # and your display can output without overscan
@@ -342,8 +344,8 @@ EOF
     mkdir -p /etc/systemd/system/docker.service.d
     cat <<EOF >/etc/systemd/system/docker.service.d/perf.conf
 [Service]
-StandardOutput=journal+console
-StandardError=journal+console
+# StandardOutput=journal+console
+# StandardError=journal+console
 Environment="DOCKER_OPTS=--log-driver=json-file --log-opt max-size=50m --log-opt max-file=5"
 LimitMEMLOCK=infinity
 EOF
@@ -384,8 +386,8 @@ export GOPATH=$HOME/go
 export PATH=/usr/local/go/bin:$PATH:$GOPATH/bin
 EOF
 
-    source ~/.bashrc
-    source ~/.zshrc.local
+    [ -f "~/.bashrc" ] && source ~/.bashrc
+    [ -f "~/.zshrc.local" ] && source ~/.zshrc.local
 
 
     sudo curl -L 'https://github.com/kardianos/govendor/releases/download/v1.0.8/govendor_linux_arm' > /usr/local/bin/govendor
@@ -490,6 +492,8 @@ if [[ $(hostname -s) = *master* ]]; then
 
     sudo sed -i 's/failureThreshold: 8/failureThreshold: 20/g' /etc/kubernetes/manifests/kube-apiserver.yaml && \
     sudo sed -i 's/initialDelaySeconds: [0-9]\+/initialDelaySeconds: 360/' /etc/kubernetes/manifests/kube-apiserver.yaml
+    sed -e "s/- --address=127.0.0.1/- --address=0.0.0.0/" -i /etc/kubernetes/manifests/kube-controller-manager.yaml
+    sed -e "s/- --address=127.0.0.1/- --address=0.0.0.0/" -i /etc/kubernetes/manifests/kube-scheduler.yaml
 
     sudo --user=$NON_ROOT_USER mkdir -p /home/$NON_ROOT_USER/.kube
     cp -i /etc/kubernetes/admin.conf /home/$NON_ROOT_USER/.kube/config
@@ -526,11 +530,13 @@ if [[ $(hostname -s) = *node* ]]; then
 fi
 # --------------------- EXTRA
 
+sed -e "s/- --address=127.0.0.1/- --address=0.0.0.0/" -i /etc/kubernetes/manifests/kube-controller-manager.yaml
+sed -e "s/- --address=127.0.0.1/- --address=0.0.0.0/" -i /etc/kubernetes/manifests/kube-scheduler.yaml
 
 # prometheus
-curl -SL https://github.com/prometheus/node_exporter/releases/download/v0.17.0/node_exporter-0.17.0.linux-armv6.tar.gz > node_exporter.tar.gz && \
-sudo tar -xvf node_exporter.tar.gz -C /usr/local/bin/ --strip-components=1
-sudo rm -r /usr/local/bin/{LICENSE,NOTICE}
+# curl -SL https://github.com/prometheus/node_exporter/releases/download/v0.17.0/node_exporter-0.17.0.linux-armv6.tar.gz > node_exporter.tar.gz && \
+# sudo tar -xvf node_exporter.tar.gz -C /usr/local/bin/ --strip-components=1
+# sudo rm -r /usr/local/bin/{LICENSE,NOTICE}
 
 apt-get install -y conntrack ipset
 
