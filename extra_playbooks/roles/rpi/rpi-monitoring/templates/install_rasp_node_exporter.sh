@@ -15,7 +15,7 @@ cd /tmp
 tar xvf /tmp/$file.tar.gz
 
 cp -a /tmp/$file/node_exporter /usr/local/bin/node_exporter
-
+TimeoutStartSec
 
 tee /usr/lib/systemd/system/node_exporter.service << EOS
 [Unit]

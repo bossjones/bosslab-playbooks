@@ -1012,7 +1012,7 @@ ansible-ping:
 
 ansible-debug-k8:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook playbooks/kubectl_debug.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "variable_non_rootuser=$(variable_non_rootuser) cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook playbooks/kubectl_debug.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "variable_non_rootuser=$(variable_non_rootuser) cluster=$(cluster)" --skip-tags "pause" --check
 
 
 ansible-debug-k8-master-only:
@@ -1078,6 +1078,7 @@ color-analyze-events-timestamp:
 	@printf "=======================================\n"
 	@printf "$$GREEN analyze-events-timestamp$$NC\n"
 	@printf "=======================================\n"
+# SOURCE: color - https://github.com/Ullaakut/awesome-osx-setup/blob/37935fe6f8c1a90b80741e158dfa399ae6eaa84f/fish/config.fish#L58
 	kubectl get events --all-namespaces --sort-by=.metadata.creationTimestamp | sed ''/Normal/s//(printf "\033[32mNormal\033[0m")/'' | sed ''/Warning/s//(printf "\033[31mWarning\033[0m")/''
 	@echo ""
 	@echo ""

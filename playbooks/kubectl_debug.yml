@@ -21,6 +21,61 @@
 # REAL RUN:
 # ansible-playbook playbooks/kubectl_debug.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "variable_non_rootuser=pi cluster=borg variable_host=servers dir=./" -f 10
 ##############################################################################
+
+- name: make sure all workers can access admin kubectl
+  # masters
+  hosts: "{{ variable_host | default('workers') }}"
+  become: yes
+  become_method: sudo
+  become_user: "{{ variable_non_rootuser | default('pi') }}"
+  gather_facts: False
+  vars:
+    debug_folder: '~/.homelab_debugging'
+    non_rootuser: "{{ variable_non_rootuser | default('pi') }}"
+    kube_config_path: "/home/{{non_rootuser}}/.kube/config"
+
+  tasks:
+  # - name: Fetch the file from master to the worker node
+  #   run_once: yes
+  #   fetch:
+  #     src: "/home/{{non_rootuser}}/.kube/config"
+  #     dest: /home/{{non_rootuser}}/.kube/
+  #     flat: yes
+  #     fail_on_missing: yes
+
+  - name: "Check if /home/{{non_rootuser}}/.kube/config path exists"
+    stat: path=/home/{{non_rootuser}}/.kube/config
+    register: check_admin_config_path
+
+  - name: "Fetch the file from master to the worker node - {{groups['masters'][0]}} to {{ inventory_hostname }}"
+    tags: sync-pull
+    synchronize:
+      src: "/home/{{non_rootuser}}/.kube/config"
+      dest: "/home/{{non_rootuser}}/.kube/config"
+      mode: pull
+    delegate_to: "{{groups['masters'][0]}}"
+    register: syncfile
+    # with_items:
+    #  - "{{groups['variable_host']}}"
+    when: check_admin_config_path.stat.exists == false
+
+  # - name: Sync Pull task - Executed on "{{groups['app'][0]}}"
+  #   hosts: "{{groups['app'][0]}}"
+  #   user: "{{non_rootuser}}"
+  #   tasks:
+  #     - name: Copy the file from mwiapp01 to mwiapp02 using Method Pull
+  #       tags: sync-pull
+  #       synchronize:
+  #         src: "/home/{{non_rootuser}}/.kube/config"
+  #         dest: "/home/{{non_rootuser}}/.kube/config"
+  #         mode: pull
+  #       delegate_to: "{{groups['masters'][0]}}"
+  #       register: syncfile
+  #       run_once: true
+  #       with_items:
+  #        - "{{groups['variable_host']}}"
+
+
 - name: debug kubernetes cluster
   # masters
   hosts: "{{ variable_host | default('servers') }}"
