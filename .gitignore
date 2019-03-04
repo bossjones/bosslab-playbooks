@@ -193,3 +193,4 @@ badass.txt
 unifi-exporter-credentials.yaml
 unifi-exporter-secret-config.yaml
 logs.tar.gz
+kube.tar.gz

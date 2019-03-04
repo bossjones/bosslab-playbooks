@@ -22,7 +22,27 @@
 # ansible-playbook playbooks/kubectl_debug.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "variable_non_rootuser=pi cluster=borg variable_host=servers dir=./" -f 10
 ##############################################################################
 
-- name: make sure all workers can access admin kubectl
+- name: playbook | kube.tar.gz | tar up the .kube folder
+  # masters
+  hosts: "{{ variable_host | default('masters') }}"
+  become: yes
+  become_method: sudo
+  become_user: "{{ variable_non_rootuser | default('pi') }}"
+  gather_facts: False
+  vars:
+    non_rootuser: "{{ variable_non_rootuser | default('pi') }}"
+    kube_config_path: "/home/{{non_rootuser}}/.kube/config"
+
+  tasks:
+    - name: kube.tar.gz | bring down the tar file locally on ansible controller
+      archive:
+        path: "/home/{{non_rootuser}}/.kube"
+        dest: "./kube.tar.gz"
+      delegate_to: localhost
+      become: false
+      run_once: true
+
+- name: playbook | make sure all workers can access admin kubectl
   # masters
   hosts: "{{ variable_host | default('workers') }}"
   become: yes
@@ -43,21 +63,35 @@
   #     flat: yes
   #     fail_on_missing: yes
 
-  - name: "Check if /home/{{non_rootuser}}/.kube/config path exists"
-    stat: path=/home/{{non_rootuser}}/.kube/config
+  - name: "Check if /home/{{non_rootuser}}/kube.tar.gz path exists"
+    stat: path=/home/{{non_rootuser}}/kube.tar.gz
     register: check_admin_config_path
 
   - name: "Fetch the file from master to the worker node - {{groups['masters'][0]}} to {{ inventory_hostname }}"
-    tags: sync-pull
+    tags: sync-push
     synchronize:
-      src: "/home/{{non_rootuser}}/.kube/config"
-      dest: "/home/{{non_rootuser}}/.kube/config"
-      mode: pull
-    delegate_to: "{{groups['masters'][0]}}"
+      src: "./kube.tar.gz"
+      dest: "/home/{{non_rootuser}}/kube.tar.gz"
+      mode: push
+    # delegate_to: "{{groups['masters'][0]}}"
     register: syncfile
-    # with_items:
-    #  - "{{groups['variable_host']}}"
     when: check_admin_config_path.stat.exists == false
+
+  # - name: kube.tar.gz | Pack results and logs
+  #   archive:
+  #     path: "/home/{{non_rootuser}}/.kube"
+  #     dest: "/home/{{non_rootuser}}/kube.tar.gz"
+  #   delegate_to: localhost
+  #   become: false
+  #   run_once: true
+
+  - name: Unarchive a file that is already on the remote machine
+    unarchive:
+      src: "/home/{{non_rootuser}}/kube.tar.gz"
+      dest: "/tmp"
+      remote_src: yes
+    become: false
+    run_once: true
 
   # - name: Sync Pull task - Executed on "{{groups['app'][0]}}"
   #   hosts: "{{groups['app'][0]}}"
