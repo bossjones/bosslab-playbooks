@@ -2,9 +2,9 @@ version={{boss__prometheus__operator__node_exporter_version}}
 
 uname -m | grep v7
 if [ $? -eq 0 ]; then
-  file=node_exporter-{{boss__prometheus__operator__node_exporter_version | regex_replace('^v','' }}.linux-armv7
+  file=node_exporter-{{boss__prometheus__operator__node_exporter_version | regex_replace('^v','') }}.linux-armv7
 else
-  file=node_exporter-{{boss__prometheus__operator__node_exporter_version | regex_replace('^v','' }}.linux-armv6
+  file=node_exporter-{{boss__prometheus__operator__node_exporter_version | regex_replace('^v','') }}.linux-armv6
 fi
 
 
