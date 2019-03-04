@@ -2,11 +2,10 @@ version={{boss__prometheus__operator__node_exporter_version}}
 
 uname -m | grep v7
 if [ $? -eq 0 ]; then
-  file=node_exporter-{{boss__prometheus__operator__node_exporter_version}}.linux-armv7
+  file=node_exporter-{{boss__prometheus__operator__node_exporter_version | regex_replace('^v','' }}.linux-armv7
 else
-  file=node_exporter-{{boss__prometheus__operator__node_exporter_version}}.linux-armv6
+  file=node_exporter-{{boss__prometheus__operator__node_exporter_version | regex_replace('^v','' }}.linux-armv6
 fi
-
 
 
 wget https://github.com/prometheus/node_exporter/releases/download/$version/$file.tar.gz \
@@ -15,7 +14,7 @@ wget https://github.com/prometheus/node_exporter/releases/download/$version/$fil
 cd /tmp
 tar xvf /tmp/$file.tar.gz
 
-cp /tmp/$file/node_exporter /usr/local/bin/node_exporter
+cp -a /tmp/$file/node_exporter /usr/local/bin/node_exporter
 
 
 tee /usr/lib/systemd/system/node_exporter.service << EOS
