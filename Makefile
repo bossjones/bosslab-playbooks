@@ -1020,4 +1020,34 @@ ansible-debug-k8-master-only:
 	$(call check_defined, non_root_user, Please set non_root_user)
 	ansible-playbook playbooks/kubectl_debug.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "variable_non_rootuser=$(variable_non_rootuser) cluster=$(cluster) variable_host=masters" --skip-tags "pause"
 
+# SOURCE: https://dzone.com/articles/kubernetes-resource-usage-how-do-you-manage-and-mo
+analyze-k8-container-resource-usage:
+	@printf "analyze-k8-container-resource-usage:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN analyze-k8-container-resource-usage$$NC\n"
+	@printf "=======================================\n"
+	@bash scripts/analyze-k8-container-resource-usage
+	@echo ""
+	@echo ""
+
+# SOURCE: https://dzone.com/articles/kubernetes-resource-usage-how-do-you-manage-and-mo
+analyze-pod-resource-consumption:
+	@printf "analyze-pod-resource-consumption:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN analyze-pod-resource-consumption$$NC\n"
+	@printf "=======================================\n"
+	kubectl top pod --all-namespaces
+	@echo ""
+	@echo ""
+
+analyze-events-timestamp:
+	@printf "analyze-events-timestamp:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN analyze-events-timestamp$$NC\n"
+	@printf "=======================================\n"
+	kubectl get events --all-namespaces --sort-by=.metadata.creationTimestamp
+	@echo ""
+	@echo ""
+
+
 include *.mk

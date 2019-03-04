@@ -33,7 +33,7 @@
     debug_folder: '~/.homelab_debugging'
     non_rootuser: "{{ variable_non_rootuser | default('pi') }}"
     docker_bin_dir: /usr/bin
-    bin_dir: /usr/local/bin
+    bin_dir: /usr/bin
     dir: "{{ playbook_dir }}/../"
     ansible_ssh_pipelining: true
     # etcd_cert_dir: /etc/ssl/etcd/ssl
