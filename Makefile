@@ -1051,5 +1051,38 @@ analyze-events-timestamp:
 
 analyze: analyze-k8-container-resource-usage analyze-pod-resource-consumption analyze-events-timestamp
 
+# -------
+
+# SOURCE: https://dzone.com/articles/kubernetes-resource-usage-how-do-you-manage-and-mo
+color-analyze-k8-container-resource-usage:
+	@printf "analyze-k8-container-resource-usage:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN analyze-k8-container-resource-usage$$NC\n"
+	@printf "=======================================\n"
+	@bash scripts/analyze-k8-container-resource-usage.sh
+	@echo ""
+	@echo ""
+
+# SOURCE: https://dzone.com/articles/kubernetes-resource-usage-how-do-you-manage-and-mo
+color-analyze-pod-resource-consumption:
+	@printf "analyze-pod-resource-consumption:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN analyze-pod-resource-consumption$$NC\n"
+	@printf "=======================================\n"
+	kubectl top pod --all-namespaces
+	@echo ""
+	@echo ""
+
+color-analyze-events-timestamp:
+	@printf "analyze-events-timestamp:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN analyze-events-timestamp$$NC\n"
+	@printf "=======================================\n"
+	kubectl get events --all-namespaces --sort-by=.metadata.creationTimestamp | sed ''/Normal/s//(printf "\033[32mNormal\033[0m")/'' | sed ''/Warning/s//(printf "\033[31mWarning\033[0m")/''
+	@echo ""
+	@echo ""
+
+color-analyze: color-analyze-k8-container-resource-usage color-analyze-pod-resource-consumption color-analyze-events-timestamp
+
 
 include *.mk
