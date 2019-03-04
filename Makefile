@@ -1049,5 +1049,7 @@ analyze-events-timestamp:
 	@echo ""
 	@echo ""
 
+analyze: analyze-k8-container-resource-usage analyze-pod-resource-consumption analyze-events-timestamp
+
 
 include *.mk
