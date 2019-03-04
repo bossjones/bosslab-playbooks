@@ -182,6 +182,15 @@
       become: false
       run_once: true
 
+    - name: Unarchive a file that is already on the remote machine
+      unarchive:
+        src: "{{ dir|default('.') }}/logs.tar.gz"
+        dest: /tmp
+        remote_src: no
+      delegate_to: localhost
+      become: false
+      run_once: true
+
     # SOURCE: https://www.reddit.com/r/ansible/comments/7rkts2/ansible_to_retry_a_task/
     - name: Clean up collected command outputs
       file: path={{ item.name }} state=absent
