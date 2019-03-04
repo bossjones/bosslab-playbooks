@@ -31,27 +31,23 @@
   gather_facts: False
   vars:
     non_rootuser: "{{ variable_non_rootuser | default('pi') }}"
-    kube_config_path: "/home/{{non_rootuser}}/.kube/config"
+    kube_config_path: "/home/{{variable_non_rootuser}}/.kube"
 
   tasks:
     - name: WITHOUT DELEGATE kube.tar.gz | bring down the tar file locally on ansible controller
       archive:
         path: "{{kube_config_path}}"
-        dest: "{{ dir|default('.') }}/kube.tar.gz"
+        dest: "/home/{{variable_non_rootuser}}/kube.tar.gz"
+        exclude_path:
+        - /home/{{variable_non_rootuser}}/.kube/cache
+        - /home/{{variable_non_rootuser}}/.kube/http-cache
       become: yes
       become_method:
       become_user: "{{ variable_non_rootuser | default('pi') }}"
 
     - name: Fetch kube.tar.gz locally
-      fetch: src=/home/{{non_rootuser}}/kube.tar.gz dest={{ dir|default('.') }}/kube.tar.gz flat=yes
+      fetch: src=/home/{{variable_non_rootuser}}/kube.tar.gz dest={{ dir|default('.') }}/kube.tar.gz flat=yes
       failed_when: false
-
-    # - name: kube.tar.gz | bring down the tar file locally on ansible controller
-    #   archive:
-    #     path: "/home/{{non_rootuser}}/.kube"
-    #     dest: "{{ dir|default('.') }}/kube.tar.gz"
-    #   delegate_to: localhost
-    #   become: false
 
 ##############################################################################################################################
 ##############################################################################################################################
@@ -79,21 +75,47 @@
     tags: sync-push
     synchronize:
       src: "{{ dir|default('.') }}/kube.tar.gz"
-      # dest: "rsync://{{non_rootuser}}@{{inventory_hostname}}:kube.tar.gz"
       dest: "/home/{{non_rootuser}}/kube.tar.gz"
       mode: push
       set_remote_user: yes
       rsync_opts:
       - "--chown={{non_rootuser}}:{{non_rootuser}}"
       - "--chmod=F644"
-    # delegate_to: "{{groups['masters'][0]}}"
     register: syncfile
     when: check_admin_config_path.stat.exists == false
-  - name: Unarchive a file that is already on the remote machine
+
+  - name: tar -ztvf ~/kube.tar.gz
+    shell: |
+      tar -ztvf ~/kube.tar.gz
+      chdir=$HOME
+    args:
+      executable: /bin/bash
+
+  # wait to verify node is started
+  - name: "Pausing 300 seconds to make sure cassandra process is started and queryable with nodetool"
+    pause:
+      seconds: 300
+    tag:
+    - pause
+
+  - name: Unarchive a file that is already on the remote machine - DIR - /home/{{non_rootuser}}
     unarchive:
       src: "/home/{{non_rootuser}}/kube.tar.gz"
-      dest: "/tmp"
+      dest: "/home/{{non_rootuser}}"
       remote_src: yes
+
+
+  # SOURCE: https://www.reddit.com/r/ansible/comments/7rkts2/ansible_to_retry_a_task/
+  - name: Clean up folders we don't care about eg. /home/{{non_rootuser}}/.kube/cache and /home/{{non_rootuser}}/.kube/http-cache
+    file: path={{ item }} state=absent
+    with_items:
+    - "/home/{{non_rootuser}}/.kube/cache"
+    - "/home/{{non_rootuser}}/.kube/http-cache"
+    register: folder_cleanup_task_result
+    until: folder_cleanup_task_result | succeeded
+    retries: 15
+    delay: 5
+    ignore_errors: yes
 
 - name: debug kubernetes cluster
   # masters

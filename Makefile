@@ -1012,7 +1012,7 @@ ansible-ping:
 
 ansible-debug-k8:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook playbooks/kubectl_debug.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "variable_non_rootuser=$(variable_non_rootuser) cluster=$(cluster)" --skip-tags "pause" --check
+	ansible-playbook playbooks/kubectl_debug.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "variable_non_rootuser=$(variable_non_rootuser) cluster=$(cluster)" --skip-tags "pause"
 
 
 ansible-debug-k8-master-only:
