@@ -84,6 +84,16 @@
       # - name: weave_logs
       #   cmd: "{{ docker_bin_dir }}/docker logs weave"
       #   when: '{{ kube_network_plugin == "weave" }}'
+      - name: systemctl_list_units_info
+        cmd: systemctl list-units --no-pager
+      - name: nfs_server_info
+        cmd: journalctl -u nfs-server.service --no-pager
+      - name: nfs_blkmap_info
+        cmd: journalctl -u nfs-blkmap.service --no-pager
+      - name: nfs_idmapd_info
+        cmd: journalctl -u nfs-idmapd.service --no-pager
+      - name: nfs_mountd_info
+        cmd: journalctl -u nfs-mountd.service --no-pager
       - name: kubelet_info
         cmd: journalctl -u kubelet.service --no-pager
       - name: kube_describe_all
