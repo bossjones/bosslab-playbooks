@@ -137,7 +137,7 @@
       - /var/log/dmesg
 
   environment:
-    KUBECONFIG: "/home/ {{ playbook_dir }}/../{{cluster}}-admin.conf"
+    KUBECONFIG: "/home/{{non_rootuser}}/.kube/config"
 
   tasks:
     # Same as above but you normally have ansible_connection set in inventory, which overrides 'connection'
