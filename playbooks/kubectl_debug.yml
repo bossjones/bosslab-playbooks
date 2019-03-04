@@ -84,6 +84,10 @@
       # - name: weave_logs
       #   cmd: "{{ docker_bin_dir }}/docker logs weave"
       #   when: '{{ kube_network_plugin == "weave" }}'
+      - name: lsmod_info
+        cmd: lsmod
+      - name: lshw_info
+        cmd: lshw -class network -short
       - name: systemctl_list_units_info
         cmd: systemctl list-units --no-pager
       - name: nfs_server_info
