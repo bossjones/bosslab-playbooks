@@ -549,10 +549,19 @@ iptables -P INPUT ACCEPT
 iptables -P OUTPUT ACCEPT
 
 # SOURCE: https://github.com/steelsquid/steelsquid-kiss-os/blob/d5f578f4a6f752b12a0be179809f30dfa8b2cbd2/steelsquid-kiss-os.sh
-echo "*         hard    nofile      90000" > /etc/security/limits.d/perf.conf
-echo "*         soft    nofile      90000" >> /etc/security/limits.d/perf.conf
-echo "root      hard    nofile      90000" >> /etc/security/limits.d/perf.conf
-echo "root      soft    nofile      90000" >> /etc/security/limits.d/perf.conf
+# SOURCE: https://phpsolved.com/ubuntu-16-increase-maximum-file-open-limit-ulimit-n/
+# echo "*         hard    nofile      90000" > /etc/security/limits.d/perf.conf
+# echo "*         soft    nofile      90000" >> /etc/security/limits.d/perf.conf
+# echo "root      hard    nofile      90000" >> /etc/security/limits.d/perf.conf
+# echo "root      soft    nofile      90000" >> /etc/security/limits.d/perf.conf
+echo "* soft     nproc          90000" > /etc/security/limits.d/perf.conf
+echo "* hard     nproc          90000" >> /etc/security/limits.d/perf.conf
+echo "* soft     nofile         90000" >> /etc/security/limits.d/perf.conf
+echo "* hard     nofile         90000"  >> /etc/security/limits.d/perf.conf
+echo "root soft     nproc          90000" >> /etc/security/limits.d/perf.conf
+echo "root hard     nproc          90000" >> /etc/security/limits.d/perf.conf
+echo "root soft     nofile         90000" >> /etc/security/limits.d/perf.conf
+echo "root hard     nofile         90000" >> /etc/security/limits.d/perf.conf
 sed -i '/pam_limits.so/d' /etc/pam.d/sshd
 echo "session    required   pam_limits.so" >> /etc/pam.d/sshd
 sed -i '/pam_limits.so/d' /etc/pam.d/su
@@ -562,7 +571,43 @@ echo "session required pam_limits.so" >> /etc/pam.d/common-session
 sed -i '/session required pam_limits.so/d' /etc/pam.d/common-session-noninteractive
 echo "session required pam_limits.so" >> /etc/pam.d/common-session-noninteractive
 
+# --- Check KSM (kernel memory deduper) ---
+
+# Memory de-duplication instructions
+
+# You have kernel memory de-duper (called Kernel Same-page Merging,
+# or KSM) available, but it is not currently enabled.
+
+# To enable it run:
+
+#     echo 1 >/sys/kernel/mm/ksm/run
+#     echo 1000 >/sys/kernel/mm/ksm/sleep_millisecs
+
+# If you enable it, you will save 40-60% of netdata memory.
+
+echo 1 >/sys/kernel/mm/ksm/run
+echo 1000 >/sys/kernel/mm/ksm/sleep_millisecs
+
+# SOURCE: https://blog.openai.com/scaling-kubernetes-to-2500-nodes/ ( VERY GOOD )
+# net.ipv4.neigh.default.gc_thresh1 = 80000
+# net.ipv4.neigh.default.gc_thresh2 = 90000
+# net.ipv4.neigh.default.gc_thresh3 = 100000
+
+echo "net.ipv4.neigh.default.gc_thresh1 = 80000" | sudo tee -a /etc/sysctl.d/kube.conf
+echo "net.ipv4.neigh.default.gc_thresh2 = 90000" | sudo tee -a /etc/sysctl.d/kube.conf
+echo "net.ipv4.neigh.default.gc_thresh3 = 100000" | sudo tee -a /etc/sysctl.d/kube.conf
+
 sysctl -p
+
+
+
+# ##################################################################################
+# # auditd
+# ##################################################################################
+sudo apt install -y auditd audispd-plugins
+curl -L 'https://raw.githubusercontent.com/Neo23x0/auditd/master/audit.rules' > /etc/audit/audit.rules
+git clone https://github.com/PaulDaviesC/Logging-limits.conf.git /usr/local/src/logging-limits-conf
+
 
 # TODO: Enable me ?
 # SOURCE: https://github.com/steelsquid/steelsquid-kiss-os/blob/d5f578f4a6f752b12a0be179809f30dfa8b2cbd2/steelsquid-kiss-os.sh
