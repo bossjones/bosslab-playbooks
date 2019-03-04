@@ -34,10 +34,16 @@
     kube_config_path: "/home/{{non_rootuser}}/.kube/config"
 
   tasks:
+    - name: WITHOUT DELEGATE kube.tar.gz | bring down the tar file locally on ansible controller
+      archive:
+        path: "/home/{{non_rootuser}}/.kube"
+        dest: "{{ dir|default('.') }}/kube.tar.gz"
+      become: false
+
     - name: kube.tar.gz | bring down the tar file locally on ansible controller
       archive:
         path: "/home/{{non_rootuser}}/.kube"
-        dest: "./kube.tar.gz"
+        dest: "{{ dir|default('.') }}/kube.tar.gz"
       delegate_to: localhost
       become: false
 
@@ -66,7 +72,7 @@
   - name: "Fetch the file from master to the worker node - {{groups['masters'][0]}} to {{ inventory_hostname }}"
     tags: sync-push
     synchronize:
-      src: "./kube.tar.gz"
+      src: "{{ dir|default('.') }}/kube.tar.gz"
       # dest: "rsync://{{non_rootuser}}@{{inventory_hostname}}:kube.tar.gz"
       dest: "/home/{{non_rootuser}}/kube.tar.gz"
       mode: push
