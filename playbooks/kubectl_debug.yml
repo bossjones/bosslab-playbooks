@@ -32,6 +32,8 @@
   vars:
     non_rootuser: "{{ variable_non_rootuser | default('pi') }}"
     kube_config_path: "/home/{{variable_non_rootuser}}/.kube"
+  environment:
+    SHELL: /bin/bash
 
   tasks:
     - name: WITHOUT DELEGATE kube.tar.gz | bring down the tar file locally on ansible controller
@@ -65,6 +67,8 @@
     debug_folder: '~/.homelab_debugging'
     non_rootuser: "{{ variable_non_rootuser | default('pi') }}"
     kube_config_path: "/home/{{non_rootuser}}/.kube/config"
+  environment:
+    SHELL: /bin/bash
 
   tasks:
   - name: "Check if /home/{{non_rootuser}}/kube.tar.gz path exists"
@@ -193,7 +197,7 @@
         cmd:  "{{ docker_bin_dir }}/docker ps -a --format=\"{% raw %}{{.Names}}{% endraw %}\""
 
       - name: docker_get_logs_info
-        cmd: for in in `{{ docker_bin_dir }}/docker ps -a --format="{% raw %}{{.Names}}{% endraw %}"`;
+        cmd: for i in `{{ docker_bin_dir }}/docker ps -a --format="{% raw %}{{.Names}}{% endraw %}"`;
           do {{ docker_bin_dir }}/docker logs ${i}; done
 
       - name: systemctl_failed_info
@@ -360,6 +364,7 @@
 
   environment:
     KUBECONFIG: "/home/{{non_rootuser}}/.kube/config"
+    SHELL: /bin/bash
 
   tasks:
     # Same as above but you normally have ansible_connection set in inventory, which overrides 'connection'
