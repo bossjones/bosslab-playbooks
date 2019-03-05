@@ -12,6 +12,8 @@ SOURCE: https://blog.openai.com/scaling-kubernetes-to-2500-nodes/
 
 SOURCE: http://www.brendangregg.com/ebpf.html
 
+SOURCE: https://www.tecmint.com/bcc-best-linux-performance-monitoring-tools/
+
 ### Lets say I want my new 'ulimit -n' to read 131072.
 ****
 ```
@@ -136,6 +138,7 @@ r.j3ss.co/bpfd daemon
 * https://askubuntu.com/questions/1079874/unknown-sequence-editconfigs-when-trying-to-build-a-kernel
 * (Unable to follow "Kernel/BuildYourOwnKernel")[https://askubuntu.com/questions/1085411/unable-to-follow-kernel-buildyourownkernel]
 * https://wiki.ubuntu.com/KernelTeam/KernelMaintenance
+* https://gist.github.com/chrwei/42f8bbb687290b04b598 ( might need this to compile patch for generic )
 
 
 cd /usr/src/linux-source
@@ -9794,3 +9797,7 @@ CONFIG_SBITMAP=y
 CONFIG_PARMAN=m
 # CONFIG_STRING_SELFTEST is not set
 ```
+
+
+
+# execsnoop-bpfcc
