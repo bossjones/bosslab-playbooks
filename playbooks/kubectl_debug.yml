@@ -129,12 +129,9 @@
 
 
   - name: Verify | kubectl cluster-info
-    shell: "{{ item.cmd }}"
-    failed_when: false
+    command: "kubectl cluster-info"
+    # failed_when: false
     register: verify_kubectl_cluster_info
-    with_items:
-    - name: kubectl cluster-info
-      cmd: kubectl cluster-info
     when: item.when | default(True)
     environment:
       KUBECONFIG: "/home/{{non_rootuser}}/.kube/config"
