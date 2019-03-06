@@ -128,26 +128,22 @@
     ignore_errors: yes
 
 
-  - name: Verify | kubectl cluster-info
-    command: "kubectl cluster-info"
+  - name: Verify | kubectl get nodes
+    command: "kubectl get nodes"
     # failed_when: false
-    register: verify_kubectl_cluster_info
-    when: item.when | default(True)
+    register: verify_kubectl_get_nodes_info
+    # when: item.when | default(True)
     environment:
       KUBECONFIG: "/home/{{non_rootuser}}/.kube/config"
       SHELL: /bin/bash
     verbosity: 4
+    no_log: False
 
-
-  - debug:
-      var:
-      - "Verify - kubectl cluster-info please: "
-      - "--------------------------------------"
-      - "{{verify_kubectl_cluster_info}}"
-      verbosity: 2
+  - name: "Verify - kubectl get nodes please: "
+    debug: msg="{{verify_kubectl_get_nodes_info.stdout}}"
 
   # wait to verify node is started
-  - name: "PAUSE | Verify | kubectl cluster-info please"
+  - name: "PAUSE | Verify | kubectl get nodes please"
     pause:
       seconds: 15
     tag:
