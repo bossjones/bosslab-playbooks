@@ -21,6 +21,12 @@
 # REAL RUN:
 # ansible-playbook playbooks/kubectl_debug.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "variable_non_rootuser=pi cluster=borg variable_host=servers dir=./" -f 10
 ##############################################################################
+# TODO: Make a version of this that allows us to put these logs in s3
+# TODO: Make a version of this that allows us to put these logs in s3
+# TODO: Make a version of this that allows us to put these logs in s3
+# TODO: Make a version of this that allows us to put these logs in s3
+# TODO: Make a version of this that allows us to put these logs in s3
+# SOURCE: https://loige.co/aws-command-line-s3-content-from-stdin-or-to-stdout/
 
 - name: playbook | kube.tar.gz | tar up the .kube folder
   # masters
@@ -120,6 +126,25 @@
     retries: 15
     delay: 5
     ignore_errors: yes
+
+
+  - name: Verify | kubectl cluster-info
+    shell: "{{ item.cmd }}"
+    failed_when: false
+    with_items:
+    - name: kubectl cluster-info
+      cmd: kubectl cluster-info
+    when: item.when | default(True)
+    environment:
+      KUBECONFIG: "/home/{{non_rootuser}}/.kube/config"
+
+
+  # wait to verify node is started
+  - name: "PAUSE | Verify | kubectl cluster-info please"
+    pause:
+      seconds: 15
+    tag:
+    - pause
 
 - name: debug kubernetes cluster
   # masters
