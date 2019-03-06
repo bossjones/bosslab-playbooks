@@ -209,6 +209,12 @@
       - name: ip_netns_info
         cmd: /usr/local/bin/get-ip-netns
 
+      # SOURCE: (High packet in discard percentage) https://serverfault.com/questions/434558/high-packet-in-discard-percentage
+      # Read this too:
+      # TCP connection aborts. baddata (TCPAbortOnData) happens while the connection is on FIN_WAIT1 and the kernel receives a packet with a sequence number beyond the last one for this connection - the kernel responds with RST (closes the connection). userclosed (TCPAbortOnClose) happens when the kernel receives data on an already closed connection and responds with RST. nomemory (TCPAbortOnMemory happens when there are too many orphaned sockets (not attached to an fd) and the kernel has to drop a connection - sometimes it will send an RST, sometimes it won't. timeout (TCPAbortOnTimeout) happens when a connection times out. linger (TCPAbortOnLinger) happens when the kernel killed a socket that was already closed by the application and lingered around for long enough. failed (TCPAbortFailed) happens when the kernel attempted to send an RST but failed because there was no memory available.
+      - name: netstat_s_info
+        cmd: netstat -s
+
 
       # SOURCE: https://github.com/tysonnorris/openwhisk-new-containerpool/blob/bdf95b0f941632dc39a0ac04be08e1864f4267ae/ansible/logs.yml
       - name: docker_ps_info
