@@ -16,6 +16,14 @@ SOURCE: https://www.tecmint.com/bcc-best-linux-performance-monitoring-tools/
 
 ARM SOURCE: https://forum.pine64.org/archive/index.php?thread-4659.html
 
+SOURCE: https://github.com/leandromoreira/linux-network-performance-parameters ( USE THIS THIS THIS ****)
+
+SOURCE: https://www.techrepublic.com/article/how-to-enable-tcp-bbr-to-improve-network-speed-on-linux/
+
+SOURCE: https://www.kernel.org/doc/Documentation/networking/scaling.txt
+
+SOURCE: https://github.com/majek/dump/tree/master/how-to-receive-a-million-packets
+
 ### Lets say I want my new 'ulimit -n' to read 131072.
 ****
 ```
