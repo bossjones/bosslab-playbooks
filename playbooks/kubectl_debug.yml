@@ -131,6 +131,7 @@
   - name: Verify | kubectl cluster-info
     shell: "{{ item.cmd }}"
     failed_when: false
+    register: verify_kubectl_cluster_info
     with_items:
     - name: kubectl cluster-info
       cmd: kubectl cluster-info
@@ -138,6 +139,12 @@
     environment:
       KUBECONFIG: "/home/{{non_rootuser}}/.kube/config"
 
+
+  - debug:
+      msg:
+      - "Verify - kubectl cluster-info please: "
+      - "--------------------------------------"
+      - "{{verify_kubectl_cluster_info.stdout}}"
 
   # wait to verify node is started
   - name: "PAUSE | Verify | kubectl cluster-info please"
