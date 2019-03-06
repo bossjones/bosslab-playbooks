@@ -138,13 +138,15 @@
     when: item.when | default(True)
     environment:
       KUBECONFIG: "/home/{{non_rootuser}}/.kube/config"
+    verbosity: 4
 
 
   - debug:
-      msg:
+      var:
       - "Verify - kubectl cluster-info please: "
       - "--------------------------------------"
       - "{{verify_kubectl_cluster_info.stdout}}"
+      verbosity: 2
 
   # wait to verify node is started
   - name: "PAUSE | Verify | kubectl cluster-info please"
