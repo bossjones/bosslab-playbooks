@@ -257,6 +257,13 @@
         cmd: "{{ bin_dir }}/kubectl describe all --all-namespaces"
       - name: kube_describe_nodes
         cmd: "{{ bin_dir }}/kubectl describe nodes"
+
+      - name: kubectl_get_events_all_namespaces_logs
+        cmd: "{{ bin_dir }}/kubectl get events --all-namespaces --sort-by=.metadata.creationTimestamp"
+
+      - name: kubectl_get_events_all_namespaces_yaml_logs
+        cmd: "{{ bin_dir }}/kubectl get events --all-namespaces --sort-by=.metadata.creationTimestamp -o yaml"
+
       - name: kubelet_logs
         cmd: journalctl -u kubelet --no-pager
       - name: coredns_logs

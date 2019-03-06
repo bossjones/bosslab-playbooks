@@ -1049,6 +1049,15 @@ analyze-events-timestamp:
 	@echo ""
 	@echo ""
 
+analyze-events-timestamp-yaml:
+	@printf "analyze-events-timestamp-yaml:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN analyze-events-timestamp-yaml$$NC\n"
+	@printf "=======================================\n"
+	kubectl get events --all-namespaces --sort-by=.metadata.creationTimestamp -o yaml
+	@echo ""
+	@echo ""
+
 analyze: analyze-k8-container-resource-usage analyze-pod-resource-consumption analyze-events-timestamp
 
 # -------
