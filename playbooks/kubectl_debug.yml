@@ -172,7 +172,6 @@
       - name: top_b_info
         cmd: top -b -n 1
 
-
       - name: iptables_info
         cmd: ip a; ip r; iptables-save;iptables -nvL;
 
@@ -180,25 +179,15 @@
         cmd: cat /proc/cpuinfo
 
       - name: ip_netns_info
-        cmd: |
-          (for NS in $(ip netns list); do
-              echo "==== $NS ====";
-              ip netns exec $NS ip a;
-              ip netns exec $NS ip r;
-              ip netns exec $NS ip iptables-save;
-              PIDS="$(ip netns pids $NS)";
-              [[ ! -z "$PIDS" ]] && ps --no-headers -f --pids "$PIDS";
-              echo "";
-              done)
+        cmd: /usr/local/bin/get-ip-netns
 
 
       # SOURCE: https://github.com/tysonnorris/openwhisk-new-containerpool/blob/bdf95b0f941632dc39a0ac04be08e1864f4267ae/ansible/logs.yml
       - name: docker_ps_info
-        cmd:  "{{ docker_bin_dir }}/docker ps -a --format=\"{% raw %}{{.Names}}{% endraw %}\""
+        cmd:  /usr/local/bin/get-docker-ps-by-name
 
       - name: docker_get_logs_info
-        cmd: for i in `{{ docker_bin_dir }}/docker ps -a --format="{% raw %}{{.Names}}{% endraw %}"`;
-          do {{ docker_bin_dir }}/docker logs ${i}; done
+        cmd: /usr/local/bin/get-all-docker-logs
 
       - name: systemctl_failed_info
         cmd: systemctl --state=failed --no-pager
@@ -211,58 +200,10 @@
 
       # SOURCE: https://github.com/redhat-openstack/infrared/blob/0c06a624c2584368ea65543ee9960cd130177753/plugins/collect-logs/tasks/collect_host_logs.yml
       - name: logs_from_broken_systemd_units_info
-        cmd: >
-          systemctl -t service --failed --no-legend | awk '{print $1}'
-          | xargs -r -n1 journalctl --no-pager -u
+        cmd: /usr/local/bin/get-all-broken-journald-logs
 
       - name: docker_verbose_logs_and_more_info
-        cmd: >
-          if command -v docker && systemctl is-active docker; then
-              echo "------------------------------------------------------------------------------------------------------"
-              echo ""
-              echo ""
-              echo "+ docker ps --all --size"
-              docker ps --all --size
-              echo "------------------------------------------------------------------------------------------------------"
-              echo ""
-              echo ""
-              echo "+ docker images --all"
-              docker images --all
-              echo "------------------------------------------------------------------------------------------------------"
-              echo ""
-              echo ""
-              echo "+ docker volume ls"
-              docker volume ls
-              echo "------------------------------------------------------------------------------------------------------"
-              echo ""
-              echo ""
-              echo "+ docker stats --all --no-stream"
-              docker stats --all --no-stream
-              echo "------------------------------------------------------------------------------------------------------"
-              echo ""
-              echo ""
-              echo "+ docker info"
-              docker info
-              echo "------------------------------------------------------------------------------------------------------"
-              echo ""
-              echo ""
-              for cont in $(docker ps -a | awk {'print $NF'} | grep -v NAMES); do
-                  echo "-----------------------------------------------------CONTAINER - ${cont}--------------------------------------------"
-                  echo ""
-                  echo ""
-                  echo "+ docker top $cont auxw"
-                  docker top "$cont" auxw
-                  echo "+ docker exec $cont top -bwn1"
-                  docker exec "$cont" top -bwn1
-                  echo "+ docker inspect $cont"
-                  docker inspect "$cont"
-                  docker logs "$cont"
-                  echo "+ docker exec -it --user root $cont /usr/bin/dpkg -l"
-                  docker exec -it --user root ${cont} /usr/bin/dpkg -l
-                  echo ""
-                  echo ""
-              done;
-          fi
+        cmd: /usr/local/bin/get-all-docker-debug-logs
 
       - name: file_nr_info
         cmd: cat /proc/sys/fs/file-nr
@@ -274,7 +215,7 @@
         cmd: sysctl -a
       # SOURCE: https://lzone.de/cheat-sheet/ulimit
       - name: lsof_info
-        cmd: lsof -n 2>/dev/null | awk '{print $1,$2}' | sort | uniq -c | sort -nr | head -25 | while read nr name pid ; do printf "%10d / %-10d %-15s (PID %5s)\n" $nr $(cat /proc/$pid/limits | grep 'open files' | awk '{print $5}') $name $pid; done
+        cmd: lsof-fd-check-all
       # - name: etcd_info
       #   cmd: "{{ bin_dir }}/etcdctl --peers={{ etcd_access_addresses | default('http://127.0.0.1:2379') }} cluster-health"
       # - name: calico_info
