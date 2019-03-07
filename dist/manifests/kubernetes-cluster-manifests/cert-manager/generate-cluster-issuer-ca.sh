@@ -20,6 +20,6 @@ metadata:
   namespace: default
 type: kubernetes.io/tls
 data:
-  cert: $(/bin/cat /Users/malcolm/dev/bossjones/bosslab-playbooks/dist/manifests/kubernetes-cluster-manifests/cert-manager/ca.crt | base64 -w0)
-  key: $(/bin/cat /Users/malcolm/dev/bossjones/bosslab-playbooks/dist/manifests/kubernetes-cluster-manifests/cert-manager/ca.key | base64 -w0)
+  tls.crt: $(/bin/cat /Users/malcolm/dev/bossjones/bosslab-playbooks/dist/manifests/kubernetes-cluster-manifests/cert-manager/ca.crt | base64 -w0)
+  tls.key: $(/bin/cat /Users/malcolm/dev/bossjones/bosslab-playbooks/dist/manifests/kubernetes-cluster-manifests/cert-manager/ca.key | base64 -w0)
 EOF
