@@ -11,7 +11,7 @@ nfs_server_group: nfs_masters
 nfs_client_group: nfs_clients
 nfs_server_ip_override: 192.168.205.12
 k8_admin_config_dir: ~/dev/bossjones/bosslab-playbooks
-k8_admin_config_path: "{{k8_admin_config_dir}}/borg-admin.conf"
+k8_admin_config_path: "{{k8_admin_config_dir}}/vagrant-admin.conf"
 
 # export KUBECONFIG=~/dev/bossjones/bosslab-playbooks/borg-admin.conf
 
