@@ -3,10 +3,10 @@
 # SOURCE: https://docs.cert-manager.io/en/latest/tasks/issuers/setup-ca.html
 
 # Generate a CA private key
-$ openssl genrsa -out {{ boss__certmanager__manifest_path }}/ca.key 2048
+openssl genrsa -out {{ boss__certmanager__manifest_path }}/ca.key 2048
 
 # Create a self signed Certificate, valid for 10yrs with the 'signing' option set
-$ openssl req -x509 -new -nodes -key {{ boss__certmanager__manifest_path }}/ca.key -subj "/CN=*.{{domain_root}}" -days 3650 -reqexts v3_req -extensions v3_ca -out {{ boss__certmanager__manifest_path }}/ca.crt
+openssl req -x509 -new -nodes -key {{ boss__certmanager__manifest_path }}/ca.key -subj "/CN=*.{{domain_root}}" -days 3650 -reqexts v3_req -extensions v3_ca -out {{ boss__certmanager__manifest_path }}/ca.crt
 
 
 # s:/C=US/ST=Texas/L=Carrollton/O=Woot Inc/CN=*.woot.com
