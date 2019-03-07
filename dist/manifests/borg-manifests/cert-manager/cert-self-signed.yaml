@@ -16,6 +16,9 @@ metadata:
   name: selfsigning-issuer
 spec:
   selfSigned: {}
+  spec:
+    ca:
+      secretName: my-cluster-ca-key-pair
 
 ---
 
@@ -23,18 +26,22 @@ spec:
 apiVersion: certmanager.k8s.io/v1alpha1
 kind: Certificate
 metadata:
-  name: example-com-crt
+  name: wildcard-borglab
   namespace: default
 spec:
-  secretName: example-com-tls
+  secretName: wildcard-borglab-tls
+  isCA: true
   issuerRef:
     name: selfsigning-issuer
     # We can reference ClusterIssuers by changing the kind here.
     # The default value is Issuer (i.e. a locally namespaced Issuer)
     kind: ClusterIssuer
-  commonName: example.com
+  # SOURCE: https://docs.cert-manager.io/en/latest/tasks/issuers/setup-selfsigned.html
+  # commonName: "my-selfsigned-root-ca"
+  commonName: '*.borglab.scarlettlab.home'
   organization:
-  - Example CA
+    - Borglab
+    
   dnsNames:
-  - example.com
-  - www.example.com
+    - "*.borglab.scarlettlab.home"
+    
