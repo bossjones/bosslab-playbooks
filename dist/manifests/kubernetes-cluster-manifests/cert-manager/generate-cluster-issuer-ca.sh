@@ -11,7 +11,7 @@ env PATH="/usr/local/opt/openssl/bin:$PATH" openssl req -x509 -new -nodes -key /
 # s:/C=US/ST=Texas/L=Carrollton/O=Woot Inc/CN=*.woot.com
 # i:/C=US/O=SecureTrust Corporation/CN=SecureTrust CA
 
-
+# SOURCE: https://kubernetes.io/docs/tasks/tls/managing-tls-in-a-cluster/
 cat <<EOF > /Users/malcolm/dev/bossjones/bosslab-playbooks/dist/manifests/kubernetes-cluster-manifests/cert-manager/my-cluster-ca-key-pair-secret.yaml
 apiVersion: v1
 kind: Secret
