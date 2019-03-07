@@ -10,3 +10,16 @@ env PATH="/usr/local/opt/openssl/bin:$PATH" openssl req -x509 -new -nodes -key {
 
 # s:/C=US/ST=Texas/L=Carrollton/O=Woot Inc/CN=*.woot.com
 # i:/C=US/O=SecureTrust Corporation/CN=SecureTrust CA
+
+
+cat <<EOF > {{ boss__certmanager__manifest_path | expanduser }}/my-cluster-ca-key-pair-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-cluster-ca-key-pair
+  namespace: {{boss__certmanager__my_cluster_namespace_name}}
+type: kubernetes.io/tls
+data:
+  cert: $(/bin/cat {{ boss__certmanager__manifest_path | expanduser }}/ca.crt | base64 -w0)
+  key: $(/bin/cat {{ boss__certmanager__manifest_path | expanduser }}/ca.key | base64 -w0)
+EOF

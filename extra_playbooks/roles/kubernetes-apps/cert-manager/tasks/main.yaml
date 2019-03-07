@@ -22,10 +22,6 @@
     bash {{ boss__certmanager__manifest_path }}/generate-cluster-issuer-ca.sh
 
     ls -lta {{ boss__certmanager__manifest_path }}
-
-    kubectl create secret tls my-cluster-ca-key-pair --cert={{ boss__certmanager__manifest_path | expanduser }}/ca.crt \
-    --key={{ boss__certmanager__manifest_path | expanduser }}/ca.key \
-    --namespace={{boss__certmanager__my_cluster_namespace_name}}
   become: '{{ item }}'
   args:
     executable: /bin/bash
@@ -35,32 +31,7 @@
     - false  # Run as vagrant
   when: boss__certmanager__my_cluster_generate_tls is defined and boss__certmanager__my_cluster_generate_tls == "force"
 
-# - name: "certmanager | Create Serviceaccount and Clusterrolebinding (RBAC)"
-#   command: "{{ bin_dir }}/kubectl apply -f {{ boss__certmanager__manifest_path }}/{{ item }} -n kube-system"
-#   with_items:
-#     - "efk-sa.yml"
-#     - "efk-clusterrolebinding.yml"
-#   run_once: true
-#   when: rbac_enabled
 
-# - name: "certmanager | Write ES deployment"
-#   template:
-#     src: certmanager-deployment.yml.j2
-#     dest: "{{ boss__certmanager__manifest_path }}/certmanager-deployment.yaml"
-#   register: es_deployment_manifest
-
-# - name: "certmanager | Create ES deployment"
-#   command: "{{ bin_dir }}/kubectl apply -f {{ boss__certmanager__manifest_path }}/certmanager-deployment.yaml -n kube-system"
-#   run_once: true
-#   when: es_deployment_manifest.changed
-
-# - name: "certmanager | Write ES service "
-#   template:
-#     src: certmanager-service.yml.j2
-#     dest: "{{ boss__certmanager__manifest_path }}/certmanager-service.yaml"
-#   register: es_service_manifest
-
-# - name: "certmanager | Create ES service"
-#   command: "{{ bin_dir }}/kubectl apply -f {{ boss__certmanager__manifest_path }}/certmanager-service.yaml -n kube-system"
-#   run_once: true
-#   when: es_service_manifest.changed
+# kubectl create secret tls my-cluster-ca-key-pair --cert={{ boss__certmanager__manifest_path | expanduser }}/ca.crt \
+# --key={{ boss__certmanager__manifest_path | expanduser }}/ca.key \
+# --namespace={{boss__certmanager__my_cluster_namespace_name}}
