@@ -23,7 +23,7 @@
 
     ls -lta {{ boss__certmanager__manifest_path }}
 
-    kubectl create secret tls ca-key-pair --cert={{ boss__certmanager__manifest_path | expanduser }}/ca.crt \
+    kubectl create secret tls my-cluster-ca-key-pair --cert={{ boss__certmanager__manifest_path | expanduser }}/ca.crt \
     --key={{ boss__certmanager__manifest_path | expanduser }}/ca.key \
     --namespace={{boss__certmanager__my_cluster_namespace_name}}
   become: '{{ item }}'
