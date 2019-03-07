@@ -32,6 +32,36 @@ SOURCE: https://github.com/projectcalico/calico/issues/922 ( Fix calico bad netw
 
 SOURCE: https://github.com/projectcalico/calico/issues/2192 ( more calico tuning )
 
+SOURCE: https://docs.projectcalico.org/v2.2/usage/troubleshooting/
+
+SOURCE: https://www.nginx.com/blog/tuning-nginx/
+
+SOURCE: https://www.nginx.com/blog/performance-tuning-tips-tricks/
+
+SOURCE: https://github.com/denji/nginx-tuning
+
+SOURCE: https://fasterdata.es.net/host-tuning/background/#t1
+
+SOURCE: https://medium.com/@duhroach/the-bandwidth-delay-problem-c6a2a578b211
+
+SOURCE: Which is faster, tcp or http loadbalancers - https://medium.com/@duhroach/profiling-gcps-load-balancers-94c552f06736
+
+### Calico
+
+* Run - `calicoctl node diags` to get diagnostics
+
+```
+
+https://help.ubuntu.com/community/NetworkManager
+
+Ubuntu (or GNOME) NetworkManager
+Disable NetworkManager before attempting to use Calico networking.
+
+NetworkManager manipulates the routing table for interfaces in the default network namespace where Calico veth pairs are anchored for connections to containers. This can interfere with the Calico agent’s ability to route correctly.
+
+You can configure interfaces in the /etc/network/interfaces file if the NetworkManager removes your host’s interfaces. See the Debian NetworkConfiguration guide for more information.
+```
+
 ### inotify
 
 ```
