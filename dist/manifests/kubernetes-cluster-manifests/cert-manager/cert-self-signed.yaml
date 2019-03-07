@@ -16,6 +16,9 @@ metadata:
   name: selfsigning-issuer
 spec:
   selfSigned: {}
+  spec:
+    ca:
+      secretName: my-cluster-ca-key-pair
 
 ---
 
@@ -23,18 +26,19 @@ spec:
 apiVersion: certmanager.k8s.io/v1alpha1
 kind: Certificate
 metadata:
-  name: example-com-crt
+  name: wildcard-vagrantlab
   namespace: default
 spec:
-  secretName: example-com-tls
+  secretName: wildcard-vagrantlab-tls
   issuerRef:
     name: selfsigning-issuer
     # We can reference ClusterIssuers by changing the kind here.
     # The default value is Issuer (i.e. a locally namespaced Issuer)
     kind: ClusterIssuer
-  commonName: example.com
+  commonName: '*.scarlettlab.com'
   organization:
-  - Example CA
+    - Vagrantlab
+    
   dnsNames:
-  - example.com
-  - www.example.com
+    - "*.scarlettlab.com"
+    
