@@ -31,11 +31,14 @@ metadata:
   namespace: {{boss__certmanager__my_cluster_namespace_name}}
 spec:
   secretName: {{boss__certmanager__my_cluster_certificate_name}}-tls
+  isCA: true
   issuerRef:
     name: selfsigning-issuer
     # We can reference ClusterIssuers by changing the kind here.
     # The default value is Issuer (i.e. a locally namespaced Issuer)
     kind: ClusterIssuer
+  # SOURCE: https://docs.cert-manager.io/en/latest/tasks/issuers/setup-selfsigned.html
+  # commonName: "my-selfsigned-root-ca"
   commonName: '{{boss__certmanager__my_cluster_commonName}}'
 {% if boss__certmanager__my_cluster_organization is defined %}
   organization:
