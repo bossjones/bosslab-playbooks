@@ -26,6 +26,8 @@ SOURCE: https://github.com/majek/dump/tree/master/how-to-receive-a-million-packe
 
 SOURCE: https://unix.stackexchange.com/questions/13751/kernel-inotify-watch-limit-reached
 
+SOURCE: https://www.azul.com/jhiccup/ ( java hiccups with jvm gc )
+
 ### inotify
 
 ```
