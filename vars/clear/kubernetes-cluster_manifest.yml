@@ -560,6 +560,14 @@ boss__registry__nfs_master_node_ip: "{{ nfs_server_ip_override }}"
 boss__certmanager__manifest_path: "{{manifest_dir_path}}/cert-manager"
 boss__certmanager__namespace_name: kube-system
 boss__certmanager__example_com_namespace_name: default
+boss__certmanager__my_cluster_namespace_name: default
+boss__certmanager__my_cluster_certificate_name: wildcard-vagrantlab
+boss__certmanager__my_cluster_commonName: "*.{{domain_root}}"
+boss__certmanager__my_cluster_organization: |
+  - Vagrantlab
+boss__certmanager__my_cluster_dnsNames: |
+  - "*.{{domain_root}}"
+boss__certmanager__my_cluster_generate_tls: "force"
 
 
 ##########################################################################################################

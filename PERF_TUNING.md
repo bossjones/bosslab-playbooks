@@ -24,6 +24,20 @@ SOURCE: https://www.kernel.org/doc/Documentation/networking/scaling.txt
 
 SOURCE: https://github.com/majek/dump/tree/master/how-to-receive-a-million-packets
 
+SOURCE: https://unix.stackexchange.com/questions/13751/kernel-inotify-watch-limit-reached
+
+### inotify
+
+```
+# Each used inotify watch takes up 540 bytes (32-bit system), or 1 kB (double - on 64-bit) [sources: 1, 2]
+# This comes out of kernel memory, which is unswappable.
+# Assuming you set the max at 524288 and all were used (improbable), you'd be using approximately 256MB/512MB of 32-bit/64-bit kernel memory.
+# Note that your application will also use additional memory to keep track of the inotify handles, file/directory paths, etc. -- how much depends on its design.
+
+sysctl fs.inotify.max_user_watches=
+```
+
+
 ### Lets say I want my new 'ulimit -n' to read 131072.
 ****
 ```

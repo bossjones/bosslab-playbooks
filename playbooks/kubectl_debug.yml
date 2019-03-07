@@ -197,6 +197,15 @@
       - name: netstat_tunpl_info
         cmd: netstat -tunpl
 
+      - name: netstat_s_info
+        cmd: netstat -s
+
+      - name: netstat_atn_info
+        cmd: netstat -atn | awk '/tcp/ {print $6}' | sort | uniq -c
+
+      - name: netstat_p_info
+        cmd: netstat -p
+
       - name: top_b_info
         cmd: top -b -n 1
 

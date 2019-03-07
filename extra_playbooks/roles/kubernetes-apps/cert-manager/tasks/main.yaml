@@ -12,6 +12,28 @@
   with_items:
     - "cert-manager.yaml"
     - "cert-self-signed.yaml"
+    - "generate-cluster-issuer-ca.sh"
+
+
+############## now run script to create secrets then upload them
+
+- name: kubectl create secret unifi-exporter-credentials and delete them so that we don't accidentally commit them
+  shell: |
+    bash {{ boss__certmanager__manifest_path }}/generate-cluster-issuer-ca.sh
+
+    ls -lta {{ boss__certmanager__manifest_path }}
+
+    kubectl create secret tls ca-key-pair --cert={{ boss__certmanager__manifest_path }}/ca.crt \
+    --key={{ boss__certmanager__manifest_path }}/ca.key \
+    --namespace={{boss__certmanager__my_cluster_namespace_name}}
+  become: '{{ item }}'
+  args:
+    executable: /bin/bash
+  environment:
+    KUBECONFIG: "{{ k8_admin_config_path }}"
+  with_items:
+    - false  # Run as vagrant
+  when: boss__certmanager__my_cluster_generate_tls is defined and boss__certmanager__my_cluster_generate_tls == "force"
 
 # - name: "certmanager | Create Serviceaccount and Clusterrolebinding (RBAC)"
 #   command: "{{ bin_dir }}/kubectl apply -f {{ boss__certmanager__manifest_path }}/{{ item }} -n kube-system"
