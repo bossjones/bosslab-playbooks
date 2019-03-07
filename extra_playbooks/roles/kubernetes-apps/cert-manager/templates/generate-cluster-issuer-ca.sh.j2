@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# SOURCE: https://docs.cert-manager.io/en/latest/tasks/issuers/setup-ca.html
+
 # Generate a CA private key
 $ openssl genrsa -out {{ boss__certmanager__manifest_path }}/ca.key 2048
 
