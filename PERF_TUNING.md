@@ -28,6 +28,10 @@ SOURCE: https://unix.stackexchange.com/questions/13751/kernel-inotify-watch-limi
 
 SOURCE: https://www.azul.com/jhiccup/ ( java hiccups with jvm gc )
 
+SOURCE: https://github.com/projectcalico/calico/issues/922 ( Fix calico bad network performance )
+
+SOURCE: https://github.com/projectcalico/calico/issues/2192 ( more calico tuning )
+
 ### inotify
 
 ```
