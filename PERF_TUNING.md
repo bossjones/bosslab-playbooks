@@ -68,7 +68,7 @@ SOURCE: https://docs.projectcalico.org/v3.5/usage/configuration/mtu
 * Run - `calicoctl node diags` to get diagnostics
 
 ```
-
+****
 https://help.ubuntu.com/community/NetworkManager
 
 Ubuntu (or GNOME) NetworkManager
