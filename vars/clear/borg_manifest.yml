@@ -106,6 +106,7 @@ boss__calico__node_daemonset_annotations: |
   prometheus.io/port: "{{boss__calico__felix_PrometheusMetricsPort}}"
 
 boss__calico__enable_typha: "enabled"
+boss__calico__enable_prometheus_typha: "enabled"
 boss__calico__typha_service_name: calico-typha  # or none
 
 boss__calico__typha_deployment_spec_replicas: 3
