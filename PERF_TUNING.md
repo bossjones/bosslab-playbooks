@@ -46,6 +46,8 @@ SOURCE: https://medium.com/@duhroach/the-bandwidth-delay-problem-c6a2a578b211
 
 SOURCE: Which is faster, tcp or http loadbalancers - https://medium.com/@duhroach/profiling-gcps-load-balancers-94c552f06736
 
+SOURCE: https://github.com/projectcalico/calico/issues/1709
+
 ### Calico
 
 * Run - `calicoctl node diags` to get diagnostics
