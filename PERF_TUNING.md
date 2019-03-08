@@ -48,6 +48,21 @@ SOURCE: Which is faster, tcp or http loadbalancers - https://medium.com/@duhroac
 
 SOURCE: https://github.com/projectcalico/calico/issues/1709
 
+
+# Common MTU sizes (calico)
+
+### Common MTU sizes
+
+SOURCE: https://docs.projectcalico.org/v3.5/usage/configuration/mtu
+
+| Network MTU | Calico MTU | Calico MTU with IP-in-IP | Calico MTU with VXLAN (IPv4) |
+|---|---|---|---|
+1500 | 1500 | 1480 | 1450 |
+9000 | 9000 | 8980 | 8950 |
+1460 (GCE) | 1460 | 1440 | 1410 |
+9001 (AWS Jumbo) | 9001 | 8981 | 8951 |
+1450 (OpenStack VXLAN) | 1450 | 1430 | 1400 |
+
 ### Calico
 
 * Run - `calicoctl node diags` to get diagnostics
