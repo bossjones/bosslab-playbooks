@@ -30,6 +30,7 @@ spec:
     spec:
       nodeSelector:
         beta.kubernetes.io/os: linux
+        node-role.kubernetes.io/master: ""
       hostNetwork: true
       tolerations:
         # Mark the pod as a critical add-on for rescheduling.
@@ -42,15 +43,13 @@ spec:
         command:
         - "ping"
         - "localhost"
-        nodeSelector:
-          node-role.kubernetes.io/master: ""
-      volumeMounts:
-        - mountPath: /host/opt/cni/bin
-          name: cni-bin-dir
-        - mountPath: /host/etc/cni/net.d
-          name: cni-net-dir
-        - mountPath: /var/run/calico
-          name: var-run-calico
+        volumeMounts:
+          - mountPath: /host/opt/cni/bin
+            name: cni-bin-dir
+          - mountPath: /host/etc/cni/net.d
+            name: cni-net-dir
+          - mountPath: /var/run/calico
+            name: var-run-calico
       volumes:
         # Used by calico/node.
         - name: lib-modules
