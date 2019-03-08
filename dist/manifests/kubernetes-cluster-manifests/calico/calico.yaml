@@ -68,11 +68,11 @@ metadata:
   labels:
     k8s-app: calico-typha
     # component: calico-typha
-# #   annotations:
-#     prometheus.io/scrape: "true"
+  annotations:
+    prometheus.io/scrape: "true"
     prometheus.io/port: "9093"
     
-# spec:
+spec:
   ports:
     - port: 5473
       protocol: TCP
