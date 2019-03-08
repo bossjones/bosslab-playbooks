@@ -68,10 +68,10 @@ metadata:
   labels:
     k8s-app: calico-typha
     # component: calico-typha
-# {% if boss__calico__typha_service_annotations is defined %}
-#   annotations:
-# {{ boss__calico__typha_service_annotations | indent( width=4, indentfirst=True,blank=True) }}
-# {% endif %}
+{% if boss__calico__typha_service_annotations is defined %}
+  annotations:
+{{ boss__calico__typha_service_annotations | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 spec:
   ports:
     - port: 5473
