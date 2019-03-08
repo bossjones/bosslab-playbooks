@@ -197,3 +197,4 @@ kube.tar.gz
 ca.crt
 ca.key
 my-cluster-ca-key-pair-secret.yaml
+scaps

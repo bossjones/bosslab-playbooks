@@ -35,6 +35,10 @@
       default: "today"
   environment:
     SHELL: /bin/bash
+  vars:
+    debug_folder: '~/.homelab_debugging'
+    dir: "{{ playbook_dir }}/../scaps"
+    ansible_ssh_pipelining: true
 
   tasks:
     # Same as above but you normally have ansible_connection set in inventory, which overrides 'connection'
@@ -58,8 +62,8 @@
       changed_when: False
       check_mode: no
 
-    - name: 'chmod 1000:1000 -R {{debug_folder}}/dump.scap'
-      shell: 'chmod 1000:1000 -R {{debug_folder}}/dump.scap'
+    - name: 'chown 1000:1000 -R {{debug_folder}}/dump.scap'
+      shell: 'chown 1000:1000 -R {{debug_folder}}/dump.scap'
       become: yes
       changed_when: False
       check_mode: no

@@ -1020,6 +1020,7 @@ ansible-debug-k8-master-only:
 	$(call check_defined, non_root_user, Please set non_root_user)
 	ansible-playbook playbooks/kubectl_debug.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "variable_non_rootuser=$(variable_non_rootuser) cluster=$(cluster) variable_host=masters" --skip-tags "pause"
 
+# Example: make ansible-profile-sysdig cluster=kubernetes-cluster num_seconds=30
 ansible-profile-sysdig:
 	$(call check_defined, cluster, Please set cluster)
 	ansible-playbook playbooks/profile_sysdig.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "num_seconds=$(num_seconds) cluster=$(cluster)" --skip-tags "pause"
