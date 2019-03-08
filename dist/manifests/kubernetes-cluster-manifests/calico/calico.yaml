@@ -15,7 +15,7 @@ data:
   # To enable Typha, set this to "calico-typha" *and* set a non-zero value for Typha replicas
   # below.  We recommend using Typha if you have more than 50 nodes. Above 100 nodes it is
   # essential.
-  typha_service_name: "calico-typha"
+  typha_service_name: "none"
   # Configure the Calico backend to use.
   calico_backend: "bird"
 
@@ -78,10 +78,6 @@ spec:
       protocol: TCP
       targetPort: calico-typha
       name: calico-typha
-    - port: 9093
-      targetPort: calico-metrics
-      name: calico-metrics
-      protocol: TCP
   selector:
     k8s-app: calico-typha
 
@@ -103,7 +99,7 @@ spec:
   # We recommend using Typha if you have more than 50 nodes.  Above 100 nodes it is essential
   # (when using the Kubernetes datastore).  Use one replica for every 100-200 nodes.  In
   # production, we recommend running at least 3 replicas to reduce the impact of rolling upgrade.
-  replicas: 3
+  replicas: 0
   revisionHistoryLimit: 2
   template:
     metadata:
@@ -301,19 +297,6 @@ spec:
             # SOURCE: https://docs.projectcalico.org/v3.4/reference/felix/configuration
             - name: FELIX_HEALTHENABLED
               value: "true"
-            # Set to true to enable the Prometheus metrics server in Felix. [Default: false]
-            - name: FELIX_PROMETHEUSMETRICSENABLED
-              value: "true"
-            # Set to false to disable process metrics collection, which the Prometheus client does by default. This reduces the number of metrics reported, reducing Prometheus load. [Default: true]
-            # Enable Prometheus process metrics collection
-            - name: FELIX_PROMETHEUSPROCESSMETRICSENABLED
-              value: "true"
-            # Set to false to disable Go runtime metrics collection, which the Prometheus client does by default. This reduces the number of metrics reported, reducing Prometheus load. [Default: true]
-            - name: FELIX_PROMETHEUSGOMETRICSENABLED
-              value: "false"
-            # TCP port that the Prometheus metrics server should bind to
-            - name: FELIX_PROMETHEUSMETRICSPORT
-              value: "9091"
           securityContext:
             privileged: true
           resources:

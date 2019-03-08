@@ -15,12 +15,12 @@ data:
   # To enable Typha, set this to "calico-typha" *and* set a non-zero value for Typha replicas
   # below.  We recommend using Typha if you have more than 50 nodes. Above 100 nodes it is
   # essential.
-  typha_service_name: '{{boss__calico__typha_service_name}}'
+  typha_service_name: "{{boss__calico__typha_service_name}}"
   # Configure the Calico backend to use.
   calico_backend: "bird"
 
   # Configure the MTU to use
-  veth_mtu: '{{boss__calico__veth_mtu}}'
+  veth_mtu: "{{boss__calico__veth_mtu}}"
 
   # The CNI network configuration to install on each node.  The special
   # values in this config will be automatically populated.
@@ -284,7 +284,7 @@ spec:
               value: "autodetect"
             # Enable IPIP
             - name: CALICO_IPV4POOL_IPIP
-              value: '{{boss__calico__node_env_CALICO_IPV4POOL_IPIP}}'
+              value: "{{boss__calico__node_env_CALICO_IPV4POOL_IPIP}}"
             # Set MTU for tunnel device used if ipip is enabled
             - name: FELIX_IPINIPMTU
               valueFrom:
