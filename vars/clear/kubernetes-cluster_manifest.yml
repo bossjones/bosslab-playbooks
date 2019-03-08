@@ -88,6 +88,8 @@ boss__calico__prometheus_metrics_enabled: false
 # NOTE: See https://docs.projectcalico.org/v3.5/usage/configuration/mtu for recomendations
 boss__calico__veth_mtu: 1480 # 1480,
 boss__calico__node_env_CALICO_IPV4POOL_IPIP: "Always"
+boss__calico__debugger_deployment_spec_replicas: 1
+boss__calico__debugger_enabled: "enabled"
 
 boss__calico__node_version: v3.3.2
 boss__calico__node_image_repo: "quay.io/calico/node"
