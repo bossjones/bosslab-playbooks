@@ -1,0 +1,74 @@
+# Source: cert-manager/charts/home-pki/templates/pki.yaml
+---
+# Create a selfsigned Issuer, in order to create a root CA certificate for
+# signing home-pki serving certificates
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Issuer
+metadata:
+  name: homelab-cluster-selfsign
+  namespace: "cert-manager"
+  labels:
+    app: homelab-cluster
+spec:
+  selfSigned: {}
+
+---
+
+# Generate a CA Certificate used to sign certificates for the home-pki
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: homelab-cluster-ca
+  namespace: "cert-manager"
+  labels:
+    app: homelab-cluster
+spec:
+  secretName: homelab-cluster-ca
+  duration: 43800h # 5y
+  issuerRef:
+    name: homelab-cluster-selfsign
+  commonName: "ca.homelab-cluster.cert-manager"
+  isCA: true
+
+---
+
+# Create an Issuer that uses the above generated CA certificate to issue certs
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Issuer
+metadata:
+  name: homelab-cluster-ca
+  namespace: "cert-manager"
+  labels:
+    app: homelab-cluster
+spec:
+  ca:
+    secretName: homelab-cluster-ca
+
+---
+
+# Finally, generate a serving certificate for the home-pki to use
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: homelab-cluster-home-pki-tls
+  namespace: "cert-manager"
+  labels:
+    app: homelab-cluster
+spec:
+  secretName: homelab-cluster-home-pki-tls
+  duration: 8760h # 1y
+  issuerRef:
+    name: homelab-cluster-ca
+  dnsNames:
+  - "*.scarlettlab.com"
+#   - homelab-cluster
+#   - homelab-cluster.cert-manager
+#   - homelab-cluster.cert-manager.svc
+
+
+# commonName: '*.scarlettlab.com'
+# organization:
+#   - Vagrantlab
+
+# dnsNames:
+#   - "*.scarlettlab.com"
