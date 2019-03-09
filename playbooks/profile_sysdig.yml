@@ -36,7 +36,7 @@
   environment:
     SHELL: /bin/bash
   vars:
-    debug_folder: '~/.homelab_debugging'
+    debug_folder: '~/homelab_debugging'
     dir: "{{ playbook_dir }}/../scaps"
     ansible_ssh_pipelining: true
 
@@ -51,8 +51,8 @@
       # vars:
       #   ansible_connection: local
 
-    - name: 'mkdir -p ~/.homelab_debugging'
-      shell: 'mkdir -p ~/.homelab_debugging'
+    - name: "mkdir -p {{debug_folder}}"
+      shell: 'mkdir -p {{debug_folder}}'
       changed_when: False
       check_mode: no
 
@@ -69,7 +69,7 @@
       check_mode: no
 
     - name: Fetch dump.scap locally
-      fetch: src={{debug_folder}}/dump.scap dest={{ dir|default('./scaps') }}/dump.scap flat=yes
+      fetch: src={{debug_folder}}/dump.scap dest={{ dir|default('./scaps') }}/profile_data flat=no
       failed_when: false
 
     - debug: msg="you can now find the files in ./scaps"
