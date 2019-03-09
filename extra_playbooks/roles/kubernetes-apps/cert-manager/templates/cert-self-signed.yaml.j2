@@ -9,12 +9,12 @@
 # $ kubectl label namespace <deployment-namespace> certmanager.k8s.io/disable-validation="true"
 
 
-{% raw %}
 apiVersion: certmanager.k8s.io/v1alpha1
 kind: ClusterIssuer
 metadata:
   name: selfsigning-issuer
 spec:
+{% raw %}
   selfSigned: {}
 {% endraw %}
   spec:
@@ -32,6 +32,7 @@ metadata:
 spec:
   secretName: {{boss__certmanager__my_cluster_certificate_name}}-tls
   isCA: true
+  duration: 43800h # 5y
   issuerRef:
     name: selfsigning-issuer
     # We can reference ClusterIssuers by changing the kind here.
@@ -39,7 +40,7 @@ spec:
     kind: ClusterIssuer
   # SOURCE: https://docs.cert-manager.io/en/latest/tasks/issuers/setup-selfsigned.html
   # commonName: "my-selfsigned-root-ca"
-  commonName: '{{boss__certmanager__my_cluster_commonName}}'
+  commonName: "{{boss__certmanager__my_cluster_commonName}}"
 {% if boss__certmanager__my_cluster_organization is defined %}
   organization:
 {{ boss__certmanager__my_cluster_organization | indent( width=4, indentfirst=True,blank=True) }}
@@ -48,3 +49,6 @@ spec:
   dnsNames:
 {{ boss__certmanager__my_cluster_dnsNames | indent( width=4, indentfirst=True,blank=True) }}
 {% endif %}
+
+
+# (3/8/2019)FIXME: I totally don't think we did this correctly. We need to setup a real pki, not what we have currently. Try this - https://github.com/jetstack/cert-manager/blob/7df6ce906429296ca9ddccd89384e5827096602c/deploy/manifests/cert-manager.yaml#L1516-L1593
