@@ -4,7 +4,7 @@ localhost ansible_connection=local
 [scarlett_cluster]
 scarlett-cluster1 ansible_connection=ssh ansible_host=192.168.1.22 ip=192.168.1.22 ansible_ssh_port=22 ansible_ssh_private_key_file=~/.ssh/vagrant_id_rsa ansible_user=pirate ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s'
 scarlett-cluster2 ansible_connection=ssh ansible_host=192.168.1.23 ip=192.168.1.23 ansible_ssh_port=22 ansible_ssh_private_key_file=~/.ssh/vagrant_id_rsa ansible_user=pirate ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s'
-scarlett-cluster3 ansible_connection=ssh ansible_host=192.168.1.101 ip=192.168.1.101 ansible_ssh_port=22 ansible_ssh_private_key_file=~/.ssh/vagrant_id_rsa ansible_user=pirate ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s'
+scarlett-cluster3 ansible_connection=ssh ansible_host=192.168.1.175 ip=192.168.1.175 ansible_ssh_port=22 ansible_ssh_private_key_file=~/.ssh/vagrant_id_rsa ansible_user=pirate ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s'
 scarlett-cluster4 ansible_connection=ssh ansible_host=192.168.1.184 ip=192.168.1.184 ansible_ssh_port=22 ansible_ssh_private_key_file=~/.ssh/vagrant_id_rsa ansible_user=pirate ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s'
 
 [scarlett_ids]

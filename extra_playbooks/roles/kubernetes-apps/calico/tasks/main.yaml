@@ -21,3 +21,11 @@
     - "calico-exporter-service.yaml"
     - "calico-exporter-servicemonitor.yaml"
   when: boss__calico__enable_prometheus_exporter_servicemonitor is defined and boss__calico__enable_prometheus_exporter_servicemonitor == "enabled"
+
+- name: "calico-debugger | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__calico__manifest_path }}/{{ item }}"
+  with_items:
+    - "k8s-zsh-debugger-calico.yaml"
+  when: boss__calico__debugger_enabled is defined and boss__calico__debugger_enabled == "enabled"

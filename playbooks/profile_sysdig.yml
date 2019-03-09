@@ -1,0 +1,75 @@
+# -*- coding: utf-8 -*-
+# USAGE: ansible-playbook playbooks/profile_sysdig.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars 'num_seconds=30 cluster=borg variable_host=servers dir=./' --skip-tags "pause"
+# env ANSIBLE_STRATEGY=debug KUBECONFIG=~/dev/bossjones/kubernetes-cluster/borg-admin.conf ansible-playbook  -i contrib/inventory_builder/inventory/borg/inventory.ini playbooks/profile_sysdig.yml -vvvvvv
+---
+##############################################################################
+# file: profile_sysdig.yaml
+# Create an amazon vpc and tag it appropiately
+#
+# Run with:
+#
+#
+# DRY RUN(with pause):
+# ansible-playbook playbooks/profile_sysdig.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "num_seconds=30 cluster=borg variable_host=servers dir=./" --check -f 10
+#
+# REAL RUN(w/o pause):
+# ansible-playbook playbooks/profile_sysdig.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "num_seconds=30 cluster=borg variable_host=servers dir=./" --skip-tags -f 10 "pause"
+#
+# TAG LOOKUP:
+# ansible-playbook playbooks/profile_sysdig.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "num_seconds=30 cluster=borg variable_host=servers dir=./" --tag lookup -f 10
+#
+# REAL RUN:
+# ansible-playbook playbooks/profile_sysdig.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "num_seconds=30 cluster=borg variable_host=servers dir=./" -f 10
+##############################################################################
+- name: playbook | sysdig -w dump.scap
+  # masters
+  hosts: "{{ variable_host | default('servers') }}"
+  become: yes
+  become_method: sudo
+  become_user: "root"
+  gather_facts: False
+  vars_prompt:
+    - name: "num_seconds"
+      prompt: "Stop collecting after <num_seconds> reached.'"
+      private: no
+      default: "today"
+  environment:
+    SHELL: /bin/bash
+  vars:
+    debug_folder: '~/homelab_debugging'
+    dir: "{{ playbook_dir }}/../scaps"
+    ansible_ssh_pipelining: true
+
+  tasks:
+    # Same as above but you normally have ansible_connection set in inventory, which overrides 'connection'
+    - name: Wait 300 seconds for port 22 to become open and contain "OpenSSH"
+      wait_for:
+        port: 22
+        host: '{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}'
+        search_regex: OpenSSH
+        delay: 10
+      # vars:
+      #   ansible_connection: local
+
+    - name: "mkdir -p {{debug_folder}}"
+      shell: 'mkdir -p {{debug_folder}}'
+      changed_when: False
+      check_mode: no
+
+    - name: 'sysdig -w {{debug_folder}}/dump.scap -M {{num_seconds}}'
+      shell: 'sysdig -w {{debug_folder}}/dump.scap -M {{num_seconds}}'
+      become: yes
+      changed_when: False
+      check_mode: no
+
+    - name: 'chown 1000:1000 -R {{debug_folder}}/dump.scap'
+      shell: 'chown 1000:1000 -R {{debug_folder}}/dump.scap'
+      become: yes
+      changed_when: False
+      check_mode: no
+
+    - name: Fetch dump.scap locally
+      fetch: src={{debug_folder}}/dump.scap dest={{ dir|default('./scaps') }}/profile_data flat=no
+      failed_when: false
+
+    - debug: msg="you can now find the files in ./scaps"

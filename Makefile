@@ -73,7 +73,7 @@ mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 current_dir := $(notdir $(patsubst %/,%,$(dir $(mkfile_path))))
 MAKE := make
 
-list_allowed_args := product ip command role tier cluster
+list_allowed_args := product ip command role tier cluster non_root_user
 
 default: all
 
@@ -911,6 +911,16 @@ render-manifest-unifi-exporter:
 	@printf "=======================================\n"
 	bash -c "find dist/manifests/$(cluster)-manifests/unifi-exporter -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
 
+
+render-manifest-influxdb-operator:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local -vvvvv playbooks/render_influxdb_operator.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@printf "lint influxdb-operator manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint influxdb-operator manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/influxdb-operator -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
 render-manifest:
 	$(call check_defined, cluster, Please set cluster)
 	ansible-playbook -c local -vvvvv playbooks/render_echoserver.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
@@ -930,6 +940,7 @@ render-manifest:
 	ansible-playbook -c local -vvvvv playbooks/render_weave_scope.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	ansible-playbook -c local -vvvvv playbooks/render_prometheus_operator.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	ansible-playbook -c local -vvvvv playbooks/render_unifi_exporter.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause" --vault-password-file ./vault_password
+	ansible-playbook -c local -vvvvv playbooks/render_influxdb_operator.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 
 tmp-shell-default:
 	kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash
@@ -979,11 +990,114 @@ multi-ssh-homelab:
 multi-ssh-vagrant:
 	i2cssh -XF=$(PROJECT_ROOT_DIR)/ssh_config.kubernetes-cluster.conf -Xi=~/.ssh/vagrant_id_rsa vagrant-kube
 
+multi-ssh-scarlett-k8:
+	i2cssh -XF=$(PROJECT_ROOT_DIR)/ssh_config.scarlett-k8.conf -Xi=~/.ssh/id_rsa scarlett-k8-homelab
+
 i2cssh-vagrant: multi-ssh-vagrant
 
 i2cssh-borg: multi-ssh-homelab
 
 borg-ssh: multi-ssh-homelab
+
+scarlett-k8-ssh: multi-ssh-scarlett-k8
+
+install-rpi-monitoring:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -vvvvv playbooks/install_rpi_monitoring.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause" -f 10
+
+ansible-ping:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook ping.yml  -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause" -f 10
+
+
+ansible-debug-k8:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook playbooks/kubectl_debug.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "variable_non_rootuser=$(variable_non_rootuser) cluster=$(cluster)" --skip-tags "pause"
+
+
+ansible-debug-k8-master-only:
+	$(call check_defined, cluster, Please set cluster)
+	$(call check_defined, non_root_user, Please set non_root_user)
+	ansible-playbook playbooks/kubectl_debug.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "variable_non_rootuser=$(variable_non_rootuser) cluster=$(cluster) variable_host=masters" --skip-tags "pause"
+
+# Example: make ansible-profile-sysdig cluster=kubernetes-cluster num_seconds=30
+ansible-profile-sysdig:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook playbooks/profile_sysdig.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "num_seconds=$(num_seconds) cluster=$(cluster)" --skip-tags "pause"
+
+# SOURCE: https://dzone.com/articles/kubernetes-resource-usage-how-do-you-manage-and-mo
+analyze-k8-container-resource-usage:
+	@printf "analyze-k8-container-resource-usage:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN analyze-k8-container-resource-usage$$NC\n"
+	@printf "=======================================\n"
+	@bash scripts/analyze-k8-container-resource-usage.sh
+	@echo ""
+	@echo ""
+
+# SOURCE: https://dzone.com/articles/kubernetes-resource-usage-how-do-you-manage-and-mo
+analyze-pod-resource-consumption:
+	@printf "analyze-pod-resource-consumption:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN analyze-pod-resource-consumption$$NC\n"
+	@printf "=======================================\n"
+	kubectl top pod --all-namespaces
+	@echo ""
+	@echo ""
+
+analyze-events-timestamp:
+	@printf "analyze-events-timestamp:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN analyze-events-timestamp$$NC\n"
+	@printf "=======================================\n"
+	kubectl get events --all-namespaces --sort-by=.metadata.creationTimestamp
+	@echo ""
+	@echo ""
+
+analyze-events-timestamp-yaml:
+	@printf "analyze-events-timestamp-yaml:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN analyze-events-timestamp-yaml$$NC\n"
+	@printf "=======================================\n"
+	kubectl get events --all-namespaces --sort-by=.metadata.creationTimestamp -o yaml
+	@echo ""
+	@echo ""
+
+analyze: analyze-k8-container-resource-usage analyze-pod-resource-consumption analyze-events-timestamp
+
+# -------
+
+# SOURCE: https://dzone.com/articles/kubernetes-resource-usage-how-do-you-manage-and-mo
+color-analyze-k8-container-resource-usage:
+	@printf "analyze-k8-container-resource-usage:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN analyze-k8-container-resource-usage$$NC\n"
+	@printf "=======================================\n"
+	@bash scripts/analyze-k8-container-resource-usage.sh
+	@echo ""
+	@echo ""
+
+# SOURCE: https://dzone.com/articles/kubernetes-resource-usage-how-do-you-manage-and-mo
+color-analyze-pod-resource-consumption:
+	@printf "analyze-pod-resource-consumption:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN analyze-pod-resource-consumption$$NC\n"
+	@printf "=======================================\n"
+	kubectl top pod --all-namespaces
+	@echo ""
+	@echo ""
+
+color-analyze-events-timestamp:
+	@printf "analyze-events-timestamp:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN analyze-events-timestamp$$NC\n"
+	@printf "=======================================\n"
+# SOURCE: color - https://github.com/Ullaakut/awesome-osx-setup/blob/37935fe6f8c1a90b80741e158dfa399ae6eaa84f/fish/config.fish#L58
+	kubectl get events --all-namespaces --sort-by=.metadata.creationTimestamp | sed ''/Normal/s//(printf "\033[32mNormal\033[0m")/'' | sed ''/Warning/s//(printf "\033[31mWarning\033[0m")/''
+	@echo ""
+	@echo ""
+
+color-analyze: color-analyze-k8-container-resource-usage color-analyze-pod-resource-consumption color-analyze-events-timestamp
 
 
 include *.mk

@@ -3,7 +3,7 @@
 Network: 192.168.1.0/24
 Gateway: 192.168.1.1
 DNS: 192.168.1.1 (running dnsmasq on DD-WRT Router)
-Router DHCP range: 192.168.1.101 - 192.168.1.200
+Router DHCP range: 192.168.1.175 - 192.168.1.200
 Reserved: 192.168.1.2 - 192.168.1.15
 * 192.168.1.1 - Router
 * 192.168.1.3 - Managed Switch
@@ -38,7 +38,7 @@ Reserved: 192.168.1.2 - 192.168.1.5
 * 192.168.1.21  - dev7-behance-5
 * 192.168.1.22  - scarlett-k8-node-02
 * 192.168.1.23  - scarlett-k8-node-03
-* 192.168.1.101 - scarlett-k8-node-04
+* 192.168.1.175 - scarlett-k8-node-04
 * 192.168.1.114 - hyena-family-room
 * 192.168.1.153 - SonosZP.localdomain
 * 192.168.1.172 - borg-queen-01.localdomain
@@ -67,7 +67,7 @@ Kubernetes Nodes(scarlett-k8):
 * 192.168.1.184 - scarlett-k8-node-01
 * 192.168.1.22  - scarlett-k8-node-02
 * 192.168.1.23  - scarlett-k8-node-03
-* 192.168.1.101 - scarlett-k8-node-04
+* 192.168.1.175 - scarlett-k8-node-04
 MetalLB CIDR(scarlett-k8): 192.168.1.50-192.168.1.60
     - 192.168.1.50-192.168.1.60
 Traefik Internal Ingress IP: 192.168.1.50

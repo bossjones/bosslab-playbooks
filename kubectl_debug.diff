@@ -1,0 +1,60 @@
+diff --git a/playbooks/kubectl_debug.yml b/playbooks/kubectl_debug.yml
+index ed958dc..5bd921f 100644
+--- a/playbooks/kubectl_debug.yml
++++ b/playbooks/kubectl_debug.yml
+@@ -260,8 +260,37 @@
+         host: '{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}'
+         search_regex: OpenSSH
+         delay: 10
+-      # vars:
+-      #   ansible_connection: local
++
++    # SOURCE: https://gist.github.com/carlosedp/1b72b0d80c960e72f10698e2c95f3f1f
++    - name: Install additional packages
++      apt:
++        name: "{{packages}}"
++        update_cache: yes
++      vars:
++        packages:
++          - sudo
++          - file
++          - dbus
++          - bc
++          - bash-completion
++          - hdparm
++          - ack
++          - telnet
++          - iotop
++          - sysstat
++          - nfs-common
++          - git
++          - less
++          - tree
++          - build-essential
++          - iptables
++          - ipset
++          - pciutils
++          - lshw
++          - iperf3
++          - net-tools
++          - jq
++      ignore_errors: yes
+ 
+     - name: 'mkdir -p ~/.homelab_debugging'
+       shell: 'mkdir -p ~/.homelab_debugging'
+diff --git a/scripts/raspberry/rpi_configure.sh b/scripts/raspberry/rpi_configure.sh
+index 3224901..efa1268 100755
+--- a/scripts/raspberry/rpi_configure.sh
++++ b/scripts/raspberry/rpi_configure.sh
+@@ -562,6 +562,11 @@ echo "session required pam_limits.so" >> /etc/pam.d/common-session
+ sed -i '/session required pam_limits.so/d' /etc/pam.d/common-session-noninteractive
+ echo "session required pam_limits.so" >> /etc/pam.d/common-session-noninteractive
+ 
++sed -i 's,#DefaultLimitNOFILE=,DefaultLimitNOFILE=20000,' /etc/systemd/user.conf
++sed -i 's,#DefaultLimitNOFILE=,DefaultLimitNOFILE=20000,' /etc/systemd/system.conf
++
++# REBOOT
++
+ sysctl -p
+ 
+ # TODO: Enable me ?

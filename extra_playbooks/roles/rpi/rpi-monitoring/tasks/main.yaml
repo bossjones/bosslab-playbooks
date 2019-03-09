@@ -1,0 +1,11 @@
+---
+- name: "rpi-monitoring | install scripts"
+  template:
+    src: "{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    mode: 0755
+  with_items:
+    # - "install_node_exporter.sh"
+    - "install_rasp_node_exporter.sh"
+    # - "install_snmp_exporter.sh"
+

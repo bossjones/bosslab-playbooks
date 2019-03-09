@@ -83,11 +83,17 @@ boss__echoserver__service__spec_selector: |
 
 boss__calico__manifest_path: "{{manifest_dir_path}}/calico"
 boss__calico__namespace_name: kube-system
-boss__calico__prometheus_metrics_enabled: true
+boss__calico__prometheus_metrics_enabled: false
+# NOTE: See https://docs.projectcalico.org/v3.5/usage/configuration/mtu for recomendations
+boss__calico__veth_mtu: 1480 # 1480,
+boss__calico__node_env_CALICO_IPV4POOL_IPIP: "Always"
+boss__calico__debugger_deployment_spec_replicas: 1
+boss__calico__debugger_enabled: "enabled"
 
 boss__calico__node_version: v3.3.2
 boss__calico__node_image_repo: "quay.io/calico/node"
 boss__calico__node_image_tag: "{{ boss__calico__node_version }}"
+
 
 boss__calico__cni_version: v3.3.2
 boss__calico__cni_image_repo: "quay.io/calico/cni"
@@ -97,18 +103,21 @@ boss__calico__enable_prometheus_exporter_servicemonitor: "enabled"
 
 boss__calico__prometheus_exporter_namespace_name: monitoring
 
+boss__calico__enable_prometheus_felix: "false" # false,enabled
 boss__calico__felix_PrometheusMetricsPort: 9091
 boss__calico__typha_PrometheusMetricsPort: 9093
+
 
 boss__calico__node_daemonset_annotations: |
   scheduler.alpha.kubernetes.io/critical-pod: ''
   prometheus.io/scrape: "true"
   prometheus.io/port: "{{boss__calico__felix_PrometheusMetricsPort}}"
 
-boss__calico__enable_typha: "enabled"
-boss__calico__typha_service_name: calico-typha  # or none
+boss__calico__enable_typha: "false" # false,enabled
+boss__calico__enable_prometheus_typha: "false" # false,enabled
+boss__calico__typha_service_name: "none"  # or none,calico-typha
 
-boss__calico__typha_deployment_spec_replicas: 3
+boss__calico__typha_deployment_spec_replicas: 0 # or 0,3
 
 boss__calico__typha_service_annotations: |
   prometheus.io/scrape: "true"
@@ -122,6 +131,8 @@ boss__calico__typha_deployment_annotations: |
   cluster-autoscaler.kubernetes.io/safe-to-evict: 'true'
   prometheus.io/scrape: "true"
   prometheus.io/port: "{{boss__calico__typha_PrometheusMetricsPort}}"
+
+
 
 # {{ calico_node_image_repo }}:{{ calico_node_image_tag }}
 
@@ -540,6 +551,16 @@ boss__registry__nfs_master_node_ip: "{{ nfs_server_ip_override }}"
 boss__certmanager__manifest_path: "{{manifest_dir_path}}/cert-manager"
 boss__certmanager__namespace_name: kube-system
 boss__certmanager__example_com_namespace_name: default
+boss__certmanager__my_cluster_namespace_name: default
+boss__certmanager__my_cluster_certificate_name: wildcard-borglab
+boss__certmanager__my_cluster_commonName: "*.{{domain_root}}"
+boss__certmanager__my_cluster_organization: |
+  - Borglab
+boss__certmanager__my_cluster_dnsNames: |
+  - "*.{{domain_root}}"
+boss__certmanager__my_cluster_generate_tls: "force"
+
+
 
 
 ##########################################################################################################
@@ -1263,7 +1284,7 @@ boss__prometheus__operator__grafana_pv_labels: |
 
 boss__prometheus__operator__grafana_pv_spec_capacity_storage: 2Gi
 boss__prometheus__operator__grafana_pv_spec_nfs: |
-    server: 192.168.1.174
+    server: {{nfs_server_ip_override}}
     path: "/mnt/publicdata/grafana"
 
 
@@ -1285,7 +1306,7 @@ boss__prometheus__operator__prometheus_adapter_tmpfs_pv_labels: |
 
 boss__prometheus__operator__prometheus_adapter_tmpfs_pv_spec_capacity_storage: 2Gi
 boss__prometheus__operator__prometheus_adapter_tmpfs_pv_spec_nfs: |
-    server: 192.168.1.174
+    server: {{nfs_server_ip_override}}
     path: "/mnt/publicdata/prometheus-adapter-tmpfs"
 
 # persistent volume claim - prometheus-adapter-volume-serving-cert
@@ -1306,7 +1327,7 @@ boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pv_labels: |
 
 boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pv_spec_capacity_storage: 2Gi
 boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pv_spec_nfs: |
-    server: 192.168.1.174
+    server: {{nfs_server_ip_override}}
     path: "/mnt/publicdata/prometheus-adapter-volume-serving-cert"
 
 
@@ -1367,6 +1388,108 @@ boss__unifi__exporter__unifi_timeout: 5s
 boss__unifi__exporter__service_annotations: |
   prometheus.io/scrape: 'true'
   prometheus.io/port: '9091'
+
+
+
+
+##########################################################################################################
+#   .####.##....##.########.##.......##.....##.##.....##.########..########...........#######..########..########.########.....###....########..#######..########.
+#   ..##..###...##.##.......##.......##.....##..##...##..##.....##.##.....##.........##.....##.##.....##.##.......##.....##...##.##......##....##.....##.##.....##
+#   ..##..####..##.##.......##.......##.....##...##.##...##.....##.##.....##.........##.....##.##.....##.##.......##.....##..##...##.....##....##.....##.##.....##
+#   ..##..##.##.##.######...##.......##.....##....###....##.....##.########..#######.##.....##.########..######...########..##.....##....##....##.....##.########.
+#   ..##..##..####.##.......##.......##.....##...##.##...##.....##.##.....##.........##.....##.##........##.......##...##...#########....##....##.....##.##...##..
+#   ..##..##...###.##.......##.......##.....##..##...##..##.....##.##.....##.........##.....##.##........##.......##....##..##.....##....##....##.....##.##....##.
+#   .####.##....##.##.......########..#######..##.....##.########..########...........#######..##........########.##.....##.##.....##....##.....#######..##.....##
+##########################################################################################################
+boss__influxdb__operator__subdomain: influxdb
+boss__influxdb__operator__manifest_path: "{{manifest_dir_path}}/influxdb-operator"
+boss__influxdb__operator__namespace_name: monitoring
+boss__influxdb__operator__name: influxdata-operator
+
+
+boss__influxdb__operator__ingress_annotations: |
+  nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  traefik.frontend.rule.type: PathPrefix
+
+boss__influxdb__operator__ingress_labels: |
+  k8s-app: influxdata-operator
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  boss-part-of: influxdb
+  app: influxdata-operator
+
+boss__influxdb__operator__deployment_labels: |
+  app: influxdata-operator
+  name: influxdata-operator
+
+boss__influxdb__operator__service_labels: |
+    k8s-app: influxdata-operator
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    kubernetes.io/name: "influxdata-operator"
+    name: influxdata-operator
+    boss-part-of: influxdb
+    app: influxdata-operator
+
+boss__influxdb__operator__persistent_volume_claim_labels: |
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  k8s-app: influxdata-operator
+  kubernetes.io/name: "influxdata-operator"
+  name: influxdata-operator
+  boss-part-of: influxdb
+  app: influxdata-operator
+
+boss__influxdb__operator__persistent_volume_claim_spec_resources_requests_storage: "2Gi"
+
+boss__influxdb__operator__persistent_volume_labels: |
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  k8s-app: influxdata-operator
+  kubernetes.io/name: "influxdata-operator"
+  name: influxdata-operator
+  boss-part-of: influxdb
+  app: influxdata-operator
+
+boss__influxdb__operator__version: 1.6.6
+boss__influxdb__operator__image_repo: "influxdb"
+boss__influxdb__operator__image_tag: "{{ boss__influxdb__operator__version }}"
+boss__influxdb__operator__cpu_limit: 1000m
+boss__influxdb__operator__mem_limit: 4048Mi
+boss__influxdb__operator__cpu_requests: 100m
+boss__influxdb__operator__mem_requests: 2350Mi
+
+boss__influxdb__operator__service_account_labels: |
+  k8s-app: influxdata-operator
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  kubernetes.io/name: "influxdata-operator"
+  name: influxdata-operator
+  boss-part-of: influxdb
+  app: influxdata-operator
+
+boss__influxdb__operator__cluster_role_labels: |
+  k8s-app: influxdata-operator
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  kubernetes.io/name: "influxdata-operator"
+  name: influxdata-operator
+  boss-part-of: influxdb
+  app: influxdata-operator
+
+boss__influxdb__operator__cluster_role_binding_labels: |
+  k8s-app: influxdata-operator
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  kubernetes.io/name: "influxdata-operator"
+  name: influxdata-operator
+  boss-part-of: influxdb
+  app: influxdata-operator
+
+boss__influxdb__operator__persistent_volume_spec_capacity_storage: 1Gi
+boss__influxdb__operator__persistent_volume_spec_nfs_path: "{{path_to_network_disk}}/influxdb-operator"
+# boss__influxdb__operator__nfs_master_node_ip: "{{ hostvars[groups[nfs_server_group][0]]['ansible_' + main_network_interface].ipv4.address }}"
+boss__influxdb__operator__nfs_master_node_ip: "{{ nfs_server_ip_override }}"
 
 #######################
 

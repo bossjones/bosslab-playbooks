@@ -1,0 +1,438 @@
+# -*- coding: utf-8 -*-
+# USAGE: ansible-playbook playbooks/kubectl_debug.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars 'variable_non_rootuser=pi cluster=borg variable_host=servers dir=./' --skip-tags "pause"
+# env ANSIBLE_STRATEGY=debug KUBECONFIG=~/dev/bossjones/kubernetes-cluster/borg-admin.conf ansible-playbook  -i contrib/inventory_builder/inventory/borg/inventory.ini playbooks/kubectl_debug.yml -vvvvvv
+---
+##############################################################################
+# file: kubectl_debug.yaml
+# Create an amazon vpc and tag it appropiately
+#
+# Run with:
+#
+#
+# DRY RUN(with pause):
+# ansible-playbook playbooks/kubectl_debug.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "variable_non_rootuser=pi cluster=borg variable_host=servers dir=./" --check -f 10
+#
+# REAL RUN(w/o pause):
+# ansible-playbook playbooks/kubectl_debug.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "variable_non_rootuser=pi cluster=borg variable_host=servers dir=./" --skip-tags -f 10 "pause"
+#
+# TAG LOOKUP:
+# ansible-playbook playbooks/kubectl_debug.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "variable_non_rootuser=pi cluster=borg variable_host=servers dir=./" --tag lookup -f 10
+#
+# REAL RUN:
+# ansible-playbook playbooks/kubectl_debug.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "variable_non_rootuser=pi cluster=borg variable_host=servers dir=./" -f 10
+##############################################################################
+# TODO: Make a version of this that allows us to put these logs in s3
+# TODO: Make a version of this that allows us to put these logs in s3
+# TODO: Make a version of this that allows us to put these logs in s3
+# TODO: Make a version of this that allows us to put these logs in s3
+# TODO: Make a version of this that allows us to put these logs in s3
+# SOURCE: https://loige.co/aws-command-line-s3-content-from-stdin-or-to-stdout/
+
+- name: playbook | kube.tar.gz | tar up the .kube folder
+  # masters
+  hosts: "{{ variable_host | default('masters') }}"
+  become: yes
+  become_method: sudo
+  become_user: "{{ variable_non_rootuser | default('pi') }}"
+  gather_facts: False
+  vars:
+    non_rootuser: "{{ variable_non_rootuser | default('pi') }}"
+    kube_config_path: "/home/{{variable_non_rootuser}}/.kube"
+  environment:
+    SHELL: /bin/bash
+
+  tasks:
+    - name: WITHOUT DELEGATE kube.tar.gz | bring down the tar file locally on ansible controller
+      archive:
+        path: "{{kube_config_path}}"
+        dest: "/home/{{variable_non_rootuser}}/kube.tar.gz"
+        exclude_path:
+        - /home/{{variable_non_rootuser}}/.kube/cache
+        - /home/{{variable_non_rootuser}}/.kube/http-cache
+      become: yes
+      become_method:
+      become_user: "{{ variable_non_rootuser | default('pi') }}"
+
+    - name: Fetch kube.tar.gz locally
+      fetch: src=/home/{{variable_non_rootuser}}/kube.tar.gz dest={{ dir|default('.') }}/kube.tar.gz flat=yes
+      failed_when: false
+
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+
+- name: playbook | make sure all workers can access admin kubectl
+  # masters
+  hosts: "{{ variable_host | default('workers') }}"
+  become: yes
+  become_method: sudo
+  become_user: "{{ variable_non_rootuser | default('pi') }}"
+  gather_facts: False
+  vars:
+    debug_folder: '~/.homelab_debugging'
+    non_rootuser: "{{ variable_non_rootuser | default('pi') }}"
+    kube_config_path: "/home/{{non_rootuser}}/.kube/config"
+  environment:
+    SHELL: /bin/bash
+
+  tasks:
+  - name: "Check if /home/{{non_rootuser}}/kube.tar.gz path exists"
+    stat: path=/home/{{non_rootuser}}/kube.tar.gz
+    register: check_admin_config_path
+
+  - name: "Fetch the file from master to the worker node - {{groups['masters'][0]}} to {{ inventory_hostname }}"
+    tags: sync-push
+    synchronize:
+      src: "{{ dir|default('.') }}/kube.tar.gz"
+      dest: "/home/{{non_rootuser}}/kube.tar.gz"
+      mode: push
+      set_remote_user: yes
+      rsync_opts:
+      - "--chown={{non_rootuser}}:{{non_rootuser}}"
+      - "--chmod=F644"
+    register: syncfile
+    when: check_admin_config_path.stat.exists == false
+
+  - name: tar -ztvf ~/kube.tar.gz
+    shell: |
+      tar -ztvf ~/kube.tar.gz
+      chdir=$HOME
+    args:
+      executable: /bin/bash
+
+  # wait to verify node is started
+  - name: "Pausing 300 seconds to make sure cassandra process is started and queryable with nodetool"
+    pause:
+      seconds: 300
+    tag:
+    - pause
+
+  - name: Unarchive a file that is already on the remote machine - DIR - /home/{{non_rootuser}}
+    unarchive:
+      src: "/home/{{non_rootuser}}/kube.tar.gz"
+      dest: "/home/{{non_rootuser}}"
+      remote_src: yes
+
+
+  # SOURCE: https://www.reddit.com/r/ansible/comments/7rkts2/ansible_to_retry_a_task/
+  - name: Clean up folders we don't care about eg. /home/{{non_rootuser}}/.kube/cache and /home/{{non_rootuser}}/.kube/http-cache
+    file: path={{ item }} state=absent
+    with_items:
+    - "/home/{{non_rootuser}}/.kube/cache"
+    - "/home/{{non_rootuser}}/.kube/http-cache"
+    register: folder_cleanup_task_result
+    until: folder_cleanup_task_result | succeeded
+    retries: 15
+    delay: 5
+    ignore_errors: yes
+
+
+  - name: Verify | kubectl get nodes
+    command: "kubectl get nodes"
+    # failed_when: false
+    register: verify_kubectl_get_nodes_info
+    # when: item.when | default(True)
+    environment:
+      KUBECONFIG: "/home/{{non_rootuser}}/.kube/config"
+      SHELL: /bin/bash
+    verbosity: 4
+    no_log: False
+
+  - name: "Verify - kubectl get nodes please: "
+    debug: msg="{{verify_kubectl_get_nodes_info.stdout}}"
+
+  # wait to verify node is started
+  - name: "PAUSE | Verify | kubectl get nodes please"
+    pause:
+      seconds: 15
+    tag:
+    - pause
+
+- name: debug kubernetes cluster
+  # masters
+  hosts: "{{ variable_host | default('servers') }}"
+  # strategy: free
+  gather_facts: False
+  become: yes
+  become_method: sudo
+  become_user: "root"
+  vars:
+    debug_folder: '~/.homelab_debugging'
+    non_rootuser: "{{ variable_non_rootuser | default('pi') }}"
+    docker_bin_dir: /usr/bin
+    bin_dir: /usr/bin
+    dir: "{{ playbook_dir }}/../"
+    ansible_ssh_pipelining: true
+    # etcd_cert_dir: /etc/ssl/etcd/ssl
+    kube_network_plugin: calico
+    archive_dirname: collect-info
+    # SOURCE: https://github.com/kubernetes-sigs/kubespray/blob/2e1e27219eeb736df6b45e9025e0d7067683b8b6/scripts/collect-info.yaml
+    commands:
+      - name: timedate_info
+        cmd: timedatectl status
+      - name: kernel_info
+        cmd: uname -r
+      - name: docker_info
+        cmd: "{{ docker_bin_dir }}/docker info"
+      - name: ip_info
+        cmd: ip -4 -o a
+      - name: route_info
+        cmd: ip ro
+      - name: proc_info
+        cmd: ps auxf | grep -v ]$
+
+      - name: ps_rss_info
+        cmd: ps aux --sort -rss
+
+      - name: pstree_p_info
+        cmd: pstree -p
+
+      - name: lspci_info
+        cmd: lspci
+
+      - name: lspci_info
+        cmd: set -x; blkid; lsblk; df -T; df -i
+
+      - name: netstat_tunpl_info
+        cmd: netstat -tunpl
+
+      - name: netstat_s_info
+        cmd: netstat -s
+
+      - name: netstat_atn_info
+        cmd: netstat -atn | awk '/tcp/ {print $6}' | sort | uniq -c
+
+      - name: netstat_p_info
+        cmd: netstat -p
+
+      - name: top_b_info
+        cmd: top -b -n 1
+
+      - name: iptables_info
+        cmd: ip a; ip r; iptables-save;iptables -nvL;
+
+      - name: cpuinfo_info
+        cmd: cat /proc/cpuinfo
+
+      - name: ip_netns_info
+        cmd: /usr/local/bin/get-ip-netns
+
+      # SOURCE: (High packet in discard percentage) https://serverfault.com/questions/434558/high-packet-in-discard-percentage
+      # Read this too:
+      # TCP connection aborts. baddata (TCPAbortOnData) happens while the connection is on FIN_WAIT1 and the kernel receives a packet with a sequence number beyond the last one for this connection - the kernel responds with RST (closes the connection). userclosed (TCPAbortOnClose) happens when the kernel receives data on an already closed connection and responds with RST. nomemory (TCPAbortOnMemory happens when there are too many orphaned sockets (not attached to an fd) and the kernel has to drop a connection - sometimes it will send an RST, sometimes it won't. timeout (TCPAbortOnTimeout) happens when a connection times out. linger (TCPAbortOnLinger) happens when the kernel killed a socket that was already closed by the application and lingered around for long enough. failed (TCPAbortFailed) happens when the kernel attempted to send an RST but failed because there was no memory available.
+      - name: netstat_s_info
+        cmd: netstat -s
+
+
+      # SOURCE: https://github.com/tysonnorris/openwhisk-new-containerpool/blob/bdf95b0f941632dc39a0ac04be08e1864f4267ae/ansible/logs.yml
+      - name: docker_ps_info
+        cmd:  /usr/local/bin/get-docker-ps-by-name
+
+      - name: docker_get_logs_info
+        cmd: /usr/local/bin/get-all-docker-logs
+
+      - name: systemctl_failed_info
+        cmd: systemctl --state=failed --no-pager
+      - name: systemctl_all_info
+        cmd: systemctl --all --no-pager
+      - name: k8s_info
+        cmd: "{{ bin_dir }}/kubectl get all --all-namespaces -o wide"
+      - name: errors_info
+        cmd: journalctl -p err --no-pager
+
+      # SOURCE: https://github.com/redhat-openstack/infrared/blob/0c06a624c2584368ea65543ee9960cd130177753/plugins/collect-logs/tasks/collect_host_logs.yml
+      - name: logs_from_broken_systemd_units_info
+        cmd: /usr/local/bin/get-all-broken-journald-logs
+
+      - name: docker_verbose_logs_and_more_info
+        cmd: /usr/local/bin/get-all-docker-debug-logs
+
+      - name: file_nr_info
+        cmd: cat /proc/sys/fs/file-nr
+      - name: df_h_info
+        cmd: df -H
+      - name: free_m_info
+        cmd: free -m
+      - name: sysctl_a_info
+        cmd: sysctl -a
+      # SOURCE: https://lzone.de/cheat-sheet/ulimit
+      - name: lsof_info
+        cmd: lsof-fd-check-all
+      # - name: etcd_info
+      #   cmd: "{{ bin_dir }}/etcdctl --peers={{ etcd_access_addresses | default('http://127.0.0.1:2379') }} cluster-health"
+      # - name: calico_info
+      #   cmd: "{{bin_dir}}/calicoctl node status"
+      #   when: '{{ kube_network_plugin == "calico" }}'
+      # - name: calico_workload_info
+      #   cmd: "{{bin_dir}}/calicoctl get workloadEndpoint -o wide"
+      #   when: '{{ kube_network_plugin == "calico" }}'
+      # - name: calico_pool_info
+      #   cmd: "{{bin_dir}}/calicoctl get ippool -o wide"
+      #   when: '{{ kube_network_plugin == "calico" }}'
+      # - name: weave_info
+      #   cmd: weave report
+      #   when: '{{ kube_network_plugin == "weave" }}'
+      # - name: weave_logs
+      #   cmd: "{{ docker_bin_dir }}/docker logs weave"
+      #   when: '{{ kube_network_plugin == "weave" }}'
+      # - name: segfault_info
+      #   cmd: ! grep -v ansible-command /var/log/messages | grep segfault
+      # - name: oom_killer_info
+      #   cmd: ! grep -v ansible-command /var/log/messages | grep oom-killer
+      - name: lsmod_info
+        cmd: lsmod
+      - name: lshw_info
+        cmd: lshw -class network -short
+      - name: systemctl_list_units_info
+        cmd: systemctl list-units --no-pager
+      - name: nfs_server_info
+        cmd: journalctl -u nfs-server.service --no-pager
+      - name: nfs_blkmap_info
+        cmd: journalctl -u nfs-blkmap.service --no-pager
+      - name: nfs_idmapd_info
+        cmd: journalctl -u nfs-idmapd.service --no-pager
+      - name: nfs_mountd_info
+        cmd: journalctl -u nfs-mountd.service --no-pager
+      - name: kubelet_info
+        cmd: journalctl -u kubelet.service --no-pager
+      - name: kube_describe_all
+        cmd: "{{ bin_dir }}/kubectl describe all --all-namespaces"
+      - name: kube_describe_nodes
+        cmd: "{{ bin_dir }}/kubectl describe nodes"
+
+      - name: kubectl_get_events_all_namespaces_logs
+        cmd: "{{ bin_dir }}/kubectl get events --all-namespaces --sort-by=.metadata.creationTimestamp"
+
+      - name: kubectl_get_events_all_namespaces_yaml_logs
+        cmd: "{{ bin_dir }}/kubectl get events --all-namespaces --sort-by=.metadata.creationTimestamp -o yaml"
+
+      - name: kubelet_logs
+        cmd: journalctl -u kubelet --no-pager
+      - name: coredns_logs
+        cmd: "for i in `{{ bin_dir }}/kubectl get pods -n kube-system -l k8s-app=coredns -o jsonpath={.items..metadata.name}`;
+          do {{ bin_dir }}/kubectl logs ${i} -n kube-system; done"
+      - name: apiserver_logs
+        cmd: "for i in `{{ bin_dir }}/kubectl get pods -n kube-system -l component=kube-apiserver -o jsonpath={.items..metadata.name}`;
+          do {{ bin_dir }}/kubectl logs ${i} -n kube-system; done"
+      - name: controller_logs
+        cmd: "for i in `{{ bin_dir }}/kubectl get pods -n kube-system -l component=kube-controller-manager -o jsonpath={.items..metadata.name}`;
+          do {{ bin_dir }}/kubectl logs ${i} -n kube-system; done"
+      - name: scheduler_logs
+        cmd: "for i in `{{ bin_dir }}/kubectl get pods -n kube-system -l component=kube-scheduler -o jsonpath={.items..metadata.name}`;
+          do {{ bin_dir }}/kubectl logs ${i} -n kube-system; done"
+      - name: proxy_logs
+        cmd: "for i in `{{ bin_dir }}/kubectl get pods -n kube-system -l k8s-app=kube-proxy -o jsonpath={.items..metadata.name}`;
+          do {{ bin_dir }}/kubectl logs ${i} -n kube-system; done"
+      - name: nginx_logs
+        cmd: "for i in `{{ bin_dir }}/kubectl get pods -n kube-system -l k8s-app=kube-nginx -o jsonpath={.items..metadata.name}`;
+          do {{ bin_dir }}/kubectl logs ${i} -n kube-system; done"
+      - name: flannel_logs
+        cmd: "for i in `{{ bin_dir }}/kubectl get pods -n kube-system -l app=flannel -o jsonpath={.items..metadata.name}`;
+          do {{ bin_dir }}/kubectl logs ${i} -n kube-system flannel-container; done"
+        when: '{{ kube_network_plugin == "flannel" }}'
+      - name: canal_logs
+        cmd: "for i in `{{ bin_dir }}/kubectl get pods -n kube-system -l k8s-app=canal-node -o jsonpath={.items..metadata.name}`;
+          do {{ bin_dir }}/kubectl logs ${i} -n kube-system flannel; done"
+        when: '{{ kube_network_plugin == "canal" }}'
+      - name: calico_policy_logs
+        cmd: "for i in `{{ bin_dir }}/kubectl get pods -n kube-system -l k8s-app=calico-kube-controllers -o jsonpath={.items..metadata.name}`;
+          do {{ bin_dir }}/kubectl logs ${i} -n kube-system ; done"
+        when: '{{ kube_network_plugin in ["canal", "calico"] }}'
+      - name: helm_show_releases_history
+        cmd: "for i in `{{ bin_dir }}/helm list -q`; do {{ bin_dir }}/helm history ${i} --col-width=0; done"
+        when: "{{ helm_enabled|default(true) }}"
+
+    logs:
+      - /var/log/syslog
+      - /var/log/daemon.log
+      - /var/log/kern.log
+      - /var/log/dpkg.log
+      - /var/log/apt/history.log
+      - /var/log/yum.log
+      - /var/log/messages
+      - /var/log/dmesg
+
+  environment:
+    KUBECONFIG: "/home/{{non_rootuser}}/.kube/config"
+    SHELL: /bin/bash
+
+  tasks:
+    # Same as above but you normally have ansible_connection set in inventory, which overrides 'connection'
+    - name: Wait 300 seconds for port 22 to become open and contain "OpenSSH"
+      wait_for:
+        port: 22
+        host: '{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}'
+        search_regex: OpenSSH
+        delay: 10
+      # vars:
+      #   ansible_connection: local
+
+    - name: 'mkdir -p ~/.homelab_debugging'
+      shell: 'mkdir -p ~/.homelab_debugging'
+      changed_when: False
+      check_mode: no
+
+    - name: Storing commands output
+      shell: "{{ item.cmd }} 2>&1 | tee {{ item.name }}"
+      failed_when: false
+      with_items: "{{commands}}"
+      when: item.when | default(True)
+      no_log: True
+
+    - name: Fetch results
+      fetch: src={{ item.name }} dest=/tmp/{{ archive_dirname }}/commands
+      with_items: "{{commands}}"
+      when: item.when | default(True)
+      failed_when: false
+
+    - name: Fetch logs
+      fetch: src={{ item }} dest=/tmp/{{ archive_dirname }}/logs
+      with_items: "{{logs}}"
+      failed_when: false
+
+    - name: Pack results and logs
+      archive:
+        path: "/tmp/{{ archive_dirname }}"
+        dest: "{{ dir|default('.') }}/logs.tar.gz"
+        remove: true
+      delegate_to: localhost
+      become: false
+      run_once: true
+
+    - name: Unarchive a file that is already on the remote machine
+      unarchive:
+        src: "{{ dir|default('.') }}/logs.tar.gz"
+        dest: /tmp
+        remote_src: no
+      delegate_to: localhost
+      become: false
+      run_once: true
+
+    # SOURCE: https://www.reddit.com/r/ansible/comments/7rkts2/ansible_to_retry_a_task/
+    - name: Clean up collected command outputs
+      file: path={{ item.name }} state=absent
+      with_items: "{{commands}}"
+      register: task_result
+      until: task_result | succeeded
+      retries: 15
+      delay: 5
+      ignore_errors: yes
+
+    - debug: msg="you can now find the files in /tmp/{{ archive_dirname }}/commands /tmp/{{ archive_dirname }}/logs"
+
+# SOURCE: https://github.com/redhat-openstack/infrared/blob/0c06a624c2584368ea65543ee9960cd130177753/plugins/collect-logs/tasks/collect_host_logs.yml
+# - name: clockdiff to each peer
+#   shell: |
+#       time_log=/var/log/extra/clockdiff
+#       echo -n "date:" >"$time_log"
+#       date &>>"$time_log"
+#       {% for host in groups['all'] %}
+#          # something that applies to all app servers.
+#       {% if 'ansible_default_ipv4' in hostvars[host] %}
+#       echo -n {{ host }} [{{ hostvars[host]['ansible_default_ipv4']['address'] }}] ": " &>>"$time_log"
+#       clockdiff {{ hostvars[host]['ansible_default_ipv4']['address'] }} &>>"$time_log"
+#       {% endif %}
+#       {% endfor %}
+#   ignore_errors: true
+#   tags: skip_ansible_lint

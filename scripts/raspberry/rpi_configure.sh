@@ -64,6 +64,8 @@ if [ ! -f /opt/raspberry/step1 ]; then
 
 # uncomment if you get no picture on HDMI for a default "safe" mode
 #hdmi_safe=1
+hdmi_force_hotplug=1
+hdmi_drive=2
 
 # uncomment this if your display has a black border of unused pixels visible
 # and your display can output without overscan
@@ -342,10 +344,10 @@ EOF
     mkdir -p /etc/systemd/system/docker.service.d
     cat <<EOF >/etc/systemd/system/docker.service.d/perf.conf
 [Service]
-StandardOutput=journal+console
-StandardError=journal+console
+# StandardOutput=journal+console
+# StandardError=journal+console
 Environment="DOCKER_OPTS=--log-driver=json-file --log-opt max-size=50m --log-opt max-file=5"
-LimitMEMLOCK=infinity
+# LimitMEMLOCK=infinity
 EOF
     systemctl daemon-reload
 
@@ -384,8 +386,8 @@ export GOPATH=$HOME/go
 export PATH=/usr/local/go/bin:$PATH:$GOPATH/bin
 EOF
 
-    source ~/.bashrc
-    source ~/.zshrc.local
+    [ -f "~/.bashrc" ] && source ~/.bashrc
+    [ -f "~/.zshrc.local" ] && source ~/.zshrc.local
 
 
     sudo curl -L 'https://github.com/kardianos/govendor/releases/download/v1.0.8/govendor_linux_arm' > /usr/local/bin/govendor
@@ -426,6 +428,9 @@ EOF
 
     sudo curl -L 'https://github.com/junegunn/fzf-bin/releases/download/0.17.5/fzf-0.17.5-linux_arm6.tgz' > /usr/local/src/fzf.tgz
     sudo tar -C /usr/local/bin/ -xvf /usr/local/src/fzf.tgz
+
+    sudo curl -L 'https://raw.githubusercontent.com/spotify/docker-gc/master/docker-gc' > /usr/local/bin/docker-gc
+    chmod +x /usr/local/bin/docker-gc
     fzf --help
 
     mkdir -p /usr/share/ca-certificates/local
@@ -447,8 +452,9 @@ EOF
     # SOURCE: https://kubernetes.io/docs/reference/command-line-tools-reference/feature-gates/
     # Environment="KUBELET_EXTRA_ARGS=--feature-gates=VolumeScheduling=true"
     # Environment="KUBELET_EXTRA_ARGS=--feature-gates=PersistentLocalVolumes=true"
-    sudo sed -i "/^[^#]*KUBELET_EXTRA_ARGS=/c\KUBELET_EXTRA_ARGS=--node-ip=$IP_ADDR --authentication-token-webhook=true --authorization-mode=Webhook --read-only-port=10255" /etc/default/kubelet
+    sudo sed -i "/^[^#]*KUBELET_EXTRA_ARGS=/c\KUBELET_EXTRA_ARGS=--node-ip=$IP_ADDR --authentication-token-webhook=true --authorization-mode=Webhook --read-only-port=10255 --node-status-update-frequency=4s" /etc/default/kubelet
     cat /etc/default/kubelet
+    sudo systemctl daemon-reload
     sudo systemctl restart kubelet
     sudo systemctl enable kubelet
 
@@ -490,6 +496,8 @@ if [[ $(hostname -s) = *master* ]]; then
 
     sudo sed -i 's/failureThreshold: 8/failureThreshold: 20/g' /etc/kubernetes/manifests/kube-apiserver.yaml && \
     sudo sed -i 's/initialDelaySeconds: [0-9]\+/initialDelaySeconds: 360/' /etc/kubernetes/manifests/kube-apiserver.yaml
+    sed -e "s/- --address=127.0.0.1/- --address=0.0.0.0/" -i /etc/kubernetes/manifests/kube-controller-manager.yaml
+    sed -e "s/- --address=127.0.0.1/- --address=0.0.0.0/" -i /etc/kubernetes/manifests/kube-scheduler.yaml
 
     sudo --user=$NON_ROOT_USER mkdir -p /home/$NON_ROOT_USER/.kube
     cp -i /etc/kubernetes/admin.conf /home/$NON_ROOT_USER/.kube/config
@@ -500,7 +508,7 @@ if [[ $(hostname -s) = *master* ]]; then
 
     # install Calico pod network addon
     export KUBECONFIG=/etc/kubernetes/admin.conf
-    kubectl apply -f https://git.io/weave-kube-1.6
+    # (only need one of these? ) kubectl apply -f https://git.io/weave-kube-1.6
     kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')&env.IPALLOC_RANGE=10.32.0.0/12"
 
     kubeadm token create --print-join-command >> /etc/kubeadm_join_cmd.sh
@@ -526,17 +534,178 @@ if [[ $(hostname -s) = *node* ]]; then
 fi
 # --------------------- EXTRA
 
+sed -e "s/- --address=127.0.0.1/- --address=0.0.0.0/" -i /etc/kubernetes/manifests/kube-controller-manager.yaml
+sed -e "s/- --address=127.0.0.1/- --address=0.0.0.0/" -i /etc/kubernetes/manifests/kube-scheduler.yaml
 
 # prometheus
-curl -SL https://github.com/prometheus/node_exporter/releases/download/v0.17.0/node_exporter-0.17.0.linux-armv6.tar.gz > node_exporter.tar.gz && \
-sudo tar -xvf node_exporter.tar.gz -C /usr/local/bin/ --strip-components=1
-sudo rm -r /usr/local/bin/{LICENSE,NOTICE}
+# curl -SL https://github.com/prometheus/node_exporter/releases/download/v0.17.0/node_exporter-0.17.0.linux-armv6.tar.gz > node_exporter.tar.gz && \
+# sudo tar -xvf node_exporter.tar.gz -C /usr/local/bin/ --strip-components=1
+# sudo rm -r /usr/local/bin/{LICENSE,NOTICE}
 
 apt-get install -y conntrack ipset
 
 iptables -P FORWARD ACCEPT
 iptables -P INPUT ACCEPT
 iptables -P OUTPUT ACCEPT
+
+# SOURCE: https://github.com/steelsquid/steelsquid-kiss-os/blob/d5f578f4a6f752b12a0be179809f30dfa8b2cbd2/steelsquid-kiss-os.sh
+# SOURCE: https://phpsolved.com/ubuntu-16-increase-maximum-file-open-limit-ulimit-n/
+# echo "*         hard    nofile      90000" > /etc/security/limits.d/perf.conf
+# echo "*         soft    nofile      90000" >> /etc/security/limits.d/perf.conf
+# echo "root      hard    nofile      90000" >> /etc/security/limits.d/perf.conf
+# echo "root      soft    nofile      90000" >> /etc/security/limits.d/perf.conf
+echo "* soft     nproc          90000" > /etc/security/limits.d/perf.conf
+echo "* hard     nproc          90000" >> /etc/security/limits.d/perf.conf
+echo "* soft     nofile         90000" >> /etc/security/limits.d/perf.conf
+echo "* hard     nofile         90000"  >> /etc/security/limits.d/perf.conf
+echo "root soft     nproc          90000" >> /etc/security/limits.d/perf.conf
+echo "root hard     nproc          90000" >> /etc/security/limits.d/perf.conf
+echo "root soft     nofile         90000" >> /etc/security/limits.d/perf.conf
+echo "root hard     nofile         90000" >> /etc/security/limits.d/perf.conf
+sed -i '/pam_limits.so/d' /etc/pam.d/sshd
+echo "session    required   pam_limits.so" >> /etc/pam.d/sshd
+sed -i '/pam_limits.so/d' /etc/pam.d/su
+echo "session    required   pam_limits.so" >> /etc/pam.d/su
+sed -i '/session required pam_limits.so/d' /etc/pam.d/common-session
+echo "session required pam_limits.so" >> /etc/pam.d/common-session
+sed -i '/session required pam_limits.so/d' /etc/pam.d/common-session-noninteractive
+echo "session required pam_limits.so" >> /etc/pam.d/common-session-noninteractive
+
+# --- Check KSM (kernel memory deduper) ---
+
+# Memory de-duplication instructions
+
+# You have kernel memory de-duper (called Kernel Same-page Merging,
+# or KSM) available, but it is not currently enabled.
+
+# To enable it run:
+
+#     echo 1 >/sys/kernel/mm/ksm/run
+#     echo 1000 >/sys/kernel/mm/ksm/sleep_millisecs
+
+# If you enable it, you will save 40-60% of netdata memory.
+
+echo 1 >/sys/kernel/mm/ksm/run
+echo 1000 >/sys/kernel/mm/ksm/sleep_millisecs
+
+# SOURCE: https://blog.openai.com/scaling-kubernetes-to-2500-nodes/ ( VERY GOOD )
+# net.ipv4.neigh.default.gc_thresh1 = 80000
+# net.ipv4.neigh.default.gc_thresh2 = 90000
+# net.ipv4.neigh.default.gc_thresh3 = 100000
+
+echo "net.ipv4.neigh.default.gc_thresh1 = 80000" | sudo tee -a /etc/sysctl.d/kube.conf
+echo "net.ipv4.neigh.default.gc_thresh2 = 90000" | sudo tee -a /etc/sysctl.d/kube.conf
+echo "net.ipv4.neigh.default.gc_thresh3 = 100000" | sudo tee -a /etc/sysctl.d/kube.conf
+
+sysctl -p
+
+
+
+# ##################################################################################
+# # auditd
+# ##################################################################################
+sudo apt install -y auditd audispd-plugins
+curl -L 'https://raw.githubusercontent.com/Neo23x0/auditd/master/audit.rules' > /etc/audit/audit.rules
+git clone https://github.com/PaulDaviesC/Logging-limits.conf.git /usr/local/src/logging-limits-conf
+
+
+# TODO: Enable me ?
+# SOURCE: https://github.com/steelsquid/steelsquid-kiss-os/blob/d5f578f4a6f752b12a0be179809f30dfa8b2cbd2/steelsquid-kiss-os.sh
+# ##################################################################################
+# # Configure systemd
+# ##################################################################################
+# log "Configure systemd"
+# sed -i 's/^#Storage.*/Storage=none/' /etc/systemd/journald.conf
+# sed -i 's/^#Compress.*/Compress=no/' /etc/systemd/journald.conf
+# sed -i 's/^#Seal.*/Seal=no/' /etc/systemd/journald.conf
+# sed -i 's/^#SplitMode.*/SplitMode=none/' /etc/systemd/journald.conf
+# sed -i 's/^#LogLevel.*/LogLevel=emerg/' /etc/systemd/system.conf
+# sed -i 's/^#LogTarget.*/LogTarget=null/' /etc/systemd/system.conf
+# sed -i 's/^#LogColor.*/LogColor=no/' /etc/systemd/system.conf
+# sed -i 's/^#ShowStatus.*/ShowStatus=no/' /etc/systemd/system.conf
+# sed -i 's/^#DefaultStandardOutput.*/DefaultStandardOutput=null/' /etc/systemd/system.conf
+# sed -i 's/^#LogLevel.*/LogLevel=crit/' /etc/systemd/user.conf
+# sed -i 's/^#LogTarget.*/LogTarget=null/' /etc/systemd/user.conf
+# sed -i 's/^#LogColor.*/LogColor=no/' /etc/systemd/user.conf
+# sed -i 's/^#DefaultStandardOutput.*/DefaultStandardOutput=null/' /etc/systemd/user.conf
+# sed -i 's/^#NAutoVTs.*/NAutoVTs=1/' /etc/systemd/logind.conf
+# sed -i 's/^#ReserveVT.*/ReserveVT=1/' /etc/systemd/logind.conf
+# sed -i '/StandardOutput/d' /lib/systemd/system/systemd-fsck-root.service
+# sed -i '/StandardError/d' /lib/systemd/system/systemd-fsck-root.service
+# echo "StandardOutput=null" >> /lib/systemd/system/systemd-fsck-root.service
+# echo "StandardError=null" >> /lib/systemd/system/systemd-fsck-root.service
+# sed -i '/StandardOutput/d' /lib/systemd/system/systemd-fsck@.service
+# sed -i '/StandardError/d' /lib/systemd/system/systemd-fsck@.service
+# echo "StandardOutput=null" >> /lib/systemd/system/systemd-fsck@.service
+# echo "StandardError=null" >> /lib/systemd/system/systemd-fsck@.service
+# log_off
+
+# SOURCE: https://github.com/steelsquid/steelsquid-kiss-os/blob/d5f578f4a6f752b12a0be179809f30dfa8b2cbd2/steelsquid-kiss-os.sh
+##################################################################################
+# Generate mem
+##################################################################################
+# log "Generate mem command"
+echo "#"\!"/bin/bash" > /usr/local/bin/get-mem
+echo "ram_total=\$(cat /proc/meminfo | grep MemTotal: | awk '{print \$2}')" >> /usr/local/bin/get-mem
+echo "ram_free=\$(cat /proc/meminfo | grep MemFree: | awk '{print \$2}')" >> /usr/local/bin/get-mem
+echo "tmp_buffers=\$(cat /proc/meminfo | grep Buffers: | awk '{print \$2}')" >> /usr/local/bin/get-mem
+echo "tmp_cached=\$(cat /proc/meminfo | grep Cached: | awk 'NR == 1'  | awk '{print \$2}')" >> /usr/local/bin/get-mem
+echo "ram_free=\$(( \$ram_free + \$tmp_buffers + \$tmp_cached ))" >> /usr/local/bin/get-mem
+echo "ram_used=\$(( (\$ram_total - \$ram_free)/1000 ))" >> /usr/local/bin/get-mem
+echo "ram_free=\$(( \$ram_free/1000 ))" >> /usr/local/bin/get-mem
+echo "ram_total=\$(( \$ram_total/1000 ))" >> /usr/local/bin/get-mem
+echo "echo " >> /usr/local/bin/get-mem
+echo "echo \"Total RAM: \$ram_total MB\"" >> /usr/local/bin/get-mem
+echo "echo \"Used RAM: \$ram_used MB\"" >> /usr/local/bin/get-mem
+echo "echo \"Free RAM: \$ram_free MB\"" >> /usr/local/bin/get-mem
+echo "echo " >> /usr/local/bin/get-mem
+echo "exit 0" >> /usr/local/bin/get-mem
+chmod +x /usr/local/bin/get-mem
+
+
+
+##################################################################################
+# Generate ps-cpu
+##################################################################################
+# log "Generate ps-cpu command"
+echo "#"\!"/bin/bash" > /usr/bin/ps-cpu
+echo "if [ -z \"\$1\" ]; then" >> /usr/bin/ps-cpu
+echo "    ps -eo sid,user,nice,rss,pcpu,command --sort pcpu" >> /usr/bin/ps-cpu
+echo "else" >> /usr/bin/ps-cpu
+echo "    ps -eo sid,user,nice,rss,pcpu,command --sort pcpu | grep -i \"SID USER\\|\$1\"" >> /usr/bin/ps-cpu
+echo "fi" >> /usr/bin/ps-cpu
+echo "exit 0" >> /usr/bin/ps-cpu
+chmod +x /usr/bin/ps-cpu
+
+
+##################################################################################
+# Generate ps-mem
+##################################################################################
+# log "Generate ps-mem command"
+echo "#"\!"/bin/bash" > /usr/bin/ps-mem
+echo "if [ -z \"\$1\" ]; then" >> /usr/bin/ps-mem
+echo "    ps -eo sid,user,nice,rss,pcpu,command --sort rss" >> /usr/bin/ps-mem
+echo "else" >> /usr/bin/ps-mem
+echo "    ps -eo sid,user,nice,rss,pcpu,command --sort rss | grep -i \"SID USER\\|\$1\"" >> /usr/bin/ps-mem
+echo "fi" >> /usr/bin/ps-mem
+echo "exit 0" >> /usr/bin/ps-mem
+chmod +x /usr/bin/ps-mem
+
+# NOTE: idk if I need all this ... (3/4/2019)
+# ##################################################################################
+# # Disable swap
+# ##################################################################################
+# # log "Disable swap"
+# swapoff -a
+# echo "0" > /proc/sys/vm/swappiness
+# sed -i '/vm.swappiness=/d' /etc/sysctl.conf
+# echo "vm.swappiness=0" >> /etc/sysctl.conf
+# dphys-swapfile swapoff > /dev/null 2>&1
+# dphys-swapfile uninstall > /dev/null 2>&1
+# sed -i '/CONF_SWAPSIZE=/d' /etc/dphys-swapfile
+# echo "CONF_SWAPSIZE=0" >> /etc/dphys-swapfile
+# aptitude -y purge dphys-swapfile > /dev/null 2>&1
+# rm /etc/dphys-swapfile
 
 # systemctl stop kubelet
 # systemctl stop docker

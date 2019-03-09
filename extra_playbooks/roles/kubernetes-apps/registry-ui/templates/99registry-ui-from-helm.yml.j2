@@ -4,10 +4,10 @@
 # apiVersion: certmanager.k8s.io/v1alpha1
 # kind: Certificate
 # metadata:
-#   name: docker-registry-ui-tls-certificate
+#   name: {{boss__registry__ui__deployment_name}}-tls-certificate
 #   # namespace: kube-system
 # spec:
-#   secretName: docker-registry-ui-tls-certificate
+#   secretName: {{boss__registry__ui__deployment_name}}-tls-certificate
 #   issuerRef:
 #     name: selfsigning-issuer
 #     # We can reference ClusterIssuers by changing the kind here.
@@ -21,13 +21,13 @@
 #   - www.registry-ui.hyenaclan.org
 
 # ---
-# # Source: docker-registry-ui/templates/secret.yaml
+# # Source: {{boss__registry__ui__deployment_name}}/templates/secret.yaml
 # apiVersion: v1
 # kind: Secret
 # metadata:
-#   name: docker-registry-ui-secret
+#   name: {{boss__registry__ui__deployment_name}}-secret
 #   labels:
-#     app: docker-registry-ui
+#     app: {{boss__registry__ui__deployment_name}}
 #     k8s-app: registry-ui
 #     kubernetes.io/cluster-service: "true"
 #     addonmanager.kubernetes.io/mode: Reconcile
@@ -40,23 +40,19 @@
 #   haSharedSecret: "eVU5a2ZKNndFODV1TmczTQ=="
 
 ---
-# Source: docker-registry-ui/templates/service.yaml
+# Source: {{boss__registry__ui__deployment_name}}/templates/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: docker-registry-ui
+  name: {{boss__registry__ui__deployment_name}}
+{% if boss__registry__ui__service_labels is defined %}
   labels:
-    app: docker-registry-ui
-    k8s-app: registry-ui
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: registry-ui
-    version: "0.6"
-
-
+{{ boss__registry__ui__service_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+{% if boss__registry__ui__service_annotations is defined %}
   annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
-
+{{ boss__registry__ui__service_annotations | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 spec:
   type: ClusterIP
   ports:
@@ -69,37 +65,29 @@ spec:
     #   name: registry
     #   targetPort: 5001
   selector:
-    app: docker-registry-ui
-    k8s-app: registry-ui
+    app: {{boss__registry__ui__deployment_name}}
+    k8s-app: {{boss__registry__ui__deployment_name}}
 
 
 ---
-# Source: docker-registry-ui/templates/deployment.yaml
+# Source: {{boss__registry__ui__deployment_name}}/templates/deployment.yaml
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: docker-registry-ui
+  name: {{ boss__registry__ui__deployment_name }}
+{% if boss__registry__ui__deployment_labels is defined %}
   labels:
-    app: docker-registry-ui
-    k8s-app: registry-ui
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: registry-ui
-    version: "0.6"
-
-
+{{ boss__registry__ui__deployment_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 spec:
   replicas: 1
   minReadySeconds: 5
   template:
     metadata:
+{% if boss__registry__ui__deployment_spec_template_metadata_labels is defined %}
       labels:
-        app: docker-registry-ui
-        k8s-app: registry-ui
-        kubernetes.io/cluster-service: "true"
-        addonmanager.kubernetes.io/mode: Reconcile
-        boss-part-of: registry-ui
-        version: "0.6"
+{{ boss__registry__ui__deployment_spec_template_metadata_labels | indent( width=8, indentfirst=True,blank=True) }}
+{% endif %}
 {% raw %}
       annotations: {}
 {% endraw %}
@@ -108,8 +96,8 @@ spec:
       #   fsGroup: 1000
       #   runAsUser: 1000
       containers:
-        - name: docker-registry-ui
-          image: "joxit/docker-registry-ui:0.6"
+        - name: {{ boss__registry__ui__deployment_name }}
+          image: "{{boss__registry__ui__image_repo}}:{{boss__registry__ui__image_tag}}"
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
@@ -121,52 +109,55 @@ spec:
             httpGet:
               path: /
               port: 80
-{% raw %}
-          resources:
-            {}
-{% endraw %}
 
+{% if boss__registry__ui__deployment_spec_template_spec_containers_resources is defined %}
+          resources:
+{{ boss__registry__ui__deployment_spec_template_spec_containers_resources | indent( width=12, indentfirst=True,blank=True) }}
+{% endif %}
           env:
             # REGISTRY_URL: your docker registry URL to contact (CORS configuration is not needed). Example: http://my-docker-container:5000. (Can't be used with URL, since 0.3.2).
             - name: REGISTRY_URL
-              value: http://docker-registry:5000
+              value: "http://docker-registry:5000"
             - name: DELETE_IMAGES
-              value: true
+              value: "true"
             - name: REGISTRY_TITLE
-              value: HyenaLabs Docker Registry UI
+              value: "HyenaLabs Docker Registry UI"
 ---
-# Source: docker-registry-ui/templates/ingress.yaml
+# Source: {{boss__registry__ui__deployment_name}}/templates/ingress.yaml
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: docker-registry-ui
+  name: {{ boss__registry__ui__deployment_name }}
+
+{% if boss__registry__ui__ingress_labels is defined %}
   labels:
-    app: docker-registry-ui
-    k8s-app: registry-ui
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: registry-ui
-    version: "0.6"
+{{ boss__registry__ui__ingress_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+{% if boss__registry__ui__ingress_annotations is defined %}
   annotations:
-      # certmanager.k8s.io/issuer: "selfsigning-issuer"
-      nginx.ingress.kubernetes.io/proxy-body-size: "0"
-      # nginx.ingress.kubernetes.io/rewrite-target: "\\\"/\\\""
-      # nginx.ingress.kubernetes.io/ssl-redirect: "\\\"false\\\""
-      # nginx.ingress.kubernetes.io/ssl-redirect: "\\\"false\\\""
-      nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+{{ boss__registry__ui__ingress_annotations | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+{% if boss__registry__ui__enable_tls is defined %}
+{% if boss__registry__ui__enable_tls == "enabled" %}
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    certmanager.k8s.io/issuer: {{boss__registry__ui__tls_cert_cluster_issuer_name}}
+{% endif %}
+{% endif %}
 spec:
   rules:
-    - host: registry-ui.hyenaclan.org
+    - host: {{boss__registry__ui__subdomain}}.{{domain_root}}
       http:
         paths:
           - path: /
             backend:
-              serviceName: docker-registry-ui
+              serviceName: {{boss__registry__ui__deployment_name}}
               servicePort: 80
-  # tls:
-  #   - hosts:
-  #     - registry-ui.hyenaclan.org
-  #     secretName: docker-registry-ui-tls-certificate
 
+{% if boss__registry__ui__enable_tls is defined %}
+{% if boss__registry__ui__enable_tls == "enabled" %}
+  tls:
+{{ boss__registry__ui__ingress_tls_config | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
 ---
-# Source: docker-registry-ui/templates/pvc.yaml
+# Source: {{boss__registry__ui__deployment_name}}/templates/pvc.yaml

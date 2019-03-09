@@ -1,0 +1,90 @@
+# TODO: Deploy zsh pod so we can debug whenever we need to
+# SOURCE: https://github.com/nicolaka/netshoot/blob/master/Dockerfile
+---
+# This manifest creates a Deployment of Typha to back the above service.
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: k8s-zsh-debugger-calico
+  namespace: {{ boss__calico__namespace_name }}
+  labels:
+    k8s-app: k8s-zsh-debugger-calico
+spec:
+  # Number of Typha replicas.  To enable Typha, set this to a non-zero value *and* set the
+  # typha_service_name variable in the calico-config ConfigMap above.
+  #
+  # We recommend using Typha if you have more than 50 nodes.  Above 100 nodes it is essential
+  # (when using the Kubernetes datastore).  Use one replica for every 100-200 nodes.  In
+  # production, we recommend running at least 3 replicas to reduce the impact of rolling upgrade.
+  replicas: {{ boss__calico__debugger_deployment_spec_replicas }}
+  revisionHistoryLimit: 2
+  selector:
+   matchLabels:
+    k8s-app: k8s-zsh-debugger-calico
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        k8s-app: k8s-zsh-debugger-calico
+    spec:
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+        node-role.kubernetes.io/master: ""
+      hostNetwork: true
+      tolerations:
+        # Mark the pod as a critical add-on for rescheduling.
+        - key: CriticalAddonsOnly
+          operator: Exists
+      serviceAccountName: calico-node
+      containers:
+      - image: bossjones/k8s-zsh-debugger:latest
+        name: k8s-zsh-debugger-calico
+        command:
+        - "ping"
+        - "localhost"
+        volumeMounts:
+          - mountPath: /host/opt/cni/bin
+            name: cni-bin-dir
+          - mountPath: /host/etc/cni/net.d
+            name: cni-net-dir
+          - mountPath: /var/run/calico
+            name: var-run-calico
+      volumes:
+        # Used by calico/node.
+        - name: lib-modules
+          hostPath:
+            path: /lib/modules
+        - name: var-run-calico
+          hostPath:
+            path: /var/run/calico
+        - name: var-lib-calico
+          hostPath:
+            path: /var/lib/calico
+        - name: xtables-lock
+          hostPath:
+            path: /run/xtables.lock
+            type: FileOrCreate
+        # Used to install CNI.
+        - name: cni-bin-dir
+          hostPath:
+            path: /opt/cni/bin
+        - name: cni-net-dir
+          hostPath:
+            path: /etc/cni/net.d
+
+      # volumeMounts:
+      #     - mountPath: /lib/modules
+      #       name: lib-modules
+      #       readOnly: true
+      #     - mountPath: /run/xtables.lock
+      #       name: xtables-lock
+      #       readOnly: false
+      #     - mountPath: /var/run/calico
+      #       name: var-run-calico
+      #       readOnly: false
+      #     - mountPath: /var/lib/calico
+      #       name: var-lib-calico
+      #       readOnly: false
+      # # This container installs the Calico CNI binaries
+      # and CNI network config file on each node.

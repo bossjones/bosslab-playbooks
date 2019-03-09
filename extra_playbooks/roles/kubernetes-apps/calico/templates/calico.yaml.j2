@@ -20,7 +20,7 @@ data:
   calico_backend: "bird"
 
   # Configure the MTU to use
-  veth_mtu: "1440"
+  veth_mtu: "{{boss__calico__veth_mtu}}"
 
   # The CNI network configuration to install on each node.  The special
   # values in this config will be automatically populated.
@@ -68,20 +68,24 @@ metadata:
   labels:
     k8s-app: calico-typha
     # component: calico-typha
-# {% if boss__calico__typha_service_annotations is defined %}
-#   annotations:
-# {{ boss__calico__typha_service_annotations | indent( width=4, indentfirst=True,blank=True) }}
-# {% endif %}
+{% if boss__calico__typha_service_annotations is defined %}
+  annotations:
+{{ boss__calico__typha_service_annotations | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 spec:
   ports:
     - port: 5473
       protocol: TCP
       targetPort: calico-typha
       name: calico-typha
+{% if boss__calico__enable_prometheus_typha is defined %}
+{% if boss__calico__enable_prometheus_typha == "enabled" %}
     - port: {{boss__calico__typha_PrometheusMetricsPort}}
       targetPort: calico-metrics
       name: calico-metrics
       protocol: TCP
+{% endif %}
+{% endif %}
   selector:
     k8s-app: calico-typha
 
@@ -280,7 +284,7 @@ spec:
               value: "autodetect"
             # Enable IPIP
             - name: CALICO_IPV4POOL_IPIP
-              value: "Always"
+              value: "{{boss__calico__node_env_CALICO_IPV4POOL_IPIP}}"
             # Set MTU for tunnel device used if ipip is enabled
             - name: FELIX_IPINIPMTU
               valueFrom:
@@ -307,6 +311,8 @@ spec:
             # SOURCE: https://docs.projectcalico.org/v3.4/reference/felix/configuration
             - name: FELIX_HEALTHENABLED
               value: "true"
+{% if boss__calico__enable_prometheus_felix is defined %}
+{% if boss__calico__enable_prometheus_felix == "enabled" %}
             # Set to true to enable the Prometheus metrics server in Felix. [Default: false]
             - name: FELIX_PROMETHEUSMETRICSENABLED
               value: "true"
@@ -320,6 +326,8 @@ spec:
             # TCP port that the Prometheus metrics server should bind to
             - name: FELIX_PROMETHEUSMETRICSPORT
               value: "{{ boss__calico__felix_PrometheusMetricsPort }}"
+{% endif %}
+{% endif %}
           securityContext:
             privileged: true
           resources:

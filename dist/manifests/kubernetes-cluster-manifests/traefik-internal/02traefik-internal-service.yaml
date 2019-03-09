@@ -22,7 +22,7 @@ spec:
       port: 8080
       name: admin
   type: LoadBalancer
-  loadBalancerIP: 192.168.205.10
+  loadBalancerIP: 192.168.205.13
 ---
 # LOOK AT ME: https://docs.traefik.io/user-guide/kubernetes/
 apiVersion: extensions/v1beta1

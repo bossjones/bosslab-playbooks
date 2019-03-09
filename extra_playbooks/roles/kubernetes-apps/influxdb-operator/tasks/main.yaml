@@ -1,0 +1,14 @@
+---
+- name: "influxdb-operator | Create directory: {{boss__influxdb__operator__manifest_path}}"
+  file:
+    path: "{{boss__influxdb__operator__manifest_path}}"
+    state: directory
+
+- name: "influxdb-operator | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__influxdb__operator__manifest_path }}/{{ item }}"
+  with_items:
+    - "000influxdb-pvc.yaml"
+    - "1influxdb-operator-bundle.yaml"
+    - "influxdb-operator-ingress.yaml"
