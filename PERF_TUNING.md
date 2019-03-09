@@ -48,6 +48,7 @@ SOURCE: Which is faster, tcp or http loadbalancers - https://medium.com/@duhroac
 
 SOURCE: https://github.com/projectcalico/calico/issues/1709
 
+SOURCE: https://blog.codybunch.com/2018/03/26/Metrics-Part-2-InfluxDB/ ( netdata configs for archive )
 
 # Common MTU sizes (calico)
 
