@@ -29,7 +29,6 @@ kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: fluentd-es
-  # namespace: kube-system
   labels:
     k8s-app: fluentd-es
     kubernetes.io/cluster-service: "true"
@@ -42,10 +41,19 @@ rules:
   resources:
   - "namespaces"
   - "pods"
+  - "pods/log"
+  - "deployments"
+  - "batch"
+  - "extensions"
+  - "crontabs"
+  - "configmaps"
+  - "secrets"
   verbs:
   - "get"
-  - "watch"
   - "list"
+  - "post"
+  - "update"
+  - "watch"
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
@@ -135,6 +143,11 @@ spec:
         #   value: "elastic"
         # - name: FLUENT_ELASTICSEARCH_PASSWORD
         #   value: "changeme"
+        securityContext:
+        runAsNonRoot: false
+        # runAsUser: 65534
+        privileged: true
+        
         resources:
           limits:
             memory: 500Mi
@@ -143,31 +156,48 @@ spec:
             cpu: 100m
             memory: 200Mi
         volumeMounts:
+        # - name: libsystemddir
+        #   mountPath: /host/lib
+        #   readOnly: true
         - name: varlog
           mountPath: /var/log
         - name: varlibdockercontainers
           mountPath: /var/lib/docker/containers
           readOnly: true
-        # - name: libsystemddir
-        #   mountPath: /host/lib
-        #   readOnly: true
         - name: config-volume
           mountPath: /etc/fluent/config.d
+        - name: docker-sock
+          mountPath: /var/run/docker.sock
+        - name: varrun
+          mountPath: /var/run
+        - name: libsystemd
+          mountPath: /usr/lib64/libsystemd.so.0
+        
       nodeSelector:
         beta.kubernetes.io/fluentd-ds-ready: "true"
       terminationGracePeriodSeconds: 30
       volumes:
+      # It is needed to copy systemd library to decompress journals
+      # - name: libsystemddir
+      #   hostPath:
+      #     path: /usr/lib64
       - name: varlog
         hostPath:
           path: /var/log
       - name: varlibdockercontainers
         hostPath:
           path: /var/lib/docker/containers
-      # It is needed to copy systemd library to decompress journals
-      # - name: libsystemddir
-      #   hostPath:
-      #     path: /usr/lib64
       - name: config-volume
         configMap:
           # name: fluentd-es-config-v0.1.0
           name: fluentd-es-config-v0.1.6
+      - name: docker-sock
+        hostPath:
+          path: /var/run/docker/libcontainerd/docker-containerd.sock
+      - name: varrun
+        hostPath:
+          path: /var/run
+      - name: libsystemd
+        hostPath:
+          path: /usr/lib64/libsystemd.so.0
+      

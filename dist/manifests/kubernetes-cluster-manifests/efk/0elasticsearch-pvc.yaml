@@ -16,7 +16,7 @@ spec:
   storageClassName: "nfs-dynamic-class"
   resources:
     requests:
-      storage: "2Gi"
+      storage: "1Gi"
 
 ---
 apiVersion: v1
