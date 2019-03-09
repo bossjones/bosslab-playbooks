@@ -666,10 +666,10 @@ boss__registry__ui__deployment_spec_template_metadata_labels: |
         version: "{{ boss__registry__ui__version }}"
 
 boss__registry__ui__deployment_spec_template_spec_containers_resources: |
-  limits:
+  requests:
     cpu: 250m
     memory: 64Mi
-  requests:
+  limits:
     # This is 0.5 of a cpu
     cpu: 500m
     memory: 128Mi

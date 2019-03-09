@@ -111,17 +111,17 @@ spec:
               port: 80
 
 {% if boss__registry__ui__deployment_spec_template_spec_containers_resources is defined %}
-      resources:
-{{ boss__registry__ui__deployment_spec_template_spec_containers_resources | indent( width=8, indentfirst=True,blank=True) }}
+          resources:
+{{ boss__registry__ui__deployment_spec_template_spec_containers_resources | indent( width=12, indentfirst=True,blank=True) }}
 {% endif %}
           env:
             # REGISTRY_URL: your docker registry URL to contact (CORS configuration is not needed). Example: http://my-docker-container:5000. (Can't be used with URL, since 0.3.2).
             - name: REGISTRY_URL
-              value: http://docker-registry:5000
+              value: "http://docker-registry:5000"
             - name: DELETE_IMAGES
-              value: true
+              value: "true"
             - name: REGISTRY_TITLE
-              value: HyenaLabs Docker Registry UI
+              value: "HyenaLabs Docker Registry UI"
 ---
 # Source: {{boss__registry__ui__deployment_name}}/templates/ingress.yaml
 apiVersion: extensions/v1beta1
