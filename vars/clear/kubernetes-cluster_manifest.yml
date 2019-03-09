@@ -465,8 +465,13 @@ boss__registry__manifest_path: "{{manifest_dir_path}}/registry"
 boss__registry__namespace_name: kube-system
 boss__registry__deployment_name: registry
 boss__registry__enable_pvc: false
-boss__registry__enable_tls: true
+boss__registry__enable_tls: "enabled"
 boss__registry__tls_cert_cluster_issuer_name: selfsigning-issuer
+boss__registry__ingress_tls_config: |
+  - hosts:
+    - {{boss__registry__subdomain}}.{{domain_root}}
+    secretName: docker-registry-tls-certificate
+
 
 boss__registry__ingress_annotations: |
   traefik.frontend.rule.type: PathPrefix

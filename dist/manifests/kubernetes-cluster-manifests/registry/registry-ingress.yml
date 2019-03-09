@@ -49,11 +49,6 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
     certmanager.k8s.io/issuer: selfsigning-issuer
 spec:
-  tls:
-  - hosts:
-    - registry.scarlettlab.com
-    secretName: docker-registry-tls-certificate
-
   # IMPORTANT
   # SOURCE: https://medium.com/@Oskarr3/setting-up-ingress-on-minikube-6ae825e98f82
   # backend:
@@ -67,3 +62,8 @@ spec:
         backend:
           serviceName: registry-svc-account
           servicePort: 5000
+  tls:
+    - hosts:
+      - registry.scarlettlab.com
+      secretName: docker-registry-tls-certificate
+    

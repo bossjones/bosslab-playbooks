@@ -25,7 +25,7 @@
 # apiVersion: v1
 # kind: Secret
 # metadata:
-#   name: {{boss__registry__ui__deployment_name}}-secret
+#   name: docker-registry-ui-secret
 #   labels:
 #     app: docker-registry-ui
 #     k8s-app: registry-ui
@@ -53,11 +53,11 @@ metadata:
     kubernetes.io/name: "KubeRegistry"
     boss-part-of: docker-registry-ui
     version: "0.6"
-
+    
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
     traefik.frontend.rule.type: PathPrefix
-
+    
 spec:
   type: ClusterIP
   ports:
@@ -79,7 +79,7 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: boss__registry__ui__deployment_name
+  name: docker-registry-ui
   labels:
     app: docker-registry-ui
     k8s-app: docker-registry-ui
@@ -87,7 +87,7 @@ metadata:
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: docker-registry-ui
     version: "0.6"
-
+    
 spec:
   replicas: 1
   minReadySeconds: 5
@@ -100,7 +100,7 @@ spec:
         addonmanager.kubernetes.io/mode: Reconcile
         boss-part-of: docker-registry-ui
         version: "0.6"
-
+        
 
       annotations: {}
     spec:
@@ -108,7 +108,7 @@ spec:
       #   fsGroup: 1000
       #   runAsUser: 1000
       containers:
-        - name: boss__registry__ui__deployment_name
+        - name: docker-registry-ui
           image: "joxit/docker-registry-ui:0.6"
           imagePullPolicy: IfNotPresent
           ports:
@@ -130,7 +130,7 @@ spec:
             # This is 0.5 of a cpu
             cpu: 500m
             memory: 128Mi
-
+          
           env:
             # REGISTRY_URL: your docker registry URL to contact (CORS configuration is not needed). Example: http://my-docker-container:5000. (Can't be used with URL, since 0.3.2).
             - name: REGISTRY_URL
@@ -144,7 +144,7 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: boss__registry__ui__deployment_name
+  name: docker-registry-ui
 
   labels:
     app: docker-registry-ui
@@ -153,7 +153,7 @@ metadata:
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: docker-registry-ui
     version: "0.6"
-
+    
   annotations:
     # FIXME: Fix this
     # certmanager.k8s.io/issuer: "selfsigning-issuer"
@@ -164,7 +164,7 @@ metadata:
     traefik.frontend.rule.type: PathPrefix
     # nginx.ingress.kubernetes.io/ssl-redirect: \"true\"
     # nginx.ingress.kubernetes.io/rewrite-target: \"/\"
-
+    
 spec:
   rules:
     - host: registry-ui.scarlettlab.com
