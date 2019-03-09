@@ -25,7 +25,7 @@
 # apiVersion: v1
 # kind: Secret
 # metadata:
-#   name: docker-registry-ui-secret
+#   name: {{boss__registry__ui__deployment_name}}-secret
 #   labels:
 #     app: docker-registry-ui
 #     k8s-app: registry-ui
@@ -47,15 +47,16 @@ metadata:
   name: docker-registry-ui
   labels:
     app: docker-registry-ui
-    k8s-app: registry-ui
+    k8s-app: docker-registry-ui
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: registry-ui
+    kubernetes.io/name: "KubeRegistry"
+    boss-part-of: docker-registry-ui
     version: "0.6"
-
 
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+    traefik.frontend.rule.type: PathPrefix
 
 spec:
   type: ClusterIP
@@ -70,7 +71,7 @@ spec:
     #   targetPort: 5001
   selector:
     app: docker-registry-ui
-    k8s-app: registry-ui
+    k8s-app: docker-registry-ui
 
 
 ---
@@ -78,15 +79,14 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: docker-registry-ui
+  name: boss__registry__ui__deployment_name
   labels:
     app: docker-registry-ui
-    k8s-app: registry-ui
+    k8s-app: docker-registry-ui
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: registry-ui
+    boss-part-of: docker-registry-ui
     version: "0.6"
-
 
 spec:
   replicas: 1
@@ -95,11 +95,12 @@ spec:
     metadata:
       labels:
         app: docker-registry-ui
-        k8s-app: registry-ui
+        k8s-app: docker-registry-ui
         kubernetes.io/cluster-service: "true"
         addonmanager.kubernetes.io/mode: Reconcile
-        boss-part-of: registry-ui
+        boss-part-of: docker-registry-ui
         version: "0.6"
+
 
       annotations: {}
     spec:
@@ -107,7 +108,7 @@ spec:
       #   fsGroup: 1000
       #   runAsUser: 1000
       containers:
-        - name: docker-registry-ui
+        - name: boss__registry__ui__deployment_name
           image: "joxit/docker-registry-ui:0.6"
           imagePullPolicy: IfNotPresent
           ports:
@@ -122,7 +123,13 @@ spec:
               port: 80
 
           resources:
-            {}
+          limits:
+            cpu: 250m
+            memory: 64Mi
+          requests:
+            # This is 0.5 of a cpu
+            cpu: 500m
+            memory: 128Mi
 
           env:
             # REGISTRY_URL: your docker registry URL to contact (CORS configuration is not needed). Example: http://my-docker-container:5000. (Can't be used with URL, since 0.3.2).
@@ -137,34 +144,36 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: docker-registry-ui
+  name: boss__registry__ui__deployment_name
+
   labels:
     app: docker-registry-ui
-    k8s-app: registry-ui
+    k8s-app: docker-registry-ui
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: registry-ui
+    boss-part-of: docker-registry-ui
     version: "0.6"
+
   annotations:
-      # certmanager.k8s.io/issuer: "selfsigning-issuer"
-      nginx.ingress.kubernetes.io/proxy-body-size: "0"
-      # nginx.ingress.kubernetes.io/rewrite-target: "\\\"/\\\""
-      # nginx.ingress.kubernetes.io/ssl-redirect: "\\\"false\\\""
-      # nginx.ingress.kubernetes.io/ssl-redirect: "\\\"false\\\""
-      nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+    # FIXME: Fix this
+    # certmanager.k8s.io/issuer: "selfsigning-issuer"
+    # NOTE: This is what was configured in
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+    # This is what we had configured
+    traefik.frontend.rule.type: PathPrefix
+    # nginx.ingress.kubernetes.io/ssl-redirect: \"true\"
+    # nginx.ingress.kubernetes.io/rewrite-target: \"/\"
+
 spec:
   rules:
-    - host: registry-ui.hyenaclan.org
+    - host: registry-ui.scarlettlab.com
       http:
         paths:
           - path: /
             backend:
               serviceName: docker-registry-ui
               servicePort: 80
-  # tls:
-  #   - hosts:
-  #     - registry-ui.hyenaclan.org
-  #     secretName: docker-registry-ui-tls-certificate
 
 ---
 # Source: docker-registry-ui/templates/pvc.yaml

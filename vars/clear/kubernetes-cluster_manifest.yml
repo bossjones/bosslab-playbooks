@@ -591,88 +591,133 @@ boss__certmanager__my_cluster_generate_tls: "force"
 boss__registry__ui__subdomain: registry-ui
 boss__registry__ui__manifest_path: "{{manifest_dir_path}}/registry-ui"
 boss__registry__ui__namespace_name: default
-boss__registry__ui__deployment_name: registry-ui
+boss__registry__ui__deployment_name: docker-registry-ui
 boss__registry__ui__enable_pvc: false
-boss__registry__ui__enable_tls: true
+boss__registry__ui__enable_tls: "disabled"
+boss__registry__ui__ingress_tls_config: |
+  - hosts:
+    - {{boss__registry__ui__subdomain}}.{{domain_root}}
+    secretName: docker-registry-ui-tls-certificate
 boss__registry__ui__tls_cert_cluster_issuer_name: selfsigning-issuer
 
+boss__registry__ui__version: 0.6
+boss__registry__ui__image_repo: "joxit/docker-registry-ui"
+boss__registry__ui__image_tag: "{{ boss__registry__ui__version }}"
+
+boss__registry__ui__cpu_limit: 1000m
+boss__registry__ui__mem_limit: 500Mi
+boss__registry__ui__cpu_requests: 100m
+boss__registry__ui__mem_requests: 200Mi
+
+# joxit/docker-registry-ui:0.6
+
 boss__registry__ui__ingress_annotations: |
+  # FIXME: Fix this
+  # certmanager.k8s.io/issuer: "selfsigning-issuer"
+  # NOTE: This is what was configured in
+  nginx.ingress.kubernetes.io/proxy-body-size: "0"
+  nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  # This is what we had configured
   traefik.frontend.rule.type: PathPrefix
-  nginx.ingress.kubernetes.io/ssl-redirect: \"true\"
-  nginx.ingress.kubernetes.io/rewrite-target: \"/\"
+  # nginx.ingress.kubernetes.io/ssl-redirect: \"true\"
+  # nginx.ingress.kubernetes.io/rewrite-target: \"/\"
 
 boss__registry__ui__ingress_labels: |
-  k8s-app: registry-ui
+  app: {{boss__registry__ui__deployment_name}}
+  k8s-app: {{boss__registry__ui__deployment_name}}
   kubernetes.io/cluster-service: "true"
   addonmanager.kubernetes.io/mode: Reconcile
-  boss-part-of: registry-ui
+  boss-part-of: {{boss__registry__ui__deployment_name}}
   version: "{{ boss__registry__ui__version }}"
 
 boss__registry__ui__service_labels: |
-    k8s-app: registry-ui
+    app: {{boss__registry__ui__deployment_name}}
+    k8s-app: {{boss__registry__ui__deployment_name}}
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
     kubernetes.io/name: "KubeRegistry"
-    boss-part-of: registry-ui
+    boss-part-of: {{boss__registry__ui__deployment_name}}
     version: "{{ boss__registry__ui__version }}"
+
+boss__registry__ui__service_annotations: |
+    nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+    traefik.frontend.rule.type: PathPrefix
+
+boss__registry__ui__deployment_labels: |
+  app: {{boss__registry__ui__deployment_name}}
+  k8s-app: {{boss__registry__ui__deployment_name}}
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  boss-part-of: {{boss__registry__ui__deployment_name}}
+  version: "{{ boss__registry__ui__version }}"
+
+
+boss__registry__ui__deployment_spec_template_metadata_labels: |
+        app: {{boss__registry__ui__deployment_name}}
+        k8s-app: {{boss__registry__ui__deployment_name}}
+        kubernetes.io/cluster-service: "true"
+        addonmanager.kubernetes.io/mode: Reconcile
+        boss-part-of: {{boss__registry__ui__deployment_name}}
+        version: "{{ boss__registry__ui__version }}"
+
+boss__registry__ui__deployment_spec_template_spec_containers_resources: |
+  limits:
+    cpu: 250m
+    memory: 64Mi
+  requests:
+    # This is 0.5 of a cpu
+    cpu: 500m
+    memory: 128Mi
 
 boss__registry__ui__persistent_volume_claim_labels: |
   kubernetes.io/cluster-service: "true"
   addonmanager.kubernetes.io/mode: Reconcile
-  k8s-app: registry-ui
-  boss-part-of: registry-ui
+  k8s-app: {{boss__registry__ui__deployment_name}}
+  boss-part-of: {{boss__registry__ui__deployment_name}}
   version: "{{ boss__registry__ui__version }}"
 
 boss__registry__ui__persistent_volume_claim_spec_resources_requests_storage: "2Gi"
 boss__registry__ui__persistent_volume_labels: |
   kubernetes.io/cluster-service: "true"
   addonmanager.kubernetes.io/mode: Reconcile
-  k8s-app: registry-ui
-  boss-part-of: registry-ui
+  k8s-app: {{boss__registry__ui__deployment_name}}
+  boss-part-of: {{boss__registry__ui__deployment_name}}
   version: "{{ boss__registry__ui__version }}"
 
-boss__registry__ui__version: 2.6
-boss__registry__ui__image_repo: "registry"
-boss__registry__ui__image_tag: "{{ boss__registry__ui__version }}"
-boss__registry__ui__cpu_limit: 1000m
-boss__registry__ui__mem_limit: 500Mi
-boss__registry__ui__cpu_requests: 100m
-boss__registry__ui__mem_requests: 200Mi
-
 boss__registry__ui__service_account_labels: |
-    k8s-app: registry-ui
+    k8s-app: {{boss__registry__ui__deployment_name}}
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: registry-ui
+    boss-part-of: {{boss__registry__ui__deployment_name}}
     version: "{{ boss__registry__ui__version }}"
 boss__registry__ui__cluster_role_labels: |
-    k8s-app: registry-ui
+    k8s-app: {{boss__registry__ui__deployment_name}}
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: registry-ui
+    boss-part-of: {{boss__registry__ui__deployment_name}}
     version: "{{ boss__registry__ui__version }}"
 
 boss__registry__ui__cluster_role_binding_labels: |
-    k8s-app: registry-ui
+    k8s-app: {{boss__registry__ui__deployment_name}}
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: registry-ui
+    boss-part-of: {{boss__registry__ui__deployment_name}}
     version: "{{ boss__registry__ui__version }}"
 
 boss__registry__ui__stateful_set_labels: |
-    k8s-app: registry-ui
+    k8s-app: {{boss__registry__ui__deployment_name}}
     version: "{{ boss__registry__ui__version }}"
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: registry-ui
+    boss-part-of: {{boss__registry__ui__deployment_name}}
 
 boss__registry__ui__stateful_set_spec_replicas: 1
 boss__registry__ui__stateful_set_spec_selector_match_labels: |
-        k8s-app: registry-ui
+        k8s-app: {{boss__registry__ui__deployment_name}}
         version: "{{ boss__registry__ui__version }}"
 
 boss__registry__ui__stateful_set_spec_template_metadata_labels: |
-        k8s-app: registry-ui
+        k8s-app: {{boss__registry__ui__deployment_name}}
         version: "{{ boss__registry__ui__version }}"
         kubernetes.io/cluster-service: "true"
 
