@@ -50,6 +50,8 @@ SOURCE: https://github.com/projectcalico/calico/issues/1709
 
 SOURCE: https://blog.codybunch.com/2018/03/26/Metrics-Part-2-InfluxDB/ ( netdata configs for archive )
 
+SOURCE: https://github.com/containous/traefik/issues/3128
+
 # Common MTU sizes (calico)
 
 ### Common MTU sizes
