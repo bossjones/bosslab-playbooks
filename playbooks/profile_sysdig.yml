@@ -69,7 +69,7 @@
       check_mode: no
 
     - name: Fetch dump.scap locally
-      fetch: src={{debug_folder}}/dump.scap dest={{ dir|default('./scaps') }}/dump.scap flat=no
+      fetch: src={{debug_folder}}/dump.scap dest={{ dir|default('./scaps') }}/dump.scap flat=yes
       failed_when: false
 
     - debug: msg="you can now find the files in ./scaps"
