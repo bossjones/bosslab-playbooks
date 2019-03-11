@@ -148,13 +148,16 @@ spec:
         # runAsUser: 65534
         privileged: true
         
+
         resources:
-          limits:
-            memory: 500Mi
-            # memory: 200Mi
           requests:
             cpu: 100m
             memory: 200Mi
+          limits:
+            memory: 500Mi
+            # memory: 200Mi
+          
+
         volumeMounts:
         # - name: libsystemddir
         #   mountPath: /host/lib

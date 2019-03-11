@@ -95,8 +95,12 @@ spec:
         name: elasticsearch-logging
 
 {% if boss__efk__elasticsearch_stateful_set_spec_resources is defined %}
+{% if boss__efk__elasticsearch_stateful_set_spec_resources == False %}
+        # resources:
+{% else %}
         resources:
 {{ boss__efk__elasticsearch_stateful_set_spec_resources | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
 {% endif %}
         ports:
         - containerPort: 9200

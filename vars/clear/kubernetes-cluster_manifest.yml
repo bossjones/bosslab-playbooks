@@ -235,7 +235,8 @@ boss__efk__elasticsearch_mem_requests: 2350Mi
 
 boss__efk__elasticsearch_stateful_set_env_ES_JAVA_OPTS: "-Xms2048 -Xmx2048"
 
-boss__efk__elasticsearch_stateful_set_spec_resources: |
+boss__efk__elasticsearch_stateful_set_spec_resources: False
+# boss__efk__elasticsearch_stateful_set_spec_resources: |
   # # need more cpu upon initialization, therefore burstable class
   # requests:
   #   cpu: 100m
@@ -358,6 +359,14 @@ boss__efk__fluentd_daemon_set_spec_template_spec_securityContext: |
   runAsNonRoot: false
   # runAsUser: 65534
   privileged: true
+
+boss__efk__fluentd_daemon_set_spec_template_spec_resources: |
+  requests:
+    cpu: 100m
+    memory: 200Mi
+  limits:
+    memory: 500Mi
+    # memory: 200Mi
 
 boss__efk__fluentd_daemon_set_spec_template_spec_volumeMounts: |
   # - name: libsystemddir

@@ -10,7 +10,7 @@ metadata:
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk
-
+    
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1beta1
@@ -21,7 +21,7 @@ metadata:
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk
-
+    
 rules:
 - apiGroups:
   - ""
@@ -42,7 +42,7 @@ metadata:
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk
-
+    
 subjects:
 - kind: ServiceAccount
   name: elasticsearch-logging
@@ -65,7 +65,7 @@ metadata:
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk
-
+    
 spec:
   serviceName: elasticsearch-logging
   # ORIG # replicas: 2
@@ -74,7 +74,7 @@ spec:
     matchLabels:
         k8s-app: elasticsearch-logging
         version: v5.6.2
-
+        
     # matchLabels:
     #   k8s-app: elasticsearch-logging
     #  version: v5.6.2
@@ -84,9 +84,8 @@ spec:
         k8s-app: elasticsearch-logging
         version: v5.6.2
         kubernetes.io/cluster-service: "true"
-
+        
     spec:
-      # updateStrategy: RollingUpdate
       volumes:
       - name: elasticsearch-logging
         persistentVolumeClaim:
@@ -104,17 +103,8 @@ spec:
           # runAsUser: 65534
           privileged: true
         name: elasticsearch-logging
+
         # resources:
-        #   # need more cpu upon initialization, therefore burstable class
-        #   limits:
-        #     cpu: 1000m
-        #     memory: 3048Mi
-        #     # memory: 2400Mi
-        #   requests:
-        #     cpu: 100m
-        #     memory: 2350Mi
-        #     # memory: 2350Mi
-        #     # memory: 2000Mi
         ports:
         - containerPort: 9200
           name: db
@@ -144,9 +134,8 @@ spec:
           value: "1"
         - name: ES_JAVA_OPTS
           # value: "-Xms1024m -Xmx1024m"
-          # value: "-Xms2048m -Xmx2048m"
-          value: "-Xms4048m -Xmx4048m"
-          # value: "-Xms512 -Xmx512"
+          # value: "-Xms4048m -Xmx4048m"
+          value: "-Xms2048 -Xmx2048"
           # value: "-Xms256m -Xmx256m"
         # - name: ES_HEAP_SIZE
         #   # value: "-Xms1024m -Xmx1024m"
