@@ -459,6 +459,14 @@ boss__efk__kibana_service_labels: |
     addonmanager.kubernetes.io/mode: Reconcile
     kubernetes.io/name: "Kibana"
     boss-part-of: efk
+
+boss__efk__kibana_deployment_spec_template_spec_resources: False
+# boss__efk__kibana_deployment_spec_template_spec_resources: |
+  # # need more cpu upon initialization, therefore burstable class
+  # requests:
+  #   cpu: 1000m
+  # limits:
+  #   cpu: 1000m
 ############################################
 
 
@@ -1583,6 +1591,22 @@ boss__influxdb__operator__persistent_volume_spec_capacity_storage: 250Mi
 boss__influxdb__operator__persistent_volume_spec_nfs_path: "{{path_to_network_disk}}/influxdb-operator"
 # boss__influxdb__operator__nfs_master_node_ip: "{{ hostvars[groups[nfs_server_group][0]]['ansible_' + main_network_interface].ipv4.address }}"
 boss__influxdb__operator__nfs_master_node_ip: "{{ nfs_server_ip_override }}"
+
+
+##########################################################################################################
+#   .########.########.##....##
+#   .##.......##.......##...##.
+#   .##.......##.......##..##..
+#   .######...######...#####...
+#   .##.......##.......##..##..
+#   .##.......##.......##...##.
+#   .########.##.......##....##
+##########################################################################################################
+boss__bootstrap__subdomain: bootstrap
+boss__bootstrap__manifest_path: "{{manifest_dir_path}}/bootstrap"
+boss__bootstrap__namespace_name: kube-system
+boss__bootstrap__deployment_name: bootstrap
+
 
 # ---
 # local_release_dir: /tmp/releases
