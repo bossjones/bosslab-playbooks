@@ -344,12 +344,12 @@ boss__efk__fluentd_daemon_set_labels: |
     boss-part-of: efk
 boss__efk__fluentd_daemon_set_spec_selector_match_labels: |
       k8s-app: fluentd-es
-      version: v2.2.1
+      # version: v2.2.1
 boss__efk__fluentd_daemon_set_spec_template_metadata_labels: |
         k8s-app: fluentd-es
-        kubernetes.io/cluster-service: "true"
-        version: v2.2.1
-        boss-part-of: efk
+        # kubernetes.io/cluster-service: "true"
+        # version: v2.2.1
+        # boss-part-of: efk
 boss__efk__fluentd_daemon_set_spec_template_metadata_annotations: |
         scheduler.alpha.kubernetes.io/critical-pod: ''
         seccomp.security.alpha.kubernetes.io/pod: 'docker/default'

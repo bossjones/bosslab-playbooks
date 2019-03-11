@@ -366,6 +366,26 @@ apply-efk:
 	@echo ""
 	kubectl describe storageclass | highlight
 
+apply-efk-fluentd:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "apply-fluentd-efk:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy efk$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/efk/* -type f -name '*fluentd*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	@echo ""
+	@echo ""
+
+delete-efk-fluentd:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete-efk:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy efk$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/efk/* -type f -name '*fluentd.*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl delete -f FILE"
+	@echo ""
+	@echo ""
+
 # https://github.com/kubernetes/kubernetes/blob/3d7d35ee8f099f4611dca06de4453f958b4b8492/cluster/addons/storage-class/local/default.yaml
 apply-efk-ingress:
 	$(call check_defined, cluster, Please set cluster)
