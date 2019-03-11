@@ -93,17 +93,11 @@ spec:
           # runAsUser: 65534
           privileged: true
         name: elasticsearch-logging
+
+{% if boss__efk__elasticsearch_stateful_set_spec_resources is defined %}
         resources:
-          # need more cpu upon initialization, therefore burstable class
-          limits:
-            cpu: {{boss__efk__elasticsearch_cpu_limit}}
-            memory: {{boss__efk__elasticsearch_mem_limit}}
-            # memory: 2400Mi
-          requests:
-            cpu: {{boss__efk__elasticsearch_cpu_requests}}
-            memory: {{boss__efk__elasticsearch_mem_requests}}
-            # memory: 2350Mi
-            # memory: 2000Mi
+{{ boss__efk__elasticsearch_stateful_set_spec_resources | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
         ports:
         - containerPort: 9200
           name: db

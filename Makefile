@@ -1099,5 +1099,12 @@ color-analyze-events-timestamp:
 
 color-analyze: color-analyze-k8-container-resource-usage color-analyze-pod-resource-consumption color-analyze-events-timestamp
 
+get-events-watch:
+	kubectl get events --all-namespaces --watch --output=custom-columns=MESSAGE:.message
+
+get-events:
+	kubectl get events --all-namespaces --output=custom-columns=MESSAGE:.message
+
+get-events-by-msg: get-events
 
 include *.mk
