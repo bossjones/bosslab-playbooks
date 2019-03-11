@@ -366,6 +366,16 @@ apply-efk:
 	@echo ""
 	kubectl describe storageclass | highlight
 
+ls-efk-fluentd:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "ls-efk-fluentd:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy efk$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/efk/* -type f -name '*fluentd*y*ml' -print0 | xargs -I FILE -t -0 -n1 ls FILE"
+	@echo ""
+	@echo ""
+
 apply-efk-fluentd:
 	$(call check_defined, cluster, Please set cluster)
 	@printf "apply-fluentd-efk:\n"
@@ -394,6 +404,17 @@ apply-efk-ingress:
 	@printf "$$GREEN deploy efk$$NC\n"
 	@printf "=======================================\n"
 	bash -c "find dist/manifests/$(cluster)-manifests/efk/* -type f -name '*ingress.*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	@echo ""
+	@echo ""
+
+
+ls-efk-elasticsearch:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "ls-efk-elasticsearch:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy efk$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/efk/* -type f -name '*elasticsearch*y*ml' -print0 | xargs -I FILE -t -0 -n1 ls FILE"
 	@echo ""
 	@echo ""
 

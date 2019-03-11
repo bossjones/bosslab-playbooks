@@ -403,7 +403,8 @@ boss__efk__fluentd_daemon_set_spec_template_spec_volumes: |
       name: fluentd-es-config-v0.1.6
   - name: docker-sock
     hostPath:
-      path: /var/run/docker/libcontainerd/docker-containerd.sock
+      # path: /var/run/docker/libcontainerd/docker-containerd.sock
+      path: /var/run/docker/containerd/containerd.sock
   - name: varrun
     hostPath:
       path: /var/run
