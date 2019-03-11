@@ -418,6 +418,17 @@ ls-efk-elasticsearch:
 	@echo ""
 	@echo ""
 
+
+apply-efk-elasticsearch:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "apply-efk-elasticsearch:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN apply-efk-elasticsearch$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/efk/* -type f -name '*elasticsearch*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	@echo ""
+	@echo ""
+
 delete-efk:
 	$(call check_defined, cluster, Please set cluster)
 	kubectl delete -f dist/manifests/$(cluster)-manifests/efk/
