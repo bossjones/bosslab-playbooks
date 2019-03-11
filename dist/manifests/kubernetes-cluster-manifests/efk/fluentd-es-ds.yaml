@@ -23,7 +23,7 @@ metadata:
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk
-
+    
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
@@ -34,7 +34,7 @@ metadata:
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk
-
+    
 rules:
 - apiGroups:
   - ""
@@ -65,7 +65,7 @@ metadata:
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk
-
+    
 subjects:
 - kind: ServiceAccount
   name: fluentd-es
@@ -91,13 +91,13 @@ metadata:
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk
-
+    
 spec:
   selector:
     matchLabels:
         k8s-app: fluentd-es
         # version: v2.2.1
-
+        
   # updateStrategy:
   #   type: RollingUpdate
   #   rollingUpdate:
@@ -109,14 +109,14 @@ spec:
         # kubernetes.io/cluster-service: "true"
         # version: v2.2.1
         # boss-part-of: efk
-
+        
       # This annotation ensures that fluentd does not get evicted if the node
       # supports critical pod annotation based priority scheme.
       # Note that this does not guarantee admission on the nodes (#40573).
       annotations:
         scheduler.alpha.kubernetes.io/critical-pod: ''
         seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
-
+        
     spec:
       priorityClassName: system-node-critical
       # serviceAccount: fluentd-es
@@ -165,7 +165,7 @@ spec:
           runAsNonRoot: false
           # runAsUser: 65534
           privileged: true
-
+          
 
         resources:
           requests:
@@ -174,7 +174,7 @@ spec:
           limits:
             memory: 500Mi
             # memory: 200Mi
-
+          
 
         volumeMounts:
           # - name: libsystemddir
@@ -193,7 +193,7 @@ spec:
             mountPath: /var/run
           - name: libsystemd
             mountPath: /usr/lib64/libsystemd.so.0
-
+          
       volumes:
         # It is needed to copy systemd library to decompress journals
         # - name: libsystemddir
@@ -211,6 +211,7 @@ spec:
             name: fluentd-es-config-v0.1.6
         - name: docker-sock
           hostPath:
+            # path: /var/run/docker/libcontainerd/docker-containerd.sock
             path: /var/run/docker/containerd/containerd.sock
         - name: varrun
           hostPath:
@@ -218,4 +219,4 @@ spec:
         - name: libsystemd
           hostPath:
             path: /usr/lib64/libsystemd.so.0
-
+        
