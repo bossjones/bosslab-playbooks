@@ -460,6 +460,12 @@ boss__efk__kibana_service_labels: |
     kubernetes.io/name: "Kibana"
     boss-part-of: efk
 
+boss__efk__kibana_service_annotations: False
+# boss__efk__kibana_service_annotations: |
+#   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+#   traefik.frontend.rule.type: PathPrefix
+
+
 boss__efk__kibana_deployment_spec_template_spec_resources: False
 # boss__efk__kibana_deployment_spec_template_spec_resources: |
   # # need more cpu upon initialization, therefore burstable class
