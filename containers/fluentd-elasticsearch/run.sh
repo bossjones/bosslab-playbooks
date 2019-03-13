@@ -1,15 +1,5 @@
 #!/bin/bash
 
-
-# NOTE: Fix issue where mantra hides errors to stderr
-# SOURCE: https://stackoverflow.com/questions/3173131/redirect-copy-of-stdout-to-log-file-from-within-bash-script-itself
-# Without this, only stdout would be captured - i.e. your
-# log file would not contain any error messages.
-# SEE (and upvote) the answer by Adam Spiers, which keeps STDERR
-# as a separate stream - I did not want to steal from him by simply
-# adding his answer to mine.
-exec 2>&1
-
 # Copyright 2017 The Kubernetes Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -65,4 +55,21 @@ mkdir -p /var/log/journal
 # Even better than article: https://github.com/docker-library/mongo/blob/master/4.0/docker-entrypoint.sh
 
 
-exec supervisord -n -c /etc/supervisor/supervisord.conf
+# exec supervisord -n -c /etc/supervisor/supervisord.conf
+
+
+# NOTE: Fix issue where mantra hides errors to stderr
+# SOURCE: https://stackoverflow.com/questions/3173131/redirect-copy-of-stdout-to-log-file-from-within-bash-script-itself
+# Without this, only stdout would be captured - i.e. your
+# log file would not contain any error messages.
+# SEE (and upvote) the answer by Adam Spiers, which keeps STDERR
+# as a separate stream - I did not want to steal from him by simply
+# adding his answer to mine.
+exec 2>&1
+
+# Use exec to get the signal
+# A non-quoted string and add the comment to prevent shellcheck failures on this line.
+# See https://github.com/koalaman/shellcheck/wiki/SC2086
+# shellcheck disable=SC2086
+exec /usr/local/bin/fluentd $FLUENTD_ARGS
+# exec gosu root /usr/local/bin/fluentd "$@"
