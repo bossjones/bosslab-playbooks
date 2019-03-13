@@ -380,11 +380,13 @@ boss__efk__fluentd_daemon_set_spec_template_spec_volumeMounts: |
   - name: config-volume
     mountPath: /etc/fluent/config.d
   - name: docker-sock
-    mountPath: /var/run/docker.sock
+    # ORIG # mountPath: /var/run/docker.sock
+    mountPath: /run/containerd/containerd.sock
   - name: varrun
     mountPath: /var/run
   - name: libsystemd
-    mountPath: /usr/lib64/libsystemd.so.0
+    # mountPath: /usr/lib64/libsystemd.so.0
+    mountPath: /lib/x86_64-linux-gnu/libsystemd.so.0
 
 boss__efk__fluentd_daemon_set_spec_template_spec_volumes: |
   # It is needed to copy systemd library to decompress journals
