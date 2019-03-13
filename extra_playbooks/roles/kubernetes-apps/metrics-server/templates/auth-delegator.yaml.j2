@@ -4,7 +4,7 @@ kind: ClusterRoleBinding
 metadata:
   name: metrics-server:system:auth-delegator
   # FIXME: Aren't we missing this ?? namespace: kube-system
-  namespace: kube-system
+  # namespace: kube-system
   labels:
     k8s-app: metrics-server
     kubernetes.io/cluster-service: "true"

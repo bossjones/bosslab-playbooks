@@ -1,5 +1,16 @@
 # SOURCE: https://github.com/kubernetes-incubator/metrics-server/tree/master/deploy/1.8%2B
 ---
+kind: PodDisruptionBudget
+apiVersion: policy/v1beta1
+metadata:
+  name: pdb-metrics-server
+  namespace: kube-system
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      k8s-app: metrics-server
+---
 apiVersion: v1
 kind: Service
 metadata:
