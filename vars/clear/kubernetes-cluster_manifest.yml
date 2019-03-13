@@ -1298,9 +1298,11 @@ boss__prometheus__operator__prometheus_operator_config_reloader_deployment_spec_
   limits:
     cpu: 200m
     memory: 200Mi
+    # k8s-infra version # memory: 500Mi
   requests:
     cpu: 100m
     memory: 100Mi
+    # k8s-infra version # memory: 300Mi
 
 
 boss__prometheus__operator__alertmanager_ingress_metadata_annotations: |
