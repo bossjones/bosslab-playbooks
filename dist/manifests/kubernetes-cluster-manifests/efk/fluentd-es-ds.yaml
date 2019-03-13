@@ -141,7 +141,7 @@ spec:
         # SOURCE: https://github.com/kubernetes/kubernetes/blob/master/cluster/addons/fluentd-elasticsearch/fluentd-es-image/Dockerfile
         # image: gcr.io/google-containers/fluentd-elasticsearch:v2.2.1
         # image: k8s.gcr.io/fluentd-elasticsearch:v2.2.0
-        image: bossjones/fluentd-elasticsearch:v2.2.0
+        image: bossjones/fluentd-elasticsearch:v2.3.0
         imagePullPolicy: Always
         # FIXME: Try using this guy instead
         # SOURCE: https://github.com/fluent/fluentd-kubernetes-daemonset/tree/master/docker-image/v1.3/debian-elasticsearch
@@ -188,11 +188,13 @@ spec:
           - name: config-volume
             mountPath: /etc/fluent/config.d
           - name: docker-sock
-            mountPath: /var/run/docker.sock
+            # ORIG # mountPath: /var/run/docker.sock
+            mountPath: /run/containerd/containerd.sock
           - name: varrun
             mountPath: /var/run
           - name: libsystemd
-            mountPath: /usr/lib64/libsystemd.so.0
+            # mountPath: /usr/lib64/libsystemd.so.0
+            mountPath: /lib/x86_64-linux-gnu/libsystemd.so.0
           
       volumes:
         # It is needed to copy systemd library to decompress journals
