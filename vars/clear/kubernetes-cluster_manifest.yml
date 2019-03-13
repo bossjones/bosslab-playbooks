@@ -312,7 +312,7 @@ boss__efk__elasticsearch_curator_mem_requests: 200Mi
 #    .##.......##.......##.....##.##.......##...###....##....##.....##
 #    .##.......########..#######..########.##....##....##....########.
 ##########################################################################################################
-boss__efk__fluentd_version: v2.2.0
+boss__efk__fluentd_version: v2.3.0
 boss__efk__fluentd_image_repo: "bossjones/fluentd-elasticsearch"
 boss__efk__fluentd_image_tag: "{{ boss__efk__fluentd_version }}"
 boss__efk__fluentd_mem_limit: 500Mi
