@@ -15,7 +15,7 @@
 # .PHONY:	build push
 
 # PREFIX = staging-k8s.gcr.io
-# IMAGE = fluentd-elasticsearch
+# IMAGE = fluent-bit
 # TAG = v2.0.4
 
 # build:
@@ -25,17 +25,17 @@
 # 	docker push $(PREFIX)/$(IMAGE):$(TAG)
 
 # possibilities to grep from
-# image: image: k8s.gcr.io/fluentd-elasticsearch:v2.2.0
-# image: gcr.io/google-containers/fluentd-elasticsearch:v2.0.1
+# image: image: k8s.gcr.io/fluent-bit:v2.2.0
+# image: gcr.io/google-containers/fluent-bit:v2.0.1
 
 
 username := bossjones
-container_name := fluentd-elasticsearch
+container_name := fluent-bit
 
 GIT_BRANCH  = $(shell git rev-parse --abbrev-ref HEAD)
 GIT_SHA     = $(shell git rev-parse HEAD)
 BUILD_DATE  = $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
-VERSION  ?= $(shell grep "k8s.gcr.io/fluentd-elasticsearch" Dockerfile | head -1 | cut -d":" -f2)
+VERSION  ?= $(shell grep "k8s.gcr.io/fluent-bit" Dockerfile | head -1 | cut -d":" -f2)
 
 TAG ?= $(VERSION)
 ifeq ($(TAG),@branch)
