@@ -1,0 +1,74 @@
+# -*- coding: utf-8 -*-
+# USAGE: ansible-playbook playbooks/tuning_sysctl.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars 'cluster=borg variable_host=servers dir=./' --skip-tags "pause"
+# env ANSIBLE_STRATEGY=debug KUBECONFIG=~/dev/bossjones/kubernetes-cluster/borg-admin.conf ansible-playbook  -i contrib/inventory_builder/inventory/borg/inventory.ini playbooks/tuning_sysctl.yml -vvvvvv
+---
+##############################################################################
+# file: tuning_sysctl.yaml
+# Create an amazon vpc and tag it appropiately
+#
+# Run with:
+#
+#
+# DRY RUN(with pause):
+# ansible-playbook playbooks/tuning_sysctl.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg variable_host=servers dir=./" --check -f 10
+#
+# REAL RUN(w/o pause):
+# ansible-playbook playbooks/tuning_sysctl.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg variable_host=servers dir=./" --skip-tags -f 10 "pause"
+#
+# TAG LOOKUP:
+# ansible-playbook playbooks/tuning_sysctl.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg variable_host=servers dir=./" --tag lookup -f 10
+#
+# REAL RUN:
+# ansible-playbook playbooks/tuning_sysctl.yaml -i contrib/inventory_builder/inventory/borg/inventory.ini --extra-vars "cluster=borg variable_host=servers dir=./" -f 10
+##############################################################################
+# SOURCE: https://github.com/jhunthrop/media-docker/blob/d5d039f90ce20c1445e12fad4bb0e535e9c06380/ansible/playbook.yml
+##############################################################################
+- name: playbook | tuning_sysctl | sysctl -w VALUE
+  # masters
+  hosts: "{{ variable_host | default('servers') }}"
+  become: yes
+  become_method: sudo
+  become_user: "root"
+  gather_facts: False
+  environment:
+    SHELL: /bin/bash
+  vars:
+    ansible_ssh_pipelining: true
+  tasks:
+    ##############################################################################
+    # SOURCE: https://github.com/jhunthrop/media-docker/blob/d5d039f90ce20c1445e12fad4bb0e535e9c06380/ansible/playbook.yml
+    ##############################################################################
+    - name: manage sysctl settings
+      sysctl:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        sysctl_set: yes
+        state: present
+        reload: yes
+      with_items:
+        - name: net.ipv4.ip_forward
+          value: 1
+        - name: net.ipv6.conf.all.forwarding
+          value: 1
+        - name: net.core.wmem_max
+          value: 12582912
+        - name: net.core.rmem_max
+          value: 12582912
+        - name: net.ipv4.tcp_rmem
+          value: " 10240 87380 12582912"
+        - name: net.ipv4.tcp_wmem
+          value: " 10240 87380 12582912"
+        - name: net.ipv4.tcp_window_scaling
+          value: 1
+        - name: net.ipv4.tcp_timestamps
+          value: 1
+        - name: net.ipv4.tcp_sack
+          value: 1
+        # https://github.com/ton31337/tools/wiki/tcp_slow_start_after_idle---tcp_no_metrics_save-performance
+        # By default, TCP saves various connection metrics in the route cache when the connection closes, so that connections established in the near future can use these to set initial conditions. Usually, this increases overall performance, but may sometimes cause performance degradation. If set, TCP will not cache metrics on closing connections.
+        - name: net.ipv4.tcp_no_metrics_save
+          value: 1
+        - name: net.core.netdev_max_backlog
+          value: 5000
+
+    - debug: msg="Now look at netdata to see if your system looks more stable"

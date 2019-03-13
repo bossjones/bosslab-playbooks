@@ -1025,6 +1025,10 @@ ansible-profile-sysdig:
 	$(call check_defined, cluster, Please set cluster)
 	ansible-playbook playbooks/profile_sysdig.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "num_seconds=$(num_seconds) cluster=$(cluster)" --skip-tags "pause"
 
+ansible-tuning-sysctl:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook playbooks/tuning_sysctl.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+
 # SOURCE: https://dzone.com/articles/kubernetes-resource-usage-how-do-you-manage-and-mo
 analyze-k8-container-resource-usage:
 	@printf "analyze-k8-container-resource-usage:\n"
