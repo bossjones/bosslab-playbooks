@@ -111,8 +111,8 @@ spec:
 
       nodeSelector:
         kubernetes.io/hostname: "k8s-head"
-        app.kubernetes.io/name: ingress-nginx
-        app.kubernetes.io/part-of: ingress-nginx
+        # app.kubernetes.io/name: ingress-nginx
+        # app.kubernetes.io/part-of: ingress-nginx
         
       # nodeSelector:
       #   kubernetes.io/hostname: "borg-queen-01"
