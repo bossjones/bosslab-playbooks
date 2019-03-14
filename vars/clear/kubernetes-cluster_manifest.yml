@@ -381,8 +381,8 @@ boss__efk__fluentd_daemon_set_spec_template_spec_volumeMounts: |
   - name: config-volume
     mountPath: /etc/fluent/config.d
   - name: docker-sock
-    # ORIG # mountPath: /var/run/docker.sock
-    mountPath: /run/containerd/containerd.sock
+    mountPath: /var/run/docker.sock
+    # mountPath: /run/containerd/containerd.sock
   - name: varrun
     mountPath: /var/run
   - name: libsystemd
