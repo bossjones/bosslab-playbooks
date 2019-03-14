@@ -104,7 +104,15 @@ spec:
           privileged: true
         name: elasticsearch-logging
 
-        # resources:
+        resources:
+          # need more cpu upon initialization, therefore burstable class
+          requests:
+            cpu: 100m
+            memory: 2350Mi
+          limits:
+            cpu: 1000m
+            memory: 4048Mi
+          
         ports:
         - containerPort: 9200
           name: db
