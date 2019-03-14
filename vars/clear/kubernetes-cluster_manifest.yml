@@ -1234,6 +1234,11 @@ boss__ingress__nginx__deployment__default_http_backend_labels: |
     # kubernetes.io/minikube-addons-endpoint: ingress
     addonmanager.kubernetes.io/mode: Reconcile
 
+boss__ingress__nginx__defaulthttpbackend_deployment_spec_labels_matchLabels: |
+  app.kubernetes.io/name: default-http-backend
+  # addonmanager.kubernetes.io/mode: Reconcile
+
+
 boss__ingress__nginx__defaulthttpbackend_deployment_spec_template_spec_containers_resources: |
   limits:
     cpu: 20m

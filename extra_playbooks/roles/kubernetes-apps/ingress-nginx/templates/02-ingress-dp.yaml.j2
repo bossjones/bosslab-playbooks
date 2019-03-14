@@ -24,9 +24,10 @@ metadata:
 spec:
   replicas: 1
   selector:
+{% if boss__ingress__nginx__defaulthttpbackend_deployment_spec_labels_matchLabels is defined %}
     matchLabels:
-      app.kubernetes.io/name: default-http-backend
-      addonmanager.kubernetes.io/mode: Reconcile
+{{ boss__ingress__nginx__defaulthttpbackend_deployment_spec_labels_matchLabels | indent( width=6, indentfirst=True,blank=True) }}
+{% endif %}
   template:
     # SOURCE: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
     # SOURCE: https://kubernetes.io/docs/concepts/workloads/pods/pod/
