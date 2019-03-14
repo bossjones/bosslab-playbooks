@@ -188,13 +188,13 @@ spec:
           - name: config-volume
             mountPath: /etc/fluent/config.d
           - name: docker-sock
-            mountPath: /var/run/docker.sock
-            # mountPath: /run/containerd/containerd.sock
+            # mountPath: /var/run/docker.sock
+            mountPath: /run/containerd/containerd.sock
           - name: varrun
             mountPath: /var/run
           - name: libsystemd
             # mountPath: /usr/lib64/libsystemd.so.0
-            mountPath: /lib/x86_64-linux-gnu/libsystemd.so.0
+            mountPath: /usr/lib64/libsystemd.so.0
           
       volumes:
         # It is needed to copy systemd library to decompress journals
@@ -214,11 +214,11 @@ spec:
         - name: docker-sock
           hostPath:
             # path: /var/run/docker/libcontainerd/docker-containerd.sock
-            path: /var/run/docker/containerd/containerd.sock
+            path: /var/run/docker.sock
         - name: varrun
           hostPath:
             path: /var/run
         - name: libsystemd
           hostPath:
-            path: /usr/lib64/libsystemd.so.0
+            path: /lib/x86_64-linux-gnu/libsystemd.so.0
         
