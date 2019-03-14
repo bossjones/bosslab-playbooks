@@ -18,9 +18,12 @@ metadata:
   #   app.kubernetes.io/name: nginx-ingress
   #   app.kubernetes.io/part-of: nginx-ingress
 
+  labels:
+    app.kubernetes.io/name: nginx-ingress
+    app.kubernetes.io/part-of: ingress-nginx
+    
 spec:
-  type: LoadBalancer
-  externalTrafficPolicy: Local
+  type: NodePort
   ports:
     - name: http
       port: 80
@@ -38,8 +41,10 @@ spec:
       port: 10254
       targetPort: 10254
       protocol: TCP
+    
   selector:
     # app.kubernetes.io/name: ingress-nginx
     # app.kubernetes.io/part-of: ingress-nginx
     app.kubernetes.io/name: nginx-ingress
-    app.kubernetes.io/part-of: nginx-ingress
+    app.kubernetes.io/part-of: ingress-nginx
+    

@@ -17,11 +17,10 @@ apiVersion: extensions/v1beta1
 metadata:
   name: default-http-backend
   namespace: {{boss__ingress__nginx__namespace_name}}
+{% if boss__ingress__nginx__deployment__default_http_backend_labels is defined %}
   labels:
-    app.kubernetes.io/name: default-http-backend
-    # app.kubernetes.io/part-of: kube-system
-    app.kubernetes.io/part-of: nginx-ingress
-    addonmanager.kubernetes.io/mode: Reconcile
+{{ boss__ingress__nginx__deployment__default_http_backend_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 spec:
   replicas: 1
   selector:
@@ -45,7 +44,7 @@ spec:
         # Any image is permissible as long as:
         # 1. It serves a 404 page at /
         # 2. It serves 200 on a /healthz endpoint
-        image: gcr.io/google_containers/defaultbackend:1.4
+        image: {{boss__ingress__nginx__defaultbackend_image_repo}}:{{boss__ingress__nginx__defaultbackend_image_tag}}
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
@@ -54,15 +53,14 @@ spec:
             scheme: HTTP
           initialDelaySeconds: 30
           timeoutSeconds: 5
+{% if boss__ingress__nginx__defaulthttpbackend_deployment_spec_template_spec_containers_ports is defined %}
         ports:
-        - containerPort: 8080
+{{ boss__ingress__nginx__defaulthttpbackend_deployment_spec_template_spec_containers_ports | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
+{% if boss__ingress__nginx__defaulthttpbackend_deployment_spec_template_spec_containers_resources is defined %}
         resources:
-          limits:
-            cpu: 20m
-            memory: 30Mi
-          requests:
-            cpu: 20m
-            memory: 30Mi
+{{ boss__ingress__nginx__defaulthttpbackend_deployment_spec_template_spec_containers_resources | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -118,7 +116,7 @@ spec:
 {% endif %}
       # nodeSelector:
       #   kubernetes.io/hostname: "borg-queen-01"
-      serviceAccountName: nginx-ingress
+      serviceAccountName: {{boss__ingress__nginx__serviceAccountName}}
       terminationGracePeriodSeconds: 60
       containers:
       # - image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.19.0
@@ -163,21 +161,10 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
+{% if boss__ingress__nginx__nginx_ingress_controller_deployment_spec_template_spec_containers_ports is defined %}
         ports:
-        - name: http
-          containerPort: 80
-          hostPort: 80
-        - name: https
-          containerPort: 443
-          hostPort: 443
-        # (Optional) we expose 18080 to access nginx stats in url /nginx-status
-        - name: stats
-          containerPort: 18080
-          hostPort: 18080
-        - name: metrics
-          containerPort: 10254
-          hostPort: 10254
-          protocol: TCP
+{{ boss__ingress__nginx__nginx_ingress_controller_deployment_spec_template_spec_containers_ports | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
         args:
         - /nginx-ingress-controller
         # Service used to serve HTTP requests not matching any known server name (catch-all). Takes the form "namespace/name". The controller configures NGINX to forward requests to the first port of this Service. If not specified, a 404 page will be returned directly from NGINX.
@@ -202,6 +189,7 @@ spec:
 
         - --publish-service=$(POD_NAMESPACE)/ingress-nginx
         securityContext:
+          allowPrivilegeEscalation: true
           capabilities:
               drop:
               - ALL

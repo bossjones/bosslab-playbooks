@@ -21,27 +21,27 @@ data:
 metadata:
   name: nginx-load-balancer-conf
   namespace: {{boss__ingress__nginx__namespace_name}}
+{% if boss__ingress__nginx__configmap_nginx_load_balancer_conf_labels is defined %}
   labels:
-    addonmanager.kubernetes.io/mode: EnsureExists
-    app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: ingress-nginx
+{{ boss__ingress__nginx__configmap_nginx_load_balancer_conf_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 ---
 kind: ConfigMap
 apiVersion: v1
 metadata:
   name: tcp-services
   namespace: {{boss__ingress__nginx__namespace_name}}
+{% if boss__ingress__nginx__configmap_tcp_services_labels is defined %}
   labels:
-    addonmanager.kubernetes.io/mode: EnsureExists
-    app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: ingress-nginx
+{{ boss__ingress__nginx__configmap_tcp_services_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 ---
 kind: ConfigMap
 apiVersion: v1
 metadata:
   name: udp-services
   namespace: {{boss__ingress__nginx__namespace_name}}
+{% if boss__ingress__nginx__configmap_udp_services_labels is defined %}
   labels:
-    addonmanager.kubernetes.io/mode: EnsureExists
-    app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: ingress-nginx
+{{ boss__ingress__nginx__configmap_udp_services_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}

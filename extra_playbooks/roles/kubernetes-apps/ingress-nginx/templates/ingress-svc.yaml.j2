@@ -33,21 +33,13 @@ spec:
 {% if boss__ingress__nginx__service_ingress_nginx_spec_type == "LoadBalancer" %}
   externalTrafficPolicy: Local
 {% endif %}
+
+
+{% if boss__ingress__nginx__service_defaulthttpbackend_spec_ports is defined %}
   ports:
-  - port: 80
-    # Assign 8080 to <POD-IP>:<targetPort>
-    targetPort: 8080
-    # nodePort: The Service created in the last section already used NodePort, so your nginx HTTPS replica is ready to serve traffic on the internet if your node has a public IP.
-    # curl https://<WORKER-NODE-IP>:<NODE-PORT> -k
-    # nodePort: 30001
-    # - name: http
-    #   port: 80
-    #   targetPort: 80
-    #   protocol: TCP
-    # - name: https
-    #   port: 443
-    #   targetPort: 443
-    #   protocol: TCP
+{{ boss__ingress__nginx__service_defaulthttpbackend_spec_ports | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+{% if boss__ingress__nginx__service_defaulthttpbackend_selector_labels is defined %}
   selector:
-    app.kubernetes.io/name: default-http-backend
-    app.kubernetes.io/part-of: nginx-ingress
+{{ boss__ingress__nginx__service_defaulthttpbackend_selector_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}

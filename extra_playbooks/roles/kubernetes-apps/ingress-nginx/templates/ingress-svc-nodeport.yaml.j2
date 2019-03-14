@@ -27,25 +27,11 @@ spec:
 {% if boss__ingress__nginx__service_ingress_nginx_spec_type == "LoadBalancer" %}
   externalTrafficPolicy: Local
 {% endif %}
+{% if boss__ingress__nginx__service_spec_ports is defined %}
   ports:
-    - name: http
-      port: 80
-      targetPort: 80
-      protocol: TCP
-    - name: https
-      port: 443
-      targetPort: 443
-      protocol: TCP
-    - name: stats
-      port: 18080
-      targetPort: 18080
-      protocol: TCP
-    - name: metrics
-      port: 10254
-      targetPort: 10254
-      protocol: TCP
+{{ boss__ingress__nginx__service_spec_ports | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+{% if boss__ingress__nginx__service_selector_labels is defined %}
   selector:
-    # app.kubernetes.io/name: ingress-nginx
-    # app.kubernetes.io/part-of: ingress-nginx
-    app.kubernetes.io/name: nginx-ingress
-    app.kubernetes.io/part-of: nginx-ingress
+{{ boss__ingress__nginx__service_selector_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}

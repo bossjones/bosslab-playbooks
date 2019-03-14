@@ -26,6 +26,9 @@ metadata:
   labels:
     kubernetes.io/bootstrapping: rbac-defaults
     addonmanager.kubernetes.io/mode: Reconcile
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+    
 rules:
 - apiGroups:
   - ""
@@ -84,6 +87,9 @@ metadata:
   labels:
     kubernetes.io/bootstrapping: rbac-defaults
     addonmanager.kubernetes.io/mode: Reconcile
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+    
 rules:
 - apiGroups:
   - ""
@@ -140,7 +146,7 @@ metadata:
     # Many of these are system: prefixed, which indicates that the resource is “owned” by the infrastructure. Modifications to these resources can result in non-functional clusters. One example is the system:node ClusterRole. This role defines permissions for kubelets. If the role is modified, it can prevent kubelets from working.
     # All of the default cluster roles and rolebindings are labeled with kubernetes.io/bootstrapping=rbac-defaults
     kubernetes.io/bootstrapping: rbac-defaults
-    addonmanager.kubernetes.io/mode: EnsureExists
+    # addonmanager.kubernetes.io/mode: EnsureExists
     app.kubernetes.io/name: ingress-nginx
     app.kubernetes.io/part-of: ingress-nginx
     
@@ -173,7 +179,7 @@ metadata:
     # Many of these are system: prefixed, which indicates that the resource is “owned” by the infrastructure. Modifications to these resources can result in non-functional clusters. One example is the system:node ClusterRole. This role defines permissions for kubelets. If the role is modified, it can prevent kubelets from working.
     # All of the default cluster roles and rolebindings are labeled with kubernetes.io/bootstrapping=rbac-defaults
     kubernetes.io/bootstrapping: rbac-defaults
-    addonmanager.kubernetes.io/mode: EnsureExists
+    # addonmanager.kubernetes.io/mode: EnsureExists
     app.kubernetes.io/name: ingress-nginx
     app.kubernetes.io/part-of: ingress-nginx
     
@@ -185,3 +191,42 @@ subjects:
 - kind: ServiceAccount
   name: nginx-ingress
   namespace: kube-system
+
+
+# SOURCE: https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/mandatory.yaml
+# # NEW
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1beta1
+# kind: RoleBinding
+# metadata:
+#   name: nginx-ingress-role-nisa-binding
+#   namespace: ingress-nginx
+#   labels:
+#     app.kubernetes.io/name: ingress-nginx
+#     app.kubernetes.io/part-of: ingress-nginx
+# roleRef:
+#   apiGroup: rbac.authorization.k8s.io
+#   kind: Role
+#   name: nginx-ingress-role
+# subjects:
+#   - kind: ServiceAccount
+#     name: nginx-ingress-serviceaccount
+#     namespace: ingress-nginx
+#
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1beta1
+# kind: ClusterRoleBinding
+# metadata:
+#   name: nginx-ingress-clusterrole-nisa-binding
+#   labels:
+#     app.kubernetes.io/name: ingress-nginx
+#     app.kubernetes.io/part-of: ingress-nginx
+# roleRef:
+#   apiGroup: rbac.authorization.k8s.io
+#   kind: ClusterRole
+#   name: nginx-ingress-clusterrole
+# subjects:
+#   - kind: ServiceAccount
+#     name: nginx-ingress-serviceaccount
+#     namespace: ingress-nginx
+#

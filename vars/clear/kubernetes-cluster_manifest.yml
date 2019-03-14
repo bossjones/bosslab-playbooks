@@ -12,6 +12,7 @@ nfs_client_group: nfs_clients
 nfs_server_ip_override: 192.168.205.12
 k8_admin_config_dir: ~/dev/bossjones/bosslab-playbooks
 k8_admin_config_path: "{{k8_admin_config_dir}}/vagrant-admin.conf"
+queen_host: "k8s-head"
 
 # export KUBECONFIG=~/dev/bossjones/bosslab-playbooks/borg-admin.conf
 
@@ -1084,55 +1085,199 @@ boss__ingress__nginx__controller_version: 0.21.0
 boss__ingress__nginx__controller_image_repo: "quay.io/kubernetes-ingress-controller/nginx-ingress-controller"
 boss__ingress__nginx__controller_image_tag: "{{ boss__ingress__nginx__controller_version }}"
 
+
+boss__ingress__nginx__defaultbackend_version: 1.4
+boss__ingress__nginx__defaultbackend_image_repo: "gcr.io/google_containers/defaultbackend"
+boss__ingress__nginx__defaultbackend_image_tag: "{{ boss__ingress__nginx__defaultbackend_version }}"
+
 boss__ingress__nginx__controller_runAsUser: 33
 
+boss__ingress__nginx__clusterrole_serviceaccount_labels: |
+  kubernetes.io/bootstrapping: rbac-defaults
+  addonmanager.kubernetes.io/mode: Reconcile
+  app.kubernetes.io/name: ingress-nginx
+  app.kubernetes.io/part-of: ingress-nginx
+
+boss__ingress__nginx__role_nginx_ingress_role_labels: |
+  kubernetes.io/bootstrapping: rbac-defaults
+  addonmanager.kubernetes.io/mode: Reconcile
+  app.kubernetes.io/name: ingress-nginx
+  app.kubernetes.io/part-of: ingress-nginx
+
+boss__ingress__nginx__service_labels: |
+  app.kubernetes.io/name: ingress-nginx
+  app.kubernetes.io/part-of: ingress-nginx
+boss__ingress__nginx__service_annotations: |
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "10254"
+
+boss__ingress__nginx__serviceAccountName: nginx-ingress
+
+boss__ingress__nginx__configmap_nginx_load_balancer_conf_labels: |
+  # addonmanager.kubernetes.io/mode: EnsureExists
+  app.kubernetes.io/name: ingress-nginx
+  app.kubernetes.io/part-of: ingress-nginx
+boss__ingress__nginx__configmap_tcp_services_labels: |
+  # addonmanager.kubernetes.io/mode: EnsureExists
+  app.kubernetes.io/name: ingress-nginx
+  app.kubernetes.io/part-of: ingress-nginx
+boss__ingress__nginx__configmap_udp_services_labels: |
+  # addonmanager.kubernetes.io/mode: EnsureExists
+  app.kubernetes.io/name: ingress-nginx
+  app.kubernetes.io/part-of: ingress-nginx
+
 boss__ingress__nginx__deployment_labels: |
-    app.kubernetes.io/name: nginx-ingress-controller
+    app.kubernetes.io/name: ingress-nginx
     # app.kubernetes.io/part-of: kube-system
-    app.kubernetes.io/part-of: nginx-ingress
+    app.kubernetes.io/part-of: ingress-nginx
     addonmanager.kubernetes.io/mode: Reconcile
 boss__ingress__nginx__deployment_spec_replicas: 1
 boss__ingress__nginx__deployment_spec_selector_match_labels: |
-      app.kubernetes.io/name: nginx-ingress-controller
+      app.kubernetes.io/name: ingress-nginx
       # app.kubernetes.io/part-of: kube-system
-      app.kubernetes.io/part-of: nginx-ingress
+      app.kubernetes.io/part-of: ingress-nginx
       addonmanager.kubernetes.io/mode: Reconcile
 boss__ingress__nginx__deployment_spec_template_metadata_labels: |
-        app.kubernetes.io/name: nginx-ingress-controller
+        app.kubernetes.io/name: ingress-nginx
         # app.kubernetes.io/part-of: kube-system
-        app.kubernetes.io/part-of: nginx-ingress
+        app.kubernetes.io/part-of: ingress-nginx
         addonmanager.kubernetes.io/mode: Reconcile
 boss__ingress__nginx__deployment_spec_template_metadata_annotations: |
         prometheus.io/port: "10254"
         prometheus.io/scrape: "true"
 boss__ingress__nginx__deployment_spec_template_spec_node_selector: |
-        kubernetes.io/hostname: "k8s-head"
+        # kubernetes.io/hostname: "{{queen_host}}"
+        app.kubernetes.io/name: ingress-nginx
+        app.kubernetes.io/part-of: ingress-nginx
 
 boss__ingress__nginx__service_account_labels: |
     addonmanager.kubernetes.io/mode: Reconcile
     app.kubernetes.io/name: ingress-nginx
     app.kubernetes.io/part-of: ingress-nginx
 
+boss__ingress__nginx__service_selector_labels: |
+  # app.kubernetes.io/name: ingress-nginx
+  # app.kubernetes.io/part-of: ingress-nginx
+  app.kubernetes.io/name: ingress-nginx
+  app.kubernetes.io/part-of: ingress-nginx
+
+boss__ingress__nginx__service_defaulthttpbackend_selector_labels: |
+  app.kubernetes.io/name: default-http-backend
+  app.kubernetes.io/part-of: ingress-nginx
+
 boss__ingress__nginx__service_default_http_backend_spec_type: NodePort
 boss__ingress__nginx__service_ingress_nginx_spec_type: NodePort
+
+boss__ingress__nginx__service_spec_ports: |
+  - name: http
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: 443
+    protocol: TCP
+  - name: stats
+    port: 18080
+    targetPort: 18080
+    protocol: TCP
+  - name: metrics
+    port: 10254
+    targetPort: 10254
+    protocol: TCP
+
+boss__ingress__nginx__service_defaulthttpbackend_spec_ports: |
+  - port: 80
+    # Assign 8080 to <POD-IP>:<targetPort>
+    targetPort: 8080
+    protocol: TCP
+    name: http
+    # nodePort: The Service created in the last section already used NodePort, so your nginx HTTPS replica is ready to serve traffic on the internet if your node has a public IP.
+    # curl https://<WORKER-NODE-IP>:<NODE-PORT> -k
+    # nodePort: 30001
+    # - name: http
+    #   port: 80
+    #   targetPort: 80
+    #   protocol: TCP
+    # - name: https
+    #   port: 443
+    #   targetPort: 443
+    #   protocol: TCP
 
 boss__ingress__nginx__role_binding_labels: |
     # SOURCE: https://kubernetes.io/docs/reference/access-authn-authz/rbac/
     # Many of these are system: prefixed, which indicates that the resource is “owned” by the infrastructure. Modifications to these resources can result in non-functional clusters. One example is the system:node ClusterRole. This role defines permissions for kubelets. If the role is modified, it can prevent kubelets from working.
     # All of the default cluster roles and rolebindings are labeled with kubernetes.io/bootstrapping=rbac-defaults
     kubernetes.io/bootstrapping: rbac-defaults
-    addonmanager.kubernetes.io/mode: EnsureExists
+    # addonmanager.kubernetes.io/mode: EnsureExists
     app.kubernetes.io/name: ingress-nginx
     app.kubernetes.io/part-of: ingress-nginx
 
 boss__ingress__nginx__service__default_http_backend_labels: |
     app.kubernetes.io/name: default-http-backend
     # app.kubernetes.io/part-of: kube-system
-    app.kubernetes.io/part-of: nginx-ingress
+    app.kubernetes.io/part-of: ingress-nginx
+    # kubernetes.io/minikube-addons: ingress
+    # kubernetes.io/minikube-addons-endpoint: ingress
+    addonmanager.kubernetes.io/mode: Reconcile
+boss__ingress__nginx__deployment__default_http_backend_labels: |
+    app.kubernetes.io/name: default-http-backend
+    # app.kubernetes.io/part-of: kube-system
+    app.kubernetes.io/part-of: ingress-nginx
     # kubernetes.io/minikube-addons: ingress
     # kubernetes.io/minikube-addons-endpoint: ingress
     addonmanager.kubernetes.io/mode: Reconcile
 
+boss__ingress__nginx__defaulthttpbackend_deployment_spec_template_spec_containers_resources: |
+  limits:
+    cpu: 20m
+    memory: 30Mi
+  requests:
+    cpu: 20m
+    memory: 30Mi
+
+boss__ingress__nginx__defaulthttpbackend_deployment_spec_template_spec_containers_ports: |
+  - containerPort: 8080
+
+boss__ingress__nginx__nginx_ingress_controller_deployment_spec_template_spec_containers_ports: |
+  - name: http
+    containerPort: 80
+    hostPort: 80
+  - name: https
+    containerPort: 443
+    hostPort: 443
+  # (Optional) we expose 18080 to access nginx stats in url /nginx-status
+  - name: stats
+    containerPort: 18080
+    hostPort: 18080
+  - name: metrics
+    containerPort: 10254
+    hostPort: 10254
+    protocol: TCP
+
+# boss__ingress__nginx__nginx_ingress_controller_deployment_spec_template_spec_containers_args: |
+#   - /nginx-ingress-controller
+#   # Service used to serve HTTP requests not matching any known server name (catch-all). Takes the form "namespace/name". The controller configures NGINX to forward requests to the first port of this Service. If not specified, a 404 page will be returned directly from NGINX.
+#   - --default-backend-service=$(POD_NAMESPACE)/default-http-backend
+#   # Name of the ConfigMap containing custom global configurations for the controller.
+#   - --configmap=$(POD_NAMESPACE)/nginx-load-balancer-conf
+#   # Name of the ConfigMap containing the definition of the TCP services to expose. The key in the map indicates the external port to be used. The value is a reference to a Service in the form "namespace/name:port", where "port" can either be a port number or name. TCP ports 80 and 443 are reserved by the controller for servicing HTTP traffic.
+#   - --tcp-services-configmap=$(POD_NAMESPACE)/tcp-services
+#   # Name of the ConfigMap containing the definition of the UDP services to expose. The key in the map indicates the external port to be used. The value is a reference to a Service in the form "namespace/name:port", where "port" can either be a port name or number.
+#   - --udp-services-configmap=$(POD_NAMESPACE)/udp-services
+#   # Prefix of the Ingress annotations specific to the NGINX controller. (default "nginx.ingress.kubernetes.io")
+#   - --annotations-prefix=nginx.ingress.kubernetes.io
+#   # NOTE: 'report-node-internal-ip-address' - Set the load-balancer status of Ingress objects to internal Node addresses instead of external. Requires the update-status parameter.
+#   # use minikube IP address in ingress status field
+#   - --report-node-internal-ip-address
+#   # log level for V logs
+#   # - --v=5
+#   # log to standard error instead of files (default true)
+#   - --logtostderr
+#   # Enable profiling via web interface host:port/debug/pprof/ (default true)
+#   - --profiling
+
+#   - --publish-service=$(POD_NAMESPACE)/ingress-nginx
 
 ##########################################################################################################
 #    .##.....##....###....########..##....##.########...#######..##......##.##....##.########..########.##....##.########..########.########.
