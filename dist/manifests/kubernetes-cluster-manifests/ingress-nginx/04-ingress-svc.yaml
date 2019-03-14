@@ -17,13 +17,6 @@ kind: Service
 metadata:
   name: default-http-backend
   namespace: kube-system
-  # labels:
-    # app.kubernetes.io/name: default-http-backend
-    # app.kubernetes.io/part-of: kube-system
-    # app.kubernetes.io/part-of: nginx-ingress
-    # kubernetes.io/minikube-addons: ingress
-    # kubernetes.io/minikube-addons-endpoint: ingress
-    # addonmanager.kubernetes.io/mode: Reconcile
   labels:
     app.kubernetes.io/name: default-http-backend
     # app.kubernetes.io/part-of: kube-system
@@ -32,6 +25,8 @@ metadata:
     # kubernetes.io/minikube-addons-endpoint: ingress
     addonmanager.kubernetes.io/mode: Reconcile
     
+
+  # annotations:
 spec:
   type: NodePort
 

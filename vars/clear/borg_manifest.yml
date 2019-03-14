@@ -1101,7 +1101,7 @@ boss__ingress__nginx__role_nginx_ingress_role_labels: |
   app.kubernetes.io/part-of: ingress-nginx
 
 boss__ingress__nginx__service_labels: |
-  app.kubernetes.io/name: nginx-ingress
+  app.kubernetes.io/name: ingress-nginx
   app.kubernetes.io/part-of: ingress-nginx
 boss__ingress__nginx__service_annotations: |
   prometheus.io/scrape: "true"
@@ -1154,7 +1154,7 @@ boss__ingress__nginx__service_account_labels: |
 boss__ingress__nginx__service_selector_labels: |
   # app.kubernetes.io/name: ingress-nginx
   # app.kubernetes.io/part-of: ingress-nginx
-  app.kubernetes.io/name: nginx-ingress
+  app.kubernetes.io/name: ingress-nginx
   app.kubernetes.io/part-of: ingress-nginx
 
 boss__ingress__nginx__service_defaulthttpbackend_selector_labels: |
@@ -1216,6 +1216,12 @@ boss__ingress__nginx__service__default_http_backend_labels: |
     # kubernetes.io/minikube-addons: ingress
     # kubernetes.io/minikube-addons-endpoint: ingress
     addonmanager.kubernetes.io/mode: Reconcile
+
+boss__ingress__nginx__service__default_http_backend_annotations: False
+# boss__ingress__nginx__service__default_http_backend_annotations: |
+#   prometheus.io/scrape: "true"
+#   prometheus.io/port: "10254"
+
 boss__ingress__nginx__deployment__default_http_backend_labels: |
     app.kubernetes.io/name: default-http-backend
     # app.kubernetes.io/part-of: kube-system
@@ -1274,9 +1280,6 @@ boss__ingress__nginx__nginx_ingress_controller_deployment_spec_template_spec_con
 #   - --profiling
 
 #   - --publish-service=$(POD_NAMESPACE)/ingress-nginx
-
-
-
 
 ####################################################################################################
 #                  .########.########.....###....########.########.####.##....##.........####.##....##.########.########.########..##....##....###....##......

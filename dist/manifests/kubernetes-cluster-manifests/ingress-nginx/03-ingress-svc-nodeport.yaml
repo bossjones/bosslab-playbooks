@@ -10,17 +10,15 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ingress-nginx
-  # namespace: ingress-nginx
   namespace: kube-system
-  # labels:
-  #   # app.kubernetes.io/name: ingress-nginx
-  #   # app.kubernetes.io/part-of: ingress-nginx
-  #   app.kubernetes.io/name: nginx-ingress
-  #   app.kubernetes.io/part-of: nginx-ingress
-
   labels:
     app.kubernetes.io/name: ingress-nginx
     app.kubernetes.io/part-of: ingress-nginx
+    
+
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "10254"
     
 spec:
   type: NodePort
