@@ -581,8 +581,8 @@ boss__registry__stateful_set_labels: |
 
 boss__registry__stateful_set_spec_replicas: 1
 boss__registry__stateful_set_spec_selector_match_labels: |
-        k8s-app: registry
-        version: "{{ boss__registry__version }}"
+  k8s-app: registry
+  version: "{{ boss__registry__version }}"
 
 boss__registry__stateful_set_spec_template_metadata_labels: |
         k8s-app: registry
@@ -1451,6 +1451,8 @@ boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pv_spec_nfs: 
 
 boss__prometheus__operator__prometheus_additional_scrape_configs: |
   # RUN: kubectl --namespace monitoring create secret generic additional-scrape-configs --from-file=PLAINTEXT-SECRET-prometheus-additional.yaml --dry-run -oyaml > additional-scrape-configs.yaml
+  # global:
+  #     scrape_interval: 10s
   - job_name: 'netdata-scrape'
 
     metrics_path: '/api/v1/allmetrics'
@@ -1471,6 +1473,35 @@ boss__prometheus__operator__prometheus_additional_scrape_configs: |
     # 217 is rpi cluster
     static_configs:
       - targets: ['192.168.205.10:19999','192.168.205.11:19999','192.168.205.12:19999', '192.168.1.217:19999','192.168.1.184:19999','192.168.1.22:19999', '192.168.1.23:19999', '192.168.1.175:19999']
+
+  - job_name: 'ingress-nginx-endpoints'
+    kubernetes_sd_configs:
+    - role: pod
+      namespaces:
+        names:
+        - ingress-nginx
+
+    relabel_configs:
+    - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+      action: keep
+      regex: true
+    - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scheme]
+      action: replace
+      target_label: __scheme__
+      regex: (https?)
+    - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+      action: replace
+      target_label: __metrics_path__
+      regex: (.+)
+    - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+      action: replace
+      target_label: __address__
+      regex: ([^:]+)(?::\d+)?;(\d+)
+      replacement: $1:$2
+
+    - source_labels: [__meta_kubernetes_service_name]
+      regex: prometheus-server
+      action: drop
 
 # SOURCE: https://techtran.science/2018/06/11/unifi-to-grafana-using-prometheus-and-unifi_exporter/
 # - job_name: 'unifi_exporter'
