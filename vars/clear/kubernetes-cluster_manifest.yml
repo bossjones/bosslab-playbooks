@@ -1146,7 +1146,7 @@ boss__ingress__nginx__deployment_spec_template_metadata_annotations: |
         prometheus.io/port: "10254"
         prometheus.io/scrape: "true"
 boss__ingress__nginx__deployment_spec_template_spec_node_selector: |
-        # kubernetes.io/hostname: "{{queen_host}}"
+        kubernetes.io/hostname: "{{queen_host}}"
         app.kubernetes.io/name: ingress-nginx
         app.kubernetes.io/part-of: ingress-nginx
 

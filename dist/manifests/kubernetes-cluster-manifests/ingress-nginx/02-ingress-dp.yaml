@@ -110,7 +110,7 @@ spec:
       # SOURCE: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
 
       nodeSelector:
-        # kubernetes.io/hostname: "k8s-head"
+        kubernetes.io/hostname: "k8s-head"
         app.kubernetes.io/name: ingress-nginx
         app.kubernetes.io/part-of: ingress-nginx
         
