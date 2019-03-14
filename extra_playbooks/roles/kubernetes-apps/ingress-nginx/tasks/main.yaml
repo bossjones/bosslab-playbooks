@@ -9,8 +9,8 @@
     src: "{{ item }}.j2"
     dest: "{{ boss__ingress__nginx__manifest_path }}/{{ item }}"
   with_items:
-    - "ingress-configmap.yaml"
-    - "ingress-dp.yaml"
-    - "ingress-rbac.yaml"
-    - "ingress-svc-nodeport.yaml"
-    - "ingress-svc.yaml"
+    - "00-ingress-configmap.yaml"
+    - "01-ingress-dp.yaml"
+    - "02-ingress-rbac.yaml"
+    - "03-ingress-svc-nodeport.yaml"
+    - "04-ingress-svc.yaml"
