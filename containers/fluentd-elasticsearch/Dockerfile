@@ -175,7 +175,7 @@ RUN apt-get update \
 
 ENV LD_PRELOAD="/usr/lib/libjemalloc.so.2"
 
-EXPOSE 24224 24220 5170 5140
+# EXPOSE 24224 24220 5170 5140
 
 # Custom Supervisord config
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
