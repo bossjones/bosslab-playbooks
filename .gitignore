@@ -198,3 +198,5 @@ ca.crt
 ca.key
 my-cluster-ca-key-pair-secret.yaml
 scaps
+
+.vscode/settings.json
