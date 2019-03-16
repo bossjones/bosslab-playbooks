@@ -30,16 +30,18 @@ EOF
 
 done
 
-
+# Consolidate into one yaml file that is easy to copy and paste
 cat $(pwd)/boards_yaml/* > $(pwd)/boards_yaml/final.yaml
 
-# echo "Nuke $(pwd)/boards/final.yaml"
-# > $(pwd)/boards_yaml/final.yaml
-# > $(pwd)/boards_yaml/final.yaml
+# incorrect spacing for some of these json values, simply indent them w/ 6 spaces
+gsed -i 's,^\},      \},g' $(pwd)/boards_yaml/final.yaml
 
+# # Optional, change all of the datasources into Prometheus
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"Prometheus\"|g' $(pwd)/boards_yaml/final.yaml
+
+# nuke all the other artifacts, everything should be in final.yaml at this point
 for i in "${my_array[@]}"; do
     echo "$i";
     _NEW_NAME=$(echo $i | sed 's,.json,.yaml,g' |  sed 's,boards,boards_yaml,g')
-    # /bin/cat ${_NEW_NAME} >> $(pwd)/boards/final.yaml
     rm ${_NEW_NAME}
 done
