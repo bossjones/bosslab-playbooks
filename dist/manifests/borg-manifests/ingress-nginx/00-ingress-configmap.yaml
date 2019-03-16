@@ -22,9 +22,10 @@ metadata:
   name: nginx-load-balancer-conf
   namespace: kube-system
   labels:
-    addonmanager.kubernetes.io/mode: EnsureExists
+    # addonmanager.kubernetes.io/mode: EnsureExists
     app.kubernetes.io/name: ingress-nginx
     app.kubernetes.io/part-of: ingress-nginx
+    
 ---
 kind: ConfigMap
 apiVersion: v1
@@ -32,9 +33,10 @@ metadata:
   name: tcp-services
   namespace: kube-system
   labels:
-    addonmanager.kubernetes.io/mode: EnsureExists
+    # addonmanager.kubernetes.io/mode: EnsureExists
     app.kubernetes.io/name: ingress-nginx
     app.kubernetes.io/part-of: ingress-nginx
+    
 ---
 kind: ConfigMap
 apiVersion: v1
@@ -42,6 +44,7 @@ metadata:
   name: udp-services
   namespace: kube-system
   labels:
-    addonmanager.kubernetes.io/mode: EnsureExists
+    # addonmanager.kubernetes.io/mode: EnsureExists
     app.kubernetes.io/name: ingress-nginx
     app.kubernetes.io/part-of: ingress-nginx
+    

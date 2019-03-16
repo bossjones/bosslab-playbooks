@@ -20,14 +20,18 @@ metadata:
   labels:
     app.kubernetes.io/name: default-http-backend
     # app.kubernetes.io/part-of: kube-system
-    app.kubernetes.io/part-of: nginx-ingress
+    app.kubernetes.io/part-of: ingress-nginx
+    # kubernetes.io/minikube-addons: ingress
+    # kubernetes.io/minikube-addons-endpoint: ingress
     addonmanager.kubernetes.io/mode: Reconcile
+    
 spec:
   replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: default-http-backend
-      addonmanager.kubernetes.io/mode: Reconcile
+      # addonmanager.kubernetes.io/mode: Reconcile
+      
   template:
     # SOURCE: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
     # SOURCE: https://kubernetes.io/docs/concepts/workloads/pods/pod/
@@ -55,7 +59,8 @@ spec:
           initialDelaySeconds: 30
           timeoutSeconds: 5
         ports:
-        - containerPort: 8080
+          - containerPort: 8080
+          
         resources:
           limits:
             cpu: 20m
@@ -63,6 +68,7 @@ spec:
           requests:
             cpu: 20m
             memory: 30Mi
+          
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -75,52 +81,40 @@ metadata:
   #   app.kubernetes.io/part-of: nginx-ingress
   #   addonmanager.kubernetes.io/mode: Reconcile
   labels:
-    app.kubernetes.io/name: nginx-ingress-controller
+    app.kubernetes.io/name: ingress-nginx
     # app.kubernetes.io/part-of: kube-system
-    app.kubernetes.io/part-of: nginx-ingress
+    app.kubernetes.io/part-of: ingress-nginx
     addonmanager.kubernetes.io/mode: Reconcile
     
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: nginx-ingress-controller
+      app.kubernetes.io/name: ingress-nginx
       # app.kubernetes.io/part-of: kube-system
-      app.kubernetes.io/part-of: nginx-ingress
+      app.kubernetes.io/part-of: ingress-nginx
       addonmanager.kubernetes.io/mode: Reconcile
       
-    # matchLabels:
-    #   app.kubernetes.io/name: nginx-ingress-controller
-    #   # app.kubernetes.io/part-of: kube-system
-    #   app.kubernetes.io/part-of: nginx-ingress
-    #   addonmanager.kubernetes.io/mode: Reconcile
   template:
     metadata:
       labels:
-      app.kubernetes.io/name: nginx-ingress-controller
-      # app.kubernetes.io/part-of: kube-system
-      app.kubernetes.io/part-of: nginx-ingress
-      addonmanager.kubernetes.io/mode: Reconcile
-      
-      # labels:
-      #   app.kubernetes.io/name: nginx-ingress-controller
-      #   # app.kubernetes.io/part-of: kube-system
-      #   app.kubernetes.io/part-of: nginx-ingress
-      #   addonmanager.kubernetes.io/mode: Reconcile
-      # annotations:
-      #   prometheus.io/port: "10254"
-      #   prometheus.io/scrape: "true"
-
+        app.kubernetes.io/name: ingress-nginx
+        # app.kubernetes.io/part-of: kube-system
+        app.kubernetes.io/part-of: ingress-nginx
+        addonmanager.kubernetes.io/mode: Reconcile
+        
       annotations:
-      prometheus.io/port: "10254"
-      prometheus.io/scrape: "true"
-      
+        prometheus.io/port: "10254"
+        prometheus.io/scrape: "true"
+        
     spec:
       # SOURCE: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
 
       nodeSelector:
-      kubernetes.io/hostname: "borg-queen-01"
-      
+        kubernetes.io/hostname: "borg-queen-01"
+        # app.kubernetes.io/name: ingress-nginx
+        # app.kubernetes.io/part-of: ingress-nginx
+        
       # nodeSelector:
       #   kubernetes.io/hostname: "borg-queen-01"
       serviceAccountName: nginx-ingress
@@ -153,8 +147,6 @@ spec:
             path: /healthz
             port: 10254
             scheme: HTTP
-          # initialDelaySeconds: 10
-          # timeoutSeconds: 1
           initialDelaySeconds: 10
           periodSeconds: 10
           successThreshold: 1
@@ -169,20 +161,21 @@ spec:
               fieldRef:
                 fieldPath: metadata.namespace
         ports:
-        - name: http
-          containerPort: 80
-          hostPort: 80
-        - name: https
-          containerPort: 443
-          hostPort: 443
-        # (Optional) we expose 18080 to access nginx stats in url /nginx-status
-        - name: stats
-          containerPort: 18080
-          hostPort: 18080
-        - name: metrics
-          containerPort: 10254
-          hostPort: 10254
-          protocol: TCP
+          - name: http
+            containerPort: 80
+            hostPort: 80
+          - name: https
+            containerPort: 443
+            hostPort: 443
+          # (Optional) we expose 18080 to access nginx stats in url /nginx-status
+          - name: stats
+            containerPort: 18080
+            hostPort: 18080
+          - name: metrics
+            containerPort: 10254
+            hostPort: 10254
+            protocol: TCP
+          
         args:
         - /nginx-ingress-controller
         # Service used to serve HTTP requests not matching any known server name (catch-all). Takes the form "namespace/name". The controller configures NGINX to forward requests to the first port of this Service. If not specified, a 404 page will be returned directly from NGINX.
@@ -207,6 +200,7 @@ spec:
 
         - --publish-service=$(POD_NAMESPACE)/ingress-nginx
         securityContext:
+          allowPrivilegeEscalation: true
           capabilities:
               drop:
               - ALL
