@@ -54,3 +54,29 @@ wget https://grafana.com/api/dashboards/6879/revisions/1/download -O $(pwd)/boar
 wget https://grafana.com/api/dashboards/6873/revisions/2/download -O $(pwd)/boards/analysis_by_cluster.json
 wget https://grafana.com/api/dashboards/6876/revisions/2/download -O $(pwd)/boards/analysis_by_namespace.json
 wget https://grafana.com/api/dashboards/3831/revisions/1/download -O $(pwd)/boards/kubernetes_cluster_autoscaler.json
+
+# WIP, prometheus render.
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/netdata_dashboard.json
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/kubernetes_statefulset.json
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/docker_and_host_mintoring_w_prometheus.json
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/kubernetes_deployment_statefulset_daemonset_metrics.json
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/node_exporter_for_prometheus.json
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/docker_and_system_monitoring.json
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/docker_host_and_container_overview.json
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/fluentd_dashboard.json
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/node_exporter_full.json
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/alerts_linux_nodes.json
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/elasticsearch_logs_from_fluentd.json
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/kubernetes_pods_dashboard.json
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/kubeless.json
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/alertmanager.json
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/kubernetes_pods.json
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/netdata.json
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/stats_at_a_glance_for_home_infra.json
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/unifi_ap_dashboard.json
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/unifi_controller_dashboard.json
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/kubernetes_all_nodes.json
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/analysis_by_pod.json
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/analysis_by_cluster.json
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/analysis_by_namespace.json
+# gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/kubernetes_cluster_autoscaler.json
