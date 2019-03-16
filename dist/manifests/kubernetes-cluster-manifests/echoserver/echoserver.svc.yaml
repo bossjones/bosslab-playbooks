@@ -9,7 +9,7 @@ metadata:
   name: echoserver-svc
   namespace: echoserver
   labels:
-        run: nginx
+    run: nginx
     
 spec:
   # In a production setup, we recommend accessing Grafana through an external Loadbalancer
@@ -32,5 +32,5 @@ spec:
     protocol: TCP
     name: http
   selector:
-        run: nginx
+    run: nginx
     
