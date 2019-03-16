@@ -1752,6 +1752,16 @@ apply-prometheus-operator-alertmanager:
 	@echo ""
 	@echo ""
 
+apply-prometheus-operator-prometheus:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-prometheus-operator:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy prometheus-operator$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0/* -type f -name '*prometheus*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	@echo ""
+	@echo ""
+
 # https://github.com/kubernetes/kubernetes/blob/3d7d35ee8f099f4611dca06de4453f958b4b8492/cluster/addons/storage-class/local/default.yaml
 delete-prometheus-operator-alertmanager:
 	$(call check_defined, cluster, Please set cluster)
