@@ -24,7 +24,7 @@ for i in "${my_array[@]}"; do
       $(/bin/cat $i | jq --indent 7 .)
   kind: ConfigMap
   metadata:
-    name: grafana-dashboard-$(echo $_filename)
+    name: grafana-dashboard-$(echo $_filename | sed 's,_,-,g')
     namespace: monitoring
 EOF
 
