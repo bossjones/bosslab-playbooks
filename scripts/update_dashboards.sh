@@ -54,6 +54,7 @@ wget https://grafana.com/api/dashboards/6879/revisions/1/download -O $(pwd)/boar
 wget https://grafana.com/api/dashboards/6873/revisions/2/download -O $(pwd)/boards/analysis_by_cluster.json
 wget https://grafana.com/api/dashboards/6876/revisions/2/download -O $(pwd)/boards/analysis_by_namespace.json
 wget https://grafana.com/api/dashboards/3831/revisions/1/download -O $(pwd)/boards/kubernetes_cluster_autoscaler.json
+wget https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/grafana/dashboards/nginx.json -O $(pwd)/boards/nginx_ingress.json
 
 # WIP, prometheus render.
 # gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"\$datasource\"|g' $(pwd)/boards/netdata_dashboard.json
