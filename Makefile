@@ -1111,4 +1111,11 @@ get-events:
 
 get-events-by-msg: get-events
 
+# SOURCE: https://github.com/coreos/prometheus-operator/blob/011588800c45beb9e421936b547b15a4bc88e134/contrib/kube-prometheus/README.md
+bootstrap-jsonnet:
+	go get -u github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb
+	go get github.com/google/go-jsonnet/jsonnet
+	go get github.com/brancz/gojsontoyaml
+
+
 include *.mk
