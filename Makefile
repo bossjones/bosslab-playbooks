@@ -1117,5 +1117,7 @@ bootstrap-jsonnet:
 	go get github.com/google/go-jsonnet/jsonnet
 	go get github.com/brancz/gojsontoyaml
 
+jsonnet-download:
+	jb install
 
 include *.mk

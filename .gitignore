@@ -200,3 +200,8 @@ my-cluster-ca-key-pair-secret.yaml
 scaps
 
 .vscode/settings.json
+
+
+
+# Jsonnet dependencies
+vendor/
