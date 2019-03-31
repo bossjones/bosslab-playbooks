@@ -1123,4 +1123,9 @@ jsonnet-download:
 convert-dashboards-yaml:
 	bash scripts/convert-dashboards-yaml.sh
 
+update_dashboards:
+	bash scripts/update_dashboards.sh
+
+get-custom-dashboards: update_dashboards convert-dashboards-yaml
+
 include *.mk
