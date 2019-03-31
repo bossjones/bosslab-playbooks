@@ -18,6 +18,11 @@ local kp =
         prometheusOperator: "quay.io/coreos/prometheus-operator",
     },
 
+    // NOTE: We might need just this, instead of all of that extra stuff. See example in kubernetes-cluster-borg > example.jsonnet
+    // prometheus+:: {
+    //     namespaces+: ['echoserver', 'kube-public'],
+    // },
+
     prometheus+:: {
         namespaces+: ['echoserver', 'kube-public'],
         serviceMonitorKubeControllerManager+:
@@ -108,6 +113,17 @@ local kp =
       baseMemory: '150Mi',
       cpuPerNode: '2m',
       memoryPerNode: '30Mi',
+    },
+  },
+
+  // SOURCE: k8s-infrastructure
+  kubePrometheus+: {
+    namespace+: {
+      metadata+: {
+        labels+: {
+          name+: 'monitoring',
+        },
+      },
     },
   },
 };

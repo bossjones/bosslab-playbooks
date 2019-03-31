@@ -1,0 +1,6 @@
+{
+    "jsonnet.libPaths": [
+        "/Users/malcolm/dev/bossjones/bosslab-playbooks/vendor",
+        "./"
+      ]
+}
