@@ -16,7 +16,7 @@ spec:
         app: grafana
     spec:
       containers:
-      - image: grafana/grafana:5.2.4
+      - image: grafana/grafana:6.0.0-beta1
         name: grafana
         ports:
         - containerPort: 3000
@@ -40,7 +40,7 @@ spec:
           requests:
             cpu: 1000m
             memory: 100Mi
-          
+
         env:
         - name: GF_INSTALL_PLUGINS
           # ,sbueringer-consul-datasource Ignored for now becausse binary needs chmod +x
@@ -73,6 +73,9 @@ spec:
         - mountPath: /grafana-dashboard-definitions/0/nodes
           name: grafana-dashboard-nodes
           readOnly: false
+        - mountPath: /grafana-dashboard-definitions/0/persistentvolumesusage
+          name: grafana-dashboard-persistentvolumesusage
+          readOnly: false
         - mountPath: /grafana-dashboard-definitions/0/pods
           name: grafana-dashboard-pods
           readOnly: false
@@ -82,6 +85,8 @@ spec:
         - mountPath: /etc/grafana
           name: grafana-config
           readOnly: false
+      nodeSelector:
+        beta.kubernetes.io/os: linux
       securityContext:
         runAsNonRoot: true
         runAsUser: 65534
@@ -113,6 +118,9 @@ spec:
       - configMap:
           name: grafana-dashboard-nodes
         name: grafana-dashboard-nodes
+      - configMap:
+          name: grafana-dashboard-persistentvolumesusage
+        name: grafana-dashboard-persistentvolumesusage
       - configMap:
           name: grafana-dashboard-pods
         name: grafana-dashboard-pods

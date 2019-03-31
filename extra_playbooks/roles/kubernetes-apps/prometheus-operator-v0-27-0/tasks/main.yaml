@@ -35,6 +35,7 @@
     - "grafana-ingress.yaml"
     - "grafana-service.yaml"
     - "grafana-serviceAccount.yaml"
+    - "grafana-serviceMonitor.yaml"
     - "kube-state-metrics-clusterRole.yaml"
     - "kube-state-metrics-clusterRoleBinding.yaml"
     - "kube-state-metrics-deployment.yaml"
