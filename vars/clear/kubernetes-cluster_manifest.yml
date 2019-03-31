@@ -1351,6 +1351,7 @@ boss__prometheus__operator__alertmanager_subdomain: alertmanager
 boss__prometheus__operator__alertmanager_version: v0.15.3
 boss__prometheus__operator__alertmanager_crd_baseImage: "quay.io/prometheus/alertmanager"
 boss__prometheus__operator__alertmanager_image_tag: "{{ boss__prometheus__operator__alertmanager_version }}"
+boss__prometheus__operator__alertmanager_replicas: 2
 
 boss__prometheus__operator__grafana_subdomain: grafana
 boss__prometheus__operator__grafana_version: 5.2.4
