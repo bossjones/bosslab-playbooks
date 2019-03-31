@@ -1120,4 +1120,7 @@ bootstrap-jsonnet:
 jsonnet-download:
 	jb install
 
+convert-dashboards-yaml:
+	bash scripts/convert-dashboards-yaml.sh
+
 include *.mk

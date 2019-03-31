@@ -20,7 +20,7 @@ for i in "${my_array[@]}"; do
     cat <<EOF > ${_NEW_NAME}
 - apiVersion: v1
   data:
-    ${_filename}: |-
+    ${_filename}.json: |-
       $(/bin/cat $i | jq --indent 7 .)
   kind: ConfigMap
   metadata:
@@ -30,11 +30,14 @@ EOF
 
 done
 
+
 # Consolidate into one yaml file that is easy to copy and paste
 cat $(pwd)/boards_yaml/* > $(pwd)/boards_yaml/final.yaml
 
 # incorrect spacing for some of these json values, simply indent them w/ 6 spaces
 gsed -i 's,^\},      \},g' $(pwd)/boards_yaml/final.yaml
+
+# gsed -i 's,${DS_PROMETHEUS},$datasource,g' $(pwd)/boards_yaml/final.yaml
 
 # # Optional, change all of the datasources into Prometheus
 # gsed -i 's|\"datasource\":[^,]*|\"datasource\": \"Prometheus\"|g' $(pwd)/boards_yaml/final.yaml
