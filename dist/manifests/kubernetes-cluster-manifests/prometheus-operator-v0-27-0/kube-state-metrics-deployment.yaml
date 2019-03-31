@@ -33,7 +33,7 @@ spec:
           requests:
             cpu: 10m
             memory: 20Mi
-
+          
       - args:
         - --logtostderr
         - --secure-listen-address=:9443
@@ -51,7 +51,7 @@ spec:
           requests:
             cpu: 10m
             memory: 20Mi
-
+          
       - args:
         - --host=127.0.0.1
         - --port=8081
@@ -66,7 +66,7 @@ spec:
           requests:
             cpu: 100m
             memory: 150Mi
-
+          
       - command:
         - /pod_nanny
         - --container=kube-state-metrics
@@ -97,7 +97,7 @@ spec:
           requests:
             cpu: 10m
             memory: 30Mi
-
+          
       nodeSelector:
         beta.kubernetes.io/os: linux
       securityContext:

@@ -3,6 +3,7 @@ kind: CustomResourceDefinition
 metadata:
   creationTimestamp: null
   name: prometheuses.monitoring.coreos.com
+
 spec:
   group: monitoring.coreos.com
   names:
@@ -1564,6 +1565,7 @@ spec:
                 the Prometheus Operator knows what version of Prometheus is being
                 configured.
               type: string
+
             imagePullSecrets:
               description: An optional list of references to secrets in the same namespace
                 to use for pulling prometheus and alertmanager images from registries

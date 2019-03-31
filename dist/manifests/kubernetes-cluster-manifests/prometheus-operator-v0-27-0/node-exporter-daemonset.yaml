@@ -30,7 +30,7 @@ spec:
           requests:
             cpu: 102m
             memory: 180Mi
-
+          
         volumeMounts:
         - mountPath: /host/proc
           name: proc
@@ -72,7 +72,7 @@ spec:
           requests:
             cpu: 90m
             memory: 60Mi
-
+          
       hostNetwork: true
       hostPID: true
       nodeSelector:

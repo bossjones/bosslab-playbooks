@@ -20,23 +20,23 @@ spec:
         - --kubelet-service=kube-system/kubelet
         - --logtostderr=true
         - --config-reloader-image=quay.io/coreos/configmap-reload:v0.0.1
-        - --prometheus-config-reloader=quay.io/coreos/prometheus-config-reloader:v0.28.0
-        # - --config-reloader-memory=50Mi ( when we move to v0.29.0 we can use this )
-        image: quay.io/coreos/prometheus-operator:v0.28.0
+        - --prometheus-config-reloader=quay.io/coreos/prometheus-config-reloader:v0.29.0
+        - --config-reloader-memory=50Mi
+        image: quay.io/coreos/prometheus-operator:v0.29.0
         name: prometheus-operator
         ports:
         - containerPort: 8080
           name: http
         resources:
           limits:
-            cpu: 200m
-            memory: 150Mi
+            # cpu: 200m
+            memory: 300Mi
             # k8s-infra version # memory: 500Mi
           requests:
             # cpu: 100m
             memory: 100Mi
             # k8s-infra version # memory: 300Mi
-
+          
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true

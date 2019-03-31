@@ -6,6 +6,7 @@ metadata:
     role: alert-rules
   name: prometheus-k8s-rules
   namespace: monitoring
+
 spec:
   groups:
   - name: k8s.rules
