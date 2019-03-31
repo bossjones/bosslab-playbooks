@@ -89,6 +89,10 @@ spec:
     matchLabels:
 {{ boss__efk__fluentd_daemon_set_spec_selector_match_labels | indent( width=8, indentfirst=True,blank=True) }}
 {% endif %}
+  # updateStrategy:
+  #   type: RollingUpdate
+  #   rollingUpdate:
+  #     maxUnavailable: 1
   template:
     metadata:
 {% if boss__efk__fluentd_daemon_set_spec_template_metadata_labels is defined %}
@@ -106,6 +110,20 @@ spec:
       priorityClassName: system-node-critical
       # serviceAccount: fluentd-es
       serviceAccountName: fluentd-es
+      nodeSelector:
+        beta.kubernetes.io/fluentd-ds-ready: "true"
+      # Minimize downtime during a rolling upgrade or deletion; tell Kubernetes to do a "force
+      # deletion": https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods.
+      terminationGracePeriodSeconds: 0
+      # tolerations:
+      #   # Make sure fluentd-es gets scheduled on all nodes.
+      #   - effect: NoSchedule
+      #     operator: Exists
+      #   # Mark the pod as a critical add-on for rescheduling.
+      #   - key: CriticalAddonsOnly
+      #     operator: Exists
+      #   - effect: NoExecute
+      #     operator: Exists
       containers:
       - name: fluentd-es
         # image: image: k8s.gcr.io/fluentd-elasticsearch:v2.2.0
@@ -134,23 +152,23 @@ spec:
         #   value: "changeme"
 {% if boss__efk__fluentd_daemon_set_spec_template_spec_securityContext is defined %}
         securityContext:
-{{ boss__efk__fluentd_daemon_set_spec_template_spec_securityContext | indent( width=8, indentfirst=True,blank=True) }}
+{{ boss__efk__fluentd_daemon_set_spec_template_spec_securityContext | indent( width=10, indentfirst=True,blank=True) }}
 {% endif %}
+
+{% if boss__efk__fluentd_daemon_set_spec_template_spec_resources is defined %}
+{% if boss__efk__fluentd_daemon_set_spec_template_spec_resources == False %}
+        # resources:
+{% else  %}
         resources:
-          limits:
-            memory: {{boss__efk__fluentd_mem_limit}}
-            # memory: 200Mi
-          requests:
-            cpu: {{boss__efk__fluentd_cpu_requests}}
-            memory: {{boss__efk__fluentd_mem_requests}}
+{{ boss__efk__fluentd_daemon_set_spec_template_spec_resources | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+
 {% if boss__efk__fluentd_daemon_set_spec_template_spec_volumeMounts is defined %}
         volumeMounts:
-{{ boss__efk__fluentd_daemon_set_spec_template_spec_volumeMounts | indent( width=8, indentfirst=True,blank=True) }}
+{{ boss__efk__fluentd_daemon_set_spec_template_spec_volumeMounts | indent( width=10, indentfirst=True,blank=True) }}
 {% endif %}
-      nodeSelector:
-        beta.kubernetes.io/fluentd-ds-ready: "true"
-      terminationGracePeriodSeconds: 30
 {% if boss__efk__fluentd_daemon_set_spec_template_spec_volumes is defined %}
       volumes:
-{{ boss__efk__fluentd_daemon_set_spec_template_spec_volumes | indent( width=6, indentfirst=True,blank=True) }}
+{{ boss__efk__fluentd_daemon_set_spec_template_spec_volumes | indent( width=8, indentfirst=True,blank=True) }}
 {% endif %}

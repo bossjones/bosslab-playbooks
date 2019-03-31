@@ -12,6 +12,7 @@ nfs_client_group: nfs_clients
 nfs_server_ip_override: 192.168.205.12
 k8_admin_config_dir: ~/dev/bossjones/bosslab-playbooks
 k8_admin_config_path: "{{k8_admin_config_dir}}/vagrant-admin.conf"
+queen_host: "k8s-head"
 
 # export KUBECONFIG=~/dev/bossjones/bosslab-playbooks/borg-admin.conf
 
@@ -209,17 +210,17 @@ boss__efk__elasticsearch_ingress_labels: |
   addonmanager.kubernetes.io/mode: Reconcile
   boss-part-of: efk
 boss__efk__elasticsearch_service_labels: |
-    k8s-app: elasticsearch-logging
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    kubernetes.io/name: "Elasticsearch"
-    boss-part-of: efk
+  k8s-app: elasticsearch-logging
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  kubernetes.io/name: "Elasticsearch"
+  boss-part-of: efk
 boss__efk__elasticsearch_persistent_volume_claim_labels: |
   kubernetes.io/cluster-service: "true"
   addonmanager.kubernetes.io/mode: Reconcile
   k8s-app: elasticsearch-logging
   boss-part-of: efk
-boss__efk__elasticsearch_persistent_volume_claim_spec_resources_requests_storage: "2Gi"
+boss__efk__elasticsearch_persistent_volume_claim_spec_resources_requests_storage: "1Gi"
 boss__efk__elasticsearch_persistent_volume_labels: |
   kubernetes.io/cluster-service: "true"
   addonmanager.kubernetes.io/mode: Reconcile
@@ -233,7 +234,18 @@ boss__efk__elasticsearch_mem_limit: 3048Mi
 boss__efk__elasticsearch_cpu_requests: 100m
 boss__efk__elasticsearch_mem_requests: 2350Mi
 
-boss__efk__elasticsearch_stateful_set_env_ES_JAVA_OPTS: "-Xms1024 -Xmx1024"
+boss__efk__elasticsearch_stateful_set_env_ES_JAVA_OPTS: "-Xms2048 -Xmx2048"
+
+# boss__efk__elasticsearch_stateful_set_spec_resources: False
+boss__efk__elasticsearch_stateful_set_spec_resources: |
+  # need more cpu upon initialization, therefore burstable class
+  requests:
+    cpu: 100m
+    memory: 2350Mi
+  limits:
+    cpu: 1000m
+    memory: 4048Mi
+
 boss__efk__elasticsearch_service_account_labels: |
     k8s-app: elasticsearch-logging
     kubernetes.io/cluster-service: "true"
@@ -301,7 +313,7 @@ boss__efk__elasticsearch_curator_mem_requests: 200Mi
 #    .##.......##.......##.....##.##.......##...###....##....##.....##
 #    .##.......########..#######..########.##....##....##....########.
 ##########################################################################################################
-boss__efk__fluentd_version: v2.2.0
+boss__efk__fluentd_version: v2.3.0
 boss__efk__fluentd_image_repo: "bossjones/fluentd-elasticsearch"
 boss__efk__fluentd_image_tag: "{{ boss__efk__fluentd_version }}"
 boss__efk__fluentd_mem_limit: 500Mi
@@ -333,12 +345,12 @@ boss__efk__fluentd_daemon_set_labels: |
     boss-part-of: efk
 boss__efk__fluentd_daemon_set_spec_selector_match_labels: |
       k8s-app: fluentd-es
-      version: v2.2.1
+      # version: v2.2.1
 boss__efk__fluentd_daemon_set_spec_template_metadata_labels: |
         k8s-app: fluentd-es
-        kubernetes.io/cluster-service: "true"
-        version: v2.2.1
-        boss-part-of: efk
+        # kubernetes.io/cluster-service: "true"
+        # version: v2.2.1
+        # boss-part-of: efk
 boss__efk__fluentd_daemon_set_spec_template_metadata_annotations: |
         scheduler.alpha.kubernetes.io/critical-pod: ''
         seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
@@ -348,6 +360,14 @@ boss__efk__fluentd_daemon_set_spec_template_spec_securityContext: |
   runAsNonRoot: false
   # runAsUser: 65534
   privileged: true
+
+boss__efk__fluentd_daemon_set_spec_template_spec_resources: |
+  requests:
+    cpu: 100m
+    memory: 200Mi
+  limits:
+    memory: 500Mi
+    # memory: 200Mi
 
 boss__efk__fluentd_daemon_set_spec_template_spec_volumeMounts: |
   # - name: libsystemddir
@@ -361,10 +381,12 @@ boss__efk__fluentd_daemon_set_spec_template_spec_volumeMounts: |
   - name: config-volume
     mountPath: /etc/fluent/config.d
   - name: docker-sock
-    mountPath: /var/run/docker.sock
+    # mountPath: /var/run/docker.sock
+    mountPath: /run/containerd/containerd.sock
   - name: varrun
     mountPath: /var/run
   - name: libsystemd
+    # mountPath: /usr/lib64/libsystemd.so.0
     mountPath: /usr/lib64/libsystemd.so.0
 
 boss__efk__fluentd_daemon_set_spec_template_spec_volumes: |
@@ -384,13 +406,14 @@ boss__efk__fluentd_daemon_set_spec_template_spec_volumes: |
       name: fluentd-es-config-v0.1.6
   - name: docker-sock
     hostPath:
-      path: /var/run/docker/libcontainerd/docker-containerd.sock
+      # path: /var/run/docker/libcontainerd/docker-containerd.sock
+      path: /var/run/docker.sock
   - name: varrun
     hostPath:
       path: /var/run
   - name: libsystemd
     hostPath:
-      path: /usr/lib64/libsystemd.so.0
+      path: /lib/x86_64-linux-gnu/libsystemd.so.0
 
 
 
@@ -414,31 +437,45 @@ boss__efk__kibana_cpu_limit: 1000m
 boss__efk__kibana_cpu_requests: 1000m
 
 boss__efk__kibana_deployment_labels: |
-    k8s-app: kibana-logging
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: efk
+  k8s-app: kibana-logging
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  boss-part-of: efk
 boss__efk__kibana_deployment_spec_replicas: 1
 boss__efk__kibana_deployment_spec_selector_match_labels: |
-      k8s-app: kibana-logging
+  k8s-app: kibana-logging
 boss__efk__kibana_deployment_spec_template_metadata_labels: |
-        k8s-app: kibana-logging
+  k8s-app: kibana-logging
 boss__efk__kibana_deployment_spec_template_spec_node_selector: |
-        kubernetes.io/hostname: "k8s-node-1"
+  kubernetes.io/hostname: "k8s-node-1"
 boss__efk__kibana_ingress_labels: |
-    k8s-app: kibana-ingress
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: efk
+  k8s-app: kibana-ingress
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  boss-part-of: efk
 boss__efk__kibana_ingress_annotations: |
-    nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
-    traefik.frontend.rule.type: PathPrefix
+  nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  traefik.frontend.rule.type: PathPrefix
 boss__efk__kibana_service_labels: |
-    k8s-app: kibana-logging
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    kubernetes.io/name: "Kibana"
-    boss-part-of: efk
+  k8s-app: kibana-logging
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  kubernetes.io/name: "Kibana"
+  boss-part-of: efk
+
+boss__efk__kibana_service_annotations: False
+# boss__efk__kibana_service_annotations: |
+#   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+#   traefik.frontend.rule.type: PathPrefix
+
+
+boss__efk__kibana_deployment_spec_template_spec_resources: False
+# boss__efk__kibana_deployment_spec_template_spec_resources: |
+  # # need more cpu upon initialization, therefore burstable class
+  # requests:
+  #   cpu: 1000m
+  # limits:
+  #   cpu: 1000m
 ############################################
 
 
@@ -545,8 +582,8 @@ boss__registry__stateful_set_labels: |
 
 boss__registry__stateful_set_spec_replicas: 1
 boss__registry__stateful_set_spec_selector_match_labels: |
-        k8s-app: registry
-        version: "{{ boss__registry__version }}"
+  k8s-app: registry
+  version: "{{ boss__registry__version }}"
 
 boss__registry__stateful_set_spec_template_metadata_labels: |
         k8s-app: registry
@@ -1048,55 +1085,210 @@ boss__ingress__nginx__controller_version: 0.21.0
 boss__ingress__nginx__controller_image_repo: "quay.io/kubernetes-ingress-controller/nginx-ingress-controller"
 boss__ingress__nginx__controller_image_tag: "{{ boss__ingress__nginx__controller_version }}"
 
+
+boss__ingress__nginx__defaultbackend_version: 1.4
+boss__ingress__nginx__defaultbackend_image_repo: "gcr.io/google_containers/defaultbackend"
+boss__ingress__nginx__defaultbackend_image_tag: "{{ boss__ingress__nginx__defaultbackend_version }}"
+
 boss__ingress__nginx__controller_runAsUser: 33
 
+boss__ingress__nginx__clusterrole_serviceaccount_labels: |
+  kubernetes.io/bootstrapping: rbac-defaults
+  addonmanager.kubernetes.io/mode: Reconcile
+  app.kubernetes.io/name: ingress-nginx
+  app.kubernetes.io/part-of: ingress-nginx
+
+boss__ingress__nginx__role_nginx_ingress_role_labels: |
+  kubernetes.io/bootstrapping: rbac-defaults
+  addonmanager.kubernetes.io/mode: Reconcile
+  app.kubernetes.io/name: ingress-nginx
+  app.kubernetes.io/part-of: ingress-nginx
+
+boss__ingress__nginx__service_labels: |
+  app.kubernetes.io/name: ingress-nginx
+  app.kubernetes.io/part-of: ingress-nginx
+boss__ingress__nginx__service_annotations: |
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "10254"
+
+boss__ingress__nginx__serviceAccountName: nginx-ingress
+
+boss__ingress__nginx__configmap_nginx_load_balancer_conf_labels: |
+  # addonmanager.kubernetes.io/mode: EnsureExists
+  app.kubernetes.io/name: ingress-nginx
+  app.kubernetes.io/part-of: ingress-nginx
+boss__ingress__nginx__configmap_tcp_services_labels: |
+  # addonmanager.kubernetes.io/mode: EnsureExists
+  app.kubernetes.io/name: ingress-nginx
+  app.kubernetes.io/part-of: ingress-nginx
+boss__ingress__nginx__configmap_udp_services_labels: |
+  # addonmanager.kubernetes.io/mode: EnsureExists
+  app.kubernetes.io/name: ingress-nginx
+  app.kubernetes.io/part-of: ingress-nginx
+
 boss__ingress__nginx__deployment_labels: |
-    app.kubernetes.io/name: nginx-ingress-controller
+    app.kubernetes.io/name: ingress-nginx
     # app.kubernetes.io/part-of: kube-system
-    app.kubernetes.io/part-of: nginx-ingress
+    app.kubernetes.io/part-of: ingress-nginx
     addonmanager.kubernetes.io/mode: Reconcile
 boss__ingress__nginx__deployment_spec_replicas: 1
 boss__ingress__nginx__deployment_spec_selector_match_labels: |
-      app.kubernetes.io/name: nginx-ingress-controller
+      app.kubernetes.io/name: ingress-nginx
       # app.kubernetes.io/part-of: kube-system
-      app.kubernetes.io/part-of: nginx-ingress
+      app.kubernetes.io/part-of: ingress-nginx
       addonmanager.kubernetes.io/mode: Reconcile
 boss__ingress__nginx__deployment_spec_template_metadata_labels: |
-        app.kubernetes.io/name: nginx-ingress-controller
+        app.kubernetes.io/name: ingress-nginx
         # app.kubernetes.io/part-of: kube-system
-        app.kubernetes.io/part-of: nginx-ingress
+        app.kubernetes.io/part-of: ingress-nginx
         addonmanager.kubernetes.io/mode: Reconcile
 boss__ingress__nginx__deployment_spec_template_metadata_annotations: |
         prometheus.io/port: "10254"
         prometheus.io/scrape: "true"
 boss__ingress__nginx__deployment_spec_template_spec_node_selector: |
-        kubernetes.io/hostname: "k8s-head"
+        kubernetes.io/hostname: "{{queen_host}}"
+        # app.kubernetes.io/name: ingress-nginx
+        # app.kubernetes.io/part-of: ingress-nginx
 
 boss__ingress__nginx__service_account_labels: |
     addonmanager.kubernetes.io/mode: Reconcile
     app.kubernetes.io/name: ingress-nginx
     app.kubernetes.io/part-of: ingress-nginx
 
+boss__ingress__nginx__service_selector_labels: |
+  # app.kubernetes.io/name: ingress-nginx
+  # app.kubernetes.io/part-of: ingress-nginx
+  app.kubernetes.io/name: ingress-nginx
+  app.kubernetes.io/part-of: ingress-nginx
+
+boss__ingress__nginx__service_defaulthttpbackend_selector_labels: |
+  app.kubernetes.io/name: default-http-backend
+  app.kubernetes.io/part-of: ingress-nginx
+
 boss__ingress__nginx__service_default_http_backend_spec_type: NodePort
 boss__ingress__nginx__service_ingress_nginx_spec_type: NodePort
+
+boss__ingress__nginx__service_spec_ports: |
+  - name: http
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: 443
+    protocol: TCP
+  - name: stats
+    port: 18080
+    targetPort: 18080
+    protocol: TCP
+  - name: metrics
+    port: 10254
+    targetPort: 10254
+    protocol: TCP
+
+boss__ingress__nginx__service_defaulthttpbackend_spec_ports: |
+  - port: 80
+    # Assign 8080 to <POD-IP>:<targetPort>
+    targetPort: 8080
+    protocol: TCP
+    name: http
+    # nodePort: The Service created in the last section already used NodePort, so your nginx HTTPS replica is ready to serve traffic on the internet if your node has a public IP.
+    # curl https://<WORKER-NODE-IP>:<NODE-PORT> -k
+    # nodePort: 30001
+    # - name: http
+    #   port: 80
+    #   targetPort: 80
+    #   protocol: TCP
+    # - name: https
+    #   port: 443
+    #   targetPort: 443
+    #   protocol: TCP
 
 boss__ingress__nginx__role_binding_labels: |
     # SOURCE: https://kubernetes.io/docs/reference/access-authn-authz/rbac/
     # Many of these are system: prefixed, which indicates that the resource is “owned” by the infrastructure. Modifications to these resources can result in non-functional clusters. One example is the system:node ClusterRole. This role defines permissions for kubelets. If the role is modified, it can prevent kubelets from working.
     # All of the default cluster roles and rolebindings are labeled with kubernetes.io/bootstrapping=rbac-defaults
     kubernetes.io/bootstrapping: rbac-defaults
-    addonmanager.kubernetes.io/mode: EnsureExists
+    # addonmanager.kubernetes.io/mode: EnsureExists
     app.kubernetes.io/name: ingress-nginx
     app.kubernetes.io/part-of: ingress-nginx
 
 boss__ingress__nginx__service__default_http_backend_labels: |
     app.kubernetes.io/name: default-http-backend
     # app.kubernetes.io/part-of: kube-system
-    app.kubernetes.io/part-of: nginx-ingress
+    app.kubernetes.io/part-of: ingress-nginx
     # kubernetes.io/minikube-addons: ingress
     # kubernetes.io/minikube-addons-endpoint: ingress
     addonmanager.kubernetes.io/mode: Reconcile
 
+boss__ingress__nginx__service__default_http_backend_annotations: False
+# boss__ingress__nginx__service__default_http_backend_annotations: |
+#   prometheus.io/scrape: "true"
+#   prometheus.io/port: "10254"
+
+boss__ingress__nginx__deployment__default_http_backend_labels: |
+    app.kubernetes.io/name: default-http-backend
+    # app.kubernetes.io/part-of: kube-system
+    app.kubernetes.io/part-of: ingress-nginx
+    # kubernetes.io/minikube-addons: ingress
+    # kubernetes.io/minikube-addons-endpoint: ingress
+    addonmanager.kubernetes.io/mode: Reconcile
+
+boss__ingress__nginx__defaulthttpbackend_deployment_spec_labels_matchLabels: |
+  app.kubernetes.io/name: default-http-backend
+  # addonmanager.kubernetes.io/mode: Reconcile
+
+
+boss__ingress__nginx__defaulthttpbackend_deployment_spec_template_spec_containers_resources: |
+  limits:
+    cpu: 20m
+    memory: 30Mi
+  requests:
+    cpu: 20m
+    memory: 30Mi
+
+boss__ingress__nginx__defaulthttpbackend_deployment_spec_template_spec_containers_ports: |
+  - containerPort: 8080
+
+boss__ingress__nginx__nginx_ingress_controller_deployment_spec_template_spec_containers_ports: |
+  - name: http
+    containerPort: 80
+    hostPort: 80
+  - name: https
+    containerPort: 443
+    hostPort: 443
+  # (Optional) we expose 18080 to access nginx stats in url /nginx-status
+  - name: stats
+    containerPort: 18080
+    hostPort: 18080
+  - name: metrics
+    containerPort: 10254
+    hostPort: 10254
+    protocol: TCP
+
+# boss__ingress__nginx__nginx_ingress_controller_deployment_spec_template_spec_containers_args: |
+#   - /nginx-ingress-controller
+#   # Service used to serve HTTP requests not matching any known server name (catch-all). Takes the form "namespace/name". The controller configures NGINX to forward requests to the first port of this Service. If not specified, a 404 page will be returned directly from NGINX.
+#   - --default-backend-service=$(POD_NAMESPACE)/default-http-backend
+#   # Name of the ConfigMap containing custom global configurations for the controller.
+#   - --configmap=$(POD_NAMESPACE)/nginx-load-balancer-conf
+#   # Name of the ConfigMap containing the definition of the TCP services to expose. The key in the map indicates the external port to be used. The value is a reference to a Service in the form "namespace/name:port", where "port" can either be a port number or name. TCP ports 80 and 443 are reserved by the controller for servicing HTTP traffic.
+#   - --tcp-services-configmap=$(POD_NAMESPACE)/tcp-services
+#   # Name of the ConfigMap containing the definition of the UDP services to expose. The key in the map indicates the external port to be used. The value is a reference to a Service in the form "namespace/name:port", where "port" can either be a port name or number.
+#   - --udp-services-configmap=$(POD_NAMESPACE)/udp-services
+#   # Prefix of the Ingress annotations specific to the NGINX controller. (default "nginx.ingress.kubernetes.io")
+#   - --annotations-prefix=nginx.ingress.kubernetes.io
+#   # NOTE: 'report-node-internal-ip-address' - Set the load-balancer status of Ingress objects to internal Node addresses instead of external. Requires the update-status parameter.
+#   # use minikube IP address in ingress status field
+#   - --report-node-internal-ip-address
+#   # log level for V logs
+#   # - --v=5
+#   # log to standard error instead of files (default true)
+#   - --logtostderr
+#   # Enable profiling via web interface host:port/debug/pprof/ (default true)
+#   - --profiling
+
+#   - --publish-service=$(POD_NAMESPACE)/ingress-nginx
 
 ##########################################################################################################
 #    .##.....##....###....########..##....##.########...#######..##......##.##....##.########..########.##....##.########..########.########.
@@ -1159,6 +1351,7 @@ boss__prometheus__operator__alertmanager_subdomain: alertmanager
 boss__prometheus__operator__alertmanager_version: v0.15.3
 boss__prometheus__operator__alertmanager_crd_baseImage: "quay.io/prometheus/alertmanager"
 boss__prometheus__operator__alertmanager_image_tag: "{{ boss__prometheus__operator__alertmanager_version }}"
+boss__prometheus__operator__alertmanager_replicas: 2
 
 boss__prometheus__operator__grafana_subdomain: grafana
 boss__prometheus__operator__grafana_version: 5.2.4
@@ -1260,11 +1453,13 @@ boss__prometheus__operator__prometheus_operator_config_reloader_image_repo: "qua
 boss__prometheus__operator__prometheus_operator_config_reloader_image_tag: "{{ boss__prometheus__operator__prometheus_operator_config_reloader_version }}"
 boss__prometheus__operator__prometheus_operator_config_reloader_deployment_spec_template_spec_containers_resources: |
   limits:
-    cpu: 200m
-    memory: 200Mi
+    # cpu: 200m
+    memory: 300Mi
+    # k8s-infra version # memory: 500Mi
   requests:
-    cpu: 100m
+    # cpu: 100m
     memory: 100Mi
+    # k8s-infra version # memory: 300Mi
 
 
 boss__prometheus__operator__alertmanager_ingress_metadata_annotations: |
@@ -1413,6 +1608,8 @@ boss__prometheus__operator__prometheus_adapter_volume_serving_cert_pv_spec_nfs: 
 
 boss__prometheus__operator__prometheus_additional_scrape_configs: |
   # RUN: kubectl --namespace monitoring create secret generic additional-scrape-configs --from-file=PLAINTEXT-SECRET-prometheus-additional.yaml --dry-run -oyaml > additional-scrape-configs.yaml
+  # global:
+  #     scrape_interval: 10s
   - job_name: 'netdata-scrape'
 
     metrics_path: '/api/v1/allmetrics'
@@ -1433,6 +1630,36 @@ boss__prometheus__operator__prometheus_additional_scrape_configs: |
     # 217 is rpi cluster
     static_configs:
       - targets: ['192.168.205.10:19999','192.168.205.11:19999','192.168.205.12:19999', '192.168.1.217:19999','192.168.1.184:19999','192.168.1.22:19999', '192.168.1.23:19999', '192.168.1.175:19999']
+
+  - job_name: 'ingress-nginx-endpoints'
+    kubernetes_sd_configs:
+    - role: pod
+      namespaces:
+        names:
+        # - ingress-nginx
+        - kube-system
+
+    relabel_configs:
+    - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+      action: keep
+      regex: true
+    - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scheme]
+      action: replace
+      target_label: __scheme__
+      regex: (https?)
+    - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+      action: replace
+      target_label: __metrics_path__
+      regex: (.+)
+    - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+      action: replace
+      target_label: __address__
+      regex: ([^:]+)(?::\d+)?;(\d+)
+      replacement: $1:$2
+
+    - source_labels: [__meta_kubernetes_service_name]
+      regex: prometheus-server
+      action: drop
 
 # SOURCE: https://techtran.science/2018/06/11/unifi-to-grafana-using-prometheus-and-unifi_exporter/
 # - job_name: 'unifi_exporter'
@@ -1563,6 +1790,22 @@ boss__influxdb__operator__persistent_volume_spec_capacity_storage: 250Mi
 boss__influxdb__operator__persistent_volume_spec_nfs_path: "{{path_to_network_disk}}/influxdb-operator"
 # boss__influxdb__operator__nfs_master_node_ip: "{{ hostvars[groups[nfs_server_group][0]]['ansible_' + main_network_interface].ipv4.address }}"
 boss__influxdb__operator__nfs_master_node_ip: "{{ nfs_server_ip_override }}"
+
+
+##########################################################################################################
+#   .########.########.##....##
+#   .##.......##.......##...##.
+#   .##.......##.......##..##..
+#   .######...######...#####...
+#   .##.......##.......##..##..
+#   .##.......##.......##...##.
+#   .########.##.......##....##
+##########################################################################################################
+boss__bootstrap__subdomain: bootstrap
+boss__bootstrap__manifest_path: "{{manifest_dir_path}}/bootstrap"
+boss__bootstrap__namespace_name: kube-system
+boss__bootstrap__deployment_name: bootstrap
+
 
 # ---
 # local_release_dir: /tmp/releases

@@ -1,0 +1,35 @@
+# https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/provider/baremetal/service-nodeport.yaml
+# NOTE: This is a fix for -
+#   - Services "ingress-nginx" not found
+#   - Flood of ingress-nginx service error in controller
+# https://github.com/kubernetes/ingress-nginx/issues/2599
+# https://github.com/kubernetes-sigs/kubespray/issues/3005
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-nginx
+  namespace: {{boss__ingress__nginx__namespace_name}}
+{% if boss__ingress__nginx__service_labels is defined %}
+  labels:
+{{ boss__ingress__nginx__service_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+
+{% if boss__ingress__nginx__service_annotations is defined %}
+  annotations:
+{{ boss__ingress__nginx__service_annotations | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+spec:
+  type: {{boss__ingress__nginx__service_ingress_nginx_spec_type}}
+{% if boss__ingress__nginx__service_ingress_nginx_spec_type == "LoadBalancer" %}
+  externalTrafficPolicy: Local
+{% endif %}
+{% if boss__ingress__nginx__service_spec_ports is defined %}
+  ports:
+{{ boss__ingress__nginx__service_spec_ports | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+{% if boss__ingress__nginx__service_selector_labels is defined %}
+  selector:
+{{ boss__ingress__nginx__service_selector_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}

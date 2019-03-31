@@ -1,0 +1,15 @@
+---
+- name: "velero | Create directory: {{boss__velero__manifest_path}}"
+  file:
+    path: "{{boss__velero__manifest_path}}"
+    state: directory
+
+- name: "velero | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__velero__manifest_path }}/{{ item }}"
+  with_items:
+    - "00-prereqs.yaml"
+    - "05-backupstoragelocation.yaml"
+    - "06-volumesnapshotlocation.yaml"
+    - "10-deployment.yaml"

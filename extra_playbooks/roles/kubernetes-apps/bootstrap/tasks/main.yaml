@@ -1,0 +1,13 @@
+---
+- name: "bootstrap | Create directory: {{boss__bootstrap__manifest_path}}"
+  file:
+    path: "{{boss__bootstrap__manifest_path}}"
+    state: directory
+
+- name: "bootstrap | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__bootstrap__manifest_path }}/{{ item }}"
+  with_items:
+    - "0-master-roles.yaml"
+    - "01-kubelet-to-apiserver.yaml"

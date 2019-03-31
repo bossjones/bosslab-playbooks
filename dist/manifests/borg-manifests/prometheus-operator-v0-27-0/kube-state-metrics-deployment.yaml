@@ -87,11 +87,11 @@ spec:
         name: addon-resizer
         resources:
           limits:
-            cpu: 50m
-            memory: 30Mi
+            cpu: 150m
+            memory: 150Mi
           requests:
-            cpu: 10m
-            memory: 30Mi
+            cpu: 100m
+            memory: 150Mi
           
       nodeSelector:
         beta.kubernetes.io/os: linux

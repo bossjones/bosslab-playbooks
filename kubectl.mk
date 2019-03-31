@@ -366,6 +366,36 @@ apply-efk:
 	@echo ""
 	kubectl describe storageclass | highlight
 
+ls-efk-fluentd:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "ls-efk-fluentd:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy efk$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/efk/* -type f -name '*fluentd*y*ml' -print0 | xargs -I FILE -t -0 -n1 ls FILE"
+	@echo ""
+	@echo ""
+
+apply-efk-fluentd:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "apply-fluentd-efk:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy efk$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/efk/* -type f -name '*fluentd*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	@echo ""
+	@echo ""
+
+delete-efk-fluentd:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete-efk:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy efk$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/efk/* -type f -name '*fluentd.*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl delete -f FILE"
+	@echo ""
+	@echo ""
+
 # https://github.com/kubernetes/kubernetes/blob/3d7d35ee8f099f4611dca06de4453f958b4b8492/cluster/addons/storage-class/local/default.yaml
 apply-efk-ingress:
 	$(call check_defined, cluster, Please set cluster)
@@ -374,6 +404,48 @@ apply-efk-ingress:
 	@printf "$$GREEN deploy efk$$NC\n"
 	@printf "=======================================\n"
 	bash -c "find dist/manifests/$(cluster)-manifests/efk/* -type f -name '*ingress.*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	@echo ""
+	@echo ""
+
+
+ls-efk-elasticsearch:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "ls-efk-elasticsearch:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy efk$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/efk/* -type f -name '*elasticsearch*y*ml' -print0 | xargs -I FILE -t -0 -n1 ls FILE"
+	@echo ""
+	@echo ""
+
+
+apply-efk-elasticsearch:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "apply-efk-elasticsearch:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN apply-efk-elasticsearch$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/efk/* -type f -name '*elasticsearch*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	@echo ""
+	@echo ""
+
+apply-efk-kibana:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "apply-efk-kibana:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN apply-efk-kibana$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/efk/* -type f -name '*kibana*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	@echo ""
+	@echo ""
+
+delete-efk-kibana:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete-efk-kibana:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete-efk-kibana$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/efk/* -type f -name '*kibana*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl delete -f FILE"
 	@echo ""
 	@echo ""
 
@@ -1664,7 +1736,40 @@ apply-prometheus-operator-ingress:
 	@printf "=======================================\n"
 	@printf "$$GREEN deploy prometheus-operator$$NC\n"
 	@printf "=======================================\n"
-	bash -c "find dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0/* -type f -name '*ingress.*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	bash -c "find dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0/* -type f -name '*ingress*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	@echo ""
+	@echo ""
+
+
+# https://github.com/kubernetes/kubernetes/blob/3d7d35ee8f099f4611dca06de4453f958b4b8492/cluster/addons/storage-class/local/default.yaml
+apply-prometheus-operator-alertmanager:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-prometheus-operator:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy prometheus-operator$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0/* -type f -name '*alertmanager*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	@echo ""
+	@echo ""
+
+apply-prometheus-operator-prometheus:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-prometheus-operator:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy prometheus-operator$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0/* -type f -name '*prometheus*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	@echo ""
+	@echo ""
+
+# https://github.com/kubernetes/kubernetes/blob/3d7d35ee8f099f4611dca06de4453f958b4b8492/cluster/addons/storage-class/local/default.yaml
+delete-prometheus-operator-alertmanager:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-prometheus-operator:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy prometheus-operator$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0/* -type f -name '*alertmanager*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl delete -f FILE"
 	@echo ""
 	@echo ""
 

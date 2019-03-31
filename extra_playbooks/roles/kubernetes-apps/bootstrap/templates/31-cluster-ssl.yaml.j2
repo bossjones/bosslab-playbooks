@@ -1,0 +1,62 @@
+# The following is the SSL certificate all cluster containers can use for ingress.
+---
+apiVersion: v1
+data:
+  tls.crt: {{CLUSTER_SSL_CERT_CORP}}
+  tls.key: {{CLUSTER_SSL_KEY_CORP}}
+kind: Secret
+metadata:
+  name: cluster-ssl-corp
+  namespace: kube-system
+type: kubernetes.io/tls
+---
+apiVersion: v1
+data:
+  tls.crt: {{CLUSTER_SSL_CERT_PUBLIC}}
+  tls.key: {{CLUSTER_SSL_KEY_PUBLIC}}
+kind: Secret
+metadata:
+  name: cluster-ssl-public
+  namespace: heptio-contour
+type: kubernetes.io/tls
+---
+apiVersion: v1
+data:
+  tls.crt: {{CLUSTER_SSL_CERT_CORP}}
+  tls.key: {{CLUSTER_SSL_KEY_CORP}}
+kind: Secret
+metadata:
+  name: cluster-ssl-corp
+  namespace: heptio-contour
+type: kubernetes.io/tls
+---
+apiVersion: v1
+data:
+  tls.crt: {{CLUSTER_SSL_CERT_INT}}
+  tls.key: {{CLUSTER_SSL_KEY_INT}}
+kind: Secret
+metadata:
+  name: cluster-ssl-int
+  namespace: heptio-contour
+type: kubernetes.io/tls
+---
+# Canary namespace needs this certificate until Contour supports default SSL certs per ingress controller
+apiVersion: v1
+data:
+  tls.crt: {{CLUSTER_SSL_CERT_PUBLIC}}
+  tls.key: {{CLUSTER_SSL_KEY_PUBLIC}}
+kind: Secret
+metadata:
+  name: cluster-ssl-public
+  namespace: canary
+type: kubernetes.io/tls
+---
+apiVersion: v1
+data:
+  tls.crt: {{CLUSTER_SSL_CERT_CORP}}
+  tls.key: {{CLUSTER_SSL_KEY_CORP}}
+kind: Secret
+metadata:
+  name: cluster-ssl-corp
+  namespace: monitoring
+type: kubernetes.io/tls

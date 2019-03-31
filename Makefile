@@ -1025,6 +1025,10 @@ ansible-profile-sysdig:
 	$(call check_defined, cluster, Please set cluster)
 	ansible-playbook playbooks/profile_sysdig.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "num_seconds=$(num_seconds) cluster=$(cluster)" --skip-tags "pause"
 
+ansible-tuning-sysctl:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook playbooks/tuning_sysctl.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+
 # SOURCE: https://dzone.com/articles/kubernetes-resource-usage-how-do-you-manage-and-mo
 analyze-k8-container-resource-usage:
 	@printf "analyze-k8-container-resource-usage:\n"
@@ -1099,5 +1103,29 @@ color-analyze-events-timestamp:
 
 color-analyze: color-analyze-k8-container-resource-usage color-analyze-pod-resource-consumption color-analyze-events-timestamp
 
+get-events-watch:
+	kubectl get events --all-namespaces --watch --output=custom-columns=MESSAGE:.message
+
+get-events:
+	kubectl get events --all-namespaces --output=custom-columns=MESSAGE:.message
+
+get-events-by-msg: get-events
+
+# SOURCE: https://github.com/coreos/prometheus-operator/blob/011588800c45beb9e421936b547b15a4bc88e134/contrib/kube-prometheus/README.md
+bootstrap-jsonnet:
+	go get -u github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb
+	go get github.com/google/go-jsonnet/jsonnet
+	go get github.com/brancz/gojsontoyaml
+
+jsonnet-download:
+	jb install
+
+convert-dashboards-yaml:
+	bash scripts/convert-dashboards-yaml.sh
+
+update_dashboards:
+	bash scripts/update_dashboards.sh
+
+get-custom-dashboards: update_dashboards convert-dashboards-yaml
 
 include *.mk

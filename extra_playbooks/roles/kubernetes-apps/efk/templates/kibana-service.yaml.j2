@@ -4,8 +4,20 @@ metadata:
   name: kibana-logging
   namespace: {{boss__efk__namespace_name}}
 {% if boss__efk__kibana_service_labels is defined %}
+{% if boss__efk__kibana_service_labels == False %}
+  # labels:
+{% else %}
   labels:
 {{ boss__efk__kibana_service_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+{% if boss__efk__kibana_service_annotations is defined %}
+{% if boss__efk__kibana_service_annotations == False %}
+  # annotations:
+{% else %}
+  annotations:
+{{ boss__efk__kibana_service_annotations | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 {% endif %}
 spec:
   ports:

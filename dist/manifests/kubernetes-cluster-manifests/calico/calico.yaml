@@ -71,7 +71,7 @@ metadata:
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "9093"
-    
+
 spec:
   ports:
     - port: 5473
@@ -113,7 +113,7 @@ spec:
         cluster-autoscaler.kubernetes.io/safe-to-evict: 'true'
         prometheus.io/scrape: "true"
         prometheus.io/port: "9093"
-        
+
     spec:
       nodeSelector:
         beta.kubernetes.io/os: linux
@@ -214,7 +214,7 @@ spec:
         scheduler.alpha.kubernetes.io/critical-pod: ''
         prometheus.io/scrape: "true"
         prometheus.io/port: "9091"
-        
+
     spec:
       nodeSelector:
         beta.kubernetes.io/os: linux
@@ -293,7 +293,7 @@ spec:
               value: "false"
             # Set Felix logging to "info"
             - name: FELIX_LOGSEVERITYSCREEN
-              value: "info"
+              value: "warn"
             # SOURCE: https://docs.projectcalico.org/v3.4/reference/felix/configuration
             - name: FELIX_HEALTHENABLED
               value: "true"
