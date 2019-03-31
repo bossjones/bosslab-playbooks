@@ -22,7 +22,6 @@ spec:
         - --config-reloader-image={{boss__prometheus__operator__configmap_reload_image_repo}}:{{boss__prometheus__operator__configmap_reload_image_tag}}
         - --prometheus-config-reloader={{boss__prometheus__operator__prometheus_operator_config_reloader_image_repo}}:{{boss__prometheus__operator__prometheus_operator_config_reloader_image_tag}}
         - --config-reloader-memory=50Mi
-        # ( when we move to v0.29.0 we can use this )
         image: quay.io/coreos/prometheus-operator:{{boss__prometheus__operator__prometheus_operator_image_tag}}
         name: prometheus-operator
         ports:
