@@ -383,6 +383,10 @@ open: open-netdata-registry open-netdata-node
 
 open-vagrant: open-netdata-vagrant
 
+open-all-in-browser:
+	$(call check_defined, cluster, Please set cluster)
+	./scripts/open-all-in-browser.sh $(cluster)
+
 # # https://docs.debops.org/en/latest/ansible/roles/debops.core/getting-started.html
 # # To see what facts are configured on a host, run command:
 # ansible <hostname> -s -m setup -a 'filter=ansible_local'
