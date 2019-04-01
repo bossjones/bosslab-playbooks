@@ -47,3 +47,15 @@ https://kubecloud.io/setting-up-a-kubernetes-1-11-raspberry-pi-cluster-using-kub
 # Long term metrics storage
 
 * https://docs.netdata.cloud/backends/
+
+
+# Git Issues
+
+### Prometheus-operator
+- https://github.com/coreos/prometheus-operator/issues/2409
+- https://github.com/coreos/prometheus-operator/pull/2371
+- https://github.com/helm/charts/issues/11447
+
+### Metrics-server
+- https://github.com/kubernetes-incubator/metrics-server/issues/144
+- https://github.com/Azure/AKS/issues/832

@@ -1,0 +1,3 @@
+{% if boss__prometheus__operator__alertmanager_plaintext_configs is defined %}
+{{ boss__prometheus__operator__alertmanager_plaintext_configs | indent( width=0, indentfirst=True,blank=True) }}
+{% endif %}

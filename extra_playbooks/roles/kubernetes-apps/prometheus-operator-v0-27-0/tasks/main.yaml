@@ -35,6 +35,7 @@
     - "grafana-ingress.yaml"
     - "grafana-service.yaml"
     - "grafana-serviceAccount.yaml"
+    - "grafana-serviceMonitor.yaml"
     - "kube-state-metrics-clusterRole.yaml"
     - "kube-state-metrics-clusterRoleBinding.yaml"
     - "kube-state-metrics-deployment.yaml"
@@ -79,3 +80,22 @@
     - "prometheus-serviceMonitorKubeScheduler.yaml"
     - "prometheus-serviceMonitorKubelet.yaml"
     # - "additional-scrape-configs.yaml"
+    - "generate-alertmanager-config.sh"
+    - "alertmanager-config-plaintext.yaml"
+
+############## now run script to create secrets then upload them
+
+- name: generate custom alertmanager config
+  shell: |
+    bash {{ boss__prometheus__operator__manifest_path }}/generate-alertmanager-config.sh
+
+    ls -lta {{ boss__prometheus__operator__manifest_path }}
+
+    rm {{ boss__prometheus__operator__manifest_path }}/generate-alertmanager-config.sh
+  become: '{{ item }}'
+  args:
+    executable: /bin/bash
+  environment:
+    KUBECONFIG: "{{ k8_admin_config_path }}"
+  with_items:
+    - false  # Run as vagrant
