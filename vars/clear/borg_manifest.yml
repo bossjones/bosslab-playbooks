@@ -1329,13 +1329,13 @@ boss__prometheus__operator__namespace_name: monitoring
 
 # This doesn't have a last tag or anything like that
 boss__prometheus__operator__alertmanager_subdomain: alertmanager
-boss__prometheus__operator__alertmanager_version: v0.15.3
+boss__prometheus__operator__alertmanager_version: v0.16.0
 boss__prometheus__operator__alertmanager_crd_baseImage: "quay.io/prometheus/alertmanager"
 boss__prometheus__operator__alertmanager_image_tag: "{{ boss__prometheus__operator__alertmanager_version }}"
 boss__prometheus__operator__alertmanager_replicas: 3
 
 boss__prometheus__operator__grafana_subdomain: grafana
-boss__prometheus__operator__grafana_version: 5.2.4
+boss__prometheus__operator__grafana_version: 6.0.2
 boss__prometheus__operator__grafana_image_repo: "grafana/grafana"
 boss__prometheus__operator__grafana_image_tag: "{{ boss__prometheus__operator__grafana_version }}"
 boss__prometheus__operator__grafana_cpu_limit: 2000m
@@ -1359,7 +1359,7 @@ boss__prometheus__operator__prometheus_version: v2.5.0
 boss__prometheus__operator__prometheus_crd_baseImage: "quay.io/prometheus/prometheus"
 boss__prometheus__operator__prometheus_image_tag: "{{ boss__prometheus__operator__prometheus_version }}"
 
-boss__prometheus__operator__node_exporter_version: v0.16.0
+boss__prometheus__operator__node_exporter_version: v0.17.0
 boss__prometheus__operator__node_exporter_image_repo: "quay.io/prometheus/node-exporter"
 boss__prometheus__operator__node_exporter_image_tag: "{{ boss__prometheus__operator__node_exporter_version }}"
 boss__prometheus__operator__node_exporter_daemonset_spec_template_spec_containers_resources: |
@@ -1370,7 +1370,7 @@ boss__prometheus__operator__node_exporter_daemonset_spec_template_spec_container
     cpu: 102m
     memory: 180Mi
 
-boss__prometheus__operator__kube_rbac_proxy_version: v0.4.0
+boss__prometheus__operator__kube_rbac_proxy_version: v0.4.1
 boss__prometheus__operator__kube_rbac_proxy_image_repo: "quay.io/coreos/kube-rbac-proxy"
 boss__prometheus__operator__kube_rbac_proxy_image_tag: "{{ boss__prometheus__operator__kube_rbac_proxy_version }}"
 boss__prometheus__operator__kube_rbac_proxy_daemonset_spec_template_spec_containers_resources: |
@@ -1396,7 +1396,7 @@ boss__prometheus__operator__kube_rbac_proxy_deployment_spec_template_spec_contai
     cpu: 10m
     memory: 20Mi
 
-boss__prometheus__operator__kube_state_metrics_version: v1.4.0
+boss__prometheus__operator__kube_state_metrics_version: v1.5.0
 boss__prometheus__operator__kube_state_metrics_image_repo: "quay.io/coreos/kube-state-metrics"
 boss__prometheus__operator__kube_state_metrics_image_tag: "{{ boss__prometheus__operator__kube_state_metrics_version }}"
 boss__prometheus__operator__kube_state_metrics_deployment_spec_template_spec_containers_resources: |
@@ -1407,8 +1407,8 @@ boss__prometheus__operator__kube_state_metrics_deployment_spec_template_spec_con
     cpu: 100m
     memory: 150Mi
 
-boss__prometheus__operator__addon_resizer_version: 1.0
-boss__prometheus__operator__addon_resizer_image_repo: "quay.io/coreos/addon-resizer"
+boss__prometheus__operator__addon_resizer_version: 2.1
+boss__prometheus__operator__addon_resizer_image_repo: "gcr.io/google-containers/addon-resizer-amd64"
 boss__prometheus__operator__addon_resizer_image_tag: "{{ boss__prometheus__operator__addon_resizer_version }}"
 boss__prometheus__operator__addon_resizer_deployment_spec_template_spec_containers_resources: |
   limits:
