@@ -40,6 +40,31 @@ lsmod_array=( ip_vs_wrr ip_vs_rr ip_vs_sh ip_vs nf_conntrack_ipv4 bridge br_netf
 
 for i in "${lsmod_array[@]}"; do goss add command "lsmod | grep -- \"^${i}\" | wc -l"; done
 
+
+
+# Remove the node from the ClusterStatus key of kubeadm-config ConfigMap (in
+# kube-system namespace). If this isn't done, the new node will fail to join
+# because kubeadm will think the etcd cluster is down, even though it isn't.
+# It's basing it's decision on the etcd endpoints it *thinks* should exist
+# per the kubeadm-config, even though the live cluster doesn't have that node.
+# https://github.com/kubernetes/kubernetes/blob/master/cmd/kubeadm/app/util/etcd/etcd.go#L81
+#
+# Extract the ClusterStatus, removing the reference to the node that was
+# deleted. The sed statement matches the deleted node name, then deletes that
+# line and the 2 lines after it.
+# # -----------------------------------------------------------------------------------------------------------------
+# kubectl get configmap kubeadm-config -n kube-system -o jsonpath='{.data.ClusterStatus}' | \
+#     sed -e "/$GCE_NAME/,+2d" > ClusterStatus
+# # Extract the ClusterConfiguration
+# kubectl get configmap kubeadm-config -n kube-system -o jsonpath='{.data.ClusterConfiguration}' \
+#     > ClusterConfiguration
+# # Generate the new ConfigMap using the two files we just created, and replace the existing ConfigMap.
+# kubectl create configmap kubeadm-config -n kube-system \
+#     --from-file ClusterConfiguration \
+#     --from-file ClusterStatus \
+#     -o yaml --dry-run | kubectl replace -f -
+# # -----------------------------------------------------------------------------------------------------------------
+
 # root@k8s-head:/etc# ls -lta
 # total 1100
 # drwxr-xr-x   2 root root       4096 Apr  1 00:18 netplan
