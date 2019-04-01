@@ -1350,6 +1350,10 @@ boss__prometheus__operator__grafana_deployment_spec_template_spec_containers_res
     cpu: 1000m
     memory: 100Mi
 
+boss__prometheus__operator__prometheus_adapter_version: v0.4.1
+boss__prometheus__operator__prometheus_adapter_crd_baseImage: "quay.io/coreos/k8s-prometheus-adapter-amd64"
+boss__prometheus__operator__prometheus_adapter_image_tag: "{{ boss__prometheus__operator__prometheus_adapter_version }}"
+
 boss__prometheus__operator__prometheus_subdomain: prometheus
 boss__prometheus__operator__prometheus_version: v2.5.0
 boss__prometheus__operator__prometheus_crd_baseImage: "quay.io/prometheus/prometheus"
