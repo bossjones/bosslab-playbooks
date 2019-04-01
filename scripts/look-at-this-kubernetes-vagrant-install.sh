@@ -1,6 +1,7 @@
 #!/bin/sh
 
 # SOURCE: https://github.com/jacqinthebox/vagrant-kubernetes/blob/d859ca35d7fe41f4798b169ce666fb5f27a435e6/kubernetes-vagrant-install.sh
+# INFO: look at this too - https://github.com/heptio/aws-quickstart/blob/3108ee451a76c3ffd86aca5e115427f8cf5ff2fa/scripts/setup-k8s-master.sh.in
 
 if [ ! -f /tmp/installed ]; then
 
