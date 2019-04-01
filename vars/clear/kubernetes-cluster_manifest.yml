@@ -1354,7 +1354,7 @@ boss__prometheus__operator__alertmanager_image_tag: "{{ boss__prometheus__operat
 boss__prometheus__operator__alertmanager_replicas: 2
 
 boss__prometheus__operator__grafana_subdomain: grafana
-boss__prometheus__operator__grafana_version: 6.0.0-beta1
+boss__prometheus__operator__grafana_version: 6.0.2
 boss__prometheus__operator__grafana_image_repo: "grafana/grafana"
 boss__prometheus__operator__grafana_image_tag: "{{ boss__prometheus__operator__grafana_version }}"
 boss__prometheus__operator__grafana_cpu_limit: 2000m
