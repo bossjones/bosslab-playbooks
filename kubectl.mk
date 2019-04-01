@@ -1773,6 +1773,30 @@ delete-prometheus-operator-alertmanager:
 	@echo ""
 	@echo ""
 
+
+# https://github.com/kubernetes/kubernetes/blob/3d7d35ee8f099f4611dca06de4453f958b4b8492/cluster/addons/storage-class/local/default.yaml
+apply-prometheus-operator-grafana:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "apply-prometheus-operator-grafana:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy apply-prometheus-operator-grafana$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0/* -type f -name '*grafana*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	@echo ""
+	@echo ""
+
+
+# https://github.com/kubernetes/kubernetes/blob/3d7d35ee8f099f4611dca06de4453f958b4b8492/cluster/addons/storage-class/local/default.yaml
+delete-prometheus-operator-grafana:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete-prometheus-operator-grafana:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy apply-prometheus-operator-grafana$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0/* -type f -name '*grafana*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl delete -f FILE"
+	@echo ""
+	@echo ""
+
 delete-prometheus-operator:
 	$(call check_defined, cluster, Please set cluster)
 	kubectl delete -f dist/manifests/$(cluster)-manifests/prometheus-operator-v0-27-0/
