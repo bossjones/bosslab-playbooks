@@ -1135,4 +1135,18 @@ get-custom-dashboards: update_dashboards convert-dashboards-yaml
 gen-sono:
 	sonobuoy gen --e2e-focus="sig-networking" --e2e-skip="Alpha" > sonobuoy.yaml
 
+sono-run:
+	sonobuoy run --kubeconfig $${KUBECONFIG} --e2e-focus="Conformance"
+
+sono-delete:
+	sonobuoy delete
+
+sono-retrieve:
+	-rm -rfv ./tars
+	-rm -rfv ./results
+	mkdir ./tars
+	mkdir ./results
+	sonobuoy retrieve ./tars 2> /dev/null
+	tar xzf ./tars/*.tar.gz -C ./results
+
 include *.mk
