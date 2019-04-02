@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -x
+
+file="${1}"
+
+#are there many yaml documents in this file?
+length=$(/usr/local/bin/yq -s '. | length' ${file})
+count=0
+
+echo $length
+
+# https://github.com/garethr/kubetest/issues/15
+#  | xargs -0 -I% -r -t -n1 /bin/bash -c "grep -v '^#' % | kubeval -v $KUBEVAL_KUBERNETES_VERSION"
+while [ "${count}" -lt "${length}" ]; do
+  /usr/local/bin/yq -s ".[${count}]" "${file}" | kubeval --strict --kubernetes-version=1.13.0 --schema-location=https://raw.githubusercontent.com/bossjones
+
+  count=$(( count + 1 ))
+
+done

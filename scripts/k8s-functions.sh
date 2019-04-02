@@ -32,8 +32,8 @@ detect_OS
 
 # https://github.com/liaoya/notebook/blob/a7748c673681912cbc06ca33f837b77e7a75a23b/cloud/kubernetes/k8s-functions.sh
 
-# yq has problem to put yaml file directly
-[[ $(command -v yq) ]] || { echo "The function is depended on yq (https://github.com/mikefarah/yq) command heavily"; exit 1; }
+# /usr/local/bin/yq has problem to put yaml file directly
+[[ $(command -v /usr/local/bin/yq) ]] || { echo "The function is depended on yq (https://github.com/mikefarah/yq) command heavily"; exit 1; }
 
 _TMP_DIR=$(mktemp -d)
 
@@ -97,7 +97,7 @@ check_manifest() {
 #         local value
 #         while  (( "$#")); do
 #             key=$1; shift; value=$1; shift
-#             yq w -i "${yamlfile}" data["${key}"] "${value}"
+#             /usr/local/bin/yq w -i "${yamlfile}" data["${key}"] "${value}"
 #         done
 #         if [[ $(command -v kubeval) ]]; then kubeval "${yamlfile}"; fi
 #         cat "${yamlfile}"
@@ -145,7 +145,7 @@ check_manifest() {
 #             if [[ -f ${item} ]]; then
 #                 key=$(basename "${item}")
 #                 value=$(cat "${item}")
-#                 yq w -i "${yamlfile}" data["${key}"] "${value}"
+#                 /usr/local/bin/yq w -i "${yamlfile}" data["${key}"] "${value}"
 #             fi
 #         done
 #         if [[ $(command -v kubeval ) ]]; then kubeval "${yamlfile}"; fi
@@ -190,7 +190,7 @@ check_manifest() {
 #             if [[ -f ${item} ]]; then
 #                 key=$(basename "${item}")
 #                 value=$(cat "${item}")
-#                 yq w -i "${yamlfile}" data["${key}"] "${value}"
+#                 /usr/local/bin/yq w -i "${yamlfile}" data["${key}"] "${value}"
 #             else
 #                 echo "${item} does not exist"
 #                 rm -f "${yamlfile}"
@@ -241,7 +241,7 @@ check_manifest() {
 #         while  (( "$#")); do
 #             key=$1; shift; value=$1; shift
 #             value=$(echo "${value}" | base64 -w 0)
-#             yq w -i "${yamlfile}" data["${key}"] "${value}"
+#             /usr/local/bin/yq w -i "${yamlfile}" data["${key}"] "${value}"
 #         done
 #         if [[ $(command -v kubeval) ]]; then kubeval "${yamlfile}"; fi
 #         cat "${yamlfile}"
@@ -291,7 +291,7 @@ check_manifest() {
 #             if [[ -f ${item} ]]; then
 #                 key=$(basename "${item}")
 #                 value=$(base64 -w 0 "${item}")
-#                 yq w -i "${yamlfile}" data["${key}"] "${value}"
+#                 /usr/local/bin/yq w -i "${yamlfile}" data["${key}"] "${value}"
 #             fi
 #         done
 #         if [[ $(command -v kubeval) ]]; then kubeval "${yamlfile}"; fi
@@ -342,7 +342,7 @@ check_manifest() {
 #             if [[ -f ${item} ]]; then
 #                 key=$(basename "${item}")
 #                 value=$(base64 -w 0 "${item}")
-#                 yq w -i "${yamlfile}" data["${key}"] "${value}"
+#                 /usr/local/bin/yq w -i "${yamlfile}" data["${key}"] "${value}"
 #             else
 #                 echo "${item} does not exist"
 #                 return 1
