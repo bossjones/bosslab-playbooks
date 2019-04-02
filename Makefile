@@ -1132,6 +1132,9 @@ update_dashboards:
 
 get-custom-dashboards: update_dashboards convert-dashboards-yaml
 
+sono-install:
+	go get -u -v github.com/heptio/sonobuoy
+
 gen-sono:
 	sonobuoy gen --e2e-focus="sig-networking" --e2e-skip="Alpha" > sonobuoy.yaml
 
