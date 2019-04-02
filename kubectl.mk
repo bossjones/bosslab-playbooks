@@ -366,6 +366,16 @@ apply-efk:
 	@echo ""
 	kubectl describe storageclass | highlight
 
+lint-efk:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "lint-efk:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint efk$$NC\n"
+	@printf "=======================================\n"
+	@echo ""
+	@echo ""
+	bash -c "find dist/manifests/$(cluster)-manifests/efk -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
 ls-efk-fluentd:
 	$(call check_defined, cluster, Please set cluster)
 	@printf "ls-efk-fluentd:\n"
