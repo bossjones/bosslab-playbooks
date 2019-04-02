@@ -1183,5 +1183,9 @@ install-bazel:
 	brew tap-pin bazelbuild/tap
 	brew install bazelbuild/tap/bazel
 
+download-kubernetes-schema:
+	test ! -d ~/dev/bossjones/kubernetes-json-schema && git clone git@github.com:bossjones/kubernetes-json-schema.git ~/dev/bossjones/kubernetes-json-schema || echo "DIR exists: ~/dev/bossjones/kubernetes-json-schema"
+	(cd ~/dev/bossjones/kubernetes-json-schema; git checkout kube-v1.13 )
+
 
 include *.mk

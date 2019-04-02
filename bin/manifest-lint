@@ -11,5 +11,5 @@ if [[ $# -ne 2 ]]; then
 fi
 
 for item in $(find dist/manifests/${cluster_name}-manifests/${folder_name} -type f -name '*.y*ml' ! -name '*.venv' -print); do
-    kubeval "${item}" < /dev/null || { echo "${item} is invalid"; cat "${item}"; }
+    kubeval --strict --kubernetes-version=1.13.0 --schema-location=https://raw.githubusercontent.com/bossjones "${item}" < /dev/null || { echo "${item} is invalid"; cat "${item}"; }
 done
