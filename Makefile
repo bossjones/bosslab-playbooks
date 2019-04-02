@@ -1174,5 +1174,14 @@ manifest-lint:
 # manifest-lint $(cluster) unifi-exporter
 # manifest-lint $(cluster) weave-scope
 
+# SOURCE: https://github.com/google/starlark-go
+install-starlark:
+	go get -u go.starlark.net/cmd/starlark
+
+install-bazel:
+	brew tap bazelbuild/tap
+	brew tap-pin bazelbuild/tap
+	brew install bazelbuild/tap/bazel
+
 
 include *.mk
