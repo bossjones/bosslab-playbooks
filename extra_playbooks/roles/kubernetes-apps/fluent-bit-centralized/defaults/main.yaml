@@ -1,0 +1,5 @@
+---
+boss__fluent__bit__centralized__echoserver_cpu_limit: 100m
+boss__fluent__bit__centralized__echoserver_mem_limit: 55Mi
+boss__fluent__bit__centralized__echoserver_cpu_requests: 100m
+boss__fluent__bit__centralized__echoserver_mem_requests: 20Mi

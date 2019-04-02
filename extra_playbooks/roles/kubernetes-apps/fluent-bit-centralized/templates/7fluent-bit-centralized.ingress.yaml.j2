@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{boss__fluent__bit__centralized__subdomain}}-ingress
+  namespace: {{boss__fluent__bit__centralized__namespace_name}}
+{% if boss__fluent__bit__centralized__ingress_labels is defined %}
+{% if boss__fluent__bit__centralized__ingress_labels == "disabled" %}
+      # labels:
+{% else %}
+      labels:
+{{ boss__fluent__bit__centralized__ingress_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+{% if boss__fluent__bit__centralized__ingress_annotations is defined %}
+{% if boss__fluent__bit__centralized__ingress_annotations == "disabled" %}
+      # annotations:
+{% else %}
+      annotations:
+{{ boss__fluent__bit__centralized__ingress_annotations | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+spec:
+  rules:
+  - host: {{boss__fluent__bit__centralized__subdomain}}.{{ domain_root }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{boss__fluent__bit__centralized__shared_name}}-svc
+          servicePort: 80

@@ -1,0 +1,16 @@
+---
+
+- name: "fluent-bit-centralized | Create directory: {{boss__fluent__bit__centralized__manifest_path}}"
+  file:
+    path: "{{boss__fluent__bit__centralized__manifest_path}}"
+    state: directory
+
+- name: "fluent-bit-centralized | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__fluent__bit__centralized__manifest_path }}/{{ item }}"
+  with_items:
+    - "0fluent-bit-centralized.namespace.yaml"
+    - "fluent-bit-centralized.svc.yaml"
+    - "fluent-bit-centralized.deploy.yaml"
+    - "fluent-bit-centralized.ingress.yaml"

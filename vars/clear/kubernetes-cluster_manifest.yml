@@ -1826,6 +1826,96 @@ boss__bootstrap__namespace_name: kube-system
 boss__bootstrap__deployment_name: bootstrap
 
 
+##########################################################################################################
+#   .########.##.......##.....##.########.##....##.########.........########..####.########..........######..########.##....##.########.########.....###....##.......####.########.########.########.
+#   .##.......##.......##.....##.##.......###...##....##............##.....##..##.....##............##....##.##.......###...##....##....##.....##...##.##...##........##.......##..##.......##.....##
+#   .##.......##.......##.....##.##.......####..##....##............##.....##..##.....##............##.......##.......####..##....##....##.....##..##...##..##........##......##...##.......##.....##
+#   .######...##.......##.....##.######...##.##.##....##....#######.########...##.....##....#######.##.......######...##.##.##....##....########..##.....##.##........##.....##....######...##.....##
+#   .##.......##.......##.....##.##.......##..####....##............##.....##..##.....##............##.......##.......##..####....##....##...##...#########.##........##....##.....##.......##.....##
+#   .##.......##.......##.....##.##.......##...###....##............##.....##..##.....##............##....##.##.......##...###....##....##....##..##.....##.##........##...##......##.......##.....##
+#   .##.......########..#######..########.##....##....##............########..####....##.............######..########.##....##....##....##.....##.##.....##.########.####.########.########.########.
+##########################################################################################################
+boss__fluent__bit__centralized__subdomain: fluent-bit-centralized
+boss__fluent__bit__centralized__manifest_path: "{{manifest_dir_path}}/fluent-bit-centralized"
+boss__fluent__bit__centralized__namespace_name: kube-system
+boss__fluent__bit__centralized__fluent_bit_version: 1.0.5
+boss__fluent__bit__centralized__fluent_bit_image_repo: "fluent/fluent-bit"
+boss__fluent__bit__centralized__fluent_bit_image_tag: "{{ boss__fluent__bit__centralized__fluent_bit_version }}"
+boss__fluent__bit__centralized__shared_name: fluent-bit-centralized
+
+boss__fluent__bit__centralized__deployment_spec_template_containers_resources: |
+  limits:
+    cpu: ".2"
+    memory: "100Mi"
+  requests:
+    cpu: "0.05"
+    memory: "10Mi"
+
+boss__fluent__bit__centralized__serviceAccountName: {{boss__fluent__bit__centralized__shared_name}}
+boss__fluent__bit__centralized__deployment_spec_replicas: 2
+
+# boss__fluent__bit__centralized__deployment_spec_template_containers_command: []
+
+boss__fluent__bit__centralized__deployment_labels: |-
+  k8s-app: {{boss__fluent__bit__centralized__shared_name}}
+  version: v1
+  kubernetes.io/cluster-service: "true"
+
+boss__fluent__bit__centralized__deployment_spec_matchLabels: |-
+  k8s-app: {{boss__fluent__bit__centralized__shared_name}}
+  version: v1
+
+boss__fluent__bit__centralized__deployment_spec_template_metadata_labels: |-
+  k8s-app: {{boss__fluent__bit__centralized__shared_name}}
+  version: v1
+  kubernetes.io/cluster-service: "true"
+
+boss__fluent__bit__centralized__deployment_spec_template_metadata_annotations: |
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "2020"
+  prometheus.io/path: /api/v1/metrics/prometheus
+
+boss__fluent__bit__centralized__deployment_spec_template_containers_ports: |-
+  - containerPort: 2020
+    name: http-metrics
+
+boss__fluent__bit__centralized__deployment_spec_template_containers_env: |-
+  - name: FLUENT_ELASTICSEARCH_HOST
+    value: "elasticsearch"
+  - name: FLUENT_ELASTICSEARCH_PORT
+    value: "9200"
+
+boss__fluent__bit__centralized__service_labels: |-
+  k8s-app: {{boss__fluent__bit__centralized__shared_name}}
+  version: v1
+  kubernetes.io/cluster-service: "true"
+
+boss__fluent__bit__centralized__service_annotations: |-
+  k8s-app: {{boss__fluent__bit__centralized__shared_name}}
+  version: v1
+  kubernetes.io/cluster-service: "true"
+
+boss__fluent__bit__centralized__service_spec_type: ClusterIP
+
+boss__fluent__bit__centralized__service_spec_ports: |-
+  - port: 2020
+    targetPort: 2020
+    protocol: TCP
+    name: http-metrics
+
+boss__fluent__bit__centralized__service_spec_selector: |-
+  app: {{boss__fluent__bit__centralized__shared_name}}
+
+
+boss__fluent__bit__centralized__grafana_ingress_metadata_annotations: |
+  nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  traefik.frontend.rule.type: PathPrefix
+
+boss__fluent__bit__centralized__grafana_ingress_metadata_labels: |
+  run: nginx
+  app: grafana
+
+
 # ---
 # local_release_dir: /tmp/releases
 

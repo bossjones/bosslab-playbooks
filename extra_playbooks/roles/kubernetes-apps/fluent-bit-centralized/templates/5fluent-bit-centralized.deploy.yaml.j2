@@ -1,0 +1,47 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{boss__fluent__bit__centralized__shared_name}}
+  namespace: {{boss__fluent__bit__centralized__namespace_name}}
+{% if boss__fluent__bit__centralized__deployment_labels is defined %}
+  labels:
+{{ boss__fluent__bit__centralized__deployment_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+spec:
+  replicas: {{boss__fluent__bit__centralized__deployment_spec_replicas}}
+  selector:
+{% if boss__fluent__bit__centralized__deployment_spec_matchLabels is defined %}
+    matchLabels:
+{{ boss__fluent__bit__centralized__deployment_spec_matchLabels | indent( width=6, indentfirst=True,blank=True) }}
+{% endif %}
+  template:
+    metadata:
+{% if boss__fluent__bit__centralized__deployment_spec_template_metadata_labels is defined %}
+      labels:
+{{ boss__fluent__bit__centralized__deployment_spec_template_metadata_labels | indent( width=8, indentfirst=True,blank=True) }}
+{% if boss__fluent__bit__centralized__deployment_spec_template_metadata_annotations is defined %}
+{% if boss__fluent__bit__centralized__deployment_spec_template_metadata_annotations == "disabled" %}
+      # annotations:
+{% else %}
+      annotations:
+{{ boss__fluent__bit__centralized__deployment_spec_template_metadata_annotations | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+    spec:
+      serviceAccountName: {{boss__fluent__bit__centralized__serviceAccountName}}
+      containers:
+      - name: {{boss__fluent__bit__centralized__shared_name}}
+        image: {{ boss__fluent__bit__centralized__fluent_bit_image_repo }}:{{ boss__fluent__bit__centralized__fluent_bit_image_tag }}
+        {# command:  #}
+{% if boss__fluent__bit__centralized__deployment_spec_template_containers_resources is defined %}
+{% if boss__fluent__bit__centralized__deployment_spec_template_containers_resources == "disabled" %}
+        # resources:
+{% else %}
+        resources:
+{{ boss__fluent__bit__centralized__deployment_spec_template_containers_resources | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+{% if boss__fluent__bit__centralized__deployment_spec_template_containers_ports is defined %}
+        ports:
+{{ boss__fluent__bit__centralized__deployment_spec_template_containers_ports | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}

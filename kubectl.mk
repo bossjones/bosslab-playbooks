@@ -1994,3 +1994,97 @@ test-influxdb-operator-curl:
 lint-influxdb-operator:
 	$(call check_defined, cluster, Please set cluster)
 	bash -c "find dist/manifests/$(cluster)-manifests/influxdb-operator -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+
+
+redeploy-fluent-bit-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete fluent-bit-centralized:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete fluent-bit-centralized$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/fluent-bit-centralized/
+
+	@printf "render fluent-bit-centralized manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render fluent-bit-centralized manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_fluent_bit_centralized.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "lint fluent-bit-centralized manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint fluent-bit-centralized manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/fluent-bit-centralized -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "apply-fluent-bit-centralized:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy fluent-bit-centralized$$NC\n"
+	@printf "=======================================\n"
+	-kubectl apply -f dist/manifests/$(cluster)-manifests/fluent-bit-centralized/
+	@echo ""
+	@echo ""
+
+create-fluent-bit-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-fluent-bit-centralized:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy fluent-bit-centralized$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/fluent-bit-centralized/
+	@echo ""
+	@echo ""
+
+apply-fluent-bit-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-fluent-bit-centralized:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy fluent-bit-centralized$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/fluent-bit-centralized/
+	@echo ""
+	@echo ""
+
+# https://github.com/kubernetes/kubernetes/blob/3d7d35ee8f099f4611dca06de4453f958b4b8492/cluster/addons/storage-class/local/default.yaml
+apply-fluent-bit-centralized-ingress:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-fluent-bit-centralized:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy fluent-bit-centralized$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/fluent-bit-centralized/* -type f -name '*ingress*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	@echo ""
+	@echo ""
+
+
+delete-fluent-bit-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/fluent-bit-centralized/
+
+describe-fluent-bit-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/fluent-bit-centralized/ | highlight
+
+debug-fluent-bit-centralized: describe-fluent-bit-centralized
+	kubectl -n kube-system get pod -l app=fluent-bit-centralized --output=yaml | highlight
+
+test-fluent-bit-centralized-curl:
+	-curl -v -L 'http://fluent-bit-centralized.hyenaclan.org'
+
+lint-fluent-bit-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	bash -c "find dist/manifests/$(cluster)-manifests/fluent-bit-centralized -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+code-fluent-bit-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	code dist/manifests/$(cluster)-manifests/fluent-bit-centralized
