@@ -1152,6 +1152,15 @@ sono-retrieve:
 	sonobuoy retrieve ./tars 2> /dev/null
 	tar xzf ./tars/*.tar.gz -C ./results
 
+sono-results:
+	bash scripts/sono-results.sh
+
+sono-status:
+	sonobuoy status
+
+sono-logs:
+	sonobuoy logs
+
 manifest-lint:
 	$(call check_defined, cluster, Please set cluster)
 # manifest-lint $(cluster) calico
