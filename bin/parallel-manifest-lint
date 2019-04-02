@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+# SOURCE: https://github.com/themattrix/bash-concurrent
+
+set -e -o pipefail
+
+# shellcheck source=concurrent.lib.sh
+# source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/concurrent.lib.sh"
+
+source scripts/concurrent.lib.sh
+source scripts/k8s-functions.sh
+
+check_manifest_parallel() {
+    local cluster_name=$1
+    local folder_name=$2
+
+    if [[ $# -ne 2 ]]; then
+        echo "Usage: ${FUNCNAME[0]} <cluster name> <folder>"
+        return 1
+    fi
+
+    # find dist/manifests/${cluster_name}-manifests/${folder_name} -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 kubeval FILE || { echo "FILE is invalid"; cat FILE; return 1; }
+
+    for item in $(find dist/manifests/${cluster_name}-manifests/${folder_name} -type f -name '*.y*ml' ! -name '*.venv' -print); do
+        kubeval "${item}" < /dev/null || { echo "${item} is invalid"; cat "${item}"; return 1; }
+
+    done
+}
+
+lint_all_manifests() {
+    local args=(
+        - "linting | efk" check_manifest_parallel kubernetes-cluster efk
+    )
+
+        # --sequential
+    concurrent "${args[@]}"
+}
+
+
+echo "Linting all manifests now"
+
+lint_all_manifests

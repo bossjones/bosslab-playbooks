@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail
+
+cluster_name=$1
+folder_name=$2
+
+if [[ $# -ne 2 ]]; then
+    echo "Usage: ${FUNCNAME[0]} <cluster name> <folder>"
+    exit 1
+fi
+
+for item in $(find dist/manifests/${cluster_name}-manifests/${folder_name} -type f -name '*.y*ml' ! -name '*.venv' -print); do
+    kubeval "${item}" < /dev/null || { echo "${item} is invalid"; cat "${item}"; }
+done

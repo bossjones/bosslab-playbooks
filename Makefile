@@ -1152,4 +1152,27 @@ sono-retrieve:
 	sonobuoy retrieve ./tars 2> /dev/null
 	tar xzf ./tars/*.tar.gz -C ./results
 
+manifest-lint:
+	$(call check_defined, cluster, Please set cluster)
+# manifest-lint $(cluster) calico
+# manifest-lint $(cluster) cert-manager
+# manifest-lint $(cluster) dashboard
+# manifest-lint $(cluster) dashboard-admin
+# manifest-lint $(cluster) echoserver
+	manifest-lint $(cluster) efk
+# manifest-lint $(cluster) heapster2
+# manifest-lint $(cluster) helm
+# manifest-lint $(cluster) influxdb-operator
+# manifest-lint $(cluster) ingress-nginx
+# manifest-lint $(cluster) jenkins-k8
+# manifest-lint $(cluster) metallb
+# manifest-lint $(cluster) metrics-server
+# manifest-lint $(cluster) prometheus-operator-v0-27-0
+# manifest-lint $(cluster) registry
+# manifest-lint $(cluster) registry-ui
+# manifest-lint $(cluster) traefik-internal
+# manifest-lint $(cluster) unifi-exporter
+# manifest-lint $(cluster) weave-scope
+
+
 include *.mk
