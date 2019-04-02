@@ -22,6 +22,8 @@ find dist/manifests/${cluster_name}-manifests/${folder_name} -type f -name '*.y*
 
 # /usr/local/bin/yq r dist/manifests/kubernetes-cluster-manifests/efk/fluentd-es-ds.yaml kind
 
+# SOURCE: https://github.com/hipages/docker-thumbor/blob/c0056850df23ad9102ecf64ee9722165aef1d516/.circleci/config.yml
+
 # - run:
 #     name: Split Kubernetes files
 #     command: |
