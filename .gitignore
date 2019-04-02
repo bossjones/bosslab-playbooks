@@ -208,4 +208,6 @@ vendor/
 
 
 # sonobuoy
-# *_sonobuoy_*.tar.gz
+*_sonobuoy_*.tar.gz
+results/
+tars/
