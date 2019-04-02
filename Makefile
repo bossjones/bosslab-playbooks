@@ -1145,6 +1145,7 @@ sono-delete:
 	sonobuoy delete
 
 sono-retrieve:
+	-rm -rfv *sonobuoy*.tar.gz
 	-rm -rfv ./tars
 	-rm -rfv ./results
 	mkdir ./tars
