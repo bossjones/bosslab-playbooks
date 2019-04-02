@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+# SOURCE: https://github.com/teamci/builder/blob/632d895532141676a5cd55f719bab0cbb750bb27/kubeval/kubeval-tap
+
+set -euo pipefail
+
+shopt -s globstar
+shopt -s nullglob
+
+run_command() {
+	echo "$ $*"
+	# shellcheck disable=SC2068
+	$@
+}
+
+main() {
+	local scratch output
+	scratch="$(mktemp)"
+	output="$(mktemp)"
+
+	echo '~~~ Software versions'
+	run_command kubeval --version
+	run_command ruby --version
+
+	echo '~~~ Finding manifest files'
+	if [ -f .teamci_test_files ]; then
+		echo 'INFO: finding manifests in file list'
+		xargs is-manifest.rb < .teamci_test_files > "${scratch}"
+	elif [ -x /config/kubeval/ls-files ]; then
+		echo 'INFO: using custom ls-files script'
+		/config/kubeval/ls-files > "${scratch}"
+	else
+		echo 'INFO: using default manifest lookup'
+		# is-manifest.rb ./**/*.{json,yaml,yml}   > "${scratch}"
+        # NOTE: This is the location - dist/manifests/kubernetes-cluster-manifests/efk/*.yaml
+		is-manifest.rb ./**/*.{json,yaml,yml}   > "${scratch}"
+        # is-manifest.rb dist/manifests/kubernetes-cluster-manifests/efk/*.{yaml,yml} > "${dumb}"
+	fi
+
+	if [ -z "$(cat "${scratch}")" ]; then
+		echo "INFO: No manifest files found. Skipping"
+		return 7
+	else
+		cat "${scratch}"
+	fi
+
+	echo '~~~ Running kubeval'
+	# kubeval has two issues. One, it seems to detect stdin when it's not called
+	# directly with a pipe, like called with cat | xargs. Stdin must be closed
+	# even if the file is explicitly provided. Two, the exit code doesn't
+	# work correctly, so the text indicating an error must be checked to determine
+	# the proper exit code.
+	xargs -I m sh -c 'kubeval m < /dev/null' < "${scratch}" | tee "${output}"
+	! grep -qF -- '--->' "${output}"
+}
+
+main "$@"
