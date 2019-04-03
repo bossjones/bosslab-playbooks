@@ -1963,6 +1963,12 @@ boss__fluent__bit__centralized__service_spec_ports: |-
 boss__fluent__bit__centralized__service_spec_selector: |-
   app: {{boss__fluent__bit__centralized__shared_name}}
 
+boss__fluent__bit__centralized__ingress_spec_rules_http_paths: |
+  - path: /
+    backend:
+      serviceName: {{boss__fluent__bit__centralized__shared_name}}
+      servicePort: 5140
+
 
 boss__fluent__bit__centralized__grafana_ingress_metadata_annotations: |
   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"

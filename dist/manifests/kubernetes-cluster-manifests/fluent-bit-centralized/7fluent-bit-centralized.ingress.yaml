@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: fluent-bit-centralized-ingress
+  name: fluent-bit-centralized
   namespace: kube-system
 spec:
   rules:
@@ -10,5 +10,6 @@ spec:
       paths:
       - path: /
         backend:
-          serviceName: fluent-bit-centralized-svc
-          servicePort: 80
+          serviceName: fluent-bit-centralized
+          servicePort: 5140
+      

@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: fluent-bit-centralized
   namespace: kube-system
-  annotations:
+  labels:
     k8s-app: fluent-bit-centralized
     version: v1
     kubernetes.io/cluster-service: "true"
