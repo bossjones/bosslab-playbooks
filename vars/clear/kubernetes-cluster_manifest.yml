@@ -1843,6 +1843,7 @@ boss__fluent__bit__centralized__fluent_bit_image_repo: "fluent/fluent-bit"
 boss__fluent__bit__centralized__fluent_bit_image_tag: "{{ boss__fluent__bit__centralized__fluent_bit_version }}"
 boss__fluent__bit__centralized__shared_name: fluent-bit-centralized
 boss__fluent__bit__centralized__configmap_suffix: "-0-1-0"
+boss__fluent__bit__centralized__create_namespace: "absent"
 
 boss__fluent__bit__centralized__deployment_spec_template_containers_resources: |
   limits:
@@ -1852,7 +1853,7 @@ boss__fluent__bit__centralized__deployment_spec_template_containers_resources: |
     cpu: "0.05"
     memory: "10Mi"
 
-boss__fluent__bit__centralized__serviceAccountName: {{boss__fluent__bit__centralized__shared_name}}
+boss__fluent__bit__centralized__serviceAccountName: "{{boss__fluent__bit__centralized__shared_name}}"
 boss__fluent__bit__centralized__deployment_spec_replicas: 2
 
 # boss__fluent__bit__centralized__deployment_spec_template_containers_command: []
@@ -1879,6 +1880,8 @@ boss__fluent__bit__centralized__deployment_spec_template_metadata_annotations: |
 boss__fluent__bit__centralized__deployment_spec_template_containers_ports: |-
   - containerPort: 2020
     name: http-metrics
+  - containerPort: 5140
+    name: syslog
 
 boss__fluent__bit__centralized__deployment_spec_template_containers_env: |-
   - name: FLUENT_ELASTICSEARCH_HOST
@@ -1947,6 +1950,10 @@ boss__fluent__bit__centralized__service_spec_ports: |-
     targetPort: 2020
     protocol: TCP
     name: http-metrics
+  - port: 5140
+    targetPort: 5140
+    protocol: TCP
+    name: syslog
 
 boss__fluent__bit__centralized__service_spec_selector: |-
   app: {{boss__fluent__bit__centralized__shared_name}}

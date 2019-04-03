@@ -933,7 +933,7 @@ render-manifest-fluent-bit-centralized:
 	@printf "=======================================\n"
 	@printf "$$GREEN lint fluent-bit-centralized manifest$$NC\n"
 	@printf "=======================================\n"
-	bash -c "find dist/manifests/$(cluster)-manifests/fluent_bit_centralized -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+	bash -c "find dist/manifests/$(cluster)-manifests/fluent-bit-centralized -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
 
 render-manifest:
 	$(call check_defined, cluster, Please set cluster)

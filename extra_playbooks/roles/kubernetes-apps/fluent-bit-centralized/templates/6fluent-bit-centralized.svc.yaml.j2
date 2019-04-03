@@ -8,7 +8,7 @@ metadata:
 {{ boss__fluent__bit__centralized__service_labels | indent( width=4, indentfirst=True,blank=True) }}
 {% endif %}
 {% if boss__fluent__bit__centralized__service_annotations is defined %}
-  labels:
+  annotations:
 {{ boss__fluent__bit__centralized__service_annotations | indent( width=4, indentfirst=True,blank=True) }}
 {% endif %}
 spec:

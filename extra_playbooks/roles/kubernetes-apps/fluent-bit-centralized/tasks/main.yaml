@@ -20,3 +20,8 @@
     - "6fluent-bit-centralized.svc.yaml"
     - "7fluent-bit-centralized.ingress.yaml"
 
+- name: Clean artifact path
+  file:
+    state: "{{boss__fluent__bit__centralized__create_namespace}}"
+    path: "{{ boss__fluent__bit__centralized__manifest_path }}/0fluent-bit-centralized.namespace.yaml"
+  when: boss__fluent__bit__centralized__create_namespace is defined and boss__fluent__bit__centralized__create_namespace == "absent"
