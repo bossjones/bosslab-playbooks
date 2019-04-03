@@ -9,10 +9,9 @@ metadata:
     kubernetes.io/cluster-service: "true"
 spec:
   replicas: 3
+
   # selector:
-  #   matchLabels:
-  #     k8s-app: fluent-bit-centralized
-  #     version: v1
+  #  matchLabels:
   template:
     metadata:
       labels:
@@ -24,7 +23,7 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "2020"
         prometheus.io/path: /api/v1/metrics/prometheus
-
+        
     spec:
       serviceAccountName: fluent-bit-centralized
       containers:
@@ -37,11 +36,11 @@ spec:
         #   value: "elasticsearch"
         # - name: FLUENT_ELASTICSEARCH_PORT
         #   value: "9200"
-
+        
           # Memory limit that the file tail plugin can use when appending data to the Engine
         - name: TAIL_BUF_LIMIT
           value: "5MB"
-
+        
         - name: NODE_IP
           valueFrom:
             fieldRef:
@@ -80,7 +79,7 @@ spec:
         # The Fluent Bit config file to use
         - name: fluent-bit-config
           mountPath: /fluent-bit/etc
-
+        
 
         resources:
           limits:
@@ -89,7 +88,7 @@ spec:
           requests:
             cpu: "0.05"
             memory: "10Mi"
-
+          
 
         ports:
         - containerPort: 2020
@@ -103,10 +102,10 @@ spec:
         emptyDir: {}
       - name: fluent-bit-config
         configMap:
-          name: fluent-bit-centralized-config-0-1-0
+          name: fluent-bit-centralized-config-0-2-0
       - name: fluent-data
         emptyDir: {}
-
+      
 
       hostNetwork: True
 

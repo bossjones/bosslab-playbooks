@@ -1856,7 +1856,7 @@ boss__fluent__bit__centralized__deployment_spec_template_containers_resources: |
     memory: "10Mi"
 
 boss__fluent__bit__centralized__serviceAccountName: "{{boss__fluent__bit__centralized__shared_name}}"
-boss__fluent__bit__centralized__deployment_spec_replicas: 2
+boss__fluent__bit__centralized__deployment_spec_replicas: 3
 
 # boss__fluent__bit__centralized__deployment_spec_template_containers_command: []
 
@@ -1886,6 +1886,7 @@ boss__fluent__bit__centralized__deployment_spec_template_containers_ports: |-
     name: http-metrics
   - containerPort: 5140
     name: syslog
+    protocol: TCP
 
 boss__fluent__bit__centralized__deployment_spec_template_containers_env: |-
   # - name: FLUENT_ELASTICSEARCH_HOST
