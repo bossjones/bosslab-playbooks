@@ -4,12 +4,20 @@ metadata:
   name: {{boss__fluent__bit__centralized__shared_name}}
   namespace: {{boss__fluent__bit__centralized__namespace_name}}
 {% if boss__fluent__bit__centralized__service_labels is defined %}
-  labels:
+{% if boss__fluent__bit__centralized__service_labels == "disabled" %}
+  # labels:
+{% else %}
+  annotations:
 {{ boss__fluent__bit__centralized__service_labels | indent( width=4, indentfirst=True,blank=True) }}
 {% endif %}
+{% endif %}
 {% if boss__fluent__bit__centralized__service_annotations is defined %}
+{% if boss__fluent__bit__centralized__service_annotations == "disabled" %}
+  # annotations:
+{% else %}
   annotations:
 {{ boss__fluent__bit__centralized__service_annotations | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 {% endif %}
 spec:
   type: {{boss__fluent__bit__centralized__service_spec_type}}

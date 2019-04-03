@@ -20,10 +20,10 @@ spec:
         version: v1
         kubernetes.io/cluster-service: "true"
       annotations:
-          prometheus.io/scrape: "true"
-          prometheus.io/port: "2020"
-          prometheus.io/path: /api/v1/metrics/prometheus
-          
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "2020"
+        prometheus.io/path: /api/v1/metrics/prometheus
+        
     spec:
       serviceAccountName: fluent-bit-centralized
       containers:
@@ -39,7 +39,7 @@ spec:
             memory: "10Mi"
           
         ports:
-          - containerPort: 2020
-            name: http-metrics
-          - containerPort: 5140
-            name: syslog
+        - containerPort: 2020
+          name: http-metrics
+        - containerPort: 5140
+          name: syslog

@@ -3,14 +3,11 @@ kind: Service
 metadata:
   name: fluent-bit-centralized
   namespace: kube-system
-  labels:
-    k8s-app: fluent-bit-centralized
-    version: v1
-    kubernetes.io/cluster-service: "true"
   annotations:
     k8s-app: fluent-bit-centralized
     version: v1
     kubernetes.io/cluster-service: "true"
+  # annotations:
 spec:
   type: ClusterIP
   ports:

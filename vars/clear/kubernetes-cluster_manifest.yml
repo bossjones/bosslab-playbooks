@@ -1938,10 +1938,7 @@ boss__fluent__bit__centralized__service_labels: |-
   version: v1
   kubernetes.io/cluster-service: "true"
 
-boss__fluent__bit__centralized__service_annotations: |-
-  k8s-app: {{boss__fluent__bit__centralized__shared_name}}
-  version: v1
-  kubernetes.io/cluster-service: "true"
+boss__fluent__bit__centralized__service_annotations: "disabled"
 
 boss__fluent__bit__centralized__service_spec_type: ClusterIP
 
