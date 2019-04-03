@@ -9,10 +9,16 @@ metadata:
 {% endif %}
 spec:
   replicas: {{boss__fluent__bit__centralized__deployment_spec_replicas}}
-  selector:
+
 {% if boss__fluent__bit__centralized__deployment_spec_matchLabels is defined %}
+{% if boss__fluent__bit__centralized__deployment_spec_matchLabels == "disabled" %}
+  # selector:
+  #  matchLabels:
+{% else %}
+  selector:
     matchLabels:
 {{ boss__fluent__bit__centralized__deployment_spec_matchLabels | indent( width=6, indentfirst=True,blank=True) }}
+{% endif %}
 {% endif %}
   template:
     metadata:

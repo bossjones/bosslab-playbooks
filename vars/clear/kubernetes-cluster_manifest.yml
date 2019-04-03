@@ -1844,7 +1844,8 @@ boss__fluent__bit__centralized__fluent_bit_image_tag: "{{ boss__fluent__bit__cen
 boss__fluent__bit__centralized__shared_name: fluent-bit-centralized
 boss__fluent__bit__centralized__configmap_suffix: "-0-1-0"
 boss__fluent__bit__centralized__create_namespace: "absent"
-boss__fluent__bit__centralized__create_ingress: "absent"
+boss__fluent__bit__centralized__create_ingress: "present"
+boss__fluent__bit__centralized__loglevel: "debug"
 
 boss__fluent__bit__centralized__deployment_spec_template_containers_resources: |
   limits:
@@ -1864,9 +1865,11 @@ boss__fluent__bit__centralized__deployment_labels: |-
   version: v1
   kubernetes.io/cluster-service: "true"
 
-boss__fluent__bit__centralized__deployment_spec_matchLabels: |-
-  k8s-app: {{boss__fluent__bit__centralized__shared_name}}
-  version: v1
+boss__fluent__bit__centralized__deployment_spec_matchLabels: "disabled"
+
+# boss__fluent__bit__centralized__deployment_spec_matchLabels: |-
+#   k8s-app: {{boss__fluent__bit__centralized__shared_name}}
+#   version: v1
 
 boss__fluent__bit__centralized__deployment_spec_template_metadata_labels: |-
   k8s-app: {{boss__fluent__bit__centralized__shared_name}}
@@ -1952,10 +1955,10 @@ boss__fluent__bit__centralized__service_annotations: "disabled"
 boss__fluent__bit__centralized__service_spec_type: ClusterIP
 
 boss__fluent__bit__centralized__service_spec_ports: |-
-  - port: 2020
-    targetPort: 2020
-    protocol: TCP
-    name: http-metrics
+  # - port: 2020
+  #   targetPort: 2020
+  #   protocol: TCP
+  #   name: http-metrics
   - port: 5140
     targetPort: 5140
     protocol: TCP
@@ -1979,8 +1982,8 @@ boss__fluent__bit__centralized__ingress_annotations: |-
   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
   traefik.frontend.rule.type: PathPrefix
 
-boss__fluent__bit__centralized__deployment_spec_template_spec_hostNetwork: true
-boss__fluent__bit__centralized__deployment_spec_template_spec_hostPID: true
+boss__fluent__bit__centralized__deployment_spec_template_spec_hostNetwork: True
+boss__fluent__bit__centralized__deployment_spec_template_spec_hostPID: True
 
 
 boss__fluent__bit__centralized__deployment_spec_template_spec_nodeSelector: |-

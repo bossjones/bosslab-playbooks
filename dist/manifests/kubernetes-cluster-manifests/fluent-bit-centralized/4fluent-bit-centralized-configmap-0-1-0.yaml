@@ -12,7 +12,7 @@ data:
     # This section sets up the global fluent-bit service parameters
     [SERVICE]
       Flush         1
-      Log_Level     info
+      Log_Level     debug
       Daemon        off
       Parsers_File  parsers.conf
       # HTTP Server

@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail
+
+host_name=$1
+
+if [[ $# -ne 1 ]]; then
+    echo "Usage: ${FUNCNAME[0]} <host name>"
+    echo "syslog-netcat-test fluent-bit-centralized.scarlettlab.com"
+    exit 1
+fi
+
+# <150> represents facility and severity following RC3164 Syslog header use the current timestamp and a random hostname
+# echo "<150>`env LANG=us_US.UTF-8 date "+%b %d %H:%M:%S"` host`date +%s` service: my special message goes here"
+
+# SOURCE: https://nelsonslog.wordpress.com/2013/04/19/faking-out-remote-syslog-via-netcat/
+# Replace localhost with the syslog server, of course. “sourcehost” is a string identifying the source; can be anything. The 14 is a combination of the severity (low 3 bits) and the service (high N bits). 14 = 8 + 6 which means “user message, informational”. RFC 3164 has the relevant detail. The syslog protocol is remarkably ad hoc; you can leave out the priority and it should still work. And there’s a provision for adding timestamps to the source message too. Note that syslog may suppress duplicate messages, so that may be why subsequent tests don’t show up. Unfortunately the BusyBox version of nc bundled in to Tomato doesn’t have the -u flag.
+
+echo "message" | nc -v "${host_name}" 5140
+# echo '<14>sourcehost message text' | nc -v "${host_name}" 5140
+# echo '<14>sourcehost message text' | nc -v -t "${host_name}" 5140
+# echo '<14>sourcehost message text' | nc -v -t "${host_name}" 80
+
+# echo "<150>`env LANG=us_US.UTF-8 date "+%b %d %H:%M:%S"` host`date +%s` service: my special message goes here" | netcat "${host_name}" -u 80 -w 1
+
+
