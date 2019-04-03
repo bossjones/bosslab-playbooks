@@ -1844,6 +1844,7 @@ boss__fluent__bit__centralized__fluent_bit_image_tag: "{{ boss__fluent__bit__cen
 boss__fluent__bit__centralized__shared_name: fluent-bit-centralized
 boss__fluent__bit__centralized__configmap_suffix: "-0-1-0"
 boss__fluent__bit__centralized__create_namespace: "absent"
+boss__fluent__bit__centralized__create_ingress: "absent"
 
 boss__fluent__bit__centralized__deployment_spec_template_containers_resources: |
   limits:
