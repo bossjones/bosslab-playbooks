@@ -19,6 +19,7 @@ spec:
         k8s-app: fluent-bit-centralized
         version: v1
         kubernetes.io/cluster-service: "true"
+
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "2020"
@@ -30,6 +31,7 @@ spec:
       - name: fluent-bit-centralized
         image: fluent/fluent-bit:1.0.5
         # command:
+
         env:
         # - name: FLUENT_ELASTICSEARCH_HOST
         #   value: "elasticsearch"
@@ -68,6 +70,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
+
         volumeMounts:
         - name: logging-volume # The volume where logs will be delivered by the Docker logging driver
           mountPath: /logging-volume
@@ -78,6 +81,7 @@ spec:
         - name: fluent-bit-config
           mountPath: /fluent-bit/etc
         
+
         resources:
           limits:
             cpu: ".2"
@@ -86,11 +90,13 @@ spec:
             cpu: "0.05"
             memory: "10Mi"
           
+
         ports:
         - containerPort: 2020
           name: http-metrics
         - containerPort: 5140
           name: syslog
+
       volumes:
       - name: logging-volume
         emptyDir: {}
@@ -100,3 +106,24 @@ spec:
       - name: fluent-data
         emptyDir: {}
       
+
+      hostNetwork: True
+
+      hostPID: True
+
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+
+      # securityContext:
+
+
+
+
+
+#      hostNetwork: true
+#      hostPID: true
+#      nodeSelector:
+#        beta.kubernetes.io/os: linux
+#      securityContext:
+#        runAsNonRoot: true
+#        runAsUser: 65534
