@@ -1,0 +1,173 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{boss__fluent__bit__centralized__shared_name}}-config-0-1-0
+  namespace: {{boss__fluent__bit__centralized__namespace_name}}
+  labels:
+    k8s-app: {{boss__fluent__bit__centralized__shared_name}}
+data:
+  # Configuration files: server, input, filters and output
+  # ======================================================
+  fluent-bit.conf: |
+    # This section sets up the global fluent-bit service parameters
+    [SERVICE]
+      Flush         1
+      Log_Level     info
+      Daemon        off
+      Parsers_File  parsers.conf
+      # HTTP Server
+      # ===========
+      # Enable/Disable the built-in HTTP Server for metrics
+      HTTP_Server  On
+      HTTP_Listen  0.0.0.0
+      HTTP_Port    2020
+    # This section sets up the file ingestion plugin.
+    # Raw logs from k8s-logging driver have the following keys:
+    # "log" - The line of output from the container
+    # "stream" - Either "stdout" or "stderr"
+    # "time" - Timestamp in ISO-8601 Datetime format
+    # [INPUT]
+    #   Name          tail
+    #   Path          /logging-volume/*.log
+    #   DB            /var/fluent-bit/logs.db
+    #   Tag           in_tail
+    #   Parser        docker
+    #   Path_Key      file_path
+    #   Mem_Buf_Limit ${TAIL_BUF_LIMIT}
+
+    [INPUT]
+      Name     syslog
+      Parser   syslog-rfc3164
+      Listen   0.0.0.0
+      Port     5140
+      Mode     tcp
+
+    # This section renames the log field to event, per the HEC format (http://dev.splunk.com/view/event-collector/SP-CAAAE6P#data)
+    [FILTER]
+      Name          modify
+      Match         *
+      Rename log event
+    # The time field is dropped, as it conflicts with Fluent Bit's time field
+    # (plus the raw message itself often has a timestamp as well)
+    [FILTER]
+      Name          modify
+      Match         *
+      Remove        time
+    # Add Kubernetes metadata to the record (http://dev.splunk.com/view/event-collector/SP-CAAAE6P#meta)
+    [FILTER]
+      Name               modify
+      Match              *
+      Add host           ${NODE_IP}
+      Add pod_name       ${POD_NAME}
+      Add pod_uid        ${POD_UID}
+      Add pod_ip         ${POD_IP}
+      Add namespace      ${POD_NAMESPACE}
+      Add node_name      ${NODE_NAME}
+    # The following section moves certain fields to Splunk indexed fields (http://dev.splunk.com/view/event-collector/SP-CAAAFB6#addafields)
+    [FILTER]
+      Name          nest
+      Match         *
+      Operation     nest
+      Wildcard      stream
+      Wildcard      file_path
+      Wildcard      pod_name
+      Wildcard      pod_uid
+      Wildcard      pod_ip
+      Wildcard      namespace
+      Wildcard      node_name
+      Nest_under    fields
+    # Send the filtered logs to Splunk
+    [OUTPUT]
+      Name     stdout
+      Match    *
+  # Configuration: Parsers
+
+  parsers.conf: |
+    [PARSER]
+        Name   apache
+        Format regex
+        Regex  ^(?<host>[^ ]*) [^ ]* (?<user>[^ ]*) \[(?<time>[^\]]*)\] "(?<method>\S+)(?: +(?<path>[^\"]*?)(?: +\S*)?)?" (?<code>[^ ]*) (?<size>[^ ]*)(?: "(?<referer>[^\"]*)" "(?<agent>[^\"]*)")?$
+        Time_Key time
+        Time_Format %d/%b/%Y:%H:%M:%S %z
+    [PARSER]
+        Name   apache2
+        Format regex
+        Regex  ^(?<host>[^ ]*) [^ ]* (?<user>[^ ]*) \[(?<time>[^\]]*)\] "(?<method>\S+)(?: +(?<path>[^ ]*) +\S*)?" (?<code>[^ ]*) (?<size>[^ ]*)(?: "(?<referer>[^\"]*)" "(?<agent>.*)")?$
+        Time_Key time
+        Time_Format %d/%b/%Y:%H:%M:%S %z
+    [PARSER]
+        Name   apache_error
+        Format regex
+        Regex  ^\[[^ ]* (?<time>[^\]]*)\] \[(?<level>[^\]]*)\](?: \[pid (?<pid>[^\]]*)\])?( \[client (?<client>[^\]]*)\])? (?<message>.*)$
+    [PARSER]
+        Name   nginx
+        Format regex
+        Regex ^(?<remote>[^ ]*) (?<host>[^ ]*) (?<user>[^ ]*) \[(?<time>[^\]]*)\] "(?<method>\S+)(?: +(?<path>[^\"]*?)(?: +\S*)?)?" (?<code>[^ ]*) (?<size>[^ ]*)(?: "(?<referer>[^\"]*)" "(?<agent>[^\"]*)")?$
+        Time_Key time
+        Time_Format %d/%b/%Y:%H:%M:%S %z
+    [PARSER]
+        Name   json
+        Format json
+        Time_Key time
+        Time_Format %d/%b/%Y:%H:%M:%S %z
+    [PARSER]
+        Name         docker
+        Format       json
+        Time_Key     time
+        Time_Format  %Y-%m-%dT%H:%M:%S.%L
+        Time_Keep    On
+        # Command      |  Decoder | Field | Optional Action
+        # =============|==================|=================
+        Decode_Field_As   escaped    log
+    [PARSER]
+        Name        docker-daemon
+        Format      regex
+        Regex       time="(?<time>[^ ]*)" level=(?<level>[^ ]*) msg="(?<msg>[^ ].*)"
+        Time_Key    time
+        Time_Format %Y-%m-%dT%H:%M:%S.%L
+        Time_Keep   On
+    [PARSER]
+        Name        syslog-rfc5424
+        Format      regex
+        Regex       ^\<(?<pri>[0-9]{1,5})\>1 (?<time>[^ ]+) (?<host>[^ ]+) (?<ident>[^ ]+) (?<pid>[-0-9]+) (?<msgid>[^ ]+) (?<extradata>(\[(.*)\]|-)) (?<message>.+)$
+        Time_Key    time
+        Time_Format %Y-%m-%dT%H:%M:%S.%L
+        Time_Keep   On
+    [PARSER]
+        Name        syslog-rfc3164-local
+        Format      regex
+        Regex       ^\<(?<pri>[0-9]+)\>(?<time>[^ ]* {1,2}[^ ]* [^ ]*) (?<ident>[a-zA-Z0-9_\/\.\-]*)(?:\[(?<pid>[0-9]+)\])?(?:[^\:]*\:)? *(?<message>.*)$
+        Time_Key    time
+        Time_Format %b %d %H:%M:%S
+        Time_Keep   On
+    [PARSER]
+        Name        syslog-rfc3164
+        Format      regex
+        Regex       /^\<(?<pri>[0-9]+)\>(?<time>[^ ]* {1,2}[^ ]* [^ ]*) (?<host>[^ ]*) (?<ident>[a-zA-Z0-9_\/\.\-]*)(?:\[(?<pid>[0-9]+)\])?(?:[^\:]*\:)? *(?<message>.*)$/
+        Time_Key    time
+        Time_Format %b %d %H:%M:%S
+        Time_Format %Y-%m-%dT%H:%M:%S.%L
+        Time_Keep   On
+    [PARSER]
+        Name    mongodb
+        Format  regex
+        Regex   ^(?<time>[^ ]*)\s+(?<severity>\w)\s+(?<component>[^ ]+)\s+\[(?<context>[^\]]+)]\s+(?<message>.*?) *(?<ms>(\d+))?(:?ms)?$
+        Time_Format %Y-%m-%dT%H:%M:%S.%L
+        Time_Keep   On
+        Time_Key time
+    [PARSER]
+        # http://rubular.com/r/izM6olvshn
+        Name crio
+        Format Regex
+        Regex /^(?<time>.+)\b(?<stream>stdout|stderr)\b(?<log>.*)$/
+        Time_Key    time
+        Time_Format %Y-%m-%dT%H:%M:%S.%N%:z
+        Time_Keep   On
+    [PARSER]
+        Name    kube-custom
+        Format  regex
+        Regex   var\.log\.containers\.(?<pod_name>[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*)_(?<namespace_name>[^_]+)_(?<container_name>.+)-(?<docker_id>[a-z0-9]{64})\.log$
+    [PARSER]
+        Name    filter-kube-test
+        Format  regex
+        Regex   .*kubernetes.(?<pod_name>[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*)_(?<namespace_name>[^_]+)_(?<container_name>.+)-(?<docker_id>[a-z0-9]{64})\.log$

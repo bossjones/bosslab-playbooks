@@ -14,3 +14,6 @@
     - "fluent-bit-centralized.svc.yaml"
     - "fluent-bit-centralized.deploy.yaml"
     - "fluent-bit-centralized.ingress.yaml"
+
+
+# {{boss__fluent__bit__centralized__configmap_suffix}}
