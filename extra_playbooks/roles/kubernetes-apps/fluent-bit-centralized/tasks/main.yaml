@@ -11,9 +11,12 @@
     dest: "{{ boss__fluent__bit__centralized__manifest_path }}/{{ item }}"
   with_items:
     - "0fluent-bit-centralized.namespace.yaml"
-    - "fluent-bit-centralized.svc.yaml"
-    - "fluent-bit-centralized.deploy.yaml"
-    - "fluent-bit-centralized.ingress.yaml"
+    - "1fluent-bit-centralized-service-account.yaml"
+    - "2fluent-bit-centralized-role.yaml"
+    - "3fluent-bit-centralized-role-binding.yaml"
+    - "4fluent-bit-centralized-configmap{{boss__fluent__bit__centralized__configmap_suffix}}.yaml"
+    # - "4fluent-bit-centralized-configmap.yaml"
+    - "5fluent-bit-centralized.deploy.yaml"
+    - "6fluent-bit-centralized.svc.yaml"
+    - "7fluent-bit-centralized.ingress.yaml"
 
-
-# {{boss__fluent__bit__centralized__configmap_suffix}}
