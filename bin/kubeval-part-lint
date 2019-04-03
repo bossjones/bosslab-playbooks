@@ -24,6 +24,13 @@ ls -lta *part*
 popd
 
 pushd dist/manifests/${cluster_name}-manifests/${folder_name}
-{ grep -l 'kind: Certificate' kube-*.y*ml.part* || true; } | xargs -r rm -f
-find . -maxdepth 1 -name "*.y*ml.part" -type f -print0 | xargs -0 -I% -r -t -n1 /bin/bash -c "grep -v '^#' % | kubeval --strict --kubernetes-version=1.13.0 --schema-location=https://raw.githubusercontent.com/bossjones"
+{ grep -l 'kind: Certificate' *.y*ml.part* || true; } | xargs rm -f
+for item in $(ls *.part*); do
+    # Remove all comments
+    gsed -i "s|#.*||g" "${item}"
+    kubeval --strict --kubernetes-version=1.13.0 --schema-location=https://raw.githubusercontent.com/bossjones "${item}" < /dev/null || { echo "${item} is invalid"; cat "${item}"; }
+done
+
+
+rm -rfv *.part*
 popd
