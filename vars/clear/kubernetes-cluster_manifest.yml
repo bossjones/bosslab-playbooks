@@ -1842,7 +1842,7 @@ boss__fluent__bit__centralized__fluent_bit_version: 1.0.5
 boss__fluent__bit__centralized__fluent_bit_image_repo: "fluent/fluent-bit"
 boss__fluent__bit__centralized__fluent_bit_image_tag: "{{ boss__fluent__bit__centralized__fluent_bit_version }}"
 boss__fluent__bit__centralized__shared_name: fluent-bit-centralized
-boss__fluent__bit__centralized__configmap_suffix: "-0-1-0"
+boss__fluent__bit__centralized__configmap_suffix: "-0-2-0"
 boss__fluent__bit__centralized__create_namespace: "absent"
 boss__fluent__bit__centralized__create_ingress: "present"
 boss__fluent__bit__centralized__loglevel: "debug"
