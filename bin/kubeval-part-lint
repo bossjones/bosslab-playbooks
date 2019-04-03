@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail
+
+cluster_name=$1
+folder_name=$2
+
+if [[ $# -ne 2 ]]; then
+    echo "Usage: ${FUNCNAME[0]} <cluster name> <folder>"
+    echo "Example: kubeval-part-lint kubernetes-cluster fluent-bit-centralized"
+    exit 1
+fi
+
+# Generate split files for kubetest
+# see: https://github.com/garethr/kubetest/issues/15
+echo "Split Kubernetes files"
+echo
+echo
+
+pushd dist/manifests/${cluster_name}-manifests/${folder_name}
+# SOURCE: https://github.com/hipages/docker-newrelic-php-daemon/blob/bd3bd7d80c06284bb09cd748a7a42d7a6bd28557/.circleci/config.yml
+find . -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -0 -I% /bin/bash -c "grep -v '^#' % | csplit -f '%.part' -k -z - '/^---$/' '{*}'"
+ls -lta *part*
+popd
+
+pushd dist/manifests/${cluster_name}-manifests/${folder_name}
+{ grep -l 'kind: Certificate' kube-*.y*ml.part* || true; } | xargs -r rm -f
+find . -maxdepth 1 -name "*.y*ml.part" -type f -print0 | xargs -0 -I% -r -t -n1 /bin/bash -c "grep -v '^#' % | kubeval --strict --kubernetes-version=1.13.0 --schema-location=https://raw.githubusercontent.com/bossjones"
+popd

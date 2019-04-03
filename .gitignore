@@ -211,3 +211,4 @@ vendor/
 *_sonobuoy_*.tar.gz
 results/
 tars/
+*.yaml.part*

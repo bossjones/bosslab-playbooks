@@ -17,8 +17,11 @@ echo "Split Kubernetes files"
 echo
 echo
 
+pushd dist/manifests/${cluster_name}-manifests/${folder_name}
 # SOURCE: https://github.com/hipages/docker-newrelic-php-daemon/blob/bd3bd7d80c06284bb09cd748a7a42d7a6bd28557/.circleci/config.yml
-find dist/manifests/${cluster_name}-manifests/${folder_name} -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -0 -I% /bin/bash -c "grep -v '^#' % | csplit -f '%.part' -k -z - '/^---$/' '{*}'"
+find . -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -0 -I% /bin/bash -c "grep -v '^#' % | csplit -f '%.part' -k -z - '/^---$/' '{*}'"
+ls -lta *part*
+popd
 
 # /usr/local/bin/yq r dist/manifests/kubernetes-cluster-manifests/efk/fluentd-es-ds.yaml kind
 
