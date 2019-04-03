@@ -20,4 +20,4 @@ spec:
       protocol: TCP
       name: syslog
   selector:
-    app: fluent-bit-centralized
+    k8s-app: fluent-bit-centralized

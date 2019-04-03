@@ -1961,7 +1961,7 @@ boss__fluent__bit__centralized__service_spec_ports: |-
     name: syslog
 
 boss__fluent__bit__centralized__service_spec_selector: |-
-  app: {{boss__fluent__bit__centralized__shared_name}}
+  k8s-app: {{boss__fluent__bit__centralized__shared_name}}
 
 boss__fluent__bit__centralized__ingress_spec_rules_http_paths: |
   - path: /
@@ -1969,15 +1969,14 @@ boss__fluent__bit__centralized__ingress_spec_rules_http_paths: |
       serviceName: {{boss__fluent__bit__centralized__shared_name}}
       servicePort: 5140
 
+boss__fluent__bit__centralized__ingress_labels: |-
+  k8s-app: {{boss__fluent__bit__centralized__shared_name}}
+  version: v1
+  kubernetes.io/cluster-service: "true"
 
-boss__fluent__bit__centralized__grafana_ingress_metadata_annotations: |
+boss__fluent__bit__centralized__ingress_annotations: |-
   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
   traefik.frontend.rule.type: PathPrefix
-
-boss__fluent__bit__centralized__grafana_ingress_metadata_labels: |
-  run: nginx
-  app: grafana
-
 
 # ---
 # local_release_dir: /tmp/releases

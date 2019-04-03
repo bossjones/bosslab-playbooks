@@ -5,17 +5,17 @@ metadata:
   namespace: {{boss__fluent__bit__centralized__namespace_name}}
 {% if boss__fluent__bit__centralized__ingress_labels is defined %}
 {% if boss__fluent__bit__centralized__ingress_labels == "disabled" %}
-      # labels:
+  # labels:
 {% else %}
-      labels:
+  labels:
 {{ boss__fluent__bit__centralized__ingress_labels | indent( width=4, indentfirst=True,blank=True) }}
 {% endif %}
 {% endif %}
 {% if boss__fluent__bit__centralized__ingress_annotations is defined %}
 {% if boss__fluent__bit__centralized__ingress_annotations == "disabled" %}
-      # annotations:
+  # annotations:
 {% else %}
-      annotations:
+  annotations:
 {{ boss__fluent__bit__centralized__ingress_annotations | indent( width=4, indentfirst=True,blank=True) }}
 {% endif %}
 {% endif %}

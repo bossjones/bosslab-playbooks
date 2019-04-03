@@ -187,6 +187,7 @@ playbooks/.ansible-logs/
 
 !.vscode/launch.json
 badass.txt
+.vscode
 
 
 # secrets
