@@ -1884,10 +1884,10 @@ boss__fluent__bit__centralized__deployment_spec_template_containers_ports: |-
     name: syslog
 
 boss__fluent__bit__centralized__deployment_spec_template_containers_env: |-
-  - name: FLUENT_ELASTICSEARCH_HOST
-    value: "elasticsearch"
-  - name: FLUENT_ELASTICSEARCH_PORT
-    value: "9200"
+  # - name: FLUENT_ELASTICSEARCH_HOST
+  #   value: "elasticsearch"
+  # - name: FLUENT_ELASTICSEARCH_PORT
+  #   value: "9200"
 
     # Memory limit that the file tail plugin can use when appending data to the Engine
   - name: TAIL_BUF_LIMIT

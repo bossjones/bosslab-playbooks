@@ -34,6 +34,22 @@ spec:
       - name: {{boss__fluent__bit__centralized__shared_name}}
         image: {{ boss__fluent__bit__centralized__fluent_bit_image_repo }}:{{ boss__fluent__bit__centralized__fluent_bit_image_tag }}
         # command:
+{% if boss__fluent__bit__centralized__deployment_spec_template_containers_env is defined %}
+{% if boss__fluent__bit__centralized__deployment_spec_template_containers_env == "disabled" %}
+        # env:
+{% else %}
+        env:
+{{ boss__fluent__bit__centralized__deployment_spec_template_containers_env | indent( width=8, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_volumeMounts is defined %}
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_volumeMounts == "disabled" %}
+        # volumeMounts:
+{% else %}
+        volumeMounts:
+{{ boss__fluent__bit__centralized__deployment_spec_template_spec_volumeMounts | indent( width=8, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
 {% if boss__fluent__bit__centralized__deployment_spec_template_containers_resources is defined %}
 {% if boss__fluent__bit__centralized__deployment_spec_template_containers_resources == "disabled" %}
         # resources:
@@ -45,4 +61,12 @@ spec:
 {% if boss__fluent__bit__centralized__deployment_spec_template_containers_ports is defined %}
         ports:
 {{ boss__fluent__bit__centralized__deployment_spec_template_containers_ports | indent( width=8, indentfirst=True,blank=True) }}
+{% endif %}
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_volumes is defined %}
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_volumes == "disabled" %}
+      # volumes:
+{% else %}
+      volumes:
+{{ boss__fluent__bit__centralized__deployment_spec_template_spec_volumes | indent( width=6, indentfirst=True,blank=True) }}
+{% endif %}
 {% endif %}
