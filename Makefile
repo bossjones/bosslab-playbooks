@@ -936,6 +936,16 @@ render-manifest-fluent-bit-centralized:
 	bash -c "find dist/manifests/$(cluster)-manifests/fluent-bit-centralized -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
 	kubeval-part-lint $(cluster) fluent-bit-centralized
 
+render-manifest-npd:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local playbooks/render_npd.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@printf "lint npd manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint npd manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/npd -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+	kubeval-part-lint $(cluster) npd
+
 render-manifest:
 	$(call check_defined, cluster, Please set cluster)
 	ansible-playbook -c local -vvvvv playbooks/render_echoserver.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"

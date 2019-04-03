@@ -2089,3 +2089,85 @@ lint-fluent-bit-centralized:
 code-fluent-bit-centralized:
 	$(call check_defined, cluster, Please set cluster)
 	code dist/manifests/$(cluster)-manifests/fluent-bit-centralized
+
+
+redeploy-npd:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete npd:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete npd$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/npd/
+
+	@printf "render npd manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render npd manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_npd.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "lint npd manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint npd manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/npd -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "apply-npd:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy npd$$NC\n"
+	@printf "=======================================\n"
+	-kubectl apply -f dist/manifests/$(cluster)-manifests/npd/
+	@echo ""
+	@echo ""
+
+create-npd:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-npd:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy npd$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/npd/
+	@echo ""
+	@echo ""
+
+apply-npd:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-npd:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy npd$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/npd/
+	@echo ""
+	@echo ""
+
+delete-npd:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/npd/
+
+describe-npd:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/npd/ | highlight
+
+debug-npd: describe-npd
+	kubectl -n kube-system get pod -l app=npd --output=yaml | highlight
+
+test-npd-curl:
+	-curl -v -L 'http://npd.hyenaclan.org'
+
+lint-npd:
+	$(call check_defined, cluster, Please set cluster)
+	bash -c "find dist/manifests/$(cluster)-manifests/npd -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+	kubeval-part-lint $(cluster) npd
+
+code-npd:
+	$(call check_defined, cluster, Please set cluster)
+	code dist/manifests/$(cluster)-manifests/npd

@@ -1,0 +1,12 @@
+---
+- name: "npd | Create directory: {{boss__npd__manifest_path}}"
+  file:
+    path: "{{boss__npd__manifest_path}}"
+    state: directory
+
+- name: "npd | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__npd__manifest_path }}/{{ item }}"
+  with_items:
+    - "npd.yaml"
