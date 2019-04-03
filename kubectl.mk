@@ -2084,6 +2084,7 @@ test-fluent-bit-centralized-curl:
 lint-fluent-bit-centralized:
 	$(call check_defined, cluster, Please set cluster)
 	bash -c "find dist/manifests/$(cluster)-manifests/fluent-bit-centralized -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+	kubeval-part-lint $(cluster) fluent-bit-centralized
 
 code-fluent-bit-centralized:
 	$(call check_defined, cluster, Please set cluster)

@@ -1208,5 +1208,27 @@ download-kubernetes-schema:
 	test ! -d ~/dev/bossjones/kubernetes-json-schema && git clone git@github.com:bossjones/kubernetes-json-schema.git ~/dev/bossjones/kubernetes-json-schema || echo "DIR exists: ~/dev/bossjones/kubernetes-json-schema"
 	(cd ~/dev/bossjones/kubernetes-json-schema; git checkout kube-v1.13 )
 
+kubeval-lint:
+	$(call check_defined, cluster, Please set cluster)
+# kubeval-part-lint $(cluster) calico
+# kubeval-part-lint $(cluster) cert-manager
+# kubeval-part-lint $(cluster) dashboard
+# kubeval-part-lint $(cluster) dashboard-admin
+# kubeval-part-lint $(cluster) echoserver
+	kubeval-part-lint $(cluster) fluent-bit-centralized
+#	kubeval-part-lint $(cluster) efk
+# kubeval-part-lint $(cluster) heapster2
+# kubeval-part-lint $(cluster) helm
+# kubeval-part-lint $(cluster) influxdb-operator
+# kubeval-part-lint $(cluster) ingress-nginx
+# kubeval-part-lint $(cluster) jenkins-k8
+# kubeval-part-lint $(cluster) metallb
+# kubeval-part-lint $(cluster) metrics-server
+# kubeval-part-lint $(cluster) prometheus-operator-v0-27-0
+# kubeval-part-lint $(cluster) registry
+# kubeval-part-lint $(cluster) registry-ui
+# kubeval-part-lint $(cluster) traefik-internal
+# kubeval-part-lint $(cluster) unifi-exporter
+# kubeval-part-lint $(cluster) weave-scope
 
 include *.mk
