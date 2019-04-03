@@ -70,3 +70,48 @@ spec:
 {{ boss__fluent__bit__centralized__deployment_spec_template_spec_volumes | indent( width=6, indentfirst=True,blank=True) }}
 {% endif %}
 {% endif %}
+
+
+
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_hostNetwork is defined %}
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_hostNetwork == "disabled" %}
+      # hostNetwork:
+{% else %}
+      hostNetwork: {{boss__fluent__bit__centralized__deployment_spec_template_spec_hostNetwork}}
+{% endif %}
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_hostPID is defined %}
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_hostPID == "disabled" %}
+      # hostPID:
+{% else %}
+      hostPID: {{boss__fluent__bit__centralized__deployment_spec_template_spec_hostPID}}
+{% endif %}
+
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_nodeSelector is defined %}
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_nodeSelector == "disabled" %}
+      # nodeSelector:
+{% else %}
+      nodeSelector:
+{{ boss__fluent__bit__centralized__deployment_spec_template_spec_nodeSelector | indent( width=8, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_securityContext is defined %}
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_securityContext == "disabled" %}
+      # securityContext:
+{% else %}
+      securityContext:
+{{ boss__fluent__bit__centralized__deployment_spec_template_spec_securityContext | indent( width=8, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+
+
+
+
+
+#      hostNetwork: true
+#      hostPID: true
+#      nodeSelector:
+#        beta.kubernetes.io/os: linux
+#      securityContext:
+#        runAsNonRoot: true
+#        runAsUser: 65534

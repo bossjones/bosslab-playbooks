@@ -1979,6 +1979,25 @@ boss__fluent__bit__centralized__ingress_annotations: |-
   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
   traefik.frontend.rule.type: PathPrefix
 
+boss__fluent__bit__centralized__deployment_spec_template_spec_hostNetwork: true
+boss__fluent__bit__centralized__deployment_spec_template_spec_hostPID: true
+
+
+boss__fluent__bit__centralized__deployment_spec_template_spec_nodeSelector: |-
+  beta.kubernetes.io/os: linux
+
+
+boss__fluent__bit__centralized__deployment_spec_template_spec_securityContext: "disabled"
+
+#      hostNetwork: true
+#      hostPID: true
+#      nodeSelector:
+#        beta.kubernetes.io/os: linux
+#      securityContext:
+#        runAsNonRoot: true
+#        runAsUser: 65534
+
+
 # ---
 # local_release_dir: /tmp/releases
 
