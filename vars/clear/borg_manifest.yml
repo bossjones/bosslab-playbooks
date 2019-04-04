@@ -1868,7 +1868,7 @@ boss__fluent__bit__centralized__deployment_spec_template_containers_ports: |-
     name: http-metrics
   - containerPort: 5140
     name: syslog
-    protocol: TCP
+    protocol: UDP
 
 boss__fluent__bit__centralized__deployment_spec_template_containers_env: |-
   # - name: FLUENT_ELASTICSEARCH_HOST

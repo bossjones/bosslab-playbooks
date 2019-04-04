@@ -95,14 +95,14 @@ spec:
           name: http-metrics
         - containerPort: 5140
           name: syslog
-          protocol: TCP
+          protocol: UDP
 
       volumes:
       - name: logging-volume
         emptyDir: {}
       - name: fluent-bit-config
         configMap:
-          name: fluent-bit-centralized-config-0-2-0
+          name: fluent-bit-centralized-config-0-3-0
       - name: fluent-data
         emptyDir: {}
       
