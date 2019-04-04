@@ -2078,6 +2078,9 @@ describe-fluent-bit-centralized:
 debug-fluent-bit-centralized: describe-fluent-bit-centralized
 	kubectl -n kube-system get pod -l app=fluent-bit-centralized --output=yaml | highlight
 
+log-fluent-bit-centralized:
+	kubetail -n kube-system -l k8s-app=fluent-bit-centralized
+
 test-fluent-bit-centralized-curl:
 	-curl -v -L 'http://fluent-bit-centralized.hyenaclan.org'
 
