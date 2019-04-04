@@ -1,0 +1,13 @@
+[20:51:49,377] <inform-707> INFO inform - from [aa:bb:cc:dd:ee:ff](UniFi Switch 16 POE-150W, US16P150, 4.0.21.9965): state=CONNECTED, last_inform=27, ext/stun_ip=192.168.1.6, dev_ip=192.168.1.6, up=4666906
+[20:51:56,631] <inform-707> INFO inform - from [aa:bb:cc:dd:ee:ff](UniFi AP-AC-Pro, U7PG2, 4.0.21.9965): state=CONNECTED, last_inform=28, ext/stun_ip=192.168.1.7, dev_ip=192.168.1.7, up=4666619
+[20:52:02,356] <inform-707> INFO inform - from [aa:bb:cc:dd:ee:ff](UniFi Security Gateway 3P, UGW3, 4.4.36.5146617): state=CONNECTED, last_inform=25, ext/stun_ip=192.168.1.1, dev_ip=192.168.0.3, up=4956295
+[20:52:08,619] <inform-707> INFO inform - from [aa:bb:cc:dd:ee:ff](UniFi Switch 8 POE-150W RPi Cluster, US8P150, 4.0.21.9965): state=CONNECTED, last_inform=25, ext/stun_ip=192.168.1.15, dev_ip=192.168.1.15, up=4667382
+[20:52:17,983] <inform-707> INFO inform - from [aa:bb:cc:dd:ee:ff](UniFi Switch 16 POE-150W, US16P150, 4.0.21.9965): state=CONNECTED, last_inform=28, ext/stun_ip=192.168.1.6, dev_ip=192.168.1.6, up=4666935
+[20:52:27,075] <inform-707> INFO inform - from [aa:bb:cc:dd:ee:ff](UniFi AP-AC-Pro, U7PG2, 4.0.21.9965): state=CONNECTED, last_inform=31, ext/stun_ip=192.168.1.7, dev_ip=192.168.1.7, up=4666650
+[20:52:27,117] <webapi-1435> INFO dev - saveDeviceAttr(): device[aa:bb:cc:dd:ee:ff][cfgversion]=517382f5422b6587 (orig=b9da5051e8fbc65a)
+[20:52:27,140] <webapi-1435> INFO dev - saveDeviceAttr(): device[aa:bb:cc:dd:ee:ff][cfgversion]=daeeed6ceba300e7 (orig=c33dd1394bb5501e)
+[20:52:27,155] <webapi-1435> INFO dev - saveDeviceAttr(): device[aa:bb:cc:dd:ee:ff][cfgversion]=798f000aec6913b7 (orig=cf4c28725756e5d0)
+[20:52:27,180] <inform-702> INFO inform - from [aa:bb:cc:dd:ee:ff](UniFi Security Gateway 3P, UGW3, 4.4.36.5146617): state=CONNECTED, last_inform=25, ext/stun_ip=192.168.1.1, dev_ip=192.168.0.3, up=4956320
+[20:52:27,200] <webapi-1435> INFO dev - saveDeviceAttr(): device[aa:bb:cc:dd:ee:ff][cfgversion]=b912ea960d1dfb6f (orig=391f3ac2864aeef6)
+[20:52:27,201] <inform-707> INFO inform - from [aa:bb:cc:dd:ee:ff](UniFi Switch 16 POE-150W, US16P150, 4.0.21.9965): state=CONNECTED, last_inform=10, ext/stun_ip=192.168.1.6, dev_ip=192.168.1.6, up=4666944
+[20:52:27,241] <inform-707> INFO inform
