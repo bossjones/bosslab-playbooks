@@ -95,7 +95,7 @@ spec:
           name: http-metrics
         - containerPort: 5140
           name: syslog
-          protocol: TCP
+          protocol: UDP
 
       volumes:
       - name: logging-volume
