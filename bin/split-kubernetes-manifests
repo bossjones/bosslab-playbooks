@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail
+
+cluster_name=$1
+folder_name=$2
+
+if [[ $# -ne 2 ]]; then
+    echo "Usage: ${FUNCNAME[0]} <cluster name> <folder>"
+    echo "Example: split-kubernetes-manifests kubernetes-cluster efk"
+    exit 1
+fi
+
+# Generate split files for kubetest
+# see: https://github.com/garethr/kubetest/issues/15
+echo "Split Kubernetes files"
+echo
+echo
+
+pushd dist/manifests/${cluster_name}-manifests/${folder_name}
+# SOURCE: https://github.com/hipages/docker-newrelic-php-daemon/blob/bd3bd7d80c06284bb09cd748a7a42d7a6bd28557/.circleci/config.yml
+find . -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -0 -I% /bin/bash -c "grep -v '^#' % | csplit -f '%.part' -k -z - '/^---$/' '{*}'"
+ls -lta *part*
+popd
+
+# /usr/local/bin/yq r dist/manifests/kubernetes-cluster-manifests/efk/fluentd-es-ds.yaml kind
+
+# SOURCE: https://github.com/hipages/docker-thumbor/blob/c0056850df23ad9102ecf64ee9722165aef1d516/.circleci/config.yml
+
+# - run:
+#     name: Split Kubernetes files
+#     command: |
+#       # Generate split files for kubetest
+#       # see: https://github.com/garethr/kubetest/issues/15
+#       find . -maxdepth 1 -name "kube-*.yml" -type f -print0 | xargs -0 -I% /bin/bash -c "grep -v '^#' % | csplit -f '%.part' -k -z - '/^---$/' '{*}'"
+# - run:
+#     name: kubetest
+#     command: |
+#       find . -maxdepth 1 -name "kube-*.yml.part*" -type f -print0 | xargs -0 -r -t -n1 kubetest --verbose --tests tests
+# - run:
+#     name: kubeval
+#     command: |
+#       { grep -l 'kind: Certificate' kube-*.yml.part* || true; } | xargs -r rm -f
+#       find . -maxdepth 1 -name "kube-*.yml.part" -type f -print0 | xargs -0 -I% -r -t -n1 /bin/bash -c "grep -v '^#' % | kubeval -v $KUBEVAL_KUBERNETES_VERSION"

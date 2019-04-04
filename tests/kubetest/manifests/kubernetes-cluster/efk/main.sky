@@ -1,0 +1,22 @@
+#// vim: set ft=python:
+
+# kubetest --tests tests/kubetest/manifests/kubernetes-cluster/efk dist/manifests/kubernetes-cluster-manifests/efk/fluentd-es-ds.yaml
+
+def test_for_latest_image():
+    if spec["kind"] == "DaemonSet":
+        for container in spec["spec"]["template"]["spec"]["containers"]:
+            tag = container["image"].split(":")[-1]
+            assert_not_equal(tag, "latest", "should not use latest images")
+
+            # name = container["name"]
+            # assert_equal(name, "fluentd-es", "should not use latest images")
+
+
+# def test_minimum_replicas():
+#     if spec["kind"] == "ReplicationController":
+#         test = spec["spec"]["replicas"] >= 4
+#         assert_true(test, "ReplicationController should have at least 4 replicas")
+
+
+test_for_latest_image()
+# test_minimum_replicas()

@@ -10,6 +10,10 @@ metadata:
     kubernetes.io/name: "Kibana"
     boss-part-of: efk
     
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+    traefik.frontend.rule.type: PathPrefix
+    
 spec:
   ports:
   - port: 5601

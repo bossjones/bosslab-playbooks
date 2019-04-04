@@ -312,7 +312,7 @@ boss__efk__elasticsearch_curator_mem_requests: 200Mi #
 #    .##.......##.......##.....##.##.......##...###....##....##.....##
 #    .##.......########..#######..########.##....##....##....########.
 ##########################################################################################################
-boss__efk__fluentd_version: v2.2.0
+boss__efk__fluentd_version: v2.3.0
 boss__efk__fluentd_image_repo: "bossjones/fluentd-elasticsearch"
 boss__efk__fluentd_image_tag: "{{ boss__efk__fluentd_version }}"
 boss__efk__fluentd_mem_limit: 500Mi
@@ -338,17 +338,17 @@ boss__efk__fluentd_cluster_role_binding_labels: |
     boss-part-of: efk
 boss__efk__fluentd_daemon_set_labels: |
     k8s-app: fluentd-es
-    version: v2.2.1
+    version: {{boss__efk__fluentd_version}}
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk
 boss__efk__fluentd_daemon_set_spec_selector_match_labels: |
       k8s-app: fluentd-es
-      # version: v2.2.1
+      # version: {{boss__efk__fluentd_version}}
 boss__efk__fluentd_daemon_set_spec_template_metadata_labels: |
         k8s-app: fluentd-es
         # kubernetes.io/cluster-service: "true"
-        # version: v2.2.1
+        # version: {{boss__efk__fluentd_version}}
         # boss-part-of: efk
 boss__efk__fluentd_daemon_set_spec_template_metadata_annotations: |
         scheduler.alpha.kubernetes.io/critical-pod: ''
@@ -387,6 +387,7 @@ boss__efk__fluentd_daemon_set_spec_template_spec_volumeMounts: |
   - name: libsystemd
     # mountPath: /usr/lib64/libsystemd.so.0
     mountPath: /lib/x86_64-linux-gnu/libsystemd.so.0
+    # mountPath: /usr/lib64/libsystemd.so.0
 
 boss__efk__fluentd_daemon_set_spec_template_spec_volumes: |
   # It is needed to copy systemd library to decompress journals
@@ -406,6 +407,7 @@ boss__efk__fluentd_daemon_set_spec_template_spec_volumes: |
   - name: docker-sock
     hostPath:
       # path: /var/run/docker/libcontainerd/docker-containerd.sock
+      # path: /var/run/docker.sock
       path: /var/run/docker/containerd/containerd.sock
   - name: varrun
     hostPath:
@@ -413,6 +415,7 @@ boss__efk__fluentd_daemon_set_spec_template_spec_volumes: |
   - name: libsystemd
     hostPath:
       path: /usr/lib64/libsystemd.so.0
+      # path: /lib/x86_64-linux-gnu/libsystemd.so.0
 
 ############################################
 
@@ -1802,6 +1805,201 @@ boss__bootstrap__subdomain: bootstrap
 boss__bootstrap__manifest_path: "{{manifest_dir_path}}/bootstrap"
 boss__bootstrap__namespace_name: kube-system
 boss__bootstrap__deployment_name: bootstrap
+
+
+
+##########################################################################################################
+#   .########.##.......##.....##.########.##....##.########.........########..####.########..........######..########.##....##.########.########.....###....##.......####.########.########.########.
+#   .##.......##.......##.....##.##.......###...##....##............##.....##..##.....##............##....##.##.......###...##....##....##.....##...##.##...##........##.......##..##.......##.....##
+#   .##.......##.......##.....##.##.......####..##....##............##.....##..##.....##............##.......##.......####..##....##....##.....##..##...##..##........##......##...##.......##.....##
+#   .######...##.......##.....##.######...##.##.##....##....#######.########...##.....##....#######.##.......######...##.##.##....##....########..##.....##.##........##.....##....######...##.....##
+#   .##.......##.......##.....##.##.......##..####....##............##.....##..##.....##............##.......##.......##..####....##....##...##...#########.##........##....##.....##.......##.....##
+#   .##.......##.......##.....##.##.......##...###....##............##.....##..##.....##............##....##.##.......##...###....##....##....##..##.....##.##........##...##......##.......##.....##
+#   .##.......########..#######..########.##....##....##............########..####....##.............######..########.##....##....##....##.....##.##.....##.########.####.########.########.########.
+##########################################################################################################
+boss__fluent__bit__centralized__subdomain: fluent-bit-centralized
+boss__fluent__bit__centralized__manifest_path: "{{manifest_dir_path}}/fluent-bit-centralized"
+boss__fluent__bit__centralized__namespace_name: kube-system
+boss__fluent__bit__centralized__fluent_bit_version: 1.0.5
+boss__fluent__bit__centralized__fluent_bit_image_repo: "fluent/fluent-bit"
+boss__fluent__bit__centralized__fluent_bit_image_tag: "{{ boss__fluent__bit__centralized__fluent_bit_version }}"
+boss__fluent__bit__centralized__shared_name: fluent-bit-centralized
+boss__fluent__bit__centralized__configmap_suffix: "-0-3-0"
+boss__fluent__bit__centralized__create_namespace: "absent"
+boss__fluent__bit__centralized__create_ingress: "present"
+boss__fluent__bit__centralized__loglevel: "debug"
+
+boss__fluent__bit__centralized__deployment_spec_template_containers_resources: |
+  limits:
+    cpu: ".2"
+    memory: "100Mi"
+  requests:
+    cpu: "0.05"
+    memory: "10Mi"
+
+boss__fluent__bit__centralized__serviceAccountName: "{{boss__fluent__bit__centralized__shared_name}}"
+boss__fluent__bit__centralized__deployment_spec_replicas: 3
+
+# boss__fluent__bit__centralized__deployment_spec_template_containers_command: []
+
+boss__fluent__bit__centralized__deployment_labels: |-
+  k8s-app: {{boss__fluent__bit__centralized__shared_name}}
+  version: v1
+  kubernetes.io/cluster-service: "true"
+
+boss__fluent__bit__centralized__deployment_spec_matchLabels: "disabled"
+
+# boss__fluent__bit__centralized__deployment_spec_matchLabels: |-
+#   k8s-app: {{boss__fluent__bit__centralized__shared_name}}
+#   version: v1
+
+boss__fluent__bit__centralized__deployment_spec_template_metadata_labels: |-
+  k8s-app: {{boss__fluent__bit__centralized__shared_name}}
+  version: v1
+  kubernetes.io/cluster-service: "true"
+
+boss__fluent__bit__centralized__deployment_spec_template_metadata_annotations: |
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "2020"
+  prometheus.io/path: /api/v1/metrics/prometheus
+
+boss__fluent__bit__centralized__deployment_spec_template_containers_ports: |-
+  - containerPort: 2020
+    name: http-metrics
+  - containerPort: 5140
+    name: syslog
+    protocol: UDP
+
+boss__fluent__bit__centralized__deployment_spec_template_containers_env: |-
+  # - name: FLUENT_ELASTICSEARCH_HOST
+  #   value: "elasticsearch"
+  # - name: FLUENT_ELASTICSEARCH_PORT
+  #   value: "9200"
+
+    # Memory limit that the file tail plugin can use when appending data to the Engine
+  - name: TAIL_BUF_LIMIT
+    value: "5MB"
+
+  - name: NODE_IP
+    valueFrom:
+      fieldRef:
+        fieldPath: status.hostIP
+  - name: POD_UID
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.uid
+  - name: POD_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.name
+  - name: POD_IP
+    valueFrom:
+      fieldRef:
+        fieldPath: status.podIP
+  - name: POD_NAMESPACE
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.namespace
+  - name: NODE_IP
+    valueFrom:
+      fieldRef:
+        fieldPath: status.hostIP
+  - name: NODE_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: spec.nodeName
+
+boss__fluent__bit__centralized__deployment_spec_template_spec_volumeMounts: |
+  - name: logging-volume # The volume where logs will be delivered by the Docker logging driver
+    mountPath: /logging-volume
+  # The volume where Fluent Bit stores persistent data (position databases for tracking ingested files)
+  - name: fluent-data
+    mountPath: /var/fluent-bit
+  # The Fluent Bit config file to use
+  - name: fluent-bit-config
+    mountPath: /fluent-bit/etc
+
+boss__fluent__bit__centralized__deployment_spec_template_spec_volumes: |
+  - name: logging-volume
+    emptyDir: {}
+  - name: fluent-bit-config
+    configMap:
+      name: {{boss__fluent__bit__centralized__shared_name}}-config{{boss__fluent__bit__centralized__configmap_suffix}}
+  - name: fluent-data
+    emptyDir: {}
+
+boss__fluent__bit__centralized__service_labels: |-
+  k8s-app: {{boss__fluent__bit__centralized__shared_name}}
+  version: v1
+  kubernetes.io/cluster-service: "true"
+
+boss__fluent__bit__centralized__service_annotations: "disabled"
+
+boss__fluent__bit__centralized__service_spec_type: ClusterIP
+
+boss__fluent__bit__centralized__service_spec_ports: |-
+  # - port: 2020
+  #   targetPort: 2020
+  #   protocol: TCP
+  #   name: http-metrics
+  - port: 5140
+    targetPort: 5140
+    protocol: UDP
+    name: syslog
+
+boss__fluent__bit__centralized__service_spec_selector: |-
+  k8s-app: {{boss__fluent__bit__centralized__shared_name}}
+
+boss__fluent__bit__centralized__ingress_spec_rules_http_paths: |
+  - path: /
+    backend:
+      serviceName: {{boss__fluent__bit__centralized__shared_name}}
+      servicePort: 5140
+
+boss__fluent__bit__centralized__ingress_labels: |-
+  k8s-app: {{boss__fluent__bit__centralized__shared_name}}
+  version: v1
+  kubernetes.io/cluster-service: "true"
+
+boss__fluent__bit__centralized__ingress_annotations: |-
+  nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  traefik.frontend.rule.type: PathPrefix
+
+boss__fluent__bit__centralized__deployment_spec_template_spec_hostNetwork: True
+boss__fluent__bit__centralized__deployment_spec_template_spec_hostPID: True
+
+
+boss__fluent__bit__centralized__deployment_spec_template_spec_nodeSelector: |-
+  beta.kubernetes.io/os: linux
+
+
+boss__fluent__bit__centralized__deployment_spec_template_spec_securityContext: "disabled"
+
+#      hostNetwork: true
+#      hostPID: true
+#      nodeSelector:
+#        beta.kubernetes.io/os: linux
+#      securityContext:
+#        runAsNonRoot: true
+#        runAsUser: 65534
+
+# [20:34:19,104] <inform-707> INFO inform - from [MAC ADDRESS](UniFi Security Gateway 3P, UGW3, 4.4.36.5146617): state=CONNECTED, last_inform=3, ext/stun_ip=192.168.1.1, dev_ip=192.168.0.3, up=4955230
+
+##########################################################################################################
+# .##....##.########..########.
+# .###...##.##.....##.##.....##
+# .####..##.##.....##.##.....##
+# .##.##.##.########..##.....##
+# .##..####.##........##.....##
+# .##...###.##........##.....##
+# .##....##.##........########.
+##########################################################################################################
+
+boss__npd__subdomain: npd
+boss__npd__manifest_path: "{{manifest_dir_path}}/npd"
+boss__npd__namespace_name: kube-system
+
+
 
 vagrant_playbook_enable_role_tools: "enabled"
 vagrant_playbook_enable_role_bootstrap: "enabled"

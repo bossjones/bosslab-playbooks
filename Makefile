@@ -925,6 +925,27 @@ render-manifest-influxdb-operator:
 	@printf "=======================================\n"
 	bash -c "find dist/manifests/$(cluster)-manifests/influxdb-operator -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
 
+
+render-manifest-fluent-bit-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local playbooks/render_fluent_bit_centralized.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@printf "lint fluent-bit-centralized manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint fluent-bit-centralized manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/fluent-bit-centralized -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+	kubeval-part-lint $(cluster) fluent-bit-centralized
+
+render-manifest-npd:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local playbooks/render_npd.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@printf "lint npd manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint npd manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/npd -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+	kubeval-part-lint $(cluster) npd
+
 render-manifest:
 	$(call check_defined, cluster, Please set cluster)
 	ansible-playbook -c local -vvvvv playbooks/render_echoserver.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
@@ -945,6 +966,7 @@ render-manifest:
 	ansible-playbook -c local -vvvvv playbooks/render_prometheus_operator.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	ansible-playbook -c local -vvvvv playbooks/render_unifi_exporter.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause" --vault-password-file ./vault_password
 	ansible-playbook -c local -vvvvv playbooks/render_influxdb_operator.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_fluent_bit_centralized.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 
 tmp-shell-default:
 	kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash
@@ -1131,5 +1153,93 @@ update_dashboards:
 	bash scripts/update_dashboards.sh
 
 get-custom-dashboards: update_dashboards convert-dashboards-yaml
+
+sono-install:
+	go get -u -v github.com/heptio/sonobuoy
+
+gen-sono:
+	sonobuoy gen --e2e-focus="sig-networking" --e2e-skip="Alpha" > sonobuoy.yaml
+
+sono-run:
+	sonobuoy run --kubeconfig $${KUBECONFIG} --e2e-focus="Conformance"
+
+sono-delete:
+	sonobuoy delete
+
+sono-retrieve:
+	-rm -rfv *sonobuoy*.tar.gz
+	-rm -rfv ./tars
+	-rm -rfv ./results
+	mkdir ./tars
+	mkdir ./results
+	sonobuoy retrieve ./tars 2> /dev/null
+	tar xzf ./tars/*.tar.gz -C ./results
+
+sono-results:
+	bash scripts/sono-results.sh
+
+sono-status:
+	sonobuoy status
+
+sono-logs:
+	sonobuoy logs
+
+manifest-lint:
+	$(call check_defined, cluster, Please set cluster)
+# manifest-lint $(cluster) calico
+# manifest-lint $(cluster) cert-manager
+# manifest-lint $(cluster) dashboard
+# manifest-lint $(cluster) dashboard-admin
+# manifest-lint $(cluster) echoserver
+	manifest-lint $(cluster) efk
+# manifest-lint $(cluster) heapster2
+# manifest-lint $(cluster) helm
+# manifest-lint $(cluster) influxdb-operator
+# manifest-lint $(cluster) ingress-nginx
+# manifest-lint $(cluster) jenkins-k8
+# manifest-lint $(cluster) metallb
+# manifest-lint $(cluster) metrics-server
+# manifest-lint $(cluster) prometheus-operator-v0-27-0
+# manifest-lint $(cluster) registry
+# manifest-lint $(cluster) registry-ui
+# manifest-lint $(cluster) traefik-internal
+# manifest-lint $(cluster) unifi-exporter
+# manifest-lint $(cluster) weave-scope
+
+# SOURCE: https://github.com/google/starlark-go
+install-starlark:
+	go get -u go.starlark.net/cmd/starlark
+
+install-bazel:
+	brew tap bazelbuild/tap
+	brew tap-pin bazelbuild/tap
+	brew install bazelbuild/tap/bazel
+
+download-kubernetes-schema:
+	test ! -d ~/dev/bossjones/kubernetes-json-schema && git clone git@github.com:bossjones/kubernetes-json-schema.git ~/dev/bossjones/kubernetes-json-schema || echo "DIR exists: ~/dev/bossjones/kubernetes-json-schema"
+	(cd ~/dev/bossjones/kubernetes-json-schema; git checkout kube-v1.13 )
+
+kubeval-lint:
+	$(call check_defined, cluster, Please set cluster)
+# kubeval-part-lint $(cluster) calico
+# kubeval-part-lint $(cluster) cert-manager
+# kubeval-part-lint $(cluster) dashboard
+# kubeval-part-lint $(cluster) dashboard-admin
+# kubeval-part-lint $(cluster) echoserver
+	kubeval-part-lint $(cluster) fluent-bit-centralized
+#	kubeval-part-lint $(cluster) efk
+# kubeval-part-lint $(cluster) heapster2
+# kubeval-part-lint $(cluster) helm
+# kubeval-part-lint $(cluster) influxdb-operator
+# kubeval-part-lint $(cluster) ingress-nginx
+# kubeval-part-lint $(cluster) jenkins-k8
+# kubeval-part-lint $(cluster) metallb
+# kubeval-part-lint $(cluster) metrics-server
+# kubeval-part-lint $(cluster) prometheus-operator-v0-27-0
+# kubeval-part-lint $(cluster) registry
+# kubeval-part-lint $(cluster) registry-ui
+# kubeval-part-lint $(cluster) traefik-internal
+# kubeval-part-lint $(cluster) unifi-exporter
+# kubeval-part-lint $(cluster) weave-scope
 
 include *.mk

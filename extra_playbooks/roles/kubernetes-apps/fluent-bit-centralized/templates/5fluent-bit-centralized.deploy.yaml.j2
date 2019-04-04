@@ -1,0 +1,130 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{boss__fluent__bit__centralized__shared_name}}
+  namespace: {{boss__fluent__bit__centralized__namespace_name}}
+{% if boss__fluent__bit__centralized__deployment_labels is defined %}
+  labels:
+{{ boss__fluent__bit__centralized__deployment_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+spec:
+  replicas: {{boss__fluent__bit__centralized__deployment_spec_replicas}}
+
+{% if boss__fluent__bit__centralized__deployment_spec_matchLabels is defined %}
+{% if boss__fluent__bit__centralized__deployment_spec_matchLabels == "disabled" %}
+  # selector:
+  #  matchLabels:
+{% else %}
+  selector:
+    matchLabels:
+{{ boss__fluent__bit__centralized__deployment_spec_matchLabels | indent( width=6, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+  template:
+    metadata:
+{% if boss__fluent__bit__centralized__deployment_spec_template_metadata_labels is defined %}
+      labels:
+{{ boss__fluent__bit__centralized__deployment_spec_template_metadata_labels | indent( width=8, indentfirst=True,blank=True) }}
+{% endif %}
+
+{% if boss__fluent__bit__centralized__deployment_spec_template_metadata_annotations is defined %}
+{% if boss__fluent__bit__centralized__deployment_spec_template_metadata_annotations == "disabled" %}
+      # annotations:
+{% else %}
+      annotations:
+{{ boss__fluent__bit__centralized__deployment_spec_template_metadata_annotations | indent( width=8, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+    spec:
+      serviceAccountName: {{boss__fluent__bit__centralized__serviceAccountName}}
+      containers:
+      - name: {{boss__fluent__bit__centralized__shared_name}}
+        image: {{ boss__fluent__bit__centralized__fluent_bit_image_repo }}:{{ boss__fluent__bit__centralized__fluent_bit_image_tag }}
+        # command:
+
+{% if boss__fluent__bit__centralized__deployment_spec_template_containers_env is defined %}
+{% if boss__fluent__bit__centralized__deployment_spec_template_containers_env == "disabled" %}
+        # env:
+{% else %}
+        env:
+{{ boss__fluent__bit__centralized__deployment_spec_template_containers_env | indent( width=8, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_volumeMounts is defined %}
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_volumeMounts == "disabled" %}
+        # volumeMounts:
+{% else %}
+        volumeMounts:
+{{ boss__fluent__bit__centralized__deployment_spec_template_spec_volumeMounts | indent( width=8, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+
+{% if boss__fluent__bit__centralized__deployment_spec_template_containers_resources is defined %}
+{% if boss__fluent__bit__centralized__deployment_spec_template_containers_resources == "disabled" %}
+        # resources:
+{% else %}
+        resources:
+{{ boss__fluent__bit__centralized__deployment_spec_template_containers_resources | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+
+{% if boss__fluent__bit__centralized__deployment_spec_template_containers_ports is defined %}
+        ports:
+{{ boss__fluent__bit__centralized__deployment_spec_template_containers_ports | indent( width=8, indentfirst=True,blank=True) }}
+{% endif %}
+
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_volumes is defined %}
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_volumes == "disabled" %}
+      # volumes:
+{% else %}
+      volumes:
+{{ boss__fluent__bit__centralized__deployment_spec_template_spec_volumes | indent( width=6, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_hostNetwork is defined %}
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_hostNetwork == "disabled" %}
+      # hostNetwork:
+{% else %}
+      hostNetwork: {{boss__fluent__bit__centralized__deployment_spec_template_spec_hostNetwork}}
+{% endif %}
+{% endif %}
+
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_hostPID is defined %}
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_hostPID == "disabled" %}
+      # hostPID:
+{% else %}
+      hostPID: {{boss__fluent__bit__centralized__deployment_spec_template_spec_hostPID}}
+{% endif %}
+{% endif %}
+
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_nodeSelector is defined %}
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_nodeSelector == "disabled" %}
+      # nodeSelector:
+{% else %}
+      nodeSelector:
+{{ boss__fluent__bit__centralized__deployment_spec_template_spec_nodeSelector | indent( width=8, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_securityContext is defined %}
+{% if boss__fluent__bit__centralized__deployment_spec_template_spec_securityContext == "disabled" %}
+      # securityContext:
+{% else %}
+      securityContext:
+{{ boss__fluent__bit__centralized__deployment_spec_template_spec_securityContext | indent( width=8, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+
+
+
+
+
+#      hostNetwork: true
+#      hostPID: true
+#      nodeSelector:
+#        beta.kubernetes.io/os: linux
+#      securityContext:
+#        runAsNonRoot: true
+#        runAsUser: 65534

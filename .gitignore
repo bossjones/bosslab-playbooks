@@ -187,6 +187,7 @@ playbooks/.ansible-logs/
 
 !.vscode/launch.json
 badass.txt
+.vscode
 
 
 # secrets
@@ -205,3 +206,10 @@ scaps
 
 # Jsonnet dependencies
 vendor/
+
+
+# sonobuoy
+*_sonobuoy_*.tar.gz
+results/
+tars/
+*.yaml.part*

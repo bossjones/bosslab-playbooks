@@ -1,0 +1,34 @@
+---
+
+- name: "fluent-bit-centralized | Create directory: {{boss__fluent__bit__centralized__manifest_path}}"
+  file:
+    path: "{{boss__fluent__bit__centralized__manifest_path}}"
+    state: directory
+
+- name: "fluent-bit-centralized | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__fluent__bit__centralized__manifest_path }}/{{ item }}"
+  with_items:
+    - "0fluent-bit-centralized.namespace.yaml"
+    - "1fluent-bit-centralized-service-account.yaml"
+    - "2fluent-bit-centralized-role.yaml"
+    - "3fluent-bit-centralized-role-binding.yaml"
+    - "4fluent-bit-centralized-configmap{{boss__fluent__bit__centralized__configmap_suffix}}.yaml"
+    # - "4fluent-bit-centralized-configmap.yaml"
+    - "5fluent-bit-centralized.deploy.yaml"
+    - "6fluent-bit-centralized.svc.yaml"
+    - "7fluent-bit-centralized.ingress.yaml"
+
+- name: Clean artifact path
+  file:
+    state: "{{boss__fluent__bit__centralized__create_namespace}}"
+    path: "{{ boss__fluent__bit__centralized__manifest_path }}/0fluent-bit-centralized.namespace.yaml"
+  when: boss__fluent__bit__centralized__create_namespace is defined and boss__fluent__bit__centralized__create_namespace == "absent"
+
+
+- name: Clean artifact path ingress
+  file:
+    state: "{{boss__fluent__bit__centralized__create_ingress}}"
+    path: "{{ boss__fluent__bit__centralized__manifest_path }}/7fluent-bit-centralized.ingress.yaml"
+  when: boss__fluent__bit__centralized__create_ingress is defined and boss__fluent__bit__centralized__create_ingress == "absent"

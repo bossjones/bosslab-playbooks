@@ -315,7 +315,15 @@ https://help.ubnt.com/hc/en-us/sections/200915540-UniFi-Configuration
 
 # Unifi config so far
 
-**/var/lib/unifi/sites/default/config.gateway.json:**
+Guide: https://help.ubnt.com/hc/en-us/articles/215458888-UniFi-How-to-further-customize-USG-configuration-with-config-gateway-json
+
+```
+User Tips:
+On Cloud Key install the path for the .json file is: /srv/unifi/data/sites/[site name/default]/
+On an Ubuntu install the path for the .json file is: /usr/lib/unifi/data/sites/[site name/default]/
+```
+
+**/srv/unifi/data/sites/config.gateway.json:**
 
 ```
 {
@@ -365,6 +373,12 @@ https://help.ubnt.com/hc/en-us/sections/200915540-UniFi-Configuration
                     "inet": "192.168.1.172"
                 },
                 "jenkins.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "syslog.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "fluent-bit-centralized.borglab.scarlettlab.home": {
                     "inet": "192.168.1.172"
                 }
 
