@@ -17,7 +17,7 @@ spec:
     #   name: http-metrics
     - port: 5140
       targetPort: 5140
-      protocol: TCP
+      protocol: UDP
       name: syslog
   selector:
     k8s-app: fluent-bit-centralized

@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{boss__fluent__bit__centralized__shared_name}}-config-0-3-0
-  namespace: {{boss__fluent__bit__centralized__namespace_name}}
+  name: fluent-bit-centralized-config-0-3-0
+  namespace: kube-system
   labels:
-    k8s-app: {{boss__fluent__bit__centralized__shared_name}}
+    k8s-app: fluent-bit-centralized
 data:
   # Configuration files: server, input, filters and output
   # ======================================================
@@ -12,7 +12,7 @@ data:
     # This section sets up the global fluent-bit service parameters
     [SERVICE]
       Flush         1
-      Log_Level     {{boss__fluent__bit__centralized__loglevel}}
+      Log_Level     debug
       Daemon        off
       Parsers_File  parsers.conf
       # HTTP Server
