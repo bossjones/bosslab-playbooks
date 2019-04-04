@@ -1983,6 +1983,7 @@ boss__fluent__bit__centralized__deployment_spec_template_spec_securityContext: "
 #        runAsNonRoot: true
 #        runAsUser: 65534
 
+# [20:34:19,104] <inform-707> INFO inform - from [MAC ADDRESS](UniFi Security Gateway 3P, UGW3, 4.4.36.5146617): state=CONNECTED, last_inform=3, ext/stun_ip=192.168.1.1, dev_ip=192.168.0.3, up=4955230
 
 ##########################################################################################################
 # .##....##.########..########.
