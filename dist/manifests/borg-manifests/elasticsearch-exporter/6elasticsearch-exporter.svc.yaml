@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: p8s-elastic-exporter
+  namespace: kube-system
+  labels:
+    k8s-app: p8s-elastic-exporter
+  # annotations:
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9114
+      targetPort: 9114
+      protocol: TCP
+      name: http-metrics
+  selector:
+    k8s-app: p8s-elastic-exporter

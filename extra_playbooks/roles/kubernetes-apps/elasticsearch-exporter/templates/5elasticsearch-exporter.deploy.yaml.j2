@@ -80,7 +80,6 @@ spec:
 {{ boss__elasticsearch__exporter__deployment_spec_template_spec_containers_readinessProbe | indent( width=10, indentfirst=True,blank=True) }}
 {% endif %}
 {% endif %}
-        restartPolicy: Always
 
 {% if boss__elasticsearch__exporter__deployment_spec_template_containers_env is defined %}
 {% if boss__elasticsearch__exporter__deployment_spec_template_containers_env == "disabled" %}

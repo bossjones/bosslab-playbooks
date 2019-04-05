@@ -1,0 +1,135 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: p8s-elastic-exporter
+  namespace: kube-system
+  labels:
+    k8s-app: p8s-elastic-exporter
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  # selector:
+  #  matchLabels:
+  template:
+    metadata:
+      labels:
+        k8s-app: p8s-elastic-exporter
+
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9114"
+        
+    spec:
+      serviceAccountName: p8s-elastic-exporter
+      containers:
+      - name: p8s-elastic-exporter
+        image: fjustwatch/elasticsearch_exporter:1.0.1
+        # command:
+        command:
+        - /bin/elasticsearch_exporter
+        - -es.uri=http://elasticsearch:9200
+        - -es.all=true
+        securityContext:
+          capabilities:
+            drop:
+            - SETPCAP
+            - MKNOD
+            - AUDIT_WRITE
+            - CHOWN
+            - NET_RAW
+            - DAC_OVERRIDE
+            - FOWNER
+            - FSETID
+            - KILL
+            - SETGID
+            - SETUID
+            - NET_BIND_SERVICE
+            - SYS_CHROOT
+            - SETFCAP
+          readOnlyRootFilesystem: true
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 9114
+          initialDelaySeconds: 30
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 9114
+          initialDelaySeconds: 10
+          timeoutSeconds: 10
+
+        env:
+        - name: NODE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: POD_UID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: NODE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+
+        # volumeMounts:
+
+        resources:
+          limits:
+            cpu: ".2"
+            memory: "128Mi"
+          requests:
+            cpu: "0.05"
+            memory: "64Mi"
+          
+
+        ports:
+        - containerPort: 9114
+          name: http-metrics
+
+      # volumes:
+
+      hostNetwork: False
+
+      hostPID: False
+
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+
+
+
+
+
+#      hostNetwork: true
+#      hostPID: true
+#      nodeSelector:
+#        beta.kubernetes.io/os: linux
+#      securityContext:
+#        runAsNonRoot: true
+#        runAsUser: 65534
