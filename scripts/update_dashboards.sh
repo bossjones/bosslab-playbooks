@@ -139,6 +139,7 @@ get_all_dashboards() {
         - "Downloading | analysis_by_namespace.json" download_board https://grafana.com/api/dashboards/6876/revisions/2/download analysis_by_namespace.json
         - "Downloading | kubernetes_cluster_autoscaler.json" download_board https://grafana.com/api/dashboards/3831/revisions/1/download kubernetes_cluster_autoscaler.json
         - "Downloading | nginx_ingress.json" download_board https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/grafana/dashboards/nginx.json nginx_ingress.json
+        - "Downloading | elasticsearch.json" download_board https://raw.githubusercontent.com/justwatchcom/elasticsearch_exporter/master/examples/grafana/dashboard.json elastic.json
 
     )
 
