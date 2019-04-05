@@ -136,10 +136,15 @@ data:
         Time_Format %Y-%m-%dT%H:%M:%S.%L
         Time_Keep   On
 
+    # EXAMPLE
+    # [20:52:27,075] <inform-707> INFO inform - from [f0:9f:c2:33:bd:71](UniFi AP-AC-Pro, U7PG2, 4.0.21.9965): state=CONNECTED, last_inform=31, ext/stun_ip=192.168.1.7, dev_ip=192.168.1.7, up=4666650
+
+    # TESTING: ^\[(?<time>[^ ,]*)[^\[][^\d+](?<pri>[^\<]*[^ w+]*[^ \-]*[^ \>] *)
+
     # [PARSER]
     #     Name        syslog-bossjones
     #     Format      regex
-    #     Regex       /^\[(?<time>[^ ]*[^ ,]*)\]$/
+    #     Regex       /^\[(?<time>[^ ,]*)[^ \<]/
     #     Time_Key    time
     #     Time_Format %b %d %H:%M:%S
     #     Time_Format %Y-%m-%dT%H:%M:%S.%L
