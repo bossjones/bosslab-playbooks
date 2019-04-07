@@ -31,7 +31,7 @@ spec:
         # command:
         command:
         - /bin/elasticsearch_exporter
-        - -es.uri=http://elasticsearch:9200
+        - -es.uri=http://elasticsearch-logging:9200
         - -es.all=true
         securityContext:
           capabilities:
