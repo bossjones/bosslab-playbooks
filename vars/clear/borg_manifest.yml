@@ -417,6 +417,9 @@ boss__efk__fluentd_daemon_set_spec_template_spec_volumes: |
       path: /usr/lib64/libsystemd.so.0
       # path: /lib/x86_64-linux-gnu/libsystemd.so.0
 
+boss__efk__fluentd_daemon_set_spec_template_spec_nodeSelector: |-
+  beta.kubernetes.io/os: linux
+
 ############################################
 
 
