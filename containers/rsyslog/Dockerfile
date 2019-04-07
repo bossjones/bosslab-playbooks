@@ -1,7 +1,7 @@
 FROM jumanjiman/rsyslog:8.34.0-r0-20180708T0208-git-cb867ef
 
 # SOURCE: https://github.com/rsyslog/rsyslog-docker/blob/master/dev_env/alpine/Dockerfile
-RUN	apk add --no-cache \
+RUN	apk update;apk upgrade;apk add --no-cache \
 		git build-base automake libtool autoconf py-docutils gnutls gnutls-dev \
 		zlib-dev curl-dev mysql-dev libdbi-dev libuuid util-linux-dev \
 		libgcrypt-dev flex bison bsd-compat-headers linux-headers valgrind librdkafka-dev \
@@ -10,7 +10,10 @@ RUN	apk add --no-cache \
 		libfastjson-dev \
 		liblognorm-dev \
 		librelp-dev \
-		liblogging-dev
+		liblogging-dev \
+		bash \
+        bash-completion \
+        htop
 
 # SOURCE: https://hub.docker.com/r/jumanjiman/rsyslog/dockerfile
 
