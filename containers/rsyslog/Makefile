@@ -43,14 +43,14 @@ build:
 	--build-arg VCS_REF=$(GIT_SHA) \
 	--build-arg BUILD_DATE=$(VERSION) \
 	--build-arg BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ') \
-	--tag $(username)/$(container_name):$(GIT_SHA) . ; \
+	--tag $(username)/$(container_name):$(GIT_SHA) .
 
 build-force:
 	docker build --rm \
 	--force-rm \
 	--pull \
 	--no-cache \
-	-t $(username)/$(container_name):$(GIT_SHA) . ; \
+	-t $(username)/$(container_name):$(GIT_SHA) .
 
 build-tag: build tag
 
