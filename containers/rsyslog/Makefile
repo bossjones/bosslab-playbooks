@@ -44,7 +44,11 @@ ifeq ($(TAG),@branch)
 endif
 
 run:
-	docker run --rm \
+	docker run \
+	-it \
+	--rm \
+	--name rsyslog.service \
+	-h $(shell hostname) \
 	$(username)/$(container_name):$(GIT_SHA) \
 	bash
 
