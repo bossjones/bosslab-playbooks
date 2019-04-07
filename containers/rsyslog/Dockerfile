@@ -4,7 +4,8 @@ FROM jumanjiman/rsyslog:8.34.0-r0-20180708T0208-git-cb867ef
 RUN	apk update;apk upgrade;apk add --no-cache \
     bash \
     bash-completion \
-    htop
+    htop \
+    util-linux
 # RUN	apk update;apk upgrade;apk add --no-cache \
 # 		git build-base automake libtool autoconf py-docutils gnutls gnutls-dev \
 # 		zlib-dev curl-dev mysql-dev libdbi-dev libuuid util-linux-dev \
