@@ -188,6 +188,9 @@ COPY run.sh /run.sh
 # Expose prometheus metrics / fluentd ui / out_forward / snmp / in_http / in_udp / in_tcp / in_syslog / promitheus-metrics / monitor-agent
 EXPOSE 80 9292 24224 161 9880 5160 5170 24231 24220 5140
 
+# ORIG: # Expose prometheus metrics / fluentd ui / out_forward / snmp / in_http / in_udp / in_tcp / in_syslog / promitheus-metrics / monitor-agent
+# EXPOSE 80 9292 24224 161 9880 5160 5170 5170 5170 24231 24220
+
 # forward request and error logs to docker log collector
 # RUN mkdir -p /var/log/supervisor \
 #     && touch /var/log/supervisor/supervisord.log \
