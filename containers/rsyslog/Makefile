@@ -66,6 +66,8 @@ build-force:
 	--no-cache \
 	-t $(username)/$(container_name):$(GIT_SHA) . ; \
 
+build-tag: build tag
+
 tag:
 	docker tag $(username)/$(container_name):$(GIT_SHA) $(username)/$(container_name):latest
 	docker tag $(username)/$(container_name):$(GIT_SHA) $(username)/$(container_name):$(TAG)
