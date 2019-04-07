@@ -43,6 +43,11 @@ ifeq ($(TAG),@branch)
 	@echo $(value TAG)
 endif
 
+run:
+	docker run --rm \
+	$(username)/$(container_name):$(GIT_SHA) \
+	bash
+
 build:
 	docker build \
 	--build-arg VCS_REF=$(GIT_SHA) \
