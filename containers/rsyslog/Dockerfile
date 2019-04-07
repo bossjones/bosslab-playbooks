@@ -1,11 +1,38 @@
-FROM jumanjiman/rsyslog:8.34.0-r0-20180708T0208-git-cb867ef
-
-# SOURCE: https://github.com/rsyslog/rsyslog-docker/blob/master/dev_env/alpine/Dockerfile
-RUN	apk update;apk upgrade;apk add --no-cache \
+# SOURCE: https://github.com/rsyslog/rsyslog-docker/blob/master/appliance/alpine/Dockerfile
+FROM alpine:3.7
+COPY	rsyslog@lists.adiscon.com-5a55e598.rsa.pub /etc/apk/keys/rsyslog@lists.adiscon.com-5a55e598.rsa.pub
+RUN	echo "http://alpine.rsyslog.com/3.7/stable" >> /etc/apk/repositories \
+    && apk --no-cache update  \
+    && apk add --no-cache \
+    rsyslog \
+    rsyslog-elasticsearch \
+    rsyslog-imptcp \
+    rsyslog-imrelp \
+    rsyslog-mmjsonparse \
+    rsyslog-mmutf8fix \
+    rsyslog-omrelp \
+    rsyslog-omstdout \
     bash \
     bash-completion \
     htop \
     util-linux
+RUN	adduser -s /bin/bash -D rsyslog rsyslog \
+    && echo "rsyslog ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+
+COPY	rsyslog.conf /etc/rsyslog.conf
+COPY	rsyslog.conf.d/*.conf /etc/rsyslog.conf.d/
+
+COPY	internal/* /opt/internal/
+COPY	tools/* /opt/tools/
+
+# SOURCE: https://github.com/rsyslog/rsyslog-docker/blob/master/dev_env/alpine/Dockerfile
+# RUN	apk update;apk upgrade;apk add --no-cache \
+#     bash \
+#     bash-completion \
+#     htop \
+#     util-linux
+
 # RUN	apk update;apk upgrade;apk add --no-cache \
 # 		git build-base automake libtool autoconf py-docutils gnutls gnutls-dev \
 # 		zlib-dev curl-dev mysql-dev libdbi-dev libuuid util-linux-dev \
