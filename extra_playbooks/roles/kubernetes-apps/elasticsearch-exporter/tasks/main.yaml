@@ -1,0 +1,21 @@
+---
+
+- name: "elasticsearch-exporter | Create directory: {{boss__elasticsearch__exporter__manifest_path}}"
+  file:
+    path: "{{boss__elasticsearch__exporter__manifest_path}}"
+    state: directory
+
+- name: "elasticsearch-exporter | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__elasticsearch__exporter__manifest_path }}/{{ item }}"
+  with_items:
+    - "5elasticsearch-exporter.deploy.yaml"
+    - "6elasticsearch-exporter.svc.yaml"
+    - "7elasticsearch-exporter.ingress.yaml"
+
+- name: Clean artifact path ingress
+  file:
+    state: "{{boss__elasticsearch__exporter__create_ingress}}"
+    path: "{{ boss__elasticsearch__exporter__manifest_path }}/7elasticsearch-exporter.ingress.yaml"
+  when: boss__elasticsearch__exporter__create_ingress is defined and boss__elasticsearch__exporter__create_ingress == "absent"

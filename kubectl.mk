@@ -2174,3 +2174,85 @@ lint-npd:
 code-npd:
 	$(call check_defined, cluster, Please set cluster)
 	code dist/manifests/$(cluster)-manifests/npd
+
+
+redeploy-elasticsearch-exporter:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete elasticsearch-exporter:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete elasticsearch-exporter$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/elasticsearch-exporter/
+
+	@printf "render elasticsearch-exporter manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render elasticsearch-exporter manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_elasticsearch_exporter.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "lint elasticsearch-exporter manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint elasticsearch-exporter manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/elasticsearch-exporter -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "apply-elasticsearch-exporter:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy elasticsearch-exporter$$NC\n"
+	@printf "=======================================\n"
+	-kubectl apply -f dist/manifests/$(cluster)-manifests/elasticsearch-exporter/
+	@echo ""
+	@echo ""
+
+create-elasticsearch-exporter:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-elasticsearch-exporter:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy elasticsearch-exporter$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/elasticsearch-exporter/
+	@echo ""
+	@echo ""
+
+apply-elasticsearch-exporter:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-elasticsearch-exporter:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy elasticsearch-exporter$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/elasticsearch-exporter/
+	@echo ""
+	@echo ""
+
+delete-elasticsearch-exporter:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/elasticsearch-exporter/
+
+describe-elasticsearch-exporter:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/elasticsearch-exporter/ | highlight
+
+debug-elasticsearch-exporter: describe-elasticsearch-exporter
+	kubectl -n kube-system get pod -l app=elasticsearch-exporter --output=yaml | highlight
+
+test-elasticsearch-exporter-curl:
+	-curl -v -L 'http://elasticsearch-exporter.hyenaclan.org'
+
+lint-elasticsearch-exporter:
+	$(call check_defined, cluster, Please set cluster)
+	bash -c "find dist/manifests/$(cluster)-manifests/elasticsearch-exporter -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+	kubeval-part-lint $(cluster) elasticsearch-exporter
+
+code-elasticsearch-exporter:
+	$(call check_defined, cluster, Please set cluster)
+	code dist/manifests/$(cluster)-manifests/elasticsearch-exporter

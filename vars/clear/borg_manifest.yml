@@ -417,6 +417,9 @@ boss__efk__fluentd_daemon_set_spec_template_spec_volumes: |
       path: /usr/lib64/libsystemd.so.0
       # path: /lib/x86_64-linux-gnu/libsystemd.so.0
 
+boss__efk__fluentd_daemon_set_spec_template_spec_nodeSelector: |-
+  beta.kubernetes.io/os: linux
+
 ############################################
 
 
@@ -2000,6 +2003,171 @@ boss__npd__manifest_path: "{{manifest_dir_path}}/npd"
 boss__npd__namespace_name: kube-system
 
 
+
+##########################################################################################################
+# .########.##..........###.....######..########.####..######...######..########....###....########...######..##.....##.........########.##.....##.########...#######..########..########.########.########.
+# .##.......##.........##.##...##....##....##.....##..##....##.##....##.##.........##.##...##.....##.##....##.##.....##.........##........##...##..##.....##.##.....##.##.....##....##....##.......##.....##
+# .##.......##........##...##..##..........##.....##..##.......##.......##........##...##..##.....##.##.......##.....##.........##.........##.##...##.....##.##.....##.##.....##....##....##.......##.....##
+# .######...##.......##.....##..######.....##.....##..##........######..######...##.....##.########..##.......#########.#######.######......###....########..##.....##.########.....##....######...########.
+# .##.......##.......#########.......##....##.....##..##.............##.##.......#########.##...##...##.......##.....##.........##.........##.##...##........##.....##.##...##......##....##.......##...##..
+# .##.......##.......##.....##.##....##....##.....##..##....##.##....##.##.......##.....##.##....##..##....##.##.....##.........##........##...##..##........##.....##.##....##.....##....##.......##....##.
+# .########.########.##.....##..######.....##....####..######...######..########.##.....##.##.....##..######..##.....##.........########.##.....##.##.........#######..##.....##....##....########.##.....##
+##########################################################################################################
+boss__elasticsearch__exporter__subdomain: elasticsearch-exporter
+boss__elasticsearch__exporter__manifest_path: "{{manifest_dir_path}}/elasticsearch-exporter"
+boss__elasticsearch__exporter__namespace_name: kube-system
+boss__elasticsearch__exporter__fluent_bit_version: 1.0.1
+boss__elasticsearch__exporter__fluent_bit_image_repo: "fjustwatch/elasticsearch_exporter"
+boss__elasticsearch__exporter__fluent_bit_image_tag: "{{ boss__elasticsearch__exporter__fluent_bit_version }}"
+boss__elasticsearch__exporter__shared_name: p8s-elastic-exporter
+boss__elasticsearch__exporter__configmap_suffix: "-0-3-0"
+boss__elasticsearch__exporter__create_namespace: "absent"
+boss__elasticsearch__exporter__create_ingress: "present"
+boss__elasticsearch__exporter__loglevel: "debug"
+
+boss__elasticsearch__exporter__deployment_spec_template_containers_resources: |
+  limits:
+    cpu: ".2"
+    memory: "128Mi"
+  requests:
+    cpu: "0.05"
+    memory: "64Mi"
+
+boss__elasticsearch__exporter__serviceAccountName: "{{boss__elasticsearch__exporter__shared_name}}"
+boss__elasticsearch__exporter__deployment_spec_replicas: 1
+boss__elasticsearch__exporter__deployment_spec_strategy: |-
+  rollingUpdate:
+    maxSurge: 1
+    maxUnavailable: 0
+  type: RollingUpdate
+
+
+boss__elasticsearch__exporter__deployment_spec_template_containers_command: |-
+  - /bin/elasticsearch_exporter
+  - -es.uri=http://elasticsearch-logging:9200
+  - -es.all=true
+
+boss__elasticsearch__exporter__deployment_labels: |-
+  k8s-app: {{boss__elasticsearch__exporter__shared_name}}
+
+boss__elasticsearch__exporter__deployment_spec_matchLabels: "disabled"
+
+boss__elasticsearch__exporter__deployment_spec_template_metadata_labels: |-
+  k8s-app: {{boss__elasticsearch__exporter__shared_name}}
+
+boss__elasticsearch__exporter__deployment_spec_template_metadata_annotations: |
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "9114"
+
+boss__elasticsearch__exporter__deployment_spec_template_containers_ports: |-
+  - containerPort: 9114
+    name: http-metrics
+
+boss__elasticsearch__exporter__deployment_spec_template_containers_env: |-
+  - name: NODE_IP
+    valueFrom:
+      fieldRef:
+        fieldPath: status.hostIP
+  - name: POD_UID
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.uid
+  - name: POD_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.name
+  - name: POD_IP
+    valueFrom:
+      fieldRef:
+        fieldPath: status.podIP
+  - name: POD_NAMESPACE
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.namespace
+  - name: NODE_IP
+    valueFrom:
+      fieldRef:
+        fieldPath: status.hostIP
+  - name: NODE_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: spec.nodeName
+
+boss__elasticsearch__exporter__deployment_spec_template_spec_volumeMounts: "disabled"
+
+boss__elasticsearch__exporter__deployment_spec_template_spec_volumes: "disabled"
+
+boss__elasticsearch__exporter__service_labels: |-
+  k8s-app: {{boss__elasticsearch__exporter__shared_name}}
+
+boss__elasticsearch__exporter__service_annotations: "disabled"
+
+boss__elasticsearch__exporter__service_spec_type: ClusterIP
+
+boss__elasticsearch__exporter__service_spec_ports: |-
+  - port: 9114
+    targetPort: 9114
+    protocol: TCP
+    name: http-metrics
+
+boss__elasticsearch__exporter__service_spec_selector: |-
+  k8s-app: {{boss__elasticsearch__exporter__shared_name}}
+
+boss__elasticsearch__exporter__ingress_spec_rules_http_paths: |
+  - path: /
+    backend:
+      serviceName: {{boss__elasticsearch__exporter__shared_name}}
+      servicePort: 5140
+
+boss__elasticsearch__exporter__ingress_labels: |-
+  k8s-app: {{boss__elasticsearch__exporter__shared_name}}
+
+boss__elasticsearch__exporter__ingress_annotations: |-
+  nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  traefik.frontend.rule.type: PathPrefix
+
+boss__elasticsearch__exporter__deployment_spec_template_spec_hostNetwork: False
+boss__elasticsearch__exporter__deployment_spec_template_spec_hostPID: False
+
+boss__elasticsearch__exporter__deployment_spec_template_spec_nodeSelector: |-
+  beta.kubernetes.io/os: linux
+
+boss__elasticsearch__exporter__deployment_spec_template_spec_securityContext: |-
+  runAsNonRoot: true
+  runAsUser: 1000
+
+boss__elasticsearch__exporter__deployment_spec_template_spec_containers_securityContext: |-
+  capabilities:
+    drop:
+    - SETPCAP
+    - MKNOD
+    - AUDIT_WRITE
+    - CHOWN
+    - NET_RAW
+    - DAC_OVERRIDE
+    - FOWNER
+    - FSETID
+    - KILL
+    - SETGID
+    - SETUID
+    - NET_BIND_SERVICE
+    - SYS_CHROOT
+    - SETFCAP
+  readOnlyRootFilesystem: true
+
+boss__elasticsearch__exporter__deployment_spec_template_spec_containers_livenessProbe: |-
+  httpGet:
+    path: /health
+    port: 9114
+  initialDelaySeconds: 30
+  timeoutSeconds: 10
+
+boss__elasticsearch__exporter__deployment_spec_template_spec_containers_readinessProbe: |-
+  httpGet:
+    path: /health
+    port: 9114
+  initialDelaySeconds: 10
+  timeoutSeconds: 10
 
 vagrant_playbook_enable_role_tools: "enabled"
 vagrant_playbook_enable_role_bootstrap: "enabled"
