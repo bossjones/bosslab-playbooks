@@ -14,13 +14,13 @@ puts "Host: #{ARGV[0]}"
 us = UDPSocket.open
 sa = Socket.pack_sockaddr_in(5140, ARGV[0])
 
-d = %x( env LANG=us_US.UTF-8 date "+%b %d %H:%M:%S" )
-h = %x( hostname )
+d = %x( env LANG=us_US.UTF-8 date "+%b %d %H:%M:%S" ).strip
+h = %x( hostname ).strip
 pid = Process.pid
 
-msg = "<150>#{d} #{h} syslog-netcat-test[#{pid}]: testing baby"
+msg = "<150>#{d} #{h} syslog-netcat-test[#{pid}]: testing baby".strip
 
-puts " [msg]: #{msg}"
+puts " [msg]: #{msg}".strip
 
 # This example uses json payload.
 # In in_udp configuration, need to configure "@type json" in "<parse>"
