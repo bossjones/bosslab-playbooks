@@ -40,6 +40,9 @@ bash:
 	-p "514:514" \
 	-p "514:514/udp" \
 	-p "1601:1601" \
+	-e "_IMTCP_PORT=5140" \
+	-e "_IMUDP=5140" \
+	-e "_IMRELP_PORT=1601" \
 	--entrypoint "/bin/bash" \
 	$(username)/$(container_name):latest \
 	-l
@@ -54,6 +57,9 @@ run:
 	-p "514:514" \
 	-p "514:514/udp" \
 	-p "1601:1601" \
+	-e "_IMTCP_PORT=5140" \
+	-e "_IMUDP=5140" \
+	-e "_IMRELP_PORT=1601" \
 	-h $(shell hostname) \
 	$(username)/$(container_name):latest
 
