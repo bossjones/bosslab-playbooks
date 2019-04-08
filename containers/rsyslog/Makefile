@@ -35,7 +35,7 @@ run:
 	--rm \
 	--name rsyslog.service \
 	-h $(shell hostname) \
-	$(username)/$(container_name):$(GIT_SHA) \
+	$(username)/$(container_name):latest \
 	bash
 
 build:
