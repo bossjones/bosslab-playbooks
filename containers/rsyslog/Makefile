@@ -91,3 +91,6 @@ dc-stop:
 
 dc-pull:
 	docker-compose pull
+
+cleanup:
+	bash scripts/cleanup-docker
