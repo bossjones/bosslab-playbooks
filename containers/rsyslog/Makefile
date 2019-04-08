@@ -78,3 +78,12 @@ push:
 	docker push $(username)/$(container_name):$(TAG)
 
 push-force: build-force push
+
+dc-up:
+	docker-compose up
+
+dc-build:
+	docker-compose build
+
+dc-stop:
+	docker-compose stop
