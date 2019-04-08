@@ -3,13 +3,15 @@ version: '3.6'
 services:
   rsyslogcentral:
     network_mode: host
-    image: bossjones/rsyslog:0.1.0
+    image: bossjones/rsyslog:latest
     container_name: rsyslogcentral
     # restart: always
     ports:
       - "514:514/udp"
       - "514:514"
       - "1601:1601"
+      # - "5160:5160"
+      # - "5160:5160/udp"
     # networks:
     #   - unifi
     # volumes:

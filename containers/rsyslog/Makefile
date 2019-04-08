@@ -37,6 +37,9 @@ bash:
 	-w /home/appliance \
 	-h $(shell hostname) \
 	-v /etc/localtime:/etc/localtime:ro \
+	-p "514:514" \
+	-p "514:514/udp" \
+	-p "1601:1601" \
 	--entrypoint "/bin/bash" \
 	$(username)/$(container_name):latest \
 	-l
@@ -48,6 +51,9 @@ run:
 	--name rsyslog.service \
 	-w /home/appliance \
 	-v /etc/localtime:/etc/localtime:ro \
+	-p "514:514" \
+	-p "514:514/udp" \
+	-p "1601:1601" \
 	-h $(shell hostname) \
 	$(username)/$(container_name):latest
 
