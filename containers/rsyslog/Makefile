@@ -29,15 +29,27 @@ ifeq ($(TAG),@branch)
 	@echo $(value TAG)
 endif
 
+bash:
+	docker run \
+	-it \
+	--rm \
+	--name rsyslog.bash \
+	-w /home/appliance \
+	-h $(shell hostname) \
+	-v /etc/localtime:/etc/localtime:ro \
+	--entrypoint "/bin/bash" \
+	$(username)/$(container_name):latest \
+	-l
+
 run:
 	docker run \
 	-it \
 	--rm \
 	--name rsyslog.service \
 	-w /home/appliance \
+	-v /etc/localtime:/etc/localtime:ro \
 	-h $(shell hostname) \
-	$(username)/$(container_name):latest \
-	bash
+	$(username)/$(container_name):latest
 
 build:
 	docker build \
