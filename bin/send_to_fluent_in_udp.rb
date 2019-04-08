@@ -55,9 +55,9 @@ us.close
 
 # your firewall has to allow communication with IP address 67.19.248.74 (port 27912)
 #server, port, cmd = *ARGV
-server = "#{ARGV[0]}"
-port = 5140
-cmd = "#{msg}"
+# server = "#{ARGV[0]}"
+# port = 5140
+# cmd = "#{msg}"
 
-result = q2cmd(server, port, cmd)
-puts result
+# result = q2cmd(server, port, cmd)
+# puts result
