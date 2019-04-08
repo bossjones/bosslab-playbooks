@@ -1,5 +1,12 @@
 #!/bin/bash
 
+
+mkdir -p /config
+mkdir -p /work
+mkdir -p /logs
+
+chown -R rsyslog:rsyslog * /config /work /logs
+
 tree
 
 source internal/set-defaults

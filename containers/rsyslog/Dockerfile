@@ -22,7 +22,7 @@ RUN	echo "http://alpine.rsyslog.com/3.7/stable" >> /etc/apk/repositories \
 RUN	adduser -s /bin/bash -D rsyslog rsyslog \
     && echo "rsyslog ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-VOLUME	/config /work /logs
+# VOLUME	/config /work /logs
 CMD	["rsyslog"]
 ENTRYPOINT ["/home/appliance/starter.sh"]
 
