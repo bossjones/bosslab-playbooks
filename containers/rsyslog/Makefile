@@ -34,6 +34,7 @@ run:
 	-it \
 	--rm \
 	--name rsyslog.service \
+	-w /home/appliance \
 	-h $(shell hostname) \
 	$(username)/$(container_name):latest \
 	bash
