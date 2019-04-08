@@ -32,8 +32,8 @@ COPY	rsyslog.conf.d/*.conf /etc/rsyslog.conf.d/
 
 WORKDIR /home/appliance
 COPY	starter.sh CONTAINER.* ./
-COPY	internal/* /opt/internal/
-COPY	tools/* /opt/tools/
+COPY	internal/* ./internal/
+COPY	tools/* ./tools/
 RUN	echo "`date +%F` (`date +%s`)" > CONTAINER.release \
 	&& chown -R rsyslog:rsyslog *
 
