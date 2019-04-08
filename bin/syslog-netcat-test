@@ -3,11 +3,19 @@
 set -e -o pipefail
 
 host_name=$1
+netcat_path=/usr/local/bin/netcat
 
 if [[ $# -ne 1 ]]; then
     echo "Usage: ${FUNCNAME[0]} <host name>"
     echo "syslog-netcat-test fluent-bit-centralized.scarlettlab.com"
     exit 1
+fi
+
+
+if [[ ! -f /usr/local/bin/netcat ]]; then
+    echo " [check] netcat doesn't exist at location: /usr/local/bin/netcat"
+    netcat_path=/bin/nc
+    echo " [run] using /bin/nc"
 fi
 
 # <150> represents facility and severity following RC3164 Syslog header use the current timestamp and a random hostname
@@ -24,7 +32,7 @@ echo ${_message}
 
 # <PRI>TIMESTAMP HOSTNAME APP-NAME[PROCID]: sourcetype="SOURCETYPE" key1="val1" key2="val2" etc.
 
-echo ${_message} | /usr/local/bin/netcat -c --wait=2 -v "${host_name}" 5140
+echo ${_message} | $netcat_path -c --wait=2 -v "${host_name}" 5140
 # echo '<14>sourcehost message text' | nc -v "${host_name}" 5140
 # echo '<14>sourcehost message text' | nc -v -t "${host_name}" 5140
 # echo '<14>sourcehost message text' | nc -v -t "${host_name}" 80
