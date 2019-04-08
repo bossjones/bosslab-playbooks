@@ -20,6 +20,8 @@ pid = Process.pid
 
 msg = "<150>#{d} #{h} syslog-netcat-test[#{pid}]: testing baby"
 
+puts " [msg]: #{msg}"
+
 # This example uses json payload.
 # In in_udp configuration, need to configure "@type json" in "<parse>"
 us.send(msg, 0, sa)
