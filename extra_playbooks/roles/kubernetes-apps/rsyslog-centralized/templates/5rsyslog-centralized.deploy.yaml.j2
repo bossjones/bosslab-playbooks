@@ -39,7 +39,7 @@ spec:
       serviceAccountName: {{boss__rsyslog__centralized__serviceAccountName}}
       containers:
       - name: {{boss__rsyslog__centralized__shared_name}}
-        image: {{ boss__rsyslog__centralized__fluent_bit_image_repo }}:{{ boss__rsyslog__centralized__fluent_bit_image_tag }}
+        image: {{ boss__rsyslog__centralized__rsyslog_image_repo }}:{{ boss__rsyslog__centralized__rsyslog_image_tag }}
         # command:
 
 {% if boss__rsyslog__centralized__deployment_spec_template_containers_env is defined %}

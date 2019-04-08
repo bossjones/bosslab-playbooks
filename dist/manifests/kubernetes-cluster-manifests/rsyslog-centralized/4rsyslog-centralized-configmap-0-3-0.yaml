@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{boss__rsyslog__centralized__shared_name}}-config-0-3-0
-  namespace: {{boss__rsyslog__centralized__namespace_name}}
+  name: rsyslog-centralized-config-0-3-0
+  namespace: kube-system
   labels:
-    k8s-app: {{boss__rsyslog__centralized__shared_name}}
+    k8s-app: rsyslog-centralized
 data:
   rsyslog.conf: |-
     # SOURCE: https://github.com/rsyslog/rsyslog-docker/blob/master/appliance/alpine/rsyslog.conf
@@ -46,9 +46,9 @@ data:
 
 
     # includes done explicitely
-    # include(file="{{boss__rsyslog__centralized__main_config_folder_prefix}}/rsyslog.conf.d/log_to_logsene.conf" config.enabled=`echo $ENABLE_LOGSENE`)
-    # include(file="{{boss__rsyslog__centralized__main_config_folder_prefix}}/rsyslog.conf.d/log_to_files.conf" config.enabled=`echo $ENABLE_LOGFILES`)
-    # include(file="{{boss__rsyslog__centralized__main_config_folder_prefix}}/rsyslog.conf.d/log_to_stdout.conf" config.enabled=`echo $ENABLE_STDOUT`)
+    # include(file="/etc/rsyslog.conf.d/log_to_logsene.conf" config.enabled=`echo $ENABLE_LOGSENE`)
+    # include(file="/etc/rsyslog.conf.d/log_to_files.conf" config.enabled=`echo $ENABLE_LOGFILES`)
+    # include(file="/etc/rsyslog.conf.d/log_to_stdout.conf" config.enabled=`echo $ENABLE_STDOUT`)
 
     #################### default ruleset begins ####################
 
@@ -108,10 +108,10 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{boss__rsyslog__centralized__shared_name}}-config-dot-d-0-3-0
-  namespace: {{boss__rsyslog__centralized__namespace_name}}
+  name: rsyslog-centralized-config-dot-d-0-3-0
+  namespace: kube-system
   labels:
-    k8s-app: {{boss__rsyslog__centralized__shared_name}}
+    k8s-app: rsyslog-centralized
 data:
   log_to_files.conf: |-
 
@@ -198,10 +198,10 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{boss__rsyslog__centralized__shared_name}}-container-config-0-3-0
-  namespace: {{boss__rsyslog__centralized__namespace_name}}
+  name: rsyslog-centralized-container-config-0-3-0
+  namespace: kube-system
   labels:
-    k8s-app: {{boss__rsyslog__centralized__shared_name}}
+    k8s-app: rsyslog-centralized
 data:
   container_config: |-
     # rsyslog syslog appliance container configuration.

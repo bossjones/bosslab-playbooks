@@ -1,0 +1,22 @@
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: rsyslog-centralized-read
+rules:
+  - apiGroups:
+    - ""
+    resources:
+    - "namespaces"
+    - "pods"
+    - "secrets"
+    - "pods/log"
+    - "deployments"
+    - "batch"
+    - "extensions"
+    - "crontabs"
+    verbs:
+    - "get"
+    - "watch"
+    - "list"
+    - "update"
+    - "post"
