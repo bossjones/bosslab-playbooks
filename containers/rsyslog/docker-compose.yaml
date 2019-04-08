@@ -1,13 +1,59 @@
-version: "3.0"
+version: '3.6'
 services:
   rsyslogcentral:
     network_mode: host
     image: bossjones/rsyslog:0.1.0
+    container_name: rsyslogcentral
+    restart: always
+    ports:
+      - "514:514/udp"
+      - "514:514"
+      - "1601:1601"
+    # networks:
+    #   - unifi
     # volumes:
-    #   - ./kapacitor:/opt/kapacitor
-    #   - ./kapacitor/kapacitor.conf:/etc/kapacitor/kapacitor.conf
-    #   - /tmp/example.sock:/tmp/example.sock
-    # environment:
-      # - KAPACITOR_LOAD_ENABLED=true
-      # - KAPACITOR_LOAD_DIR=/opt/kapacitor
-      # - USE_VALGRIND=off
+    #   # Unifi v5.0.7 creates all of these directories (some remain empty)
+    #   - config:/var/lib/unifi
+    #   - log:/usr/lib/unifi/logs
+    #   - log2:/var/log/unifi
+    #   - run:/usr/lib/unifi/run
+    #   - run2:/run/unifi
+    #   - work:/usr/lib/unifi/work
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.docker.network=unifi"
+    #   - "traefik.controller.frontend.rule=Host:CHANGEME"
+    #   - "traefik.controller.port=8443"
+    #   - "traefik.controller.protocol=https"
+#   traefik:
+#     image: traefik:1.6
+#     container_name: traefik
+#     restart: always
+#     ports:
+#       - "80:80"
+#       # - "443:443"
+#       - "8443:8443"
+#       # - "8843:8843"
+#       - "4443:4443"
+#     networks:
+#       - unifi
+#     volumes:
+#       - /var/run/docker.sock:/var/run/docker.sock
+#       - ./traefik.toml:/traefik.toml
+#       - ./acme.json:/acme.json
+# volumes:
+#   config:
+#     driver: local
+#   log:
+#     driver: local
+#   log2:
+#     driver: local
+#   run:
+#     driver: local
+#   run2:
+#     driver: local
+#   work:
+#     driver: local
+# networks:
+#   unifi:
+#     name: unifi
