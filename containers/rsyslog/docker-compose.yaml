@@ -5,7 +5,7 @@ services:
     network_mode: host
     image: bossjones/rsyslog:0.1.0
     container_name: rsyslogcentral
-    restart: always
+    # restart: always
     ports:
       - "514:514/udp"
       - "514:514"
