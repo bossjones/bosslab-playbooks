@@ -87,3 +87,6 @@ dc-build:
 
 dc-stop:
 	docker-compose stop
+
+dc-pull:
+	docker-compose pull
