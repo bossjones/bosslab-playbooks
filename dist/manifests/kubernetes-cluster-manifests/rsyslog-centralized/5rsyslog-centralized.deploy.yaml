@@ -34,6 +34,8 @@ spec:
           value: "6160"
         - name: _IMRELP_PORT
           value: "1601"
+        - name: RSYSLOG_CONF
+          value: "/rsyslog-centralized/etc/rsyslog.conf"
         
         - name: NODE_IP
           valueFrom:
