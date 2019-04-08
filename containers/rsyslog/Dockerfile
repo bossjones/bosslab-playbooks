@@ -16,7 +16,8 @@ RUN	echo "http://alpine.rsyslog.com/3.7/stable" >> /etc/apk/repositories \
     bash-completion \
     htop \
     util-linux \
-    rsyslog-snmp
+    rsyslog-snmp \
+    tree
 
 RUN	adduser -s /bin/bash -D rsyslog rsyslog \
     && echo "rsyslog ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
