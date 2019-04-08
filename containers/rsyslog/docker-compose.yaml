@@ -7,12 +7,15 @@ services:
     container_name: rsyslogcentral
     # restart: always
     ports:
-      - "514:514/udp"
-      - "514:514"
+      # - "514:514/udp"
+      # - "514:514"
+      # - "1601:1601"
+      - "5140:5140/udp"
+      - "5140:5140"
       - "1601:1601"
     environment:
-      - _IMTCP_PORT=514
-      - _IMUDP_PORT=514
+      - _IMTCP_PORT=5140
+      - _IMUDP_PORT=5140
       - _IMRELP_PORT=1601
       # - "5160:5160"
       # - "5160:5160/udp"
