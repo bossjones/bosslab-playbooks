@@ -1,4 +1,7 @@
 #!/bin/bash
+
+tree
+
 source /home/appliance/internal/set-defaults
 source /config/container_config
 
