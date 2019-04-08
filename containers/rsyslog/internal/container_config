@@ -23,6 +23,8 @@ export LOGFILES_STORE="/logs/hosts/%hostname:::secpath-replace%/messages.log"
 #export LOGSENE_TOKEN=
 #export LOGSENE_URL=logsene-receiver.eu.sematext.com
 
+# export CNF_CALL_LOG_TO_STDOUT="off"
+
 # Settings for debugging the container
 #export USE_VALGRIND=on
 #export RSYSLOG_DEBUG="debug nostdout"

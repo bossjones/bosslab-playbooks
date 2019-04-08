@@ -22,4 +22,6 @@ if [ "$LOGSENE_TOKEN" != "" ]; then
 	export ENABLE_LOGSENE=on
 	export CNF_CALL_LOG_TO_LOGSENE="call log_to_logsene"
 fi # end LOGSENE
+
+export CNF_CALL_LOG_TO_STDOUT=on
 env
