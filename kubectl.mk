@@ -2256,3 +2256,101 @@ lint-elasticsearch-exporter:
 code-elasticsearch-exporter:
 	$(call check_defined, cluster, Please set cluster)
 	code dist/manifests/$(cluster)-manifests/elasticsearch-exporter
+
+
+
+redeploy-rsyslog-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete rsyslog-centralized:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete rsyslog-centralized$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/rsyslog-centralized/
+
+	@printf "render rsyslog-centralized manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render rsyslog-centralized manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_rsyslog_centralized.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "lint rsyslog-centralized manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint rsyslog-centralized manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/rsyslog-centralized -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "apply-rsyslog-centralized:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy rsyslog-centralized$$NC\n"
+	@printf "=======================================\n"
+	-kubectl apply -f dist/manifests/$(cluster)-manifests/rsyslog-centralized/
+	@echo ""
+	@echo ""
+
+create-rsyslog-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-rsyslog-centralized:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy rsyslog-centralized$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/rsyslog-centralized/
+	@echo ""
+	@echo ""
+
+apply-rsyslog-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-rsyslog-centralized:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy rsyslog-centralized$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/rsyslog-centralized/
+	@echo ""
+	@echo ""
+
+# https://github.com/kubernetes/kubernetes/blob/3d7d35ee8f099f4611dca06de4453f958b4b8492/cluster/addons/storage-class/local/default.yaml
+apply-rsyslog-centralized-ingress:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-rsyslog-centralized:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy rsyslog-centralized$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/rsyslog-centralized/* -type f -name '*ingress*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	@echo ""
+	@echo ""
+
+
+delete-rsyslog-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/rsyslog-centralized/
+
+describe-rsyslog-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/rsyslog-centralized/ | highlight
+
+debug-rsyslog-centralized: describe-rsyslog-centralized
+	kubectl -n kube-system get pod -l app=rsyslog-centralized --output=yaml | highlight
+
+log-rsyslog-centralized:
+	kubetail -n kube-system -l k8s-app=rsyslog-centralized
+
+test-rsyslog-centralized-curl:
+	-curl -v -L 'http://rsyslog-centralized.hyenaclan.org'
+
+lint-rsyslog-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	bash -c "find dist/manifests/$(cluster)-manifests/rsyslog-centralized -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+	kubeval-part-lint $(cluster) rsyslog-centralized
+
+code-rsyslog-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	code dist/manifests/$(cluster)-manifests/rsyslog-centralized

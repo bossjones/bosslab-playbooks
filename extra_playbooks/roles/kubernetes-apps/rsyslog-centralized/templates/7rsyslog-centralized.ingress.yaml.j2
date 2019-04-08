@@ -1,0 +1,33 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{boss__rsyslog__centralized__subdomain}}
+  namespace: {{boss__rsyslog__centralized__namespace_name}}
+{% if boss__rsyslog__centralized__ingress_labels is defined %}
+{% if boss__rsyslog__centralized__ingress_labels == "disabled" %}
+  # labels:
+{% else %}
+  labels:
+{{ boss__rsyslog__centralized__ingress_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+{% if boss__rsyslog__centralized__ingress_annotations is defined %}
+{% if boss__rsyslog__centralized__ingress_annotations == "disabled" %}
+  # annotations:
+{% else %}
+  annotations:
+{{ boss__rsyslog__centralized__ingress_annotations | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+spec:
+  rules:
+  - host: {{boss__rsyslog__centralized__subdomain}}.{{ domain_root }}
+    http:
+{% if boss__rsyslog__centralized__ingress_spec_rules_http_paths is defined %}
+{% if boss__rsyslog__centralized__ingress_spec_rules_http_paths == "disabled" %}
+      # paths:
+{% else %}
+      paths:
+{{ boss__rsyslog__centralized__ingress_spec_rules_http_paths | indent( width=6, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}

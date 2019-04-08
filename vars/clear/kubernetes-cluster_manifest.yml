@@ -2182,6 +2182,211 @@ boss__elasticsearch__exporter__deployment_spec_template_spec_containers_readines
   initialDelaySeconds: 10
   timeoutSeconds: 10
 
+
+##########################################################################################################
+# .########...######..##....##..######..##........#######...######............######..########.##....##.########.########.....###....##.......####.########.########.########.
+# .##.....##.##....##..##..##..##....##.##.......##.....##.##....##..........##....##.##.......###...##....##....##.....##...##.##...##........##.......##..##.......##.....##
+# .##.....##.##.........####...##.......##.......##.....##.##................##.......##.......####..##....##....##.....##..##...##..##........##......##...##.......##.....##
+# .########...######.....##.....######..##.......##.....##.##...####.#######.##.......######...##.##.##....##....########..##.....##.##........##.....##....######...##.....##
+# .##...##.........##....##..........##.##.......##.....##.##....##..........##.......##.......##..####....##....##...##...#########.##........##....##.....##.......##.....##
+# .##....##..##....##....##....##....##.##.......##.....##.##....##..........##....##.##.......##...###....##....##....##..##.....##.##........##...##......##.......##.....##
+# .##.....##..######.....##.....######..########..#######...######............######..########.##....##....##....##.....##.##.....##.########.####.########.########.########.
+##########################################################################################################
+boss__rsyslog__centralized__subdomain: rsyslog-centralized
+boss__rsyslog__centralized__manifest_path: "{{manifest_dir_path}}/rsyslog-centralized"
+boss__rsyslog__centralized__namespace_name: kube-system
+boss__rsyslog__centralized__rsyslog_version: latest
+boss__rsyslog__centralized__rsyslog_image_repo: "bossjones/rsyslog"
+boss__rsyslog__centralized__rsyslog_image_tag: "{{ boss__rsyslog__centralized__rsyslog_version }}"
+boss__rsyslog__centralized__shared_name: rsyslog-centralized
+boss__rsyslog__centralized__configmap_suffix: "-0-3-0"
+boss__rsyslog__centralized__create_namespace: "absent"
+boss__rsyslog__centralized__create_ingress: "present"
+boss__rsyslog__centralized__loglevel: "debug"
+
+boss__rsyslog__centralized__deployment_spec_template_containers_resources: |
+  limits:
+    cpu: ".2"
+    memory: "100Mi"
+  requests:
+    cpu: "0.05"
+    memory: "10Mi"
+
+boss__rsyslog__centralized__serviceAccountName: "{{boss__rsyslog__centralized__shared_name}}"
+boss__rsyslog__centralized__deployment_spec_replicas: 3
+
+# boss__rsyslog__centralized__deployment_spec_template_containers_command: []
+
+boss__rsyslog__centralized__cluster_role_rules: |-
+  - apiGroups:
+    - ""
+    resources:
+    - "namespaces"
+    - "pods"
+    - "secrets"
+    - "pods/log"
+    - "deployments"
+    - "batch"
+    - "extensions"
+    - "crontabs"
+    verbs:
+    - "get"
+    - "watch"
+    - "list"
+    - "update"
+    - "post"
+
+boss__rsyslog__centralized__deployment_labels: |-
+  k8s-app: {{boss__rsyslog__centralized__shared_name}}
+  version: {{boss__rsyslog__centralized__rsyslog_version}}
+  kubernetes.io/cluster-service: "true"
+
+boss__rsyslog__centralized__deployment_spec_matchLabels: "disabled"
+
+# boss__rsyslog__centralized__deployment_spec_matchLabels: |-
+#   k8s-app: {{boss__rsyslog__centralized__shared_name}}
+#   version: {{boss__rsyslog__centralized__rsyslog_version}}
+
+boss__rsyslog__centralized__deployment_spec_template_metadata_labels: |-
+  k8s-app: {{boss__rsyslog__centralized__shared_name}}
+  version: {{boss__rsyslog__centralized__rsyslog_version}}
+  kubernetes.io/cluster-service: "true"
+
+boss__rsyslog__centralized__deployment_spec_template_metadata_annotations: "disabled"
+
+boss__rsyslog__centralized__deployment_spec_template_containers_ports: |-
+  - containerPort: 6160
+    name: in-udp
+    protocol: UDP
+  - containerPort: 6170
+    name: in-tcp
+    protocol: TCP
+  - containerPort: 1601
+    name: in-relp
+    protocol: TCP
+
+boss__rsyslog__centralized__deployment_spec_template_containers_env: |-
+  - name: _IMTCP_PORT
+    value: "6170"
+  - name: _IMUDP_PORT
+    value: "6160"
+  - name: _IMRELP_PORT
+    value: "1601"
+
+  - name: NODE_IP
+    valueFrom:
+      fieldRef:
+        fieldPath: status.hostIP
+  - name: POD_UID
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.uid
+  - name: POD_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.name
+  - name: POD_IP
+    valueFrom:
+      fieldRef:
+        fieldPath: status.podIP
+  - name: POD_NAMESPACE
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.namespace
+  - name: NODE_IP
+    valueFrom:
+      fieldRef:
+        fieldPath: status.hostIP
+  - name: NODE_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: spec.nodeName
+
+boss__rsyslog__centralized__deployment_spec_template_spec_volumeMounts: |
+  # rsyslog work files; do not share with multiple instances
+  - name: work
+    mountPath: /work
+  # log file store (if used)
+  - name: log
+    mountPath: /log
+  # configuration files, can be mounted read-only once finalized
+  - name: container-config
+    mountPath: /config
+  # # The volume where Rsyslog stores persistent data (position databases for tracking ingested files)
+  # - name: fluent-data
+  #   mountPath: /var/rsyslog-centralized
+  # The Rsyslog config file to use
+  - name: rsyslog-centralized-config
+    mountPath: /rsyslog-centralized/etc
+  - name: rsyslog-centralized-config-dot-d
+    mountPath: /rsyslog-centralized/etc/rsyslog.d
+
+boss__rsyslog__centralized__deployment_spec_template_spec_volumes: |
+  - name: work
+    emptyDir: {}
+  # log file store (if used)
+  - name: log
+    mountPath: {}
+  - name: container-config
+    configMap:
+      name: {{boss__rsyslog__centralized__shared_name}}-container-config{{boss__rsyslog__centralized__configmap_suffix}}
+  - name: rsyslog-centralized-config
+    configMap:
+      name: {{boss__rsyslog__centralized__shared_name}}-config{{boss__rsyslog__centralized__configmap_suffix}}
+  - name: rsyslog-centralized-config-dot-d
+    configMap:
+      name: {{boss__rsyslog__centralized__shared_name}}-config-dot-d{{boss__rsyslog__centralized__configmap_suffix}}
+
+boss__rsyslog__centralized__service_labels: |-
+  k8s-app: {{boss__rsyslog__centralized__shared_name}}
+  version: {{boss__rsyslog__centralized__rsyslog_version}}
+  kubernetes.io/cluster-service: "true"
+
+boss__rsyslog__centralized__service_annotations: "disabled"
+
+boss__rsyslog__centralized__service_spec_type: ClusterIP
+
+boss__rsyslog__centralized__service_spec_ports: |-
+  - name: in-udp
+    port: 6160
+    protocol: UDP
+    targetPort: in-udp
+  - name: in-tcp
+    port: 6170
+    protocol: TCP
+    targetPort: in-tcp
+  - name: in-relp
+    port: 1601
+    protocol: TCP
+    targetPort: in-relp
+
+boss__rsyslog__centralized__service_spec_selector: |-
+  k8s-app: {{boss__rsyslog__centralized__shared_name}}
+
+boss__rsyslog__centralized__ingress_spec_rules_http_paths: |
+  - path: /
+    backend:
+      serviceName: {{boss__rsyslog__centralized__shared_name}}
+      servicePort: 6160
+
+boss__rsyslog__centralized__ingress_labels: |-
+  k8s-app: {{boss__rsyslog__centralized__shared_name}}
+  version: {{boss__rsyslog__centralized__rsyslog_version}}
+  kubernetes.io/cluster-service: "true"
+
+boss__rsyslog__centralized__ingress_annotations: |-
+  nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+  traefik.frontend.rule.type: PathPrefix
+
+boss__rsyslog__centralized__deployment_spec_template_spec_hostNetwork: True
+boss__rsyslog__centralized__deployment_spec_template_spec_hostPID: True
+
+
+boss__rsyslog__centralized__deployment_spec_template_spec_nodeSelector: |-
+  beta.kubernetes.io/os: linux
+
+boss__rsyslog__centralized__deployment_spec_template_spec_securityContext: "disabled"
+
 # ---
 # local_release_dir: /tmp/releases
 

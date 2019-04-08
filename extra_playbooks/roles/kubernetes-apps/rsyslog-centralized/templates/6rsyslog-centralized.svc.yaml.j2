@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{boss__rsyslog__centralized__shared_name}}
+  namespace: {{boss__rsyslog__centralized__namespace_name}}
+{% if boss__rsyslog__centralized__service_labels is defined %}
+{% if boss__rsyslog__centralized__service_labels == "disabled" %}
+  # labels:
+{% else %}
+  labels:
+{{ boss__rsyslog__centralized__service_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+{% if boss__rsyslog__centralized__service_annotations is defined %}
+{% if boss__rsyslog__centralized__service_annotations == "disabled" %}
+  # annotations:
+{% else %}
+  annotations:
+{{ boss__rsyslog__centralized__service_annotations | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+spec:
+  type: {{boss__rsyslog__centralized__service_spec_type}}
+{% if boss__rsyslog__centralized__service_spec_ports is defined %}
+  ports:
+{{ boss__rsyslog__centralized__service_spec_ports | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+{% if boss__rsyslog__centralized__service_spec_selector is defined %}
+  selector:
+{{ boss__rsyslog__centralized__service_spec_selector | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
