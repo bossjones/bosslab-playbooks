@@ -15,16 +15,26 @@ RUN	echo "http://alpine.rsyslog.com/3.7/stable" >> /etc/apk/repositories \
     bash \
     bash-completion \
     htop \
-    util-linux
+    util-linux \
+    rsyslog-snmp
+
 RUN	adduser -s /bin/bash -D rsyslog rsyslog \
     && echo "rsyslog ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
+VOLUME	/config /work /logs
+CMD	["rsyslog"]
+ENTRYPOINT ["/home/appliance/starter.sh"]
 
 COPY	rsyslog.conf /etc/rsyslog.conf
 COPY	rsyslog.conf.d/*.conf /etc/rsyslog.conf.d/
 
+
+WORKDIR /home/appliance
+COPY	starter.sh CONTAINER.* ./
 COPY	internal/* /opt/internal/
 COPY	tools/* /opt/tools/
+RUN	echo "`date +%F` (`date +%s`)" > CONTAINER.release \
+	&& chown -R rsyslog:rsyslog *
 
 # SOURCE: https://github.com/rsyslog/rsyslog-docker/blob/master/dev_env/alpine/Dockerfile
 # RUN	apk update;apk upgrade;apk add --no-cache \
