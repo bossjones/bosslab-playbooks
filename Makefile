@@ -67,13 +67,13 @@ __check_defined = \
       $(error Undefined $1$(if $(value 2), ($(strip $2)))))
 
 
-export PATH := ./venv/bin:$(PATH)
+export PATH := ./bin:./venv/bin:$(PATH)
 
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 current_dir := $(notdir $(patsubst %/,%,$(dir $(mkfile_path))))
 MAKE := make
 
-list_allowed_args := product ip command role tier cluster non_root_user
+list_allowed_args := product ip command role tier cluster non_root_user host
 
 default: all
 
@@ -1252,5 +1252,9 @@ kubeval-lint:
 # kubeval-part-lint $(cluster) traefik-internal
 # kubeval-part-lint $(cluster) unifi-exporter
 # kubeval-part-lint $(cluster) weave-scope
+
+syslog-netcat-test:
+	$(call check_defined, host, Please set host)
+	syslog-netcat-test $(host)
 
 include *.mk
