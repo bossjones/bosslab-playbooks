@@ -37,8 +37,8 @@ bash:
 	-w /home/appliance \
 	-h $(shell hostname) \
 	-v /etc/localtime:/etc/localtime:ro \
-	-p "514:514" \
-	-p "514:514/udp" \
+	-p "5140:5140" \
+	-p "5140:5140/udp" \
 	-p "1601:1601" \
 	-e "_IMTCP_PORT=5140" \
 	-e "_IMUDP=5140" \
@@ -54,8 +54,8 @@ run:
 	--name rsyslog.service \
 	-w /home/appliance \
 	-v /etc/localtime:/etc/localtime:ro \
-	-p "514:514" \
-	-p "514:514/udp" \
+	-p "5140:5140" \
+	-p "5140:5140/udp" \
 	-p "1601:1601" \
 	-e "_IMTCP_PORT=5140" \
 	-e "_IMUDP=5140" \
