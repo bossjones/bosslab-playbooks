@@ -10,6 +10,10 @@ services:
       - "514:514/udp"
       - "514:514"
       - "1601:1601"
+    environment:
+      - _IMTCP_PORT=514
+      - _IMUDP_PORT=514
+      - _IMRELP_PORT=1601
       # - "5160:5160"
       # - "5160:5160/udp"
     # networks:

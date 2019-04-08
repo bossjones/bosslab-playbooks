@@ -29,3 +29,7 @@ export LOGFILES_STORE="/logs/hosts/%hostname:::secpath-replace%/messages.log"
 #export USE_VALGRIND=on
 #export RSYSLOG_DEBUG="debug nostdout"
 #export RSYSLOG_DEBUGLOG="/logs/rsyslog-internal-debug.log"
+
+export _IMTCP_PORT=${_IMTCP_PORT}
+export _IMUDP_PORT=${_IMUDP_PORT}
+export _IMRELP_PORT=${_IMRELP_PORT}
