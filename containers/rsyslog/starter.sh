@@ -1,11 +1,11 @@
 #!/bin/bash
 
 
-mkdir -p /config
-mkdir -p /work
-mkdir -p /logs
+mkdir -p /config || true
+mkdir -p /work || true
+mkdir -p /logs || true
 
-chown -R rsyslog:rsyslog * /config /work /logs
+chown -R rsyslog:rsyslog * /config /work /logs || true
 
 tree
 
