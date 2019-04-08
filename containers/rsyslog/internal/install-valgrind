@@ -1,4 +1,4 @@
-#!/bin/ash
+#!/bin/bash
 touch /Are-we-Writable
 if [ ! -f /Are-we-Writable ]; then
 	echo "ERROR: we need to install valgrind, so the container must"

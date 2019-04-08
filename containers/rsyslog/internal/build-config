@@ -1,4 +1,4 @@
-#!/bin/ash
+#!/bin/bash
 # This reads the meta config (environment variables) and prepares environment
 # variables used by rsyslog.conf so that we can finally startup rsyslog.
 # Errors are detected and will lead to abort of the startup.
