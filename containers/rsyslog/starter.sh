@@ -2,7 +2,7 @@
 
 tree
 
-source /home/appliance/internal/set-defaults
+source internal/set-defaults
 source /config/container_config
 
 if [ "$CONTAINER_SILENT" != "on" ]; then
