@@ -2208,6 +2208,15 @@ boss__rsyslog__centralized__udp_in_port: 6160
 boss__rsyslog__centralized__tcp_in_port: 6170
 boss__rsyslog__centralized__relp_in_port: 1601
 
+# NOTE: Test using this!
+# NOTE: Test using this!
+# NOTE: Test using this!
+#  malcolm  ⎇  feature-centralized-fluentd-aggregator {24}  ⓔ bosslab-playbooks2  ⓔ 2.4.3  ~/dev/bossjones/bosslab-playbooks   syslog-netcat-test rsyslog-centralized.scarlettlab.com 6170
+# Looks like a macOS
+# <150>Apr 10 00:17:13 darktop.localdomain syslog-netcat-test[76775]: testing baby
+# rsyslog-centralized.scarlettlab.com [192.168.205.10] 6170 open
+#  malcolm  ⎇  feature-centralized-fluentd-aggregator {24}  ⓔ bosslab-playbooks2  ⓔ 2.4.3  ~/dev/bossjones/bosslab-playbooks   syslog-netcat-test-udp rsyslog-centralized.scarlettlab.com 6160
+
 
 boss__rsyslog__centralized__deployment_spec_template_containers_resources: |
   limits:
