@@ -2332,6 +2332,7 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumeMounts: |
     mountPath: /etc/localtime
     readOnly: true
 
+
 boss__rsyslog__centralized__deployment_spec_template_spec_volumes: |
   - name: work
     emptyDir: {}

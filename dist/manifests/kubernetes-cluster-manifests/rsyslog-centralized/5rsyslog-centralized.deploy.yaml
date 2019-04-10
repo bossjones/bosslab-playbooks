@@ -91,6 +91,10 @@ spec:
         - name: rsyslog-centralized-config-dot-d
           mountPath: /rsyslog-centralized/etc/rsyslog.d
         
+        - name: localtime
+          mountPath: /etc/localtime
+          readOnly: true
+        
 
         resources:
           limits:
@@ -129,6 +133,11 @@ spec:
       - name: rsyslog-centralized-config-dot-d
         configMap:
           name: rsyslog-centralized-config-dot-d-0-3-0
+      
+      - name: localtime
+        hostPath:
+          path: /etc/localtime
+          type: "FileOrCreate"
       
 
       hostNetwork: True
