@@ -2263,7 +2263,7 @@ boss__rsyslog__centralized__deployment_spec_template_containers_ports: |-
   - containerPort: {{boss__rsyslog__centralized__udp_in_port}}
     name: in-udp
     # this is TCP and not UDP on purpose
-    protocol: TCP
+    protocol: UDP
   - containerPort: {{boss__rsyslog__centralized__tcp_in_port}}
     name: in-tcp
     protocol: TCP
@@ -2375,14 +2375,14 @@ boss__rsyslog__centralized__service_spec_ports: |-
     port: {{boss__rsyslog__centralized__udp_in_port}}
     protocol: UDP
     targetPort: in-udp
-  # - name: in-tcp
-  #   port: {{boss__rsyslog__centralized__tcp_in_port}}
-  #   protocol: TCP
-  #   targetPort: in-tcp
-  # - name: in-relp
-  #   port: {{boss__rsyslog__centralized__relp_in_port}}
-  #   protocol: TCP
-  #   targetPort: in-relp
+  - name: in-tcp
+    port: {{boss__rsyslog__centralized__tcp_in_port}}
+    protocol: TCP
+    targetPort: in-tcp
+  - name: in-relp
+    port: {{boss__rsyslog__centralized__relp_in_port}}
+    protocol: TCP
+    targetPort: in-relp
 
 boss__rsyslog__centralized__service_spec_selector: |-
   k8s-app: {{boss__rsyslog__centralized__shared_name}}
