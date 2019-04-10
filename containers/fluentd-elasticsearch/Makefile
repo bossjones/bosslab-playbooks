@@ -43,15 +43,56 @@ ifeq ($(TAG),@branch)
 	@echo $(value TAG)
 endif
 
+bash:
+	docker run \
+	-it \
+	--rm \
+	--name fluentd.bash \
+	-h $(shell hostname) \
+	-v /etc/localtime:/etc/localtime:ro \
+	-p "5140:5140" \
+	-p "5140:5140/udp" \
+	-p "5160:5160" \
+	-p "5160:5160/udp" \
+	-p "5170:5170" \
+	-p "24231:24231" \
+	-p "24220:24220" \
+	--entrypoint "/bin/bash" \
+	$(username)/$(container_name):latest \
+	-l
+
+run:
+	docker run \
+	-it \
+	--rm \
+	--name fluentd.service \
+	-w /home/appliance \
+	-v /etc/localtime:/etc/localtime:ro \
+	-p "5140:5140" \
+	-p "5140:5140/udp" \
+	-p "5160:5160" \
+	-p "5160:5160/udp" \
+	-p "5170:5170" \
+	-p "24231:24231" \
+	-p "24220:24220" \
+	-h $(shell hostname) \
+	$(username)/$(container_name):latest
+
 build:
-	docker build --build-arg VCS_REF=$(GIT_SHA) --build-arg BUILD_DATE=$(VERSION) --build-arg BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ') --tag $(username)/$(container_name):$(GIT_SHA) . ; \
-	docker tag $(username)/$(container_name):$(GIT_SHA) $(username)/$(container_name):latest
-	docker tag $(username)/$(container_name):$(GIT_SHA) $(username)/$(container_name):$(TAG)
+	docker build \
+	--build-arg VCS_REF=$(GIT_SHA) \
+	--build-arg BUILD_DATE=$(VERSION) \
+	--build-arg BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ') \
+	--tag $(username)/$(container_name):$(GIT_SHA) .
 
 build-force:
-	docker build --rm --force-rm --pull --no-cache -t $(username)/$(container_name):$(GIT_SHA) . ; \
-	docker tag $(username)/$(container_name):$(GIT_SHA) $(username)/$(container_name):latest
-	docker tag $(username)/$(container_name):$(GIT_SHA) $(username)/$(container_name):$(TAG)
+	docker build --rm \
+	--force-rm \
+	--pull \
+	--no-cache \
+	-t $(username)/$(container_name):$(GIT_SHA) .
+
+build-tag: build tag
 
 tag:
 	docker tag $(username)/$(container_name):$(GIT_SHA) $(username)/$(container_name):latest
@@ -77,3 +118,18 @@ push:
 	docker push $(username)/$(container_name):$(TAG)
 
 push-force: build-force push
+
+dc-up:
+	docker-compose up
+
+dc-build:
+	docker-compose build
+
+dc-stop:
+	docker-compose stop
+
+dc-pull:
+	docker-compose pull
+
+cleanup:
+	bash scripts/cleanup-docker
