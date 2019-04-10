@@ -41,6 +41,7 @@ spec:
       containers:
       - name: {{boss__rsyslog__centralized__shared_name}}
         image: {{ boss__rsyslog__centralized__rsyslog_image_repo }}:{{ boss__rsyslog__centralized__rsyslog_image_tag }}
+        imagePullPolicy: Always
         # command:
 
 {% if boss__rsyslog__centralized__deployment_spec_template_containers_env is defined %}
