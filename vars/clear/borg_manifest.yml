@@ -2450,6 +2450,20 @@ boss__rsyslog__centralized__configmap_suffix: "-0-3-0"
 boss__rsyslog__centralized__create_namespace: "absent"
 boss__rsyslog__centralized__create_ingress: "present"
 boss__rsyslog__centralized__loglevel: "debug"
+boss__rsyslog__centralized__main_config_folder_prefix: "/rsyslog-centralized/etc"
+boss__rsyslog__centralized__udp_in_port: 6160
+boss__rsyslog__centralized__tcp_in_port: 6170
+boss__rsyslog__centralized__relp_in_port: 1601
+
+# NOTE: Test using this!
+# NOTE: Test using this!
+# NOTE: Test using this!
+#  malcolm  ⎇  feature-centralized-fluentd-aggregator {24}  ⓔ bosslab-playbooks2  ⓔ 2.4.3  ~/dev/bossjones/bosslab-playbooks   syslog-netcat-test rsyslog-centralized.scarlettlab.com 6170
+# Looks like a macOS
+# <150>Apr 10 00:17:13 darktop.localdomain syslog-netcat-test[76775]: testing baby
+# rsyslog-centralized.scarlettlab.com [192.168.205.10] 6170 open
+#  malcolm  ⎇  feature-centralized-fluentd-aggregator {24}  ⓔ bosslab-playbooks2  ⓔ 2.4.3  ~/dev/bossjones/bosslab-playbooks   syslog-netcat-test-udp rsyslog-centralized.scarlettlab.com 6160
+
 
 boss__rsyslog__centralized__deployment_spec_template_containers_resources: |
   limits:
@@ -2502,23 +2516,28 @@ boss__rsyslog__centralized__deployment_spec_template_metadata_labels: |-
 boss__rsyslog__centralized__deployment_spec_template_metadata_annotations: "disabled"
 
 boss__rsyslog__centralized__deployment_spec_template_containers_ports: |-
-  - containerPort: 6160
+  - containerPort: {{boss__rsyslog__centralized__udp_in_port}}
     name: in-udp
+    # this is TCP and not UDP on purpose
     protocol: UDP
-  - containerPort: 6170
+  - containerPort: {{boss__rsyslog__centralized__tcp_in_port}}
     name: in-tcp
     protocol: TCP
-  - containerPort: 1601
+  - containerPort: {{boss__rsyslog__centralized__relp_in_port}}
     name: in-relp
     protocol: TCP
 
 boss__rsyslog__centralized__deployment_spec_template_containers_env: |-
   - name: _IMTCP_PORT
-    value: "6170"
+    value: "{{boss__rsyslog__centralized__tcp_in_port}}"
   - name: _IMUDP_PORT
-    value: "6160"
+    value: "{{boss__rsyslog__centralized__udp_in_port}}"
   - name: _IMRELP_PORT
-    value: "1601"
+    value: "{{boss__rsyslog__centralized__relp_in_port}}"
+  - name: RSYSLOG_CONF
+    value: "{{boss__rsyslog__centralized__main_config_folder_prefix}}/rsyslog.conf"
+  - name: _RSYSLOG_SPOOL_PATH
+    value: "/spool/rsyslog"
 
   - name: NODE_IP
     valueFrom:
@@ -2556,6 +2575,8 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumeMounts: |
   # log file store (if used)
   - name: log
     mountPath: /log
+  - name: spool
+    mountPath: /spool/rsyslog
   # configuration files, can be mounted read-only once finalized
   - name: container-config
     mountPath: /config
@@ -2564,16 +2585,23 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumeMounts: |
   #   mountPath: /var/rsyslog-centralized
   # The Rsyslog config file to use
   - name: rsyslog-centralized-config
-    mountPath: /rsyslog-centralized/etc
+    mountPath: {{boss__rsyslog__centralized__main_config_folder_prefix}}
   - name: rsyslog-centralized-config-dot-d
-    mountPath: /rsyslog-centralized/etc/rsyslog.d
+    mountPath: {{boss__rsyslog__centralized__main_config_folder_prefix}}/rsyslog.d
+
+  - name: localtime
+    mountPath: /etc/localtime
+    readOnly: true
+
 
 boss__rsyslog__centralized__deployment_spec_template_spec_volumes: |
   - name: work
     emptyDir: {}
+  - name: spool
+    emptyDir: {}
   # log file store (if used)
   - name: log
-    mountPath: {}
+    emptyDir: {}
   - name: container-config
     configMap:
       name: {{boss__rsyslog__centralized__shared_name}}-container-config{{boss__rsyslog__centralized__configmap_suffix}}
@@ -2583,6 +2611,11 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumes: |
   - name: rsyslog-centralized-config-dot-d
     configMap:
       name: {{boss__rsyslog__centralized__shared_name}}-config-dot-d{{boss__rsyslog__centralized__configmap_suffix}}
+
+  - name: localtime
+    hostPath:
+      path: /etc/localtime
+      type: "FileOrCreate"
 
 boss__rsyslog__centralized__service_labels: |-
   k8s-app: {{boss__rsyslog__centralized__shared_name}}
@@ -2595,17 +2628,17 @@ boss__rsyslog__centralized__service_spec_type: ClusterIP
 
 boss__rsyslog__centralized__service_spec_ports: |-
   - name: in-udp
-    port: 6160
+    port: {{boss__rsyslog__centralized__udp_in_port}}
     protocol: UDP
-    targetPort: in-udp
+    targetPort: {{boss__rsyslog__centralized__udp_in_port}}
   - name: in-tcp
-    port: 6170
+    port: {{boss__rsyslog__centralized__tcp_in_port}}
     protocol: TCP
-    targetPort: in-tcp
+    targetPort: {{boss__rsyslog__centralized__tcp_in_port}}
   - name: in-relp
-    port: 1601
+    port: {{boss__rsyslog__centralized__relp_in_port}}
     protocol: TCP
-    targetPort: in-relp
+    targetPort: {{boss__rsyslog__centralized__relp_in_port}}
 
 boss__rsyslog__centralized__service_spec_selector: |-
   k8s-app: {{boss__rsyslog__centralized__shared_name}}
@@ -2614,7 +2647,7 @@ boss__rsyslog__centralized__ingress_spec_rules_http_paths: |
   - path: /
     backend:
       serviceName: {{boss__rsyslog__centralized__shared_name}}
-      servicePort: 6160
+      servicePort: {{boss__rsyslog__centralized__udp_in_port}}
 
 boss__rsyslog__centralized__ingress_labels: |-
   k8s-app: {{boss__rsyslog__centralized__shared_name}}
@@ -2633,14 +2666,6 @@ boss__rsyslog__centralized__deployment_spec_template_spec_nodeSelector: |-
   beta.kubernetes.io/os: linux
 
 boss__rsyslog__centralized__deployment_spec_template_spec_securityContext: "disabled"
-
-#      hostNetwork: true
-#      hostPID: true
-#      nodeSelector:
-#        beta.kubernetes.io/os: linux
-#      securityContext:
-#        runAsNonRoot: true
-#        runAsUser: 65534
 
 # [20:34:19,104] <inform-707> INFO inform - from [MAC ADDRESS](UniFi Security Gateway 3P, UGW3, 4.4.36.5146617): state=CONNECTED, last_inform=3, ext/stun_ip=192.168.1.1, dev_ip=192.168.0.3, up=4955230
 
