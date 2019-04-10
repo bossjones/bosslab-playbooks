@@ -33,9 +33,24 @@ data:
     module(load="mmjsonparse")
     module(load="mmutf8fix")
 
-    input(type="imptcp" port=`echo $_IMTCP_PORT`)
-    input(type="imudp" port=`echo $_IMUDP_PORT`)
-    input(type="imrelp" port=`echo $_IMRELP_PORT`)
+    input(type="imptcp" address="0.0.0.0" port=`echo $_IMTCP_PORT`)
+    input(type="imudp" address="0.0.0.0" RateLimit.Interval="0" port=`echo $_IMUDP_PORT`)
+    input(type="imrelp" address="0.0.0.0" port=`echo $_IMRELP_PORT`)
+
+    # *********************************************************************************************************
+    # SOURCE: https://github.com/rsyslog/rsyslog/issues/2040
+    # *********************************************************************************************************
+    # cat /etc/rsyslog.d/udp-nonlocaladdr-bug.conf
+    # module(load="imudp")
+
+    # input(type="imudp" address="127.0.0.1" port="514" RateLimit.Interval="0" ruleset="logtest")
+
+    # input(type="imudp" address="192.168.99.99" port="514" RateLimit.Interval="0" ruleset="logtest")
+
+    # ruleset(name="logtest") {
+    #     action(type="omfile" file="/tmp/logtest")
+    # }
+    # *********************************************************************************************************
 
     # SOURCE: https://itnext.io/metrics-from-kubernetes-logs-82cb1dcb3551
     # ***************************************************************************************
