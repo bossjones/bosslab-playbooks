@@ -2316,14 +2316,17 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumeMounts: |
   # rsyslog work files; do not share with multiple instances
   - name: work
     mountPath: /work
+    readOnly: false
   # log file store (if used)
   - name: log
     mountPath: /log
   - name: spool
     mountPath: /spool/rsyslog
+    readOnly: false
   # configuration files, can be mounted read-only once finalized
   - name: container-config
     mountPath: /config
+    readOnly: false
   # # The volume where Rsyslog stores persistent data (position databases for tracking ingested files)
   # - name: fluent-data
   #   mountPath: /var/rsyslog-centralized
