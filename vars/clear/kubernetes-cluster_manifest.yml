@@ -2204,6 +2204,10 @@ boss__rsyslog__centralized__create_namespace: "absent"
 boss__rsyslog__centralized__create_ingress: "present"
 boss__rsyslog__centralized__loglevel: "debug"
 boss__rsyslog__centralized__main_config_folder_prefix: "/rsyslog-centralized/etc"
+boss__rsyslog__centralized__udp_in_port: 6160
+boss__rsyslog__centralized__tcp_in_port: 6170
+boss__rsyslog__centralized__relp_in_port: 1601
+
 
 boss__rsyslog__centralized__deployment_spec_template_containers_resources: |
   limits:
@@ -2256,23 +2260,23 @@ boss__rsyslog__centralized__deployment_spec_template_metadata_labels: |-
 boss__rsyslog__centralized__deployment_spec_template_metadata_annotations: "disabled"
 
 boss__rsyslog__centralized__deployment_spec_template_containers_ports: |-
-  - containerPort: 6160
+  - containerPort: {{boss__rsyslog__centralized__udp_in_port}}
     name: in-udp
     protocol: UDP
-  - containerPort: 6170
+  - containerPort: {{boss__rsyslog__centralized__tcp_in_port}}
     name: in-tcp
     protocol: TCP
-  - containerPort: 1601
+  - containerPort: {{boss__rsyslog__centralized__relp_in_port}}
     name: in-relp
     protocol: TCP
 
 boss__rsyslog__centralized__deployment_spec_template_containers_env: |-
   - name: _IMTCP_PORT
-    value: "6170"
+    value: "{{boss__rsyslog__centralized__tcp_in_port}}"
   - name: _IMUDP_PORT
-    value: "6160"
+    value: "{{boss__rsyslog__centralized__udp_in_port}}"
   - name: _IMRELP_PORT
-    value: "1601"
+    value: "{{boss__rsyslog__centralized__relp_in_port}}"
   - name: RSYSLOG_CONF
     value: "{{boss__rsyslog__centralized__main_config_folder_prefix}}/rsyslog.conf"
   - name: _RSYSLOG_SPOOL_PATH
@@ -2367,15 +2371,15 @@ boss__rsyslog__centralized__service_spec_type: ClusterIP
 
 boss__rsyslog__centralized__service_spec_ports: |-
   - name: in-udp
-    port: 6160
+    port: {{boss__rsyslog__centralized__udp_in_port}}
     protocol: UDP
     targetPort: in-udp
   - name: in-tcp
-    port: 6170
+    port: {{boss__rsyslog__centralized__tcp_in_port}}
     protocol: TCP
     targetPort: in-tcp
   - name: in-relp
-    port: 1601
+    port: {{boss__rsyslog__centralized__relp_in_port}}
     protocol: TCP
     targetPort: in-relp
 
@@ -2386,7 +2390,7 @@ boss__rsyslog__centralized__ingress_spec_rules_http_paths: |
   - path: /
     backend:
       serviceName: {{boss__rsyslog__centralized__shared_name}}
-      servicePort: 6160
+      servicePort: {{boss__rsyslog__centralized__udp_in_port}}
 
 boss__rsyslog__centralized__ingress_labels: |-
   k8s-app: {{boss__rsyslog__centralized__shared_name}}
