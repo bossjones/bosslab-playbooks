@@ -33,9 +33,9 @@ data:
     module(load="mmjsonparse")
     module(load="mmutf8fix")
 
-    input(type="imptcp" address="0.0.0.0" port=`echo $_IMTCP_PORT`)
-    input(type="imudp" address="0.0.0.0" RateLimit.Interval="0" port=`echo $_IMUDP_PORT`)
-    input(type="imrelp" address="0.0.0.0" port=`echo $_IMRELP_PORT`)
+    input(type="imptcp" Address="0.0.0.0" port=`echo $_IMTCP_PORT`)
+    input(type="imudp" Address="0.0.0.0" RateLimit.Interval="0" port=`echo $_IMUDP_PORT`)
+    input(type="imrelp" Address="0.0.0.0" port=`echo $_IMRELP_PORT`)
 
     # *********************************************************************************************************
     # SOURCE: https://github.com/rsyslog/rsyslog/issues/2040
