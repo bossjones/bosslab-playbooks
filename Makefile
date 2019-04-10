@@ -1269,4 +1269,8 @@ syslog-netcat-test:
 	$(call check_defined, host, Please set host)
 	syslog-netcat-test $(host)
 
+stress-test-rsyslog-udp:
+	$(call check_defined, cluster, Please set cluster)
+	./scripts/stress-test-rsyslog-udp.sh $(cluster)
+
 include *.mk
