@@ -17,6 +17,7 @@ services:
       - _IMTCP_PORT=5140
       - _IMUDP_PORT=5140
       - _IMRELP_PORT=1601
+      - _RSYSLOG_SPOOL_PATH=/var/spool/rsyslog
       # - "5160:5160"
       # - "5160:5160/udp"
     # networks:

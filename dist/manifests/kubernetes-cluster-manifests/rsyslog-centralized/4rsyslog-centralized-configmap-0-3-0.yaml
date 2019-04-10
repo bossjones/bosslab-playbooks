@@ -15,7 +15,8 @@ data:
     global(parser.permitSlashInProgramName="on")
     # default location for work (spool) files
     # Raise limits within /etc/systemd/journald.conf on the host(s) - ie., RateLimitIntervalSec=30s + RateLimitBurst=1000000
-    global(workDirectory="/var/spool/rsyslog")
+    # global(workDirectory="/var/spool/rsyslog")
+    global(workDirectory=`echo $_RSYSLOG_SPOOL_PATH`)
 
     # module(load="imjournal" ignorepreviousmessages="on" ratelimit.interval="60" ratelimit.burst="2000000" persiststateinterval="10000" statefile="/var/spool/rsyslog/imjournal.state")
 
@@ -240,3 +241,4 @@ data:
     export _IMTCP_PORT=${_IMTCP_PORT}
     export _IMUDP_PORT=${_IMUDP_PORT}
     export _IMRELP_PORT=${_IMRELP_PORT}
+    export _RSYSLOG_SPOOL_PATH=${_RSYSLOG_SPOOL_PATH:-/var/spool/rsyslog}
