@@ -2262,7 +2262,8 @@ boss__rsyslog__centralized__deployment_spec_template_metadata_annotations: "disa
 boss__rsyslog__centralized__deployment_spec_template_containers_ports: |-
   - containerPort: {{boss__rsyslog__centralized__udp_in_port}}
     name: in-udp
-    protocol: UDP
+    # this is TCP and not UDP on purpose
+    protocol: TCP
   - containerPort: {{boss__rsyslog__centralized__tcp_in_port}}
     name: in-tcp
     protocol: TCP

@@ -108,7 +108,8 @@ spec:
         ports:
         - containerPort: 6160
           name: in-udp
-          protocol: UDP
+          # this is TCP and not UDP on purpose
+          protocol: TCP
         - containerPort: 6170
           name: in-tcp
           protocol: TCP
