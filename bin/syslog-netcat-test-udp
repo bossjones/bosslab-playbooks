@@ -38,7 +38,7 @@ detect_OS
 host_name=$1
 log_port=${2:=5140}
 
-if [[ $# -ne 1 ]]; then
+if [[ $# -ge 3 ]]; then
     echo "Usage: ${FUNCNAME[0]} <host name>"
     echo "syslog-netcat-test-udp fluent-bit-centralized.scarlettlab.com"
     echo "-- or --"
