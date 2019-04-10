@@ -15,14 +15,14 @@ spec:
     - name: in-udp
       port: 6160
       protocol: UDP
-      targetPort: in-udp
+      targetPort: 6160
     - name: in-tcp
       port: 6170
       protocol: TCP
-      targetPort: in-tcp
+      targetPort: 6170
     - name: in-relp
       port: 1601
       protocol: TCP
-      targetPort: in-relp
+      targetPort: 1601
   selector:
     k8s-app: rsyslog-centralized
