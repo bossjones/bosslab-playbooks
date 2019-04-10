@@ -2275,6 +2275,8 @@ boss__rsyslog__centralized__deployment_spec_template_containers_env: |-
     value: "1601"
   - name: RSYSLOG_CONF
     value: "{{boss__rsyslog__centralized__main_config_folder_prefix}}/rsyslog.conf"
+  - name: _RSYSLOG_SPOOL_PATH
+    value: "/spool/rsyslog"
 
   - name: NODE_IP
     valueFrom:
@@ -2312,6 +2314,8 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumeMounts: |
   # log file store (if used)
   - name: log
     mountPath: /log
+  - name: spool
+    mountPath: /spool/rsyslog
   # configuration files, can be mounted read-only once finalized
   - name: container-config
     mountPath: /config
@@ -2326,6 +2330,8 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumeMounts: |
 
 boss__rsyslog__centralized__deployment_spec_template_spec_volumes: |
   - name: work
+    emptyDir: {}
+  - name: spool
     emptyDir: {}
   # log file store (if used)
   - name: log

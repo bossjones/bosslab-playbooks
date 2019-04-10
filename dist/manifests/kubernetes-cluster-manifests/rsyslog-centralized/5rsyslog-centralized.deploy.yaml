@@ -37,6 +37,8 @@ spec:
           value: "1601"
         - name: RSYSLOG_CONF
           value: "/rsyslog-centralized/etc/rsyslog.conf"
+        - name: _RSYSLOG_SPOOL_PATH
+          value: "/spool/rsyslog"
         
         - name: NODE_IP
           valueFrom:
@@ -74,6 +76,8 @@ spec:
         # log file store (if used)
         - name: log
           mountPath: /log
+        - name: spool
+          mountPath: /spool/rsyslog
         # configuration files, can be mounted read-only once finalized
         - name: container-config
           mountPath: /config
@@ -109,6 +113,8 @@ spec:
 
       volumes:
       - name: work
+        emptyDir: {}
+      - name: spool
         emptyDir: {}
       # log file store (if used)
       - name: log

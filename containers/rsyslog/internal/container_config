@@ -33,3 +33,4 @@ export LOGFILES_STORE="/logs/hosts/%hostname:::secpath-replace%/messages.log"
 export _IMTCP_PORT=${_IMTCP_PORT}
 export _IMUDP_PORT=${_IMUDP_PORT}
 export _IMRELP_PORT=${_IMRELP_PORT}
+export _RSYSLOG_SPOOL_PATH=${_RSYSLOG_SPOOL_PATH:-/spool/rsyslog}
