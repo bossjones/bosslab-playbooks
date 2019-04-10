@@ -1,0 +1,7 @@
+#!/bin/bash
+
+for i in $(docker images | grep bossjones/rsyslog | awk '{print $2}'| xargs); do
+    docker rmi bossjones/rsyslog:${i}
+done
+
+docker volume prune -f

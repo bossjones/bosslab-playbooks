@@ -1,0 +1,310 @@
+# {{ansible_managed}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{boss__rsyslog__centralized__shared_name}}-config-0-3-0
+  namespace: {{boss__rsyslog__centralized__namespace_name}}
+  labels:
+    k8s-app: {{boss__rsyslog__centralized__shared_name}}
+data:
+  rsyslog.conf: |-
+    # SOURCE: https://github.com/rsyslog/rsyslog-docker/blob/master/appliance/alpine/rsyslog.conf
+    global(processInternalMessages="on")
+
+    # SOURCE: https://itnext.io/metrics-from-kubernetes-logs-82cb1dcb3551
+    global(parser.permitSlashInProgramName="on")
+    # default location for work (spool) files
+    # Raise limits within /etc/systemd/journald.conf on the host(s) - ie., RateLimitIntervalSec=30s + RateLimitBurst=1000000
+    # global(workDirectory="/var/spool/rsyslog")
+    global(workDirectory=`echo $_RSYSLOG_SPOOL_PATH`)
+
+
+    # FIXME: Enable this 4/10/2019
+    # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
+    # ***********************************************************************
+    # Setup Performance tuning
+    # ***********************************************************************
+    main_queue(
+      queue.size="1000000" # Size of Queue
+      queue.debatchsize="1000" # process messages in batches
+      queue.workerthreads="2" # 2 threads for the queue
+    )
+
+    # module(load="imjournal" ignorepreviousmessages="on" ratelimit.interval="60" ratelimit.burst="2000000" persiststateinterval="10000" statefile="/var/spool/rsyslog/imjournal.state")
+
+    #module(load="imtcp" StreamDriver.AuthMode="anon" StreamDriver.Mode="1")
+
+
+    # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
+    # ***********************************************************************
+    # Setup modules
+    # ***********************************************************************
+    module(load="impstats") # config.enabled=`echo $ENABLE_STATISTICS`)
+    module(load="imrelp")
+    module(load="imptcp" MaxSessions="5000")
+    module(load="imudp" TimeRequery="500")
+    module(load="omstdout")
+    module(load="omelasticsearch")
+    module(load="mmjsonparse")
+    module(load="mmutf8fix")
+
+    # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
+    # ***********************************************************************
+    # Setup listeners
+    # ***********************************************************************
+    input(type="imptcp" Address="0.0.0.0" port=`echo $_IMTCP_PORT`)
+    input(type="imudp" Address="0.0.0.0" RateLimit.Interval="0" port=`echo $_IMUDP_PORT`)
+    input(type="imrelp" Address="0.0.0.0" port=`echo $_IMRELP_PORT`)
+
+    # *********************************************************************************************************
+    # SOURCE: https://github.com/rsyslog/rsyslog/issues/2040
+    # *********************************************************************************************************
+    # cat /etc/rsyslog.d/udp-nonlocaladdr-bug.conf
+    # module(load="imudp")
+
+    # input(type="imudp" address="127.0.0.1" port="514" RateLimit.Interval="0" ruleset="logtest")
+
+    # input(type="imudp" address="192.168.99.99" port="514" RateLimit.Interval="0" ruleset="logtest")
+
+    # ruleset(name="logtest") {
+    #     action(type="omfile" file="/tmp/logtest")
+    # }
+    # *********************************************************************************************************
+
+    # FIXME: Enable this 4/10/2019
+    # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
+    # ***********************************************************************
+    # Setup filters
+    # ***********************************************************************
+    # SOURCE: https://itnext.io/metrics-from-kubernetes-logs-82cb1dcb3551
+    # ***************************************************************************************
+    # set $!custom_hostname = exec_template("hostname");
+    # # When empty it's because message does not come from journald but directly from rsyslogd
+    # if $!custom_hostname == "" then {
+    #   set $!custom_hostname = "FROM-RSYSLOGD";
+    # }
+    # ***************************************************************************************
+
+    # # FIXME: Enable this 4/10/2019
+    # # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
+    # # ***********************************************************************
+    # # Setup templates
+    # # ***********************************************************************
+    # template(name="d_catch_all" type="string" string="/var/log/remote_syslog/catch_all/%FROMHOST%/%$YEAR%-%$MONTH%-%$DAY%.log")
+    # template(name="d_firewall_log" type="string" string="/var/log/remote_syslog/firewall/%FROMHOST%/%$YEAR%-%$MONTH%-%$DAY%.log")
+
+    # # FIXME: Enable this 4/10/2019
+    # # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
+    # # ***********************************************************************
+    # # Setup output
+    # # ***********************************************************************
+    # ruleset(name="f_remote_all" queue.type="LinkedList" queue.size="100000") {
+    # if ($fromhost-ip startswith '192.168.100.') then {
+    #  action(type="omfile" DynaFile="d_firewall_log")
+    #  stop
+    # }
+    #   # Lets setup the catch all logging
+    #   action(type="omfile" DynaFile="d_catch_all")
+    # }
+    # ruleset(name="f_remote_all") {
+    #  action(type="omfile" DynaFile="d_catch_all")
+    # }
+    # ruleset(name="f_firewall") {
+    #  action(type="omfile" DynaFile="d_firewall_log")
+    # }
+
+    # includes done explicitely
+    # include(file="{{boss__rsyslog__centralized__main_config_folder_prefix}}/rsyslog.conf.d/log_to_logsene.conf" config.enabled=`echo $ENABLE_LOGSENE`)
+    # include(file="{{boss__rsyslog__centralized__main_config_folder_prefix}}/rsyslog.conf.d/log_to_files.conf" config.enabled=`echo $ENABLE_LOGFILES`)
+    # include(file="{{boss__rsyslog__centralized__main_config_folder_prefix}}/rsyslog.conf.d/log_to_stdout.conf" config.enabled=`echo $ENABLE_STDOUT`)
+
+    #################### default ruleset begins ####################
+
+    # we emit our own messages to docker console:
+    # syslog.* :omstdout:
+    *.* :omstdout:
+    # action(type="omstdout")
+
+    include(file="/config/droprules.conf" mode="optional")  # this permits the user to easily drop unwanted messages
+
+    action(name="main_utf8fix" type="mmutf8fix" replacementChar="?")
+
+    # include(text=`echo $CNF_CALL_LOG_TO_LOGFILES`)
+    # include(text=`echo $CNF_CALL_LOG_TO_LOGSENE`)
+    include(text=`echo $CNF_CALL_LOG_TO_STDOUT`)
+    include(text=`echo $_IMTCP_PORT`)
+    include(text=`echo $_IMUDP_PORT`)
+    include(text=`echo $_IMRELP_PORT`)
+
+    # SOURCE: https://itnext.io/metrics-from-kubernetes-logs-82cb1dcb3551
+    # ***************************************************************************************
+    # Compose RFC5424 message
+    # template(name="rfc5424" type="list") {
+    #   constant(value="<")
+    #   property(name="PRI")
+    #   constant(value=">1 ")
+    #   property(name="TIMESTAMP" dateFormat="rfc3339" date.inUTC="on")
+    #   constant(value=" ")
+    #   property(name="!custom_hostname" position.from="1" position.to="255" caseConversion="lower")
+    #   constant(value=" ")
+    #   property(name="!custom_appname" position.from="1" position.to="48" caseConversion="lower")
+    #   constant(value=" ")
+    #   property(name="PROCID" position.from="1" position.to="128")
+    #   constant(value=" ")
+    #   property(name="MSGID" position.from="1" position.to="32")
+    #   constant(value=" ")
+    #   property(name="!custom_sddata")
+    #   constant(value=" ")
+    #   property(name="msg" droplastlf="on")
+    #   constant(value="\n")
+    # }
+    # action(type="mmutf8fix")
+    # action(type="omfwd"
+    #   target="127.0.0.1"
+    #   port="6514"
+    #   protocol="tcp"
+    #   tcp_framing="octet-counted"
+    #   template="rfc5424"
+    #   queue.type="LinkedList"
+    #   queue.size="5000000"
+    #   queue.filename="forwarding"
+    #   queue.maxdiskspace="1g")
+    # ***************************************************************************************
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{boss__rsyslog__centralized__shared_name}}-config-dot-d-0-3-0
+  namespace: {{boss__rsyslog__centralized__namespace_name}}
+  labels:
+    k8s-app: {{boss__rsyslog__centralized__shared_name}}
+data:
+  log_to_files.conf: |-
+
+    # logging to files in /logs
+
+    template(name="log_to_files_dynafile" type="string" string=`echo $LOGFILES_STORE`)
+    ruleset(name="log_to_files") {
+      /logs/debug;RSYSLOG_DebugFormat
+      action(type="omfile" dynafile="log_to_files_dynafile" name="log_to_logfiles")
+    }
+
+
+  log_to_logsene.conf: |-
+    # config snippet for the Logsene service
+    #   https://sematext.com/logsene/
+
+    template(name="logsene_json" type="list") {
+        constant(value="{")
+        constant(value="\"@timestamp\":\"")      property(name="timereported" dateFormat="rfc3339")
+        constant(value="\",\"host\":\"")         property(name="hostname")
+        constant(value="\",\"severity\":\"")     property(name="syslogseverity-text" caseConversion="upper")
+        constant(value="\",\"facility\":\"")     property(name="syslogfacility-text")
+        constant(value="\",\"syslog-tag\":\"")   property(name="syslogtag" format="json")
+        constant(value="\",\"source\":\"")       property(name="app-name" format="json")
+        constant(value="\",")                    property(name="$!all-json" position.from="2")
+    }
+
+    template(name="logsene_plain" type="list") {
+        constant(value="{")
+        constant(value="\"@timestamp\":\"")      property(name="timereported" dateFormat="rfc3339")
+        constant(value="\",\"host\":\"")         property(name="hostname")
+        constant(value="\",\"severity\":\"")     property(name="syslogseverity-text" caseConversion="upper")
+        constant(value="\",\"facility\":\"")     property(name="syslogfacility-text")
+        constant(value="\",\"syslog-tag\":\"")   property(name="syslogtag" format="json")
+        constant(value="\",\"source\":\"")       property(name="app-name" format="json")
+        constant(value="\",\"message\":\"")      property(name="msg" format="json")
+        constant(value="\"}")
+    }
+
+
+    ruleset(name="log_to_logsene"
+      queue.type="LinkedList" queue.dequeueBatchSize="2000"
+      queue.size="100000"  # do not use a too-high values, else we get trouble with 10s shutdown period!
+      queue.spoolDirectory="/work"
+      queue.filename="q_log_to_logsene" queue.maxfilesize="100m" queue.maxdiskspace="2g"
+      queue.saveonshutdown="on"
+      ) {
+      action(name="main_cee_parser" type="mmjsonparse")
+      if $parsesuccess == "OK" then {
+        action( name="logsene_json"
+          type="omelasticsearch"
+          server=`echo $LOGSENE_URL`
+          serverport="443"
+          usehttps="on"
+          template="logsene_json"
+          searchIndex=`echo $LOGSENE_TOKEN`
+          searchType="syslog-cee"
+          bulkmode="on"
+          action.resumeRetryCount="5"
+          action.resumeInterval="60"
+          )
+      } else {
+        action(	name="logsene_plain"
+          type="omelasticsearch"
+          server=`echo $LOGSENE_URL`
+          serverport="443"
+          usehttps="on"
+          template="logsene_plain"
+          searchIndex=`echo $LOGSENE_TOKEN`
+          searchType="syslog"
+          bulkmode="on"
+          action.resumeRetryCount="5"
+          action.resumeInterval="60"
+        )
+      }
+    }
+
+
+  log_to_stdout.conf: |-
+    *.* :omstdout:
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{boss__rsyslog__centralized__shared_name}}-container-config-0-3-0
+  namespace: {{boss__rsyslog__centralized__namespace_name}}
+  labels:
+    k8s-app: {{boss__rsyslog__centralized__shared_name}}
+data:
+  container_config: |-
+    # rsyslog syslog appliance container configuration.
+    # This file will be sourced upon container startup.
+    # Uncomment those settings that you need and set them to your
+    # desired values.
+
+    # general container app settings:
+    export TZ=UTC
+    #export CONTAINER_SILENT=on  # do not emit startup message
+    export ENABLE_STATISTICS=on
+
+    # Do we write log files?
+    # export ENABLE_LOGFILES=on # yes, we do (comment out to disable)
+    # Where do we write to?
+    # path for host-specific files is: /logs/hosts/HOSTNAME
+    export LOGFILES_STORE="/logs/hosts/%hostname:::secpath-replace%/messages.log"
+    # you can of course overwrite this. For example, the below definition
+    # uses the program name instead of a fixed name "messages.log". That means
+    # for each host, a separate file for each program will be generated.
+    #export LOGFILES_STORE="/logs/hosts/%hostname:::secpath-replace%/%programname:::secpath-replace%.log"
+
+    # If you have an account with Logsene, enter your access
+    # information below:
+    #export LOGSENE_TOKEN=
+    #export LOGSENE_URL=logsene-receiver.eu.sematext.com
+
+    # export CNF_CALL_LOG_TO_STDOUT="off"
+
+    # Settings for debugging the container
+    #export USE_VALGRIND=on
+    #export RSYSLOG_DEBUG="debug nostdout"
+    #export RSYSLOG_DEBUGLOG="/logs/rsyslog-internal-debug.log"
+
+    export _IMTCP_PORT=${_IMTCP_PORT}
+    export _IMUDP_PORT=${_IMUDP_PORT}
+    export _IMRELP_PORT=${_IMRELP_PORT}
+    export _RSYSLOG_SPOOL_PATH=${_RSYSLOG_SPOOL_PATH:-/var/spool/rsyslog}

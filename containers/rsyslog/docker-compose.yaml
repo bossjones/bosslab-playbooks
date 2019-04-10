@@ -1,0 +1,70 @@
+# SOURCE: https://github.com/ryansch/docker-unifi-rpi/blob/master/traefik.yml
+version: '3.6'
+services:
+  rsyslogcentral:
+    network_mode: host
+    image: bossjones/rsyslog:latest
+    container_name: rsyslogcentral
+    # restart: always
+    ports:
+      # - "514:514/udp"
+      # - "514:514"
+      # - "1601:1601"
+      - "5140:5140/udp"
+      - "5140:5140"
+      - "1601:1601"
+    environment:
+      - _IMTCP_PORT=5140
+      - _IMUDP_PORT=5140
+      - _IMRELP_PORT=1601
+      - _RSYSLOG_SPOOL_PATH=/var/spool/rsyslog
+      # - "5160:5160"
+      # - "5160:5160/udp"
+    # networks:
+    #   - unifi
+    # volumes:
+    #   # Unifi v5.0.7 creates all of these directories (some remain empty)
+    #   - config:/var/lib/unifi
+    #   - log:/usr/lib/unifi/logs
+    #   - log2:/var/log/unifi
+    #   - run:/usr/lib/unifi/run
+    #   - run2:/run/unifi
+    #   - work:/usr/lib/unifi/work
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.docker.network=unifi"
+    #   - "traefik.controller.frontend.rule=Host:CHANGEME"
+    #   - "traefik.controller.port=8443"
+    #   - "traefik.controller.protocol=https"
+#   traefik:
+#     image: traefik:1.6
+#     container_name: traefik
+#     restart: always
+#     ports:
+#       - "80:80"
+#       # - "443:443"
+#       - "8443:8443"
+#       # - "8843:8843"
+#       - "4443:4443"
+#     networks:
+#       - unifi
+#     volumes:
+#       - /var/run/docker.sock:/var/run/docker.sock
+#       - ./traefik.toml:/traefik.toml
+#       - ./acme.json:/acme.json
+# volumes:
+#   config:
+#     driver: local
+#   log:
+#     driver: local
+#   log2:
+#     driver: local
+#   run:
+#     driver: local
+#   run2:
+#     driver: local
+#   work:
+#     driver: local
+# networks:
+#   unifi:
+#     name: unifi

@@ -1,0 +1,13 @@
+# {{ansible_managed}}
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: {{boss__rsyslog__centralized__shared_name}}-read
+{% if boss__rsyslog__centralized__cluster_role_rules is defined %}
+{% if boss__rsyslog__centralized__cluster_role_rules == "disabled" %}
+# rules:
+{% else %}
+rules:
+{{ boss__rsyslog__centralized__cluster_role_rules | indent( width=2, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}

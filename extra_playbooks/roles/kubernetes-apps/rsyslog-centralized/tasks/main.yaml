@@ -1,0 +1,34 @@
+---
+
+- name: "rsyslog-centralized | Create directory: {{boss__rsyslog__centralized__manifest_path}}"
+  file:
+    path: "{{boss__rsyslog__centralized__manifest_path}}"
+    state: directory
+
+- name: "rsyslog-centralized | Write manifests (RBAC)"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ boss__rsyslog__centralized__manifest_path }}/{{ item }}"
+  with_items:
+    - "0rsyslog-centralized.namespace.yaml"
+    - "1rsyslog-centralized-service-account.yaml"
+    - "2rsyslog-centralized-role.yaml"
+    - "3rsyslog-centralized-role-binding.yaml"
+    - "4rsyslog-centralized-configmap{{boss__rsyslog__centralized__configmap_suffix}}.yaml"
+    # - "4rsyslog-centralized-configmap.yaml"
+    - "5rsyslog-centralized.deploy.yaml"
+    - "6rsyslog-centralized.svc.yaml"
+    - "7rsyslog-centralized.ingress.yaml"
+
+- name: Clean artifact path
+  file:
+    state: "{{boss__rsyslog__centralized__create_namespace}}"
+    path: "{{ boss__rsyslog__centralized__manifest_path }}/0rsyslog-centralized.namespace.yaml"
+  when: boss__rsyslog__centralized__create_namespace is defined and boss__rsyslog__centralized__create_namespace == "absent"
+
+
+- name: Clean artifact path ingress
+  file:
+    state: "{{boss__rsyslog__centralized__create_ingress}}"
+    path: "{{ boss__rsyslog__centralized__manifest_path }}/7rsyslog-centralized.ingress.yaml"
+  when: boss__rsyslog__centralized__create_ingress is defined and boss__rsyslog__centralized__create_ingress == "absent"

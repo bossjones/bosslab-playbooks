@@ -1,0 +1,29 @@
+# SOURCE: https://github.com/kincl/kubernetes-logging-syslog/blob/master/rsyslog.conf.template
+global(workDirectory="/var/lib/rsyslog")
+
+module(load="imfile" PollingInterval="10")
+input(type="imfile"
+      file="/var/log/containers/*.log"
+      tag="container-logs")
+
+template(name="ContainerLogs" type="list") {
+    property(name="timestamp" dateFormat="rfc3339")
+    constant(value=" ")
+    property(name="$!metadata!filename" regex.type="ERE"
+             regex.nomatchmode="FIELD"
+             regex.expression="([a-zA-Z0-9_-]*)-"
+             regex.submatch="1")
+    constant(value=" ")
+    property(name="msg" spifno1stsp="on")
+    property(name="msg" droplastlf="on")
+    constant(value="\n")
+}
+
+action(type="omfwd"
+       template="ContainerLogs"
+       Target="${RSYSLOG_TARGET}"
+       Port="${RSYSLOG_PORT}"
+       Protocol="${RSYSLOG_PROTOCOL}")
+
+#action(type="omfile" dirCreateMode="0700" fileCreateMode="0644"
+#       file="/var/log/messages" template="ContainerLogs")

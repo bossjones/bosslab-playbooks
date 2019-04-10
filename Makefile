@@ -67,13 +67,13 @@ __check_defined = \
       $(error Undefined $1$(if $(value 2), ($(strip $2)))))
 
 
-export PATH := ./venv/bin:$(PATH)
+export PATH := ./bin:./venv/bin:$(PATH)
 
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 current_dir := $(notdir $(patsubst %/,%,$(dir $(mkfile_path))))
 MAKE := make
 
-list_allowed_args := product ip command role tier cluster non_root_user
+list_allowed_args := product ip command role tier cluster non_root_user host
 
 default: all
 
@@ -956,6 +956,17 @@ render-manifest-elasticsearch-exporter:
 	bash -c "find dist/manifests/$(cluster)-manifests/elasticsearch-exporter -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
 	kubeval-part-lint $(cluster) elasticsearch-exporter
 
+
+render-manifest-rsyslog-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local playbooks/render_rsyslog_centralized.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@printf "lint rsyslog-centralized manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint rsyslog-centralized manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/rsyslog-centralized -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+	kubeval-part-lint $(cluster) rsyslog-centralized
+
 render-manifest:
 	$(call check_defined, cluster, Please set cluster)
 	ansible-playbook -c local -vvvvv playbooks/render_echoserver.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
@@ -978,6 +989,7 @@ render-manifest:
 	ansible-playbook -c local -vvvvv playbooks/render_influxdb_operator.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	ansible-playbook -c local playbooks/render_fluent_bit_centralized.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	ansible-playbook -c local playbooks/render_elasticsearch_exporter.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_rsyslog_centralized.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 
 tmp-shell-default:
 	kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash
@@ -1252,5 +1264,13 @@ kubeval-lint:
 # kubeval-part-lint $(cluster) traefik-internal
 # kubeval-part-lint $(cluster) unifi-exporter
 # kubeval-part-lint $(cluster) weave-scope
+
+syslog-netcat-test:
+	$(call check_defined, host, Please set host)
+	syslog-netcat-test $(host)
+
+stress-test-rsyslog-udp:
+	$(call check_defined, cluster, Please set cluster)
+	./scripts/stress-test-rsyslog-udp.sh $(cluster)
 
 include *.mk

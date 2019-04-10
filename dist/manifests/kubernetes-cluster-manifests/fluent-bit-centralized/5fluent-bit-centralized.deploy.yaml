@@ -23,7 +23,7 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "2020"
         prometheus.io/path: /api/v1/metrics/prometheus
-        
+
     spec:
       serviceAccountName: fluent-bit-centralized
       containers:
@@ -36,11 +36,11 @@ spec:
         #   value: "elasticsearch"
         # - name: FLUENT_ELASTICSEARCH_PORT
         #   value: "9200"
-        
+
           # Memory limit that the file tail plugin can use when appending data to the Engine
         - name: TAIL_BUF_LIMIT
           value: "5MB"
-        
+
         - name: NODE_IP
           valueFrom:
             fieldRef:
@@ -71,7 +71,8 @@ spec:
               fieldPath: spec.nodeName
 
         volumeMounts:
-        - name: logging-volume # The volume where logs will be delivered by the Docker logging driver
+        # The volume where logs will be delivered by the Docker logging driver
+        - name: logging-volume
           mountPath: /logging-volume
         # The volume where Fluent Bit stores persistent data (position databases for tracking ingested files)
         - name: fluent-data
@@ -79,7 +80,7 @@ spec:
         # The Fluent Bit config file to use
         - name: fluent-bit-config
           mountPath: /fluent-bit/etc
-        
+
 
         resources:
           limits:
@@ -88,7 +89,7 @@ spec:
           requests:
             cpu: "0.05"
             memory: "10Mi"
-          
+
 
         ports:
         - containerPort: 2020
@@ -105,7 +106,7 @@ spec:
           name: fluent-bit-centralized-config-0-3-0
       - name: fluent-data
         emptyDir: {}
-      
+
 
       hostNetwork: True
 

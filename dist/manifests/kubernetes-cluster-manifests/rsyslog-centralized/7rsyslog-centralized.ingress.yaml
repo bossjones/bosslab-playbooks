@@ -1,0 +1,23 @@
+# Ansible managed | /Users/malcolm/dev/bossjones/bossjones-playbook-suite/bosslab-playbooks/extra_playbooks/roles/kubernetes-apps/rsyslog-centralized/templates/7rsyslog-centralized.ingress.yaml.j2
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: rsyslog-centralized
+  namespace: kube-system
+  labels:
+    k8s-app: rsyslog-centralized
+    version: latest
+    kubernetes.io/cluster-service: "true"
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+    traefik.frontend.rule.type: PathPrefix
+spec:
+  rules:
+  - host: rsyslog-centralized.scarlettlab.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: rsyslog-centralized
+          servicePort: 6160
+      
