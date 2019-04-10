@@ -18,21 +18,40 @@ data:
     # global(workDirectory="/var/spool/rsyslog")
     global(workDirectory=`echo $_RSYSLOG_SPOOL_PATH`)
 
+
+    # FIXME: Enable this 4/10/2019
+    # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
+    # ***********************************************************************
+    # Setup Performance tuning
+    # ***********************************************************************
+    main_queue(
+      queue.size="1000000" # Size of Queue
+      queue.debatchsize="1000" # process messages in batches
+      queue.workerthreads="2" # 2 threads for the queue
+    )
+
     # module(load="imjournal" ignorepreviousmessages="on" ratelimit.interval="60" ratelimit.burst="2000000" persiststateinterval="10000" statefile="/var/spool/rsyslog/imjournal.state")
 
     #module(load="imtcp" StreamDriver.AuthMode="anon" StreamDriver.Mode="1")
+
+
+    # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
+    # ***********************************************************************
+    # Setup modules
+    # ***********************************************************************
     module(load="impstats") # config.enabled=`echo $ENABLE_STATISTICS`)
     module(load="imrelp")
-    module(load="imptcp")
+    module(load="imptcp" MaxSessions="5000")
     module(load="imudp" TimeRequery="500")
-
-
     module(load="omstdout")
     module(load="omelasticsearch")
-
     module(load="mmjsonparse")
     module(load="mmutf8fix")
 
+    # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
+    # ***********************************************************************
+    # Setup listeners
+    # ***********************************************************************
     input(type="imptcp" Address="0.0.0.0" port=`echo $_IMTCP_PORT`)
     input(type="imudp" Address="0.0.0.0" RateLimit.Interval="0" port=`echo $_IMUDP_PORT`)
     input(type="imrelp" Address="0.0.0.0" port=`echo $_IMRELP_PORT`)
@@ -52,6 +71,11 @@ data:
     # }
     # *********************************************************************************************************
 
+    # FIXME: Enable this 4/10/2019
+    # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
+    # ***********************************************************************
+    # Setup filters
+    # ***********************************************************************
     # SOURCE: https://itnext.io/metrics-from-kubernetes-logs-82cb1dcb3551
     # ***************************************************************************************
     # set $!custom_hostname = exec_template("hostname");
@@ -61,6 +85,33 @@ data:
     # }
     # ***************************************************************************************
 
+    # # FIXME: Enable this 4/10/2019
+    # # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
+    # # ***********************************************************************
+    # # Setup templates
+    # # ***********************************************************************
+    # template(name="d_catch_all" type="string" string="/var/log/remote_syslog/catch_all/%FROMHOST%/%$YEAR%-%$MONTH%-%$DAY%.log")
+    # template(name="d_firewall_log" type="string" string="/var/log/remote_syslog/firewall/%FROMHOST%/%$YEAR%-%$MONTH%-%$DAY%.log")
+
+    # # FIXME: Enable this 4/10/2019
+    # # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
+    # # ***********************************************************************
+    # # Setup output
+    # # ***********************************************************************
+    # ruleset(name="f_remote_all" queue.type="LinkedList" queue.size="100000") {
+    # if ($fromhost-ip startswith '192.168.100.') then {
+    #  action(type="omfile" DynaFile="d_firewall_log")
+    #  stop
+    # }
+    #   # Lets setup the catch all logging
+    #   action(type="omfile" DynaFile="d_catch_all")
+    # }
+    # ruleset(name="f_remote_all") {
+    #  action(type="omfile" DynaFile="d_catch_all")
+    # }
+    # ruleset(name="f_firewall") {
+    #  action(type="omfile" DynaFile="d_firewall_log")
+    # }
 
     # includes done explicitely
     # include(file="/rsyslog-centralized/etc/rsyslog.conf.d/log_to_logsene.conf" config.enabled=`echo $ENABLE_LOGSENE`)
