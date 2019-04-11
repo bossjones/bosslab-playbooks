@@ -1273,8 +1273,8 @@ stress-test-rsyslog-udp:
 	$(call check_defined, cluster, Please set cluster)
 	./scripts/stress-test-rsyslog-udp.sh $(cluster)
 
-real-unifi-usg-strss-test-rsyslog-udp:
+real-unifi-usg-stress-test-rsyslog-udp:
 	$(call check_defined, cluster, Please set cluster)
-	./scripts/real-unifi-usg-strss-test-rsyslog-udp.sh $(cluster)
+	./scripts/real-unifi-usg-stress-test-rsyslog-udp.sh $(cluster)
 
 include *.mk
