@@ -1,0 +1,70 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: fluentd-es-config-v1.0.0
+  namespace: {{boss__efk__namespace_name}}
+
+{% if boss__efk__fluentd_config_map_labels is defined %}
+  labels:
+{{ boss__efk__fluentd_config_map_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+data:
+  system.input.conf: |-
+    # Example:
+    # 2015-12-21 23:17:22,066 [salt.state       ][INFO    ] Completed state [net.ipv4.ip_forward] at time 23:17:22.066081
+    # 2019-04-10T00:46:51+00:00 UniFiSecurityGateway3P kernel: [LAN_LOCAL-default-A]IN=eth1 OUT= MAC=ff:ff:f2:fe:f0:fc:fc:f5:f0:f1:f7:f2:f8:00 SRC=192.168.1.212 DST=192.168.1.1 LEN=102 TOS=0x00 PREC=0x00 TTL=64 ID=24782 PROTO=UDP SPT=51102 DPT=53 LEN=82
+    # 2019-04-10T00:46:51+00:00 UniFiSecurityGateway3P kernel: [LAN_LOCAL-default-A]IN=eth1 OUT= MAC=ff:ff:f2:fe:f0:fc:fc:f5:f0:f1:f7:f2:f8:00 SRC=192.168.1.212 DST=192.168.1.1 LEN=102 TOS=0x00 PREC=0x00 TTL=64 ID=29995 PROTO=UDP SPT=57190 DPT=53 LEN=82
+    # 2019-04-10T00:46:52+00:00 UniFiSecurityGateway3P kernel: [LAN_LOCAL-default-A]IN=eth1 OUT= MAC=ff:ff:f2:fe:f0:fc:fc:f5:f0:f1:f7:f2:f8:00 SRC=192.168.1.212 DST=192.168.1.1 LEN=73 TOS=0x00 PREC=0x00 TTL=255 ID=3726 PROTO=UDP SPT=51455 DPT=53 LEN=53
+    # 2019-04-10T00:46:52+00:00 UniFiSecurityGateway3P kernel: [LAN_LOCAL-default-A]IN=eth1 OUT= MAC=ff:ff:f2:fe:f0:fc:fc:f5:f0:f1:f7:f2:f8:00 SRC=192.168.1.212 DST=192.168.1.1 LEN=102 TOS=0x00 PREC=0x00 TTL=64 ID=49321 PROTO=UDP SPT=64560 DPT=53 LEN=82
+    # 2019-04-10T00:46:52+00:00 UniFiSecurityGateway3P kernel: [LAN_LOCAL-default-A]IN=eth1 OUT= MAC=ff:ff:f2:fe:f0:fc:fc:f5:f0:f1:f7:f2:f8:00 SRC=192.168.1.212 DST=192.168.1.1 LEN=102 TOS=0x00 PREC=0x00 TTL=64 ID=15250 PROTO=UDP SPT=64600 DPT=53 LEN=82
+    # 2019-04-10T00:46:55+00:00 UniFiSecurityGateway3P sudo: pam_unix(sudo:session): session closed for user root
+    # 2019-04-10T00:46:55+00:00 UniFiSecurityGateway3P mca-monitor: mca-monitor.do_monitor(): mcad.setparam in progress, elapsed=36 (max=1800)
+    # 2019-04-10T00:46:55+00:00 UniFiSecurityGateway3P kernel: [LAN_LOCAL-default-A]IN=eth1 OUT= MAC=ff:ff:f2:fe:f0:fc:fc:f5:f0:f1:f7:f2:f8:00 SRC=192.168.1.212 DST=192.168.1.1 LEN=102 TOS=0x00 PREC=0x00 TTL=64 ID=27579 PROTO=UDP SPT=57331 DPT=53 LEN=82
+    # 2019-04-10T00:46:55+00:00 UniFiSecurityGateway3P kernel: [LAN_LOCAL-default-A]IN=eth1 OUT= MAC=ff:ff:f2:fe:f0:fc:fc:f5:f0:f1:f7:f2:f8:00 SRC=192.168.1.212 DST=192.168.1.1 LEN=102 TOS=0x00 PREC=0x00 TTL=64 ID=50708 PROTO=UDP SPT=61880 DPT=53 LEN=82
+    <source>
+      type tail
+      path /shared/logs/unifi/unifiserver.log
+      tag grokked_log
+      <parse>
+        @type grok
+        grok_name_key grok_name
+        grok_failure_key grokfailure
+        <grok>
+          name apache_log
+          pattern %{COMBINEDAPACHELOG}
+          time_format "%d/%b/%Y:%H:%M:%S %z"
+        </grok>
+        <grok>
+          name ip_address
+          pattern %{IP:ip_address}
+        </grok>
+        <grok>
+          name rest_message
+          pattern %{GREEDYDATA:message}
+        </grok>
+      </parse>
+    </source>
+  stdout.output.conf: |-
+    <match **>
+    @id elasticsearch
+    @type stdout
+    output_type json
+    @log_level info
+    # type_name fluentd
+    # include_tag_key true
+    # host elasticsearch-logging
+    # port 9200
+    # logstash_format true
+    <buffer>
+      @type file
+      path /var/log/fluentd-buffers/kubernetes.system.buffer
+      flush_mode interval
+      retry_type exponential_backoff
+      flush_thread_count 2
+      flush_interval 5s
+      retry_forever
+      retry_max_interval 30
+      chunk_limit_size 2M
+      queue_limit_length 8
+      overflow_action block
+    </buffer>

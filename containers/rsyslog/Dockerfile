@@ -4,6 +4,10 @@ COPY	rsyslog@lists.adiscon.com-5a55e598.rsa.pub /etc/apk/keys/rsyslog@lists.adis
 RUN	echo "http://alpine.rsyslog.com/3.7/stable" >> /etc/apk/repositories \
     && apk --no-cache update  \
     && apk add --no-cache \
+    logrotate \
+    gzip \
+    tar \
+    xz \
     rsyslog \
     rsyslog-elasticsearch \
     rsyslog-imptcp \

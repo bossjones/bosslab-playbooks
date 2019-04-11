@@ -1,4 +1,5 @@
 # {{ansible_managed}}
+# apiVersion: apps/v1
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -71,6 +72,24 @@ spec:
 {% endif %}
 {% endif %}
 
+{% if boss__rsyslog__centralized__deployment_spec_template_spec_securityContext is defined %}
+{% if boss__rsyslog__centralized__deployment_spec_template_spec_securityContext == "disabled" %}
+        # securityContext:
+{% else %}
+        securityContext:
+{{ boss__rsyslog__centralized__deployment_spec_template_spec_securityContext | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+
+{% if boss__rsyslog__centralized__deployment_spec_template_spec_containers_livenessProbe is defined %}
+{% if boss__rsyslog__centralized__deployment_spec_template_spec_containers_livenessProbe == "disabled" %}
+        # livenessProbe:
+{% else %}
+        livenessProbe:
+{{ boss__rsyslog__centralized__deployment_spec_template_spec_containers_livenessProbe | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+
 {% if boss__rsyslog__centralized__deployment_spec_template_containers_ports is defined %}
         ports:
 {{ boss__rsyslog__centralized__deployment_spec_template_containers_ports | indent( width=8, indentfirst=True,blank=True) }}
@@ -110,11 +129,3 @@ spec:
 {% endif %}
 {% endif %}
 
-{% if boss__rsyslog__centralized__deployment_spec_template_spec_securityContext is defined %}
-{% if boss__rsyslog__centralized__deployment_spec_template_spec_securityContext == "disabled" %}
-      # securityContext:
-{% else %}
-      securityContext:
-{{ boss__rsyslog__centralized__deployment_spec_template_spec_securityContext | indent( width=8, indentfirst=True,blank=True) }}
-{% endif %}
-{% endif %}
