@@ -109,9 +109,9 @@ spec:
           mountPath: /etc/localtime
           readOnly: true
         
-        - name: rsyslog-centralized-pvc
-          mountPath: /log
-          readOnly: false
+        # - name: rsyslog-centralized-pvc
+        #   mountPath: /log
+        #   readOnly: false
         
         # - mountPath: /etc/crontab
         #   name: datafeed-config
@@ -182,9 +182,9 @@ spec:
       
       
       # - name: rsyslog-centralized-pvc
-      - name: rsyslog-centralized-pvc
-        persistentVolumeClaim:
-          claimName: rsyslog-centralized-pvc
+      # - name: rsyslog-centralized-pvc
+      #   persistentVolumeClaim:
+      #     claimName: rsyslog-centralized-pvc
       
       
       # - name: crontab
