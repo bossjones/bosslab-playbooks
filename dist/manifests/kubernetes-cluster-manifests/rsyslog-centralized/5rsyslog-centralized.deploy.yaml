@@ -200,3 +200,10 @@ spec:
       nodeSelector:
         beta.kubernetes.io/os: linux
 
+
+
+#       - name: logrotate
+#         image: AK8S_DOCKER_REPOSITORY/logrotate:1.0.0
+#         volumeMounts:
+#           - name: logs-volume
+#             mountPath: /logs
