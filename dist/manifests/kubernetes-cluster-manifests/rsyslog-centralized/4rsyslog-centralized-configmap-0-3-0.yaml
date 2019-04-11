@@ -70,16 +70,16 @@ data:
     # $IMJournalStateFile imjournal.state
     # *********************************************************
 
-    #
+
     # Set default permissions for all log files
-    #
-    # $FileOwner rsyslog
-    # $FileGroup adm
-    # $FileCreateMode 0640
-    # $DirCreateMode 0755
-    # $Umask 0022
-    # $PrivDropToUser rsyslog
-    # $PrivDropToGroup rsyslog
+
+    $FileOwner rsyslog
+    $FileGroup adm
+    $FileCreateMode 0640
+    $DirCreateMode 0755
+    $Umask 0022
+    $PrivDropToUser rsyslog
+    $PrivDropToGroup rsyslog
 
     # don't log every message
     $RepeatedMsgReduction on
