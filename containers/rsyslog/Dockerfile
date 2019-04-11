@@ -7,6 +7,7 @@ RUN	echo "http://alpine.rsyslog.com/3.7/stable" >> /etc/apk/repositories \
     logrotate \
     gzip \
     tar \
+    pstree \
     xz \
     rsyslog \
     rsyslog-elasticsearch \

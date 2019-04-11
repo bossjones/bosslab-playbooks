@@ -232,6 +232,12 @@ data:
     #   queue.filename="forwarding"
     #   queue.maxdiskspace="1g")
     # ***************************************************************************************
+    # SOURCE: https://selivan.github.io/2017/02/07/rsyslog-log-forward-save-filename-handle-multi-line-failover.html
+    # Write all messages of auth and authpriv facilities into file /var/log/auth.log and continue processing this messages
+    # modern
+    if ( $syslogfacility-text contains "authUniFiSecurityGateway3P" ) then {
+        action(type="omfile" file="/var/log/unifi.log")
+    }
 
     # *.* action(type="omfile" File="/log/rsyslog_messages.log" template="dcloud-metrics")
 
@@ -415,7 +421,7 @@ data:
         dateext
         sharedscripts
         postrotate
-            /bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
+            /bin/kill -HUP `ps aux | grep rsyslog.conf | cut -d " " -f1` 2> /dev/null || true
         endscript
     }
     /log/metricsFeed.log
@@ -426,7 +432,7 @@ data:
         dateext
         sharedscripts
         postrotate
-            /bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
+            /bin/kill -HUP `ps aux | grep rsyslog.conf | cut -d " " -f1` 2> /dev/null || true
         endscript
     }
 
