@@ -40,7 +40,7 @@ spec:
         - name: RSYSLOG_CONF
           value: "/rsyslog-centralized/etc/rsyslog.conf"
         - name: _RSYSLOG_SPOOL_PATH
-          value: "/spool/rsyslog"
+          value: "/var/spool/rsyslog"
         - name: TZ
           value: "UTC"
         
@@ -79,10 +79,10 @@ spec:
           mountPath: /work
           readOnly: false
         # log file store (if used)
-        # - name: log
-        #   mountPath: /log
+        - name: log
+          mountPath: /logs
         - name: spool
-          mountPath: /spool/rsyslog
+          mountPath: /var/spool/rsyslog
           readOnly: false
         # configuration files, can be mounted read-only once finalized
         - name: container-config
@@ -108,9 +108,8 @@ spec:
           mountPath: /etc/localtime
           readOnly: true
         
-        # - name: rsyslog-centralized-pvc
-        - name: log
-          mountPath: /log
+        - name: rsyslog-centralized-pvc
+          mountPath: /logs
           readOnly: false
         
         # - mountPath: /etc/crontab
@@ -154,20 +153,21 @@ spec:
       - name: spool
         emptyDir: {}
       # log file store (if used)
-      # - name: log
-      #   emptyDir: {}
+      - name: log
+        emptyDir: {}
       - name: container-config
         configMap:
           name: rsyslog-centralized-container-config-0-3-0
-          defaultMode: 0775
+          # defaultMode: 0775
       - name: rsyslog-centralized-config
         configMap:
           name: rsyslog-centralized-config-0-3-0
-          defaultMode: 0775
+          # defaultMode: 0775
+      
       - name: rsyslog-centralized-config-dot-d
         configMap:
           name: rsyslog-centralized-config-dot-d-0-3-0
-          defaultMode: 0775
+          # defaultMode: 0775
       
       - name: localtime
         hostPath:
@@ -177,11 +177,11 @@ spec:
       - name: logrotate
         configMap:
           name: rsyslog-centralized-logrotate-0-3-0
-          defaultMode: 0775
+          # defaultMode: 0775
       
       
       # - name: rsyslog-centralized-pvc
-      - name: log
+      - name: rsyslog-centralized-pvc
         persistentVolumeClaim:
           claimName: rsyslog-centralized-pvc
       

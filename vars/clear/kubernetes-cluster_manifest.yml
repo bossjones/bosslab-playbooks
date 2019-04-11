@@ -2207,7 +2207,7 @@ boss__rsyslog__centralized__main_config_folder_prefix: "/rsyslog-centralized/etc
 boss__rsyslog__centralized__udp_in_port: 6160
 boss__rsyslog__centralized__tcp_in_port: 6170
 boss__rsyslog__centralized__relp_in_port: 1601
-boss__rsyslog__centralized__path_to_logs_inside_container: "/log"
+boss__rsyslog__centralized__path_to_logs_inside_container: "/logs"
 boss__rsyslog__centralized__path_to_config_inside_container: "/config"
 boss__rsyslog__centralized__path_to_work_inside_container: "/work"
 boss__rsyslog__centralized__path_to_spool_inside_container: "/var/spool/rsyslog"
@@ -2420,8 +2420,8 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumeMounts: |
     mountPath: {{boss__rsyslog__centralized__path_to_work_inside_container}}
     readOnly: false
   # log file store (if used)
-  # - name: log
-  #   mountPath: {{boss__rsyslog__centralized__path_to_logs_inside_container}}
+  - name: log
+    mountPath: {{boss__rsyslog__centralized__path_to_logs_inside_container}}
   - name: spool
     mountPath: {{boss__rsyslog__centralized__path_to_spool_inside_container}}
     readOnly: false
@@ -2449,8 +2449,7 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumeMounts: |
     mountPath: /etc/localtime
     readOnly: true
 
-  # - name: {{boss__rsyslog__centralized__shared_name}}-pvc
-  - name: log
+  - name: {{boss__rsyslog__centralized__shared_name}}-pvc
     mountPath: {{boss__rsyslog__centralized__path_to_logs_inside_container}}
     readOnly: false
 
@@ -2469,8 +2468,8 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumes: |
   - name: spool
     emptyDir: {}
   # log file store (if used)
-  # - name: log
-  #   emptyDir: {}
+  - name: log
+    emptyDir: {}
   - name: container-config
     configMap:
       name: {{boss__rsyslog__centralized__shared_name}}-container-config{{boss__rsyslog__centralized__configmap_suffix}}
@@ -2497,7 +2496,7 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumes: |
 
 
   # - name: {{boss__rsyslog__centralized__shared_name}}-pvc
-  - name: log
+  - name: {{boss__rsyslog__centralized__shared_name}}-pvc
     persistentVolumeClaim:
       claimName: {{boss__rsyslog__centralized__shared_name}}-pvc
 

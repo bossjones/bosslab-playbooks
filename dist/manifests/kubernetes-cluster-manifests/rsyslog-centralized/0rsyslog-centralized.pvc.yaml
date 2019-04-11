@@ -15,7 +15,7 @@ spec:
   storageClassName: "nfs-dynamic-class"
   resources:
     requests:
-      storage: "250Mi"
+      storage: "100Mi"
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -28,7 +28,7 @@ metadata:
     k8s-app: rsyslog-centralized
 spec:
   capacity:
-    storage: 250Mi
+    storage: 100Mi
   accessModes:
     - ReadWriteMany
   nfs:
