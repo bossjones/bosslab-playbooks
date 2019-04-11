@@ -2548,9 +2548,7 @@ boss__rsyslog__centralized__deployment_spec_template_spec_nodeSelector: |-
 # boss__rsyslog__centralized__deployment_spec_template_spec_securityContext: "disabled"
 boss__rsyslog__centralized__deployment_spec_template_spec_securityContext: |-
   # SOURCE: https://docs.okd.io/latest/rest_api/apis-apps/v1beta2.Deployment.html
-  runAsNonRoot: true
-  runAsUser: 65534
-
+  privileged: true
 
 
 boss__rsyslog__centralized__deployment_spec_template_spec_containers_livenessProbe: |-

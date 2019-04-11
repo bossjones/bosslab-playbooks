@@ -125,8 +125,7 @@ spec:
 
         securityContext:
           # SOURCE: https://docs.okd.io/latest/rest_api/apis-apps/v1beta2.Deployment.html
-          runAsNonRoot: true
-          runAsUser: 65534
+          privileged: true
 
         livenessProbe:
           tcpSocket:
