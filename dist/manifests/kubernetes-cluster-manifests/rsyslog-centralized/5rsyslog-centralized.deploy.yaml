@@ -80,7 +80,8 @@ spec:
           readOnly: false
         # log file store (if used)
         - name: log
-          mountPath: /logs
+          mountPath: /log
+        
         - name: spool
           mountPath: /var/spool/rsyslog
           readOnly: false
@@ -109,7 +110,7 @@ spec:
           readOnly: true
         
         - name: rsyslog-centralized-pvc
-          mountPath: /logs
+          mountPath: /log
           readOnly: false
         
         # - mountPath: /etc/crontab
