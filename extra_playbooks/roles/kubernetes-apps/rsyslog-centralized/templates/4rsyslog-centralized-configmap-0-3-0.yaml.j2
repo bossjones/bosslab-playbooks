@@ -235,6 +235,7 @@ data:
     # SOURCE: https://selivan.github.io/2017/02/07/rsyslog-log-forward-save-filename-handle-multi-line-failover.html
     # Write all messages of auth and authpriv facilities into file /var/log/auth.log and continue processing this messages
     # modern
+    # SOURCE: https://bsamuels.net/2014/08/30/redirecting-rsyslog-output.html
     if ( $programname == "authUniFiSecurityGateway3P" ) then {
         action(type="omfile" file="/var/log/unifi.log")
         ~
