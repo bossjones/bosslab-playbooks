@@ -237,8 +237,8 @@ data:
     # modern
     # SOURCE: https://bsamuels.net/2014/08/30/redirecting-rsyslog-output.html
     if ( $fromhost == "UniFiSecurityGateway3P" ) then {
-        action(type="omfile" file="/var/log/unifi.log")
-        ~
+        action(type="omfile" file="/log/unifi.log")
+        stop
     }
 
     # *.* action(type="omfile" File="/log/rsyslog_messages.log" template="dcloud-metrics")
