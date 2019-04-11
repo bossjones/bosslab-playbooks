@@ -437,6 +437,17 @@ data:
             /bin/kill -HUP `ps aux | grep rsyslog.conf | cut -d " " -f1` 2> /dev/null || true
         endscript
     }
+    {{boss__rsyslog__centralized__path_to_logs_inside_container}}/unifi.log /var/log/unifi.log
+    {
+        hourly
+        rotate 5
+        create
+        dateext
+        sharedscripts
+        postrotate
+            /bin/kill -HUP `ps aux | grep rsyslog.conf | cut -d " " -f1` 2> /dev/null || true
+        endscript
+    }
 
 ---
 apiVersion: v1
