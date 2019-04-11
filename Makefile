@@ -1277,4 +1277,14 @@ real-unifi-usg-stress-test-rsyslog-udp:
 	$(call check_defined, cluster, Please set cluster)
 	./scripts/real-unifi-usg-stress-test-rsyslog-udp.sh $(cluster)
 
+install-popeye:
+	brew tap derailed/popeye && brew install popeye
+
+# https://github.com/derailed/popeye
+#
+popeye:
+	@echo "Popeye is a utility that cruises Kubernetes cluster resources and reports potential issues with your deployment manifests and configurations. By scanning your clusters, it detects misconfigurations and ensure best practices are in place thus preventing potential future headaches. It aims at reducing the cognitive overload one faces when managing and operating a Kubernetes cluster in the wild. Popeye is a readonly tool, it does not change or update any of your Kubernetes resources or configurations in any way!"
+	@echo ""
+	popeye version
+
 include *.mk
