@@ -2449,7 +2449,8 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumeMounts: |
     mountPath: /etc/localtime
     readOnly: true
 
-  - name: {{boss__rsyslog__centralized__shared_name}}-pvc
+  # - name: {{boss__rsyslog__centralized__shared_name}}-pvc
+  - name: log
     mountPath: {{boss__rsyslog__centralized__path_to_logs_inside_container}}
     readOnly: false
 
