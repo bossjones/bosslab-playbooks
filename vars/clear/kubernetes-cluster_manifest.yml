@@ -2450,9 +2450,9 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumeMounts: |
     mountPath: /etc/localtime
     readOnly: true
 
-  - name: {{boss__rsyslog__centralized__shared_name}}-pvc
-    mountPath: {{boss__rsyslog__centralized__path_to_logs_inside_container}}
-    readOnly: false
+  # - name: {{boss__rsyslog__centralized__shared_name}}-pvc
+  #   mountPath: {{boss__rsyslog__centralized__path_to_logs_inside_container}}
+  #   readOnly: false
 
   # - mountPath: /etc/crontab
   #   name: datafeed-config
@@ -2497,9 +2497,9 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumes: |
 
 
   # - name: {{boss__rsyslog__centralized__shared_name}}-pvc
-  - name: {{boss__rsyslog__centralized__shared_name}}-pvc
-    persistentVolumeClaim:
-      claimName: {{boss__rsyslog__centralized__shared_name}}-pvc
+  # - name: {{boss__rsyslog__centralized__shared_name}}-pvc
+  #   persistentVolumeClaim:
+  #     claimName: {{boss__rsyslog__centralized__shared_name}}-pvc
 
 
   # - name: crontab
