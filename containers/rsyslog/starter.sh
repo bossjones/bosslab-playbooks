@@ -50,7 +50,7 @@ echo "Using rsyslog configuration file: $RSYSLOG_CONF"
 
 # SOURCE: https://github.com/instantlinux/docker-tools/blob/f4ce5659047cbf258908f8a090efa1a49688c337/images/rsyslogd/entrypoint.sh
 crond
-touch /var/log/cron && tail -f /var/log/cron
+# touch /var/log/cron && tail -f /var/log/cron
 
 
 if [ -f tools/$1 ]; then
