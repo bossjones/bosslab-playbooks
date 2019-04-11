@@ -11,4 +11,4 @@ DNS_DOMAIN=$(grep '^domain_root:' ${PATH_TO_MANIFEST} | cut -d\: -f2 | awk '{pri
 
 source ./scripts/log_fixtures/usg-log-fixtures.sh
 
-for i in "${fake_logs_security_gateway[@]}"; do syslog-netcat-test-udp rsyslog-centralized.${DNS_DOMAIN} 6160 "${i}"; done
+for i in "${fake_logs_security_gateway[@]}"; do syslog-netcat-test-udp rsyslog-centralized.${DNS_DOMAIN} 6160 "${i}"; sleep 1; done
