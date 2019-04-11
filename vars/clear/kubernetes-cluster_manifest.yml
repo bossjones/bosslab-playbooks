@@ -2372,8 +2372,8 @@ boss__rsyslog__centralized__deployment_spec_template_containers_ports: |-
     protocol: TCP
 
 boss__rsyslog__centralized__deployment_spec_template_containers_env: |-
-  - name: RSYSLOG_DEBUG_FLAG
-    value: "-d"
+  # - name: RSYSLOG_DEBUG_FLAG
+  #   value: "-d"
   - name: _IMTCP_PORT
     value: "{{boss__rsyslog__centralized__tcp_in_port}}"
   - name: _IMUDP_PORT
