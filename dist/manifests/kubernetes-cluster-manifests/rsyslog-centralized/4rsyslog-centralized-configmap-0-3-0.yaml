@@ -14,6 +14,12 @@ data:
     # SOURCE: https://itnext.io/metrics-from-kubernetes-logs-82cb1dcb3551
     global(parser.permitSlashInProgramName="on")
 
+    # default location for work (spool) files
+    # Raise limits within /etc/systemd/journald.conf on the host(s) - ie., RateLimitIntervalSec=30s + RateLimitBurst=1000000
+    # global(workDirectory="/var/spool/rsyslog")
+    # where to place spool files
+    global(workDirectory=`echo $_RSYSLOG_SPOOL_PATH`)
+
     # Options for rsyslogd
     # -x disables DNS lookups for remote messages
     # See rsyslogd(8) for more details
@@ -41,12 +47,12 @@ data:
     $DebugLevel 2
 
 
-    $MaxMessageSize 64k
-    $ActionQueueFileName fwdRule1     # unique name prefix for spool files
-    $ActionQueueMaxDiskSpace 1g       # 1gb space limit (use as much as possible)
-    $ActionQueueSaveOnShutdown on     # save messages to disk on shutdown
-    $ActionQueueType LinkedList       # run asynchronously
-    $ActionResumeRetryCount -1        # infinite retries if host is down
+    # $MaxMessageSize 64k
+    # $ActionQueueFileName fwdRule1     # unique name prefix for spool files
+    # $ActionQueueMaxDiskSpace 1g       # 1gb space limit (use as much as possible)
+    # $ActionQueueSaveOnShutdown on     # save messages to disk on shutdown
+    # $ActionQueueType LinkedList       # run asynchronously
+    # $ActionResumeRetryCount -1        # infinite retries if host is down
 
     # SOURCE: https://github.com/dcv-cloud/dcv-kubernetes/blob/50221c0fb3ee7b2f799930b336662ab1d896f871/kubeManifests/infra-repo-197/datafeed/addConfigMapDatafeed.yaml
     # *********************************************************
@@ -63,6 +69,17 @@ data:
     # File to store the position in the journal
     # $IMJournalStateFile imjournal.state
     # *********************************************************
+
+    #
+    # Set default permissions for all log files
+    #
+    $FileOwner syslog
+    $FileGroup adm
+    $FileCreateMode 0640
+    $DirCreateMode 0755
+    $Umask 0022
+    $PrivDropToUser syslog
+    $PrivDropToGroup syslog
 
     # don't log every message
     $RepeatedMsgReduction on
@@ -96,13 +113,15 @@ data:
     module(load="mmjsonparse")
     module(load="mmutf8fix")
 
-    $InputFilePollInterval 10
+    # $InputFilePollInterval 10
+    template(
+      name="RemoteHostUnifiServer"
+      type="string"
+      string="/log/unifiserver.log"
+    )
 
-    # default location for work (spool) files
-    # Raise limits within /etc/systemd/journald.conf on the host(s) - ie., RateLimitIntervalSec=30s + RateLimitBurst=1000000
-    # global(workDirectory="/var/spool/rsyslog")
-    # where to place spool files
-    global(workDirectory=`echo $_RSYSLOG_SPOOL_PATH`)
+    $ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat
+
 
     # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
     # ***********************************************************************
@@ -274,10 +293,17 @@ data:
     # Write all messages of auth and authpriv facilities into file /var/log/auth.log and continue processing this messages
     # modern
     # SOURCE: https://bsamuels.net/2014/08/30/redirecting-rsyslog-output.html
-    if ( $fromhost == "UniFiSecurityGateway3P" ) then {
-        action(type="omfile" file="/log/unifi.log")
-        action(type="omfile" file="/log/unifi.log")
-        stop
+    # if ( $fromhost == "UniFiSecurityGateway3P" ) then {
+    #     action(type="omfile" file="/log/unifi.log")
+    #     action(type="omfile" file="/logs/unifi.log")
+    #     stop
+    # }
+
+    if ($msg contains "UniFiSecurityGateway3P") then {
+      action(type="omfile" file="/log/unifi.log")
+      # action(type="omfile" DynaFile="RemoteHostCronLog")
+      # action(type="omfile" DynaFile="RemoteServiceCronLog")
+      stop
     }
 
     # *.* action(type="omfile" File="/log/rsyslog_messages.log" template="dcloud-metrics")
