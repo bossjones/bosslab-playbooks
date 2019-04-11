@@ -2454,6 +2454,9 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumeMounts: |
     mountPath: {{boss__rsyslog__centralized__path_to_logs_inside_container}}
     readOnly: false
 
+  # - mountPath: /etc/crontab
+  #   name: datafeed-config
+
 # SOURCE: https://github.com/instantlinux/docker-tools/blob/f4ce5659047cbf258908f8a090efa1a49688c337/images/rsyslogd/docker-compose.yml
 # volumes:
 # - ${ADMIN_PATH:-/opt}/rsyslogd/etc/logrotate.d:/etc/logrotate.d:ro
@@ -2496,6 +2499,12 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumes: |
   - name: log
     persistentVolumeClaim:
       claimName: {{boss__rsyslog__centralized__shared_name}}-pvc
+
+
+  # - name: crontab
+  #   configMap:
+  #     name: {{boss__rsyslog__centralized__shared_name}}-crontab{{boss__rsyslog__centralized__configmap_suffix}}
+  #     defaultMode: 0775
 
 boss__rsyslog__centralized__service_labels: |-
   k8s-app: {{boss__rsyslog__centralized__shared_name}}

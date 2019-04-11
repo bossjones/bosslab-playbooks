@@ -113,6 +113,9 @@ spec:
           mountPath: /log
           readOnly: false
         
+        # - mountPath: /etc/crontab
+        #   name: datafeed-config
+        
 
         resources:
           limits:
@@ -181,6 +184,12 @@ spec:
       - name: log
         persistentVolumeClaim:
           claimName: rsyslog-centralized-pvc
+      
+      
+      # - name: crontab
+      #   configMap:
+      #     name: rsyslog-centralized-crontab-0-3-0
+      #     defaultMode: 0775
       
 
       hostNetwork: True
