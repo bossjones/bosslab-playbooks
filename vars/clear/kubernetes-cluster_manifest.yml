@@ -2210,7 +2210,7 @@ boss__rsyslog__centralized__relp_in_port: 1601
 boss__rsyslog__centralized__path_to_logs_inside_container: "/log"
 boss__rsyslog__centralized__path_to_config_inside_container: "/config"
 boss__rsyslog__centralized__path_to_work_inside_container: "/work"
-boss__rsyslog__centralized__path_to_spool_inside_container: "/spool/rsyslog"
+boss__rsyslog__centralized__path_to_spool_inside_container: "/var/spool/rsyslog"
 
 
 ################# Persistent volume claims - begin #########################
@@ -2222,7 +2222,7 @@ boss__rsyslog__centralized__rsyslog_pvc_labels: |-
   k8s-app: {{boss__rsyslog__centralized__shared_name}}
 
 boss__rsyslog__centralized__rsyslog_pvc_spec_storageClassName: "nfs-dynamic-class"
-boss__rsyslog__centralized__rsyslog_pvc_spec_resources_requests_storage: "250Mi"
+boss__rsyslog__centralized__rsyslog_pvc_spec_resources_requests_storage: "100Mi"
 
 # persistent volume - rsyslog
 boss__rsyslog__centralized__rsyslog_pv_labels: |-
@@ -2230,7 +2230,7 @@ boss__rsyslog__centralized__rsyslog_pv_labels: |-
     addonmanager.kubernetes.io/mode: Reconcile
     k8s-app: {{boss__rsyslog__centralized__shared_name}}
 
-boss__rsyslog__centralized__rsyslog_pv_spec_capacity_storage: 250Mi
+boss__rsyslog__centralized__rsyslog_pv_spec_capacity_storage: 100Mi
 boss__rsyslog__centralized__rsyslog_pv_spec_nfs: |-
     server: {{nfs_server_ip_override}}
     path: "/mnt/publicdata/rsyslog"
@@ -2474,15 +2474,16 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumes: |
   - name: container-config
     configMap:
       name: {{boss__rsyslog__centralized__shared_name}}-container-config{{boss__rsyslog__centralized__configmap_suffix}}
-      defaultMode: 0775
+      # defaultMode: 0775
   - name: rsyslog-centralized-config
     configMap:
       name: {{boss__rsyslog__centralized__shared_name}}-config{{boss__rsyslog__centralized__configmap_suffix}}
-      defaultMode: 0775
+      # defaultMode: 0775
+
   - name: rsyslog-centralized-config-dot-d
     configMap:
       name: {{boss__rsyslog__centralized__shared_name}}-config-dot-d{{boss__rsyslog__centralized__configmap_suffix}}
-      defaultMode: 0775
+      # defaultMode: 0775
 
   - name: localtime
     hostPath:
@@ -2492,7 +2493,7 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumes: |
   - name: logrotate
     configMap:
       name: {{boss__rsyslog__centralized__shared_name}}-logrotate{{boss__rsyslog__centralized__configmap_suffix}}
-      defaultMode: 0775
+      # defaultMode: 0775
 
 
   # - name: {{boss__rsyslog__centralized__shared_name}}-pvc

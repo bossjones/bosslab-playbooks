@@ -187,7 +187,7 @@ data:
     *.* :omstdout:
     # action(type="omstdout")
 
-    include(file="/config/droprules.conf" mode="optional")  # this permits the user to easily drop unwanted messages
+    include(file="{{boss__rsyslog__centralized__path_to_config_inside_container}}/droprules.conf" mode="optional")  # this permits the user to easily drop unwanted messages
 
     action(name="main_utf8fix" type="mmutf8fix" replacementChar="?")
 
@@ -233,7 +233,7 @@ data:
     #   queue.maxdiskspace="1g")
     # ***************************************************************************************
 
-    # *.* action(type="omfile" File="/logs/rsyslog_messages.log" template="dcloud-metrics")
+    # *.* action(type="omfile" File="{{boss__rsyslog__centralized__path_to_logs_inside_container}}/rsyslog_messages.log" template="dcloud-metrics")
 
 ---
 
@@ -247,11 +247,11 @@ metadata:
 data:
   log_to_files.conf: |-
 
-    # logging to files in /logs
+    # logging to files in {{boss__rsyslog__centralized__path_to_logs_inside_container}}
 
     template(name="log_to_files_dynafile" type="string" string=`echo $LOGFILES_STORE`)
     ruleset(name="log_to_files") {
-      /logs/debug;RSYSLOG_DebugFormat
+      {{boss__rsyslog__centralized__path_to_logs_inside_container}}/debug;RSYSLOG_DebugFormat
       action(type="omfile" dynafile="log_to_files_dynafile" name="log_to_logfiles")
     }
 
@@ -287,7 +287,7 @@ data:
     ruleset(name="log_to_logsene"
       queue.type="LinkedList" queue.dequeueBatchSize="2000"
       queue.size="100000"  # do not use a too-high values, else we get trouble with 10s shutdown period!
-      queue.spoolDirectory="/work"
+      queue.spoolDirectory="{{boss__rsyslog__centralized__path_to_work_inside_container}}"
       queue.filename="q_log_to_logsene" queue.maxfilesize="100m" queue.maxdiskspace="2g"
       queue.saveonshutdown="on"
       ) {
@@ -349,12 +349,12 @@ data:
     # Do we write log files?
     # export ENABLE_LOGFILES=on # yes, we do (comment out to disable)
     # Where do we write to?
-    # path for host-specific files is: /logs/hosts/HOSTNAME
-    export LOGFILES_STORE="/logs/hosts/%hostname:::secpath-replace%/messages.log"
+    # path for host-specific files is: {{boss__rsyslog__centralized__path_to_logs_inside_container}}/hosts/HOSTNAME
+    export LOGFILES_STORE="{{boss__rsyslog__centralized__path_to_logs_inside_container}}/hosts/%hostname:::secpath-replace%/messages.log"
     # you can of course overwrite this. For example, the below definition
     # uses the program name instead of a fixed name "messages.log". That means
     # for each host, a separate file for each program will be generated.
-    #export LOGFILES_STORE="/logs/hosts/%hostname:::secpath-replace%/%programname:::secpath-replace%.log"
+    #export LOGFILES_STORE="{{boss__rsyslog__centralized__path_to_logs_inside_container}}/hosts/%hostname:::secpath-replace%/%programname:::secpath-replace%.log"
 
     # If you have an account with Logsene, enter your access
     # information below:
@@ -366,7 +366,7 @@ data:
     # Settings for debugging the container
     #export USE_VALGRIND=on
     #export RSYSLOG_DEBUG="debug nostdout"
-    #export RSYSLOG_DEBUGLOG="/logs/rsyslog-internal-debug.log"
+    #export RSYSLOG_DEBUGLOG="{{boss__rsyslog__centralized__path_to_logs_inside_container}}/rsyslog-internal-debug.log"
 
     export _IMTCP_PORT=${_IMTCP_PORT}
     export _IMUDP_PORT=${_IMUDP_PORT}
@@ -407,7 +407,7 @@ data:
     }
 
     # SOURCE: https://github.com/dcv-cloud/dcv-kubernetes/blob/50221c0fb3ee7b2f799930b336662ab1d896f871/kubeManifests/infra-repo-197/datafeed/addConfigMapDatafeed.yaml
-    /logs/rsyslog_messages.log
+    {{boss__rsyslog__centralized__path_to_logs_inside_container}}/rsyslog_messages.log
     {
         hourly
         rotate 5
@@ -418,7 +418,7 @@ data:
             /bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
         endscript
     }
-    /logs/metricsFeed.log
+    {{boss__rsyslog__centralized__path_to_logs_inside_container}}/metricsFeed.log
     {
         hourly
         rotate 5
