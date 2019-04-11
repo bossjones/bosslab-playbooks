@@ -2208,7 +2208,7 @@ boss__rsyslog__centralized__udp_in_port: 6160
 boss__rsyslog__centralized__tcp_in_port: 6170
 boss__rsyslog__centralized__relp_in_port: 1601
 boss__rsyslog__centralized__path_to_logs_inside_container: "/log"
-boss__rsyslog__centralized__path_to_configs_inside_container: "/config"
+boss__rsyslog__centralized__path_to_config_inside_container: "/config"
 boss__rsyslog__centralized__path_to_work_inside_container: "/work"
 boss__rsyslog__centralized__path_to_spool_inside_container: "/spool/rsyslog"
 
@@ -2289,7 +2289,7 @@ boss__rsyslog__centralized__cluster_role_rules: |-
     - patch
     - update
     - watch
-   - apiGroups:
+  - apiGroups:
     - storage.k8s.io
     resources:
     - volumeattachments
@@ -2465,17 +2465,20 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumes: |
   - name: spool
     emptyDir: {}
   # log file store (if used)
-  - name: log
-    emptyDir: {}
+  # - name: log
+  #   emptyDir: {}
   - name: container-config
     configMap:
       name: {{boss__rsyslog__centralized__shared_name}}-container-config{{boss__rsyslog__centralized__configmap_suffix}}
+      defaultMode: 0775
   - name: rsyslog-centralized-config
     configMap:
       name: {{boss__rsyslog__centralized__shared_name}}-config{{boss__rsyslog__centralized__configmap_suffix}}
+      defaultMode: 0775
   - name: rsyslog-centralized-config-dot-d
     configMap:
       name: {{boss__rsyslog__centralized__shared_name}}-config-dot-d{{boss__rsyslog__centralized__configmap_suffix}}
+      defaultMode: 0775
 
   - name: localtime
     hostPath:
@@ -2485,9 +2488,11 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumes: |
   - name: logrotate
     configMap:
       name: {{boss__rsyslog__centralized__shared_name}}-logrotate{{boss__rsyslog__centralized__configmap_suffix}}
+      defaultMode: 0775
 
 
-  - name: {{boss__rsyslog__centralized__shared_name}}-pvc
+  # - name: {{boss__rsyslog__centralized__shared_name}}-pvc
+  - name: log
     persistentVolumeClaim:
       claimName: {{boss__rsyslog__centralized__shared_name}}-pvc
 

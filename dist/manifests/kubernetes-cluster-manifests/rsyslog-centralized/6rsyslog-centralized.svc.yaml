@@ -6,7 +6,7 @@ metadata:
   namespace: kube-system
   labels:
     k8s-app: rsyslog-centralized
-    version: latest
+    version: 0.2.0
     kubernetes.io/cluster-service: "true"
   # annotations:
 spec:
