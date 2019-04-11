@@ -37,8 +37,9 @@ detect_OS
 
 host_name=$1
 log_port=${2:=5140}
+log_msg=${3:=x}
 
-if [[ $# -ge 3 ]]; then
+if [[ $# -ge 4 ]]; then
     echo "Usage: ${FUNCNAME[0]} <host name>"
     echo "syslog-netcat-test-udp fluent-bit-centralized.scarlettlab.com"
     echo "-- or --"
@@ -54,7 +55,11 @@ fi
 
 # echo "message" | nc -v "${host_name}" ${log_port}
 
-_message="<150>$(env LANG=us_US.UTF-8 date "+%b %d %H:%M:%S") $(hostname) syslog-netcat-test-udp[$$]: testing baby"
+if [[ ${log_msg} = "x" ]]; then
+  _message="<150>$(env LANG=us_US.UTF-8 date "+%b %d %H:%M:%S") $(hostname) syslog-netcat-test-udp[$$]: testing baby"
+else
+  _message="${log_msg}"
+fi
 
 echo ${_message}
 
