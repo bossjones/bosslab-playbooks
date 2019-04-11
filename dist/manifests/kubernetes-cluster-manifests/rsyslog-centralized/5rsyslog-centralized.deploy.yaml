@@ -31,8 +31,8 @@ spec:
         # command:
 
         env:
-        - name: RSYSLOG_DEBUG_FLAG
-          value: "-d"
+        # - name: RSYSLOG_DEBUG_FLAG
+        #   value: "-d"
         - name: _IMTCP_PORT
           value: "6170"
         - name: _IMUDP_PORT
