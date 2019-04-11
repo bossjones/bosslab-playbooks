@@ -1,7 +1,7 @@
 # SOURCE: https://github.com/rsyslog/rsyslog-docker/blob/master/appliance/alpine/Dockerfile
-FROM alpine:3.9
+FROM alpine:3.8
 COPY	rsyslog@lists.adiscon.com-5a55e598.rsa.pub /etc/apk/keys/rsyslog@lists.adiscon.com-5a55e598.rsa.pub
-RUN	echo "http://alpine.rsyslog.com/3.9/stable" >> /etc/apk/repositories \
+RUN	echo "http://alpine.rsyslog.com/3.8/stable" >> /etc/apk/repositories \
     && apk --no-cache update  \
     && apk add --no-cache \
     logrotate \
