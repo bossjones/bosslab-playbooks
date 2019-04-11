@@ -13,10 +13,40 @@ data:
 
     # SOURCE: https://itnext.io/metrics-from-kubernetes-logs-82cb1dcb3551
     global(parser.permitSlashInProgramName="on")
-    # default location for work (spool) files
-    # Raise limits within /etc/systemd/journald.conf on the host(s) - ie., RateLimitIntervalSec=30s + RateLimitBurst=1000000
-    # global(workDirectory="/var/spool/rsyslog")
-    global(workDirectory=`echo $_RSYSLOG_SPOOL_PATH`)
+
+    # Options for rsyslogd
+    # -x disables DNS lookups for remote messages
+    # See rsyslogd(8) for more details
+
+    # LogFuncFlow - print out the logical flow of functions (entering and exiting them)
+
+    # FileTrace - specifies which files to trace LogFuncFlow. If not set (the default), a LogFuncFlow trace is provided for all files. Set to limit it to the files specified. FileTrace may be specified multiple times, one file each (e.g. export RSYSLOG_DEBUG="LogFuncFlow FileTrace=vm.c FileTrace=expr.c"
+
+    # PrintFuncDB - print the content of the debug function database whenever debug information is printed (e.g. abort case)!
+
+    # PrintAllDebugInfoOnExit - print all debug information immediately before rsyslogd exits (currently not implemented!)
+
+    # PrintMutexAction - print mutex action as it happens. Useful for finding deadlocks and such.
+
+    # NoLogTimeStamp - do not prefix log lines with a timestamp (default is to do that).
+
+    # NoStdOut - do not emit debug messages to stdout. If RSYSLOG_DEBUGLOG is not set, this means no messages will be displayed at all.
+
+    # Debug - if present, turns on the debug system and enables debug output
+
+    # DebugOnDemand - if present, turns on the debug system but does not enable debug output itself. You need to send SIGUSR1 to turn it on when desired.
+
+    # OutputTidToStderr - if present, makes rsyslog output information about the thread id (tid) of newly created processes to stderr. Note that not necessarily all new threads are reported (depends on the code, e.g. of plugins). This is only available under Linux. This usually does NOT work when privileges have been dropped (that's not a bug, but the way it is). help - display a very short list of commands - hopefully a life saver if you can't access the documentation…
+    $DebugFile /tmp/rsyslogd.debug.log
+    $DebugLevel 2
+
+
+    $MaxMessageSize 64k
+    $ActionQueueFileName fwdRule1     # unique name prefix for spool files
+    $ActionQueueMaxDiskSpace 1g       # 1gb space limit (use as much as possible)
+    $ActionQueueSaveOnShutdown on     # save messages to disk on shutdown
+    $ActionQueueType LinkedList       # run asynchronously
+    $ActionResumeRetryCount -1        # infinite retries if host is down
 
     # SOURCE: https://github.com/dcv-cloud/dcv-kubernetes/blob/50221c0fb3ee7b2f799930b336662ab1d896f871/kubeManifests/infra-repo-197/datafeed/addConfigMapDatafeed.yaml
     # *********************************************************
@@ -65,6 +95,14 @@ data:
     module(load="omelasticsearch")
     module(load="mmjsonparse")
     module(load="mmutf8fix")
+
+    $InputFilePollInterval 10
+
+    # default location for work (spool) files
+    # Raise limits within /etc/systemd/journald.conf on the host(s) - ie., RateLimitIntervalSec=30s + RateLimitBurst=1000000
+    # global(workDirectory="/var/spool/rsyslog")
+    # where to place spool files
+    global(workDirectory=`echo $_RSYSLOG_SPOOL_PATH`)
 
     # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
     # ***********************************************************************
@@ -237,6 +275,7 @@ data:
     # modern
     # SOURCE: https://bsamuels.net/2014/08/30/redirecting-rsyslog-output.html
     if ( $fromhost == "UniFiSecurityGateway3P" ) then {
+        action(type="omfile" file="/log/unifi.log")
         action(type="omfile" file="/log/unifi.log")
         stop
     }
@@ -472,3 +511,24 @@ data:
     # |  |  |  |  |
     # *  *  *  *  * user-name  command to be executed
     0 0 * * * root /usr/sbin/logrotate -s /var/lib/logrotate/logrotate.status /etc/logrotate.conf
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rsyslog-centralized-grok-pattern-0-3-0
+  namespace: kube-system
+  labels:
+    k8s-app: rsyslog-centralized
+data:
+  pattern.yml: |-
+    # SOURCE: https://github.com/effertzdv/elasticstack/blob/92c6332265f1d83dfc282b30d415bcd4f8917846/logstash/pipeline/logstash.conf
+    # SOURCE: https://github.com/effertzdv/elasticstack/blob/92c6332265f1d83dfc282b30d415bcd4f8917846/logstash/patterns/pattern.yml
+    MAC (?:%{CISCOMAC}|%{WINDOWSMAC}|%{COMMONMAC})
+    CISCOMAC (?:(?:[A-Fa-f0-9]{4}\.){2}[A-Fa-f0-9]{4})
+    WINDOWSMAC (?:(?:[A-Fa-f0-9]{2}-){5}[A-Fa-f0-9]{2})
+    COMMONMAC (?:(?:[A-Fa-f0-9]{2}:){5}[A-Fa-f0-9]{2})
+    UNIFI_FW [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+
+    UNIFI_DEV_TYPE \s?(\("%{WORD:unifi_type},%{WORD:unifi_ap_mac},v%{UNIFI_FW:unifi_firmware}"\))?
+    UNIFI_EVENT_TYPE (IEEE 802\.11|WPA|WEP)
+    UNIFI_CUSTOM_EVENT (wevent.ubnt_custom_event\(\): %{WORD:CUSTOM_UNFI_EVENT} %{WORD:unifi_interface}: %{MAC:unifi_sta_mac} \/ %{GREEDYDATA:CUSTOM_UNIFI_EVENT_DATA})
