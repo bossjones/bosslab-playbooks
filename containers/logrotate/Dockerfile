@@ -1,7 +1,7 @@
 # SOURCE: https://github.com/rsyslog/rsyslog-docker/blob/master/appliance/alpine/Dockerfile
 FROM alpine:3.7
 COPY	rsyslog@lists.adiscon.com-5a55e598.rsa.pub /etc/apk/keys/rsyslog@lists.adiscon.com-5a55e598.rsa.pub
-COPY envoy_rotate.sh /entrypoint.sh
+COPY entrypoint.sh /entrypoint.sh
 COPY rotate.conf /rotate.conf
 
 RUN	echo "http://alpine.rsyslog.com/3.7/stable" >> /etc/apk/repositories \
