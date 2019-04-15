@@ -11,4 +11,4 @@ subjects:
 - kind: ServiceAccount
   name: rsyslog-centralized
   namespace: kube-system
-  apiGroup: ""
+  # apiGroup: ""
