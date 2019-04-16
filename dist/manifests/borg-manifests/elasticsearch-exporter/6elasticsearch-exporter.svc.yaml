@@ -9,8 +9,8 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - port: 9114
-      targetPort: 9114
+    - port: 9108
+      targetPort: 9108
       protocol: TCP
       name: http-metrics
   selector:
