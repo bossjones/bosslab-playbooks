@@ -2773,7 +2773,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
     template(
         name   = "LOCAL_MessagesFileTemplate"
         type   = "string"
-        string = "/var/log/messages"
+        string = "/var/log/messages.log"
     )
     template(
         name   = "LOCAL_SecureFileTemplate"
@@ -2832,7 +2832,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
     ) {
         constant(value = "{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/")
         property(name  = "fromhost")
-        constant(value = "/messages")
+        constant(value = "/messages.log")
     }
     template(
         name = "REMOTE_SecureFileTemplate"

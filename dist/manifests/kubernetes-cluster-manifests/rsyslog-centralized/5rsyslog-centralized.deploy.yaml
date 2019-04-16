@@ -50,7 +50,7 @@ spec:
           value: "/spool"
         - name: TZ
           value: "UTC"
-
+        
         - name: NODE_IP
           valueFrom:
             fieldRef:
@@ -89,40 +89,40 @@ spec:
         - name: log
           mountPath: /log
           readOnly: false
-
+        
         - name: spool
           mountPath: /spool
           readOnly: false
-
+        
         # configuration files, can be mounted read-only once finalized
         - name: container-config
           mountPath: /config
           readOnly: false
-
+        
         # The Rsyslog config file to use
         - name: rsyslog-centralized-config
           mountPath: /rsyslog-centralized/etc
           readOnly: false
-
+        
         - name: rsyslog-centralized-config-dot-d
           mountPath: /rsyslog-centralized/etc/rsyslog.d
           readOnly: false
-
+        
         # - name: logrotate
         #   mountPath: /logrotate.d
         #   readOnly: false
-
+        
         # - name: localtime
         #   mountPath: /etc/localtime
         #   readOnly: true
-
+        
         # - name: rsyslog-centralized-pvc
         #   mountPath: /log
         #   readOnly: false
-
+        
         # - mountPath: /etc/crontab
         #   name: datafeed-config
-
+        
 
         resources:
           limits:
@@ -131,7 +131,7 @@ spec:
           requests:
             cpu: "0.05"
             memory: "10Mi"
-
+          
 
         securityContext:
           # SOURCE: https://docs.okd.io/latest/rest_api/apis-apps/v1beta2.Deployment.html
@@ -160,14 +160,14 @@ spec:
         env:
         - name: LOG_DIRECTORIES
           value: "/log"
-        # - name: LOGROTATE_INTERVAL
-        #   value: "hourly"
+        - name: LOGROTATE_INTERVAL
+          value: "hourly"
         - name: LOGROTATE_SIZE
           value: "50M"
         # - name: LOGROTATE_STATUSFILE
         #   value: "50M"
-        - name: LOGROTATE_CRONSCHEDULE
-          value: "* * * * * *"
+        # - name: LOGROTATE_CRONSCHEDULE
+        #   value: "* * * * * *"
         - name: LOGROTATE_POSTROTATE_COMMAND
           value: "/bin/kill -HUP `ps aux | grep rsyslog.conf | cut -d ' ' -f1` 2> /dev/null || true"
         - name: TZ
@@ -197,34 +197,34 @@ spec:
         configMap:
           name: rsyslog-centralized-config-0-3-0
           # defaultMode: 0775
-
+      
       - name: rsyslog-centralized-config-dot-d
         configMap:
           name: rsyslog-centralized-config-dot-d-0-3-0
           # defaultMode: 0775
-
+      
       # - name: localtime
       #   hostPath:
       #     path: /etc/localtime
       #     type: "FileOrCreate"
-
+      
       # - name: logrotate
       #   configMap:
       #     name: rsyslog-centralized-logrotate-0-3-0
       #     # defaultMode: 0775
-
-
+      
+      
       # - name: rsyslog-centralized-pvc
       # - name: rsyslog-centralized-pvc
       #   persistentVolumeClaim:
       #     claimName: rsyslog-centralized-pvc
-
-
+      
+      
       # - name: crontab
       #   configMap:
       #     name: rsyslog-centralized-crontab-0-3-0
       #     defaultMode: 0775
-
+      
 
       hostNetwork: True
 
