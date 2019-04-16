@@ -175,8 +175,8 @@ spec:
         # v: Verbose
         # d: Debug, Logrotate will be emulated but never executed!
         # f: Force
-        - name: LOGROTATE_PARAMETERS
-          value: "v"
+        # - name: LOGROTATE_PARAMETERS
+        #   value: "v"
         volumeMounts:
         - name: log
           mountPath: /log
