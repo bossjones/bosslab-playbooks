@@ -2210,7 +2210,11 @@ boss__rsyslog__centralized__relp_in_port: 1601
 boss__rsyslog__centralized__path_to_logs_inside_container: "/log"
 boss__rsyslog__centralized__path_to_config_inside_container: "/config"
 boss__rsyslog__centralized__path_to_work_inside_container: "/work"
-boss__rsyslog__centralized__path_to_spool_inside_container: "/var/spool/rsyslog"
+boss__rsyslog__centralized__path_to_spool_inside_container: "/spool"
+
+boss__rsyslog__centralized__logrotate_version: 1.3
+boss__rsyslog__centralized__logrotate_image_repo: "blacklabelops/logrotate"
+boss__rsyslog__centralized__logrotate_image_tag: "{{ boss__rsyslog__centralized__logrotate_version }}"
 
 
 ################# Persistent volume claims - begin #########################
@@ -2371,6 +2375,12 @@ boss__rsyslog__centralized__deployment_spec_template_containers_ports: |-
     name: in-relp
     protocol: TCP
 
+boss__rsyslog__centralized__deployment_spec_template_initContainers:
+  - name: init-rsyslog
+    image: "{{boss__rsyslog__centralized__rsyslog_image_repo}}:{{boss__rsyslog__centralized__rsyslog_image_tag}}"
+    command: [ "/bin/sh" ]
+    args: ['-c', 'mkdir -p /var/spool/rsyslog; mkdir -p {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs; install -o rsyslog /dev/null -m 640 /var/log/rsyslog-debug']
+
 boss__rsyslog__centralized__deployment_spec_template_containers_env: |-
   # - name: RSYSLOG_DEBUG_FLAG
   #   value: "-d"
@@ -2424,17 +2434,17 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumeMounts: |
   # log file store (if used)
   - name: log
     mountPath: {{boss__rsyslog__centralized__path_to_logs_inside_container}}
+    readOnly: false
 
   - name: spool
     mountPath: {{boss__rsyslog__centralized__path_to_spool_inside_container}}
     readOnly: false
+
   # configuration files, can be mounted read-only once finalized
   - name: container-config
     mountPath: {{boss__rsyslog__centralized__path_to_config_inside_container}}
     readOnly: false
-  # # The volume where Rsyslog stores persistent data (position databases for tracking ingested files)
-  # - name: fluent-data
-  #   mountPath: /var/rsyslog-centralized
+
   # The Rsyslog config file to use
   - name: rsyslog-centralized-config
     mountPath: {{boss__rsyslog__centralized__main_config_folder_prefix}}
@@ -2444,13 +2454,13 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumeMounts: |
     mountPath: {{boss__rsyslog__centralized__main_config_folder_prefix}}/rsyslog.d
     readOnly: false
 
-  - name: logrotate
-    mountPath: /etc/logrotate.d
-    readOnly: false
+  # - name: logrotate
+  #   mountPath: /logrotate.d
+  #   readOnly: false
 
-  - name: localtime
-    mountPath: /etc/localtime
-    readOnly: true
+  # - name: localtime
+  #   mountPath: /etc/localtime
+  #   readOnly: true
 
   # - name: {{boss__rsyslog__centralized__shared_name}}-pvc
   #   mountPath: {{boss__rsyslog__centralized__path_to_logs_inside_container}}
@@ -2487,15 +2497,15 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumes: |
       name: {{boss__rsyslog__centralized__shared_name}}-config-dot-d{{boss__rsyslog__centralized__configmap_suffix}}
       # defaultMode: 0775
 
-  - name: localtime
-    hostPath:
-      path: /etc/localtime
-      type: "FileOrCreate"
+  # - name: localtime
+  #   hostPath:
+  #     path: /etc/localtime
+  #     type: "FileOrCreate"
 
-  - name: logrotate
-    configMap:
-      name: {{boss__rsyslog__centralized__shared_name}}-logrotate{{boss__rsyslog__centralized__configmap_suffix}}
-      # defaultMode: 0775
+  # - name: logrotate
+  #   configMap:
+  #     name: {{boss__rsyslog__centralized__shared_name}}-logrotate{{boss__rsyslog__centralized__configmap_suffix}}
+  #     # defaultMode: 0775
 
 
   # - name: {{boss__rsyslog__centralized__shared_name}}-pvc
@@ -2509,10 +2519,38 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumes: |
   #     name: {{boss__rsyslog__centralized__shared_name}}-crontab{{boss__rsyslog__centralized__configmap_suffix}}
   #     defaultMode: 0775
 
+boss__rsyslog__centralized__deployment_spec_template_spec_sidcar_container: |-
+  - name: logrotate
+    image: {{boss__rsyslog__centralized__logrotate_image_repo}}:{{boss__rsyslog__centralized__logrotate_image_tag}}
+    env:
+    - name: LOG_DIRECTORIES
+      value: "{{boss__rsyslog__centralized__path_to_logs_inside_container}}"
+    # - name: LOGROTATE_INTERVAL
+    #   value: "hourly"
+    - name: LOGROTATE_SIZE
+      value: "50M"
+    # - name: LOGROTATE_STATUSFILE
+    #   value: "50M"
+    - name: LOGROTATE_CRONSCHEDULE
+      value: "* * * * * *"
+    - name: LOGROTATE_POSTROTATE_COMMAND
+      value: "/bin/kill -HUP `ps aux | grep rsyslog.conf | cut -d " " -f1` 2> /dev/null || true"
+    - name: TZ
+      value: "UTC"
+    # v: Verbose
+    # d: Debug, Logrotate will be emulated but never executed!
+    # f: Force
+    - name: LOGROTATE_PARAMETERS
+      value: "v"
+    volumeMounts:
+    - name: logs
+      mountPath: {{boss__rsyslog__centralized__path_to_logs_inside_container}}
+
 boss__rsyslog__centralized__service_labels: |-
   k8s-app: {{boss__rsyslog__centralized__shared_name}}
   version: {{boss__rsyslog__centralized__rsyslog_version}}
   kubernetes.io/cluster-service: "true"
+
 
 boss__rsyslog__centralized__service_annotations: "disabled"
 
@@ -2616,7 +2654,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
     #
     # global(workDirectory=`echo $_RSYSLOG_SPOOL_PATH`)
     global(
-      workDirectory="/spool"
+      workDirectory="{{boss__rsyslog__centralized__path_to_spool_inside_container}}"
       preserveFQDN                        = "on"
       action.reportSuspension             = "on"
       action.reportSuspensionContinuation = "on"
@@ -2690,7 +2728,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
     # If you do not load inputs, nothing happens!
     # You may need to set the module load path if modules are not found.
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    module(load="impstats")
+    module(load="impstats" interval="600")
     module(load="imrelp")
     module(load="imptcp" MaxSessions="5000")
     # module(load="imptcp")
@@ -2725,7 +2763,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
 
 
     # DISABLED: # $template RemoteHost, "/srv/log/%HOSTNAME%/%$YEAR%/%$MONTH%/syslog-%$DAY%.log"
-    # DISABLED: # $template TmplMsg, "/log/client_logs/%HOSTNAME%/%PROGRAMNAME%.log"
+    # DISABLED: # $template TmplMsg, "{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/%HOSTNAME%/%PROGRAMNAME%.log"
 
     #########################################################################
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -2792,7 +2830,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
         name = "REMOTE_MessagesFileTemplate"
         type = "list"
     ) {
-        constant(value = "/log/client_logs/")
+        constant(value = "{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/")
         property(name  = "fromhost")
         constant(value = "/messages")
     }
@@ -2800,7 +2838,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
         name = "REMOTE_SecureFileTemplate"
         type = "list"
     ) {
-        constant(value = "/log/client_logs/")
+        constant(value = "{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/")
         property(name  = "fromhost")
         constant(value = "/secure")
     }
@@ -2808,7 +2846,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
         name = "REMOTE_MailFileTemplate"
         type = "list"
     ) {
-        constant(value = "/log/client_logs/")
+        constant(value = "{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/")
         property(name  = "fromhost")
         constant(value = "/maillog")
     }
@@ -2816,7 +2854,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
         name = "REMOTE_CronFileTemplate"
         type = "list"
     ) {
-        constant(value = "/log/client_logs/")
+        constant(value = "{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/")
         property(name  = "fromhost")
         constant(value = "/cron")
     }
@@ -2824,7 +2862,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
         name = "REMOTE_SpoolerFileTemplate"
         type = "list"
     ) {
-        constant(value = "/log/client_logs/")
+        constant(value = "{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/")
         property(name  = "fromhost")
         constant(value = "/spooler")
     }
@@ -2832,7 +2870,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
         name = "REMOTE_BootFileTemplate"
         type = "list"
     ) {
-        constant(value = "/log/client_logs/")
+        constant(value = "{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/")
         property(name  = "fromhost")
         constant(value = "/boot.log")
     }
@@ -2840,7 +2878,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
         name = "REMOTE_SyslogFileTemplate"
         type = "list"
     ) {
-        constant(value = "/log/client_logs/")
+        constant(value = "{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/")
         property(name  = "fromhost")
         constant(value = "/rsyslogd.log")
     }
@@ -2848,7 +2886,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
         name = "REMOTE_UncategorizedFileTemplate"
         type = "list"
     ) {
-        constant(value = "/log/client_logs/")
+        constant(value = "{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/")
         property(name  = "fromhost")
         constant(value = "/uncategorized")
     }
@@ -2856,7 +2894,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
         name = "REMOTE_FacilitySeverityFileTemplate"
         type = "list"
     ) {
-        constant(value = "/log/client_logs/")
+        constant(value = "{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/")
         property(name  = "fromhost")
         constant(value = "/")
         property(name  = "syslogfacility-text")
@@ -3162,6 +3200,9 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
                 sync     = "on"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
+
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
             stop
         }
         if prifilt("syslog.*") then {
@@ -3171,6 +3212,9 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
                 dynaFile = "REMOTE_SyslogFileTemplate"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
+
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
             stop
         }
         if prifilt("authpriv.*") then {
@@ -3180,6 +3224,9 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
                 dynaFile = "REMOTE_SecureFileTemplate"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
+
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
             stop
         }
         if prifilt("mail.*") then {
@@ -3190,6 +3237,9 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
                 sync     = "on"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
+
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
             stop
         }
         if prifilt("cron.*") then {
@@ -3199,6 +3249,9 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
                 dynaFile = "REMOTE_CronFileTemplate"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
+
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
             stop
         }
         if prifilt("uucp,news.crit") then {
@@ -3208,6 +3261,9 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
                 dynaFile = "REMOTE_SpoolerFileTemplate"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
+
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
             stop
         }
         if prifilt("local7.*") then {
@@ -3217,6 +3273,9 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
                 dynaFile = "REMOTE_BootFileTemplate"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
+
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
             stop
         }
         if prifilt("*.*") then {
@@ -3226,6 +3285,9 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
                 dynaFile = "REMOTE_UncategorizedFileTemplate"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
+
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
             stop
         }
     }
@@ -3315,6 +3377,49 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
 
     # *.* action(type="omfile" File="/log/rsyslog_messages.log" template="dcloud-metrics")
     #
+
+# {{boss__rsyslog__centralized__path_to_logs_inside_container}}
+boss__rsyslog__centralized__container_config_config_map: |-
+  # rsyslog syslog appliance container configuration.
+  # This file will be sourced upon container startup.
+  # Uncomment those settings that you need and set them to your
+  # desired values.
+
+  tree {{boss__rsyslog__centralized__path_to_logs_inside_container}}
+
+  # general container app settings:
+  export TZ=UTC
+  #export CONTAINER_SILENT=on  # do not emit startup message
+  export ENABLE_STATISTICS=on
+
+  # Do we write log files?
+  # yes, we do (comment out to disable)
+  export ENABLE_LOGFILES=on
+  # Where do we write to?
+  # path for host-specific files is: {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/HOSTNAME
+  # export LOGFILES_STORE="{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/%hostname:::secpath-replace%/messages.log"
+  # you can of course overwrite this. For example, the below definition
+  # uses the program name instead of a fixed name "messages.log". That means
+  # for each host, a separate file for each program will be generated.
+  export LOGFILES_STORE="{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/%hostname:::secpath-replace%/%programname:::secpath-replace%.log"
+
+  # If you have an account with Logsene, enter your access
+  # information below:
+  #export LOGSENE_TOKEN=
+  #export LOGSENE_URL=logsene-receiver.eu.sematext.com
+
+  # export CNF_CALL_LOG_TO_STDOUT="off"
+
+  # Settings for debugging the container
+  #export USE_VALGRIND=on
+  # export RSYSLOG_DEBUG="debug nostdout"
+  # export RSYSLOG_DEBUG="debug DebugOnDemand LogFuncFlow FileTrace=imptcp.c FileTrace=impudp.c FileTrace=rsyslogd.c FileTrace=action.c"
+  # export RSYSLOG_DEBUGLOG="/log/rsyslog-internal-debug.log"
+
+  export _IMTCP_PORT=${_IMTCP_PORT}
+  export _IMUDP_PORT=${_IMUDP_PORT}
+  export _IMRELP_PORT=${_IMRELP_PORT}
+  export _RSYSLOG_SPOOL_PATH=${_RSYSLOG_SPOOL_PATH:-/var/spool/rsyslog}
 
 # ---
 # local_release_dir: /tmp/releases

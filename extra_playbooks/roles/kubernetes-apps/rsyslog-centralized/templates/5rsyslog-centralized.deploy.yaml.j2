@@ -95,6 +95,14 @@ spec:
 {{ boss__rsyslog__centralized__deployment_spec_template_containers_ports | indent( width=8, indentfirst=True,blank=True) }}
 {% endif %}
 
+{% if boss__rsyslog__centralized__deployment_spec_template_spec_sidcar_container is defined %}
+{% if boss__rsyslog__centralized__deployment_spec_template_spec_sidcar_container == "disabled" %}
+      # sidecar disabled
+{% else %}
+{{ boss__rsyslog__centralized__deployment_spec_template_spec_sidcar_container | indent( width=6, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+
 {% if boss__rsyslog__centralized__deployment_spec_template_spec_volumes is defined %}
 {% if boss__rsyslog__centralized__deployment_spec_template_spec_volumes == "disabled" %}
       # volumes:
