@@ -2525,14 +2525,14 @@ boss__rsyslog__centralized__deployment_spec_template_spec_sidcar_container: |-
     env:
     - name: LOG_DIRECTORIES
       value: "{{boss__rsyslog__centralized__path_to_logs_inside_container}}"
-    # - name: LOGROTATE_INTERVAL
-    #   value: "hourly"
+    - name: LOGROTATE_INTERVAL
+      value: "hourly"
     - name: LOGROTATE_SIZE
       value: "50M"
     # - name: LOGROTATE_STATUSFILE
     #   value: "50M"
-    - name: LOGROTATE_CRONSCHEDULE
-      value: "* * * * * *"
+    # - name: LOGROTATE_CRONSCHEDULE
+    #   value: "* * * * * *"
     - name: LOGROTATE_POSTROTATE_COMMAND
       value: "/bin/kill -HUP `ps aux | grep rsyslog.conf | cut -d ' ' -f1` 2> /dev/null || true"
     - name: TZ
