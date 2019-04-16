@@ -2543,7 +2543,7 @@ boss__rsyslog__centralized__deployment_spec_template_spec_sidcar_container: |-
     - name: LOGROTATE_PARAMETERS
       value: "v"
     volumeMounts:
-    - name: logs
+    - name: log
       mountPath: {{boss__rsyslog__centralized__path_to_logs_inside_container}}
 
 boss__rsyslog__centralized__service_labels: |-
