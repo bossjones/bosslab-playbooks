@@ -2240,6 +2240,18 @@ boss__rsyslog__centralized__rsyslog_pv_spec_nfs: |-
     path: "/mnt/publicdata/rsyslog"
 ################# Persistent volume claims - end #########################
 
+# SOURCE: https://github.com/vghn/docker_images/tree/a4198c398d32323724b905a7a53797ad0633210f/rs
+# TODO: TRY THIS ! # Create a new self-signed CA certificate.
+# TODO: TRY THIS ! # openssl genrsa -out ca-key.pem 2048
+# TODO: TRY THIS ! # openssl req -new -x509 -sha256 -nodes -days 3600 -subj '/C=US/ST=LA/L=New Orleans/O=VladGh/CN=VladGh CA Root/emailAddress=admin@vladgh.com' -key ca-key.pem -out ca-cert.pem
+
+# TODO: TRY THIS ! # Create the request and sign it with our CA certificate
+# TODO: TRY THIS ! # openssl req -newkey rsa:2048 -sha256 -days 3600 -nodes -subj '/C=US/ST=LA/L=New Orleans/O=VladGh/CN=logs.ghn.me/emailAddress=admin@vladgh.com' -keyout server-key.pem -out server-req.pem
+# TODO: TRY THIS ! # openssl x509 -req -in server-req.pem -days 3600 -CA ca-cert.pem -CAkey ca-key.pem -CAcreateserial -out server-cert.pem
+
+# TODO: TRY THIS ! # Certificate info
+# TODO: TRY THIS ! # openssl x509 -text -in ca-cert.pem
+# TODO: TRY THIS ! # openssl x509 -text -in server-cert.pem
 
 # NOTE: Test using this!
 # NOTE: Test using this!
@@ -2731,6 +2743,8 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
     module(load="impstats" interval="600")
     module(load="imrelp")
     module(load="imptcp" MaxSessions="5000")
+    # module(load="imtcp" NotifyOnConnectionClose="on" MaxListeners="128" MaxSessions="65536" KeepAlive="on" KeepAlive.Probes="5" KeepAlive.Interval="120" KeepAlive.Time="300")
+
     # module(load="imptcp")
     module(load="imudp" TimeRequery="500")
     module(load="omstdout")
