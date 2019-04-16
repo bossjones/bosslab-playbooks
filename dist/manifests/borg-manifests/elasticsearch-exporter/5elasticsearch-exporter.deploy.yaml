@@ -24,10 +24,10 @@ spec:
         prometheus.io/port: "9114"
         
     spec:
-      serviceAccountName: p8s-elastic-exporter-read
+      serviceAccountName: p8s-elastic-exporter
       containers:
       - name: p8s-elastic-exporter
-        image: fjustwatch/elasticsearch_exporter:1.0.1
+        image: justwatch/elasticsearch_exporter:1.0.1
         # command:
         command:
         - /bin/elasticsearch_exporter

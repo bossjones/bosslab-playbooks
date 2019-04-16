@@ -2018,7 +2018,7 @@ boss__elasticsearch__exporter__subdomain: elasticsearch-exporter
 boss__elasticsearch__exporter__manifest_path: "{{manifest_dir_path}}/elasticsearch-exporter"
 boss__elasticsearch__exporter__namespace_name: kube-system
 boss__elasticsearch__exporter__fluent_bit_version: 1.0.1
-boss__elasticsearch__exporter__fluent_bit_image_repo: "fjustwatch/elasticsearch_exporter"
+boss__elasticsearch__exporter__fluent_bit_image_repo: "justwatch/elasticsearch_exporter"
 boss__elasticsearch__exporter__fluent_bit_image_tag: "{{ boss__elasticsearch__exporter__fluent_bit_version }}"
 boss__elasticsearch__exporter__shared_name: p8s-elastic-exporter
 boss__elasticsearch__exporter__configmap_suffix: "-0-3-0"
@@ -2034,7 +2034,7 @@ boss__elasticsearch__exporter__deployment_spec_template_containers_resources: |
     cpu: "0.05"
     memory: "64Mi"
 
-boss__elasticsearch__exporter__serviceAccountName: "{{boss__elasticsearch__exporter__shared_name}}-read"
+boss__elasticsearch__exporter__serviceAccountName: "{{boss__elasticsearch__exporter__shared_name}}"
 boss__elasticsearch__exporter__deployment_spec_replicas: 1
 boss__elasticsearch__exporter__deployment_spec_strategy: |-
   rollingUpdate:
