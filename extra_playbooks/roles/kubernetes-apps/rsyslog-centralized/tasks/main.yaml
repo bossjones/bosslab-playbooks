@@ -11,11 +11,11 @@
     dest: "{{ boss__rsyslog__centralized__manifest_path }}/{{ item }}"
   with_items:
     - "0rsyslog-centralized.namespace.yaml"
+    - "0rsyslog-centralized.pvc.yaml"
     - "1rsyslog-centralized-service-account.yaml"
     - "2rsyslog-centralized-role.yaml"
     - "3rsyslog-centralized-role-binding.yaml"
     - "4rsyslog-centralized-configmap{{boss__rsyslog__centralized__configmap_suffix}}.yaml"
-    # - "4rsyslog-centralized-configmap.yaml"
     - "5rsyslog-centralized.deploy.yaml"
     - "6rsyslog-centralized.svc.yaml"
     - "7rsyslog-centralized.ingress.yaml"

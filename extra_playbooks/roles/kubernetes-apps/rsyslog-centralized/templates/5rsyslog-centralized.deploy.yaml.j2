@@ -1,4 +1,5 @@
 # {{ansible_managed}}
+# apiVersion: apps/v1
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -38,6 +39,14 @@ spec:
 {% endif %}
     spec:
       serviceAccountName: {{boss__rsyslog__centralized__serviceAccountName}}
+{% if boss__rsyslog__centralized__deployment_spec_template_initContainers is defined %}
+{% if boss__rsyslog__centralized__deployment_spec_template_initContainers == "disabled" %}
+      # initContainers:
+{% else %}
+      initContainers:
+{{ boss__rsyslog__centralized__deployment_spec_template_initContainers | indent( width=6, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
       containers:
       - name: {{boss__rsyslog__centralized__shared_name}}
         image: {{ boss__rsyslog__centralized__rsyslog_image_repo }}:{{ boss__rsyslog__centralized__rsyslog_image_tag }}
@@ -71,9 +80,35 @@ spec:
 {% endif %}
 {% endif %}
 
+{% if boss__rsyslog__centralized__deployment_spec_template_spec_securityContext is defined %}
+{% if boss__rsyslog__centralized__deployment_spec_template_spec_securityContext == "disabled" %}
+        # securityContext:
+{% else %}
+        securityContext:
+{{ boss__rsyslog__centralized__deployment_spec_template_spec_securityContext | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+
+{% if boss__rsyslog__centralized__deployment_spec_template_spec_containers_livenessProbe is defined %}
+{% if boss__rsyslog__centralized__deployment_spec_template_spec_containers_livenessProbe == "disabled" %}
+        # livenessProbe:
+{% else %}
+        livenessProbe:
+{{ boss__rsyslog__centralized__deployment_spec_template_spec_containers_livenessProbe | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+
 {% if boss__rsyslog__centralized__deployment_spec_template_containers_ports is defined %}
         ports:
 {{ boss__rsyslog__centralized__deployment_spec_template_containers_ports | indent( width=8, indentfirst=True,blank=True) }}
+{% endif %}
+
+{% if boss__rsyslog__centralized__deployment_spec_template_spec_sidcar_container is defined %}
+{% if boss__rsyslog__centralized__deployment_spec_template_spec_sidcar_container == "disabled" %}
+      # sidecar disabled
+{% else %}
+{{ boss__rsyslog__centralized__deployment_spec_template_spec_sidcar_container | indent( width=6, indentfirst=True,blank=True) }}
+{% endif %}
 {% endif %}
 
 {% if boss__rsyslog__centralized__deployment_spec_template_spec_volumes is defined %}
@@ -110,11 +145,10 @@ spec:
 {% endif %}
 {% endif %}
 
-{% if boss__rsyslog__centralized__deployment_spec_template_spec_securityContext is defined %}
-{% if boss__rsyslog__centralized__deployment_spec_template_spec_securityContext == "disabled" %}
-      # securityContext:
-{% else %}
-      securityContext:
-{{ boss__rsyslog__centralized__deployment_spec_template_spec_securityContext | indent( width=8, indentfirst=True,blank=True) }}
-{% endif %}
-{% endif %}
+
+# SOURCE: https://github.com/alonana/kubernetes/blob/b98cd3e7cf413f2eb9eb0124b9e02099655dd224/envoy-logrotate/k8s/deployment.yaml
+#       - name: logrotate
+#         image: AK8S_DOCKER_REPOSITORY/logrotate:1.0.0
+#         volumeMounts:
+#           - name: logs-volume
+#             mountPath: /logs

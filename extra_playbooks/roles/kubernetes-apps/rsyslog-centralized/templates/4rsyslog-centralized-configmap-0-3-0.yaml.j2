@@ -8,168 +8,9 @@ metadata:
     k8s-app: {{boss__rsyslog__centralized__shared_name}}
 data:
   rsyslog.conf: |-
-    # SOURCE: https://github.com/rsyslog/rsyslog-docker/blob/master/appliance/alpine/rsyslog.conf
-    global(processInternalMessages="on")
-
-    # SOURCE: https://itnext.io/metrics-from-kubernetes-logs-82cb1dcb3551
-    global(parser.permitSlashInProgramName="on")
-    # default location for work (spool) files
-    # Raise limits within /etc/systemd/journald.conf on the host(s) - ie., RateLimitIntervalSec=30s + RateLimitBurst=1000000
-    # global(workDirectory="/var/spool/rsyslog")
-    global(workDirectory=`echo $_RSYSLOG_SPOOL_PATH`)
-
-
-    # FIXME: Enable this 4/10/2019
-    # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
-    # ***********************************************************************
-    # Setup Performance tuning
-    # ***********************************************************************
-    main_queue(
-      queue.size="1000000" # Size of Queue
-      queue.debatchsize="1000" # process messages in batches
-      queue.workerthreads="2" # 2 threads for the queue
-    )
-
-    # module(load="imjournal" ignorepreviousmessages="on" ratelimit.interval="60" ratelimit.burst="2000000" persiststateinterval="10000" statefile="/var/spool/rsyslog/imjournal.state")
-
-    #module(load="imtcp" StreamDriver.AuthMode="anon" StreamDriver.Mode="1")
-
-
-    # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
-    # ***********************************************************************
-    # Setup modules
-    # ***********************************************************************
-    module(load="impstats") # config.enabled=`echo $ENABLE_STATISTICS`)
-    module(load="imrelp")
-    module(load="imptcp" MaxSessions="5000")
-    module(load="imudp" TimeRequery="500")
-    module(load="omstdout")
-    module(load="omelasticsearch")
-    module(load="mmjsonparse")
-    module(load="mmutf8fix")
-
-    # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
-    # ***********************************************************************
-    # Setup listeners
-    # ***********************************************************************
-    input(type="imptcp" Address="0.0.0.0" port=`echo $_IMTCP_PORT`)
-    input(type="imudp" Address="0.0.0.0" RateLimit.Interval="0" port=`echo $_IMUDP_PORT`)
-    input(type="imrelp" Address="0.0.0.0" port=`echo $_IMRELP_PORT`)
-
-    # *********************************************************************************************************
-    # SOURCE: https://github.com/rsyslog/rsyslog/issues/2040
-    # *********************************************************************************************************
-    # cat /etc/rsyslog.d/udp-nonlocaladdr-bug.conf
-    # module(load="imudp")
-
-    # input(type="imudp" address="127.0.0.1" port="514" RateLimit.Interval="0" ruleset="logtest")
-
-    # input(type="imudp" address="192.168.99.99" port="514" RateLimit.Interval="0" ruleset="logtest")
-
-    # ruleset(name="logtest") {
-    #     action(type="omfile" file="/tmp/logtest")
-    # }
-    # *********************************************************************************************************
-
-    # FIXME: Enable this 4/10/2019
-    # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
-    # ***********************************************************************
-    # Setup filters
-    # ***********************************************************************
-    # SOURCE: https://itnext.io/metrics-from-kubernetes-logs-82cb1dcb3551
-    # ***************************************************************************************
-    # set $!custom_hostname = exec_template("hostname");
-    # # When empty it's because message does not come from journald but directly from rsyslogd
-    # if $!custom_hostname == "" then {
-    #   set $!custom_hostname = "FROM-RSYSLOGD";
-    # }
-    # ***************************************************************************************
-
-    # # FIXME: Enable this 4/10/2019
-    # # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
-    # # ***********************************************************************
-    # # Setup templates
-    # # ***********************************************************************
-    # template(name="d_catch_all" type="string" string="/var/log/remote_syslog/catch_all/%FROMHOST%/%$YEAR%-%$MONTH%-%$DAY%.log")
-    # template(name="d_firewall_log" type="string" string="/var/log/remote_syslog/firewall/%FROMHOST%/%$YEAR%-%$MONTH%-%$DAY%.log")
-
-    # # FIXME: Enable this 4/10/2019
-    # # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
-    # # ***********************************************************************
-    # # Setup output
-    # # ***********************************************************************
-    # ruleset(name="f_remote_all" queue.type="LinkedList" queue.size="100000") {
-    # if ($fromhost-ip startswith '192.168.100.') then {
-    #  action(type="omfile" DynaFile="d_firewall_log")
-    #  stop
-    # }
-    #   # Lets setup the catch all logging
-    #   action(type="omfile" DynaFile="d_catch_all")
-    # }
-    # ruleset(name="f_remote_all") {
-    #  action(type="omfile" DynaFile="d_catch_all")
-    # }
-    # ruleset(name="f_firewall") {
-    #  action(type="omfile" DynaFile="d_firewall_log")
-    # }
-
-    # includes done explicitely
-    # include(file="{{boss__rsyslog__centralized__main_config_folder_prefix}}/rsyslog.conf.d/log_to_logsene.conf" config.enabled=`echo $ENABLE_LOGSENE`)
-    # include(file="{{boss__rsyslog__centralized__main_config_folder_prefix}}/rsyslog.conf.d/log_to_files.conf" config.enabled=`echo $ENABLE_LOGFILES`)
-    # include(file="{{boss__rsyslog__centralized__main_config_folder_prefix}}/rsyslog.conf.d/log_to_stdout.conf" config.enabled=`echo $ENABLE_STDOUT`)
-
-    #################### default ruleset begins ####################
-
-    # we emit our own messages to docker console:
-    # syslog.* :omstdout:
-    *.* :omstdout:
-    # action(type="omstdout")
-
-    include(file="/config/droprules.conf" mode="optional")  # this permits the user to easily drop unwanted messages
-
-    action(name="main_utf8fix" type="mmutf8fix" replacementChar="?")
-
-    # include(text=`echo $CNF_CALL_LOG_TO_LOGFILES`)
-    # include(text=`echo $CNF_CALL_LOG_TO_LOGSENE`)
-    include(text=`echo $CNF_CALL_LOG_TO_STDOUT`)
-    include(text=`echo $_IMTCP_PORT`)
-    include(text=`echo $_IMUDP_PORT`)
-    include(text=`echo $_IMRELP_PORT`)
-
-    # SOURCE: https://itnext.io/metrics-from-kubernetes-logs-82cb1dcb3551
-    # ***************************************************************************************
-    # Compose RFC5424 message
-    # template(name="rfc5424" type="list") {
-    #   constant(value="<")
-    #   property(name="PRI")
-    #   constant(value=">1 ")
-    #   property(name="TIMESTAMP" dateFormat="rfc3339" date.inUTC="on")
-    #   constant(value=" ")
-    #   property(name="!custom_hostname" position.from="1" position.to="255" caseConversion="lower")
-    #   constant(value=" ")
-    #   property(name="!custom_appname" position.from="1" position.to="48" caseConversion="lower")
-    #   constant(value=" ")
-    #   property(name="PROCID" position.from="1" position.to="128")
-    #   constant(value=" ")
-    #   property(name="MSGID" position.from="1" position.to="32")
-    #   constant(value=" ")
-    #   property(name="!custom_sddata")
-    #   constant(value=" ")
-    #   property(name="msg" droplastlf="on")
-    #   constant(value="\n")
-    # }
-    # action(type="mmutf8fix")
-    # action(type="omfwd"
-    #   target="127.0.0.1"
-    #   port="6514"
-    #   protocol="tcp"
-    #   tcp_framing="octet-counted"
-    #   template="rfc5424"
-    #   queue.type="LinkedList"
-    #   queue.size="5000000"
-    #   queue.filename="forwarding"
-    #   queue.maxdiskspace="1g")
-    # ***************************************************************************************
+{% if boss__rsyslog__centralized__rsyslog_conf_config_map is defined %}
+{{ boss__rsyslog__centralized__rsyslog_conf_config_map | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 
 ---
 
@@ -183,11 +24,11 @@ metadata:
 data:
   log_to_files.conf: |-
 
-    # logging to files in /logs
+    # logging to files in {{boss__rsyslog__centralized__path_to_logs_inside_container}}
 
     template(name="log_to_files_dynafile" type="string" string=`echo $LOGFILES_STORE`)
     ruleset(name="log_to_files") {
-      /logs/debug;RSYSLOG_DebugFormat
+      {{boss__rsyslog__centralized__path_to_logs_inside_container}}/debug;RSYSLOG_DebugFormat
       action(type="omfile" dynafile="log_to_files_dynafile" name="log_to_logfiles")
     }
 
@@ -223,7 +64,7 @@ data:
     ruleset(name="log_to_logsene"
       queue.type="LinkedList" queue.dequeueBatchSize="2000"
       queue.size="100000"  # do not use a too-high values, else we get trouble with 10s shutdown period!
-      queue.spoolDirectory="/work"
+      queue.spoolDirectory="{{boss__rsyslog__centralized__path_to_work_inside_container}}"
       queue.filename="q_log_to_logsene" queue.maxfilesize="100m" queue.maxdiskspace="2g"
       queue.saveonshutdown="on"
       ) {
@@ -272,39 +113,97 @@ metadata:
     k8s-app: {{boss__rsyslog__centralized__shared_name}}
 data:
   container_config: |-
-    # rsyslog syslog appliance container configuration.
-    # This file will be sourced upon container startup.
-    # Uncomment those settings that you need and set them to your
-    # desired values.
+{% if boss__rsyslog__centralized__container_config_config_map is defined %}
+{{ boss__rsyslog__centralized__container_config_config_map | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 
-    # general container app settings:
-    export TZ=UTC
-    #export CONTAINER_SILENT=on  # do not emit startup message
-    export ENABLE_STATISTICS=on
 
-    # Do we write log files?
-    # export ENABLE_LOGFILES=on # yes, we do (comment out to disable)
-    # Where do we write to?
-    # path for host-specific files is: /logs/hosts/HOSTNAME
-    export LOGFILES_STORE="/logs/hosts/%hostname:::secpath-replace%/messages.log"
-    # you can of course overwrite this. For example, the below definition
-    # uses the program name instead of a fixed name "messages.log". That means
-    # for each host, a separate file for each program will be generated.
-    #export LOGFILES_STORE="/logs/hosts/%hostname:::secpath-replace%/%programname:::secpath-replace%.log"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{boss__rsyslog__centralized__shared_name}}-logrotate-0-3-0
+  namespace: {{boss__rsyslog__centralized__namespace_name}}
+  labels:
+    k8s-app: {{boss__rsyslog__centralized__shared_name}}
+data:
+  syslog: |-
+    # This file created from k8s configmap
+    # the mail log files are used by all syslog daemons
+    # the news log files are used by all syslog daemons
+    {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/warn {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/allmessages {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/localmessages
+    {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/mail {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/mail.info {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/mail.warn {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/mail.err
+    {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/news/news.crit {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/news/news.err {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/news/news.notice
+    {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/cron {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/secure
+    {
+        compress
+        dateext
+        maxage 365
+        rotate 45
+        missingok
+        notifempty
+        size +4096k
+        create 640 root root
+        sharedscripts
+        postrotate
+            /bin/kill -HUP `ps aux | grep rsyslog.conf | cut -d " " -f1` 2> /dev/null || true
+        endscript
+    }
 
-    # If you have an account with Logsene, enter your access
-    # information below:
-    #export LOGSENE_TOKEN=
-    #export LOGSENE_URL=logsene-receiver.eu.sematext.com
+    # SOURCE: https://github.com/dcv-cloud/dcv-kubernetes/blob/50221c0fb3ee7b2f799930b336662ab1d896f871/kubeManifests/infra-repo-197/datafeed/addConfigMapDatafeed.yaml
+    {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/messages
+    {
+        hourly
+        rotate 5
+        create
+        dateext
+        sharedscripts
+        postrotate
+            /bin/kill -HUP `ps aux | grep rsyslog.conf | cut -d " " -f1` 2> /dev/null || true
+        endscript
+    }
 
-    # export CNF_CALL_LOG_TO_STDOUT="off"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{boss__rsyslog__centralized__shared_name}}-crontab-0-3-0
+  namespace: {{boss__rsyslog__centralized__namespace_name}}
+  labels:
+    k8s-app: {{boss__rsyslog__centralized__shared_name}}
+data:
+  crontab: |-
+    SHELL=/bin/bash
+    PATH=/sbin:/bin:/usr/sbin:/usr/bin
+    MAILTO=root
+    # For details see man 4 crontabs
+    # Example of job definition:
+    # .---------------- minute (0 - 59)
+    # |  .------------- hour (0 - 23)
+    # |  |  .---------- day of month (1 - 31)
+    # |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ...
+    # |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
+    # |  |  |  |  |
+    # *  *  *  *  * user-name  command to be executed
+    0 0 * * * root /usr/sbin/logrotate -s /var/lib/logrotate/logrotate.status /etc/logrotate.conf
 
-    # Settings for debugging the container
-    #export USE_VALGRIND=on
-    #export RSYSLOG_DEBUG="debug nostdout"
-    #export RSYSLOG_DEBUGLOG="/logs/rsyslog-internal-debug.log"
-
-    export _IMTCP_PORT=${_IMTCP_PORT}
-    export _IMUDP_PORT=${_IMUDP_PORT}
-    export _IMRELP_PORT=${_IMRELP_PORT}
-    export _RSYSLOG_SPOOL_PATH=${_RSYSLOG_SPOOL_PATH:-/var/spool/rsyslog}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{boss__rsyslog__centralized__shared_name}}-grok-pattern-0-3-0
+  namespace: {{boss__rsyslog__centralized__namespace_name}}
+  labels:
+    k8s-app: {{boss__rsyslog__centralized__shared_name}}
+data:
+  pattern.yml: |-
+    # SOURCE: https://github.com/effertzdv/elasticstack/blob/92c6332265f1d83dfc282b30d415bcd4f8917846/logstash/pipeline/logstash.conf
+    # SOURCE: https://github.com/effertzdv/elasticstack/blob/92c6332265f1d83dfc282b30d415bcd4f8917846/logstash/patterns/pattern.yml
+    MAC (?:%{CISCOMAC}|%{WINDOWSMAC}|%{COMMONMAC})
+    CISCOMAC (?:(?:[A-Fa-f0-9]{4}\.){2}[A-Fa-f0-9]{4})
+    WINDOWSMAC (?:(?:[A-Fa-f0-9]{2}-){5}[A-Fa-f0-9]{2})
+    COMMONMAC (?:(?:[A-Fa-f0-9]{2}:){5}[A-Fa-f0-9]{2})
+    UNIFI_FW [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+
+    UNIFI_DEV_TYPE \s?(\("%{WORD:unifi_type},%{WORD:unifi_ap_mac},v%{UNIFI_FW:unifi_firmware}"\))?
+    UNIFI_EVENT_TYPE (IEEE 802\.11|WPA|WEP)
+    UNIFI_CUSTOM_EVENT (wevent.ubnt_custom_event\(\): %{WORD:CUSTOM_UNFI_EVENT} %{WORD:unifi_interface}: %{MAC:unifi_sta_mac} \/ %{GREEDYDATA:CUSTOM_UNIFI_EVENT_DATA})

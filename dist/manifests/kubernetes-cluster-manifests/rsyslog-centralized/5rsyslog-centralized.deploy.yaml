@@ -1,4 +1,5 @@
 # Ansible managed | /Users/malcolm/dev/bossjones/bossjones-playbook-suite/bosslab-playbooks/extra_playbooks/roles/kubernetes-apps/rsyslog-centralized/templates/5rsyslog-centralized.deploy.yaml.j2
+# apiVersion: apps/v1
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -6,7 +7,7 @@ metadata:
   namespace: kube-system
   labels:
     k8s-app: rsyslog-centralized
-    version: latest
+    version: 0.2.0
     kubernetes.io/cluster-service: "true"
 spec:
   replicas: 3
@@ -17,19 +18,26 @@ spec:
     metadata:
       labels:
         k8s-app: rsyslog-centralized
-        version: latest
+        version: 0.2.0
         kubernetes.io/cluster-service: "true"
 
       # annotations:
     spec:
       serviceAccountName: rsyslog-centralized
+      initContainers:
+      - name: init-rsyslog
+        image: bossjones/rsyslog:0.2.0
+        command: [ "/bin/sh" ]
+        args: ['-c', 'mkdir -p /var/spool/rsyslog; mkdir -p /log/client_logs; install -o rsyslog /dev/null -m 640 /var/log/rsyslog-debug']
       containers:
       - name: rsyslog-centralized
-        image: bossjones/rsyslog:latest
+        image: bossjones/rsyslog:0.2.0
         imagePullPolicy: Always
         # command:
 
         env:
+        # - name: RSYSLOG_DEBUG_FLAG
+        #   value: "-d"
         - name: _IMTCP_PORT
           value: "6170"
         - name: _IMUDP_PORT
@@ -39,7 +47,9 @@ spec:
         - name: RSYSLOG_CONF
           value: "/rsyslog-centralized/etc/rsyslog.conf"
         - name: _RSYSLOG_SPOOL_PATH
-          value: "/spool/rsyslog"
+          value: "/spool"
+        - name: TZ
+          value: "UTC"
         
         - name: NODE_IP
           valueFrom:
@@ -74,26 +84,44 @@ spec:
         # rsyslog work files; do not share with multiple instances
         - name: work
           mountPath: /work
+          readOnly: false
         # log file store (if used)
         - name: log
           mountPath: /log
+          readOnly: false
+        
         - name: spool
-          mountPath: /spool/rsyslog
+          mountPath: /spool
+          readOnly: false
+        
         # configuration files, can be mounted read-only once finalized
         - name: container-config
           mountPath: /config
-        # # The volume where Rsyslog stores persistent data (position databases for tracking ingested files)
-        # - name: fluent-data
-        #   mountPath: /var/rsyslog-centralized
+          readOnly: false
+        
         # The Rsyslog config file to use
         - name: rsyslog-centralized-config
           mountPath: /rsyslog-centralized/etc
+          readOnly: false
+        
         - name: rsyslog-centralized-config-dot-d
           mountPath: /rsyslog-centralized/etc/rsyslog.d
+          readOnly: false
         
-        - name: localtime
-          mountPath: /etc/localtime
-          readOnly: true
+        # - name: logrotate
+        #   mountPath: /logrotate.d
+        #   readOnly: false
+        
+        # - name: localtime
+        #   mountPath: /etc/localtime
+        #   readOnly: true
+        
+        # - name: rsyslog-centralized-pvc
+        #   mountPath: /log
+        #   readOnly: false
+        
+        # - mountPath: /etc/crontab
+        #   name: datafeed-config
         
 
         resources:
@@ -104,6 +132,16 @@ spec:
             cpu: "0.05"
             memory: "10Mi"
           
+
+        securityContext:
+          # SOURCE: https://docs.okd.io/latest/rest_api/apis-apps/v1beta2.Deployment.html
+          privileged: true
+
+        livenessProbe:
+          tcpSocket:
+            port: 6170
+          initialDelaySeconds: 60
+          timeoutSeconds: 10
 
         ports:
         - containerPort: 6160
@@ -117,6 +155,32 @@ spec:
           name: in-relp
           protocol: TCP
 
+      - name: logrotate
+        image: blacklabelops/logrotate:1.3
+        env:
+        - name: LOG_DIRECTORIES
+          value: "/log"
+        - name: LOGROTATE_INTERVAL
+          value: "hourly"
+        - name: LOGROTATE_SIZE
+          value: "50M"
+        # - name: LOGROTATE_STATUSFILE
+        #   value: "50M"
+        # - name: LOGROTATE_CRONSCHEDULE
+        #   value: "* * * * * *"
+        - name: LOGROTATE_POSTROTATE_COMMAND
+          value: "/bin/kill -HUP `ps aux | grep rsyslog.conf | cut -d ' ' -f1` 2> /dev/null || true"
+        - name: TZ
+          value: "UTC"
+        # v: Verbose
+        # d: Debug, Logrotate will be emulated but never executed!
+        # f: Force
+        # - name: LOGROTATE_PARAMETERS
+        #   value: "v"
+        volumeMounts:
+        - name: log
+          mountPath: /log
+
       volumes:
       - name: work
         emptyDir: {}
@@ -124,21 +188,44 @@ spec:
         emptyDir: {}
       # log file store (if used)
       - name: log
-        emptyDir: {}
+        # emptyDir: {}
+        persistentVolumeClaim:
+          claimName: rsyslog-centralized-pvc
       - name: container-config
         configMap:
           name: rsyslog-centralized-container-config-0-3-0
+          # defaultMode: 0775
       - name: rsyslog-centralized-config
         configMap:
           name: rsyslog-centralized-config-0-3-0
+          # defaultMode: 0775
+      
       - name: rsyslog-centralized-config-dot-d
         configMap:
           name: rsyslog-centralized-config-dot-d-0-3-0
+          # defaultMode: 0775
       
-      - name: localtime
-        hostPath:
-          path: /etc/localtime
-          type: "FileOrCreate"
+      # - name: localtime
+      #   hostPath:
+      #     path: /etc/localtime
+      #     type: "FileOrCreate"
+      
+      # - name: logrotate
+      #   configMap:
+      #     name: rsyslog-centralized-logrotate-0-3-0
+      #     # defaultMode: 0775
+      
+      
+      # - name: rsyslog-centralized-pvc
+      # - name: rsyslog-centralized-pvc
+      #   persistentVolumeClaim:
+      #     claimName: rsyslog-centralized-pvc
+      
+      
+      # - name: crontab
+      #   configMap:
+      #     name: rsyslog-centralized-crontab-0-3-0
+      #     defaultMode: 0775
       
 
       hostNetwork: True
@@ -148,4 +235,10 @@ spec:
       nodeSelector:
         beta.kubernetes.io/os: linux
 
-      # securityContext:
+
+# SOURCE: https://github.com/alonana/kubernetes/blob/b98cd3e7cf413f2eb9eb0124b9e02099655dd224/envoy-logrotate/k8s/deployment.yaml
+#       - name: logrotate
+#         image: AK8S_DOCKER_REPOSITORY/logrotate:1.0.0
+#         volumeMounts:
+#           - name: logs-volume
+#             mountPath: /logs

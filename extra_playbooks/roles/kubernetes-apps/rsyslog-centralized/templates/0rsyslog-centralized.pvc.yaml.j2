@@ -1,0 +1,37 @@
+# {{ansible_managed}}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{boss__rsyslog__centralized__shared_name}}-pvc
+  namespace: {{boss__rsyslog__centralized__namespace_name}}
+{% if boss__rsyslog__centralized__rsyslog_pvc_labels is defined %}
+  labels:
+{{ boss__rsyslog__centralized__rsyslog_pvc_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: "{{ boss__rsyslog__centralized__rsyslog_pvc_spec_storageClassName }}"
+  resources:
+    requests:
+      storage: "{{ boss__rsyslog__centralized__rsyslog_pvc_spec_resources_requests_storage }}"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{boss__rsyslog__centralized__shared_name}}-pv
+  namespace: {{boss__rsyslog__centralized__namespace_name}}
+{% if boss__rsyslog__centralized__rsyslog_pv_labels is defined %}
+  labels:
+{{ boss__rsyslog__centralized__rsyslog_pv_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+spec:
+  capacity:
+    storage: {{boss__rsyslog__centralized__rsyslog_pv_spec_capacity_storage}}
+  accessModes:
+    - ReadWriteMany
+{% if boss__rsyslog__centralized__rsyslog_pv_spec_nfs is defined %}
+  nfs:
+{{ boss__rsyslog__centralized__rsyslog_pv_spec_nfs | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}

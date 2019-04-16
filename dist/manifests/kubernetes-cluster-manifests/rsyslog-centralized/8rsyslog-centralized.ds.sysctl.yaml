@@ -1,0 +1,39 @@
+# # SOURCE: https://github.com/kubernetes/kubernetes/issues/70324
+# apiVersion: "extensions/v1beta1"
+# kind: "DaemonSet"
+# metadata:
+#   name: "rsyslog-centralized-sysctl"
+#   namespace: "kube-system"
+#   labels:
+#     k8s-app: rsyslog-centralized
+#     version: 0.2.0
+#     kubernetes.io/cluster-service: "true"
+# spec:
+#   template:
+#     metadata:
+#       labels:
+#         k8s-app: rsyslog-centralized
+#     spec:
+#       containers:
+#         - name: "rsyslog-centralized-sysctl"
+#           image: "busybox:latest"
+#           resources:
+#             limits:
+#               cpu: "10m"
+#               memory: "8Mi"
+#             requests:
+#               cpu: "10m"
+#               memory: "8Mi"
+#           securityContext:
+#             privileged: true
+#           # sudo sysctl fs.inotify.max_user_watches=524288
+#           command:
+#             - "/bin/sh"
+#             - "-c"
+#             - |
+#               set -o errexit
+#               set -o xtrace
+#               while sysctl -w fs.inotify.max_user_watches=16384
+#               do
+#                 sleep 60s
+#               done

@@ -71,5 +71,5 @@ exec 2>&1
 # A non-quoted string and add the comment to prevent shellcheck failures on this line.
 # See https://github.com/koalaman/shellcheck/wiki/SC2086
 # shellcheck disable=SC2086
-exec /usr/local/bin/fluentd $FLUENTD_ARGS
+exec /usr/local/bin/fluentd "${FLUENTD_ARGS}"
 # exec gosu root /usr/local/bin/fluentd "$@"

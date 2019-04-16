@@ -1,0 +1,7 @@
+#!/bin/bash
+
+for i in $(docker images | grep bossjones/fluentd-elasticsearch | awk '{print $2}'| xargs); do
+    docker rmi bossjones/fluentd-elasticsearch:${i}
+done
+
+docker volume prune -f

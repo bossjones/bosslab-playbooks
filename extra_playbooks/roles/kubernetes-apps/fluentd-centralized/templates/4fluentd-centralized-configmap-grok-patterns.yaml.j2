@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{boss__fluentd__centralized__shared_name}}-grok-patterns
+  namespace: {{boss__fluentd__centralized__namespace_name}}
+  labels:
+    k8s-app: {{boss__fluentd__centralized__shared_name}}
+data:
+  # SOURCE: https://tietze.io/b/2015/10/23/logstash-and-ubiquitis-unifi-wireless-system/
+  unifi: |-
+    UNIFI_FW [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+
+    UNIFI_DEV_TYPE \s?(\(%{WORD:unifi_type},%{WORD:unifi_ap_mac},v%{UNIFI_FW:unifi_firmware}\))?
+    UNIFI_EVENT_TYPE (IEEE 802\.11|
