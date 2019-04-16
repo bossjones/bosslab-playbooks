@@ -188,7 +188,9 @@ spec:
         emptyDir: {}
       # log file store (if used)
       - name: log
-        emptyDir: {}
+        # emptyDir: {}
+        persistentVolumeClaim:
+          claimName: rsyslog-centralized-pvc
       - name: container-config
         configMap:
           name: rsyslog-centralized-container-config-0-3-0

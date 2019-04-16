@@ -2494,7 +2494,9 @@ boss__rsyslog__centralized__deployment_spec_template_spec_volumes: |
     emptyDir: {}
   # log file store (if used)
   - name: log
-    emptyDir: {}
+    # emptyDir: {}
+    persistentVolumeClaim:
+      claimName: {{boss__rsyslog__centralized__shared_name}}-pvc
   - name: container-config
     configMap:
       name: {{boss__rsyslog__centralized__shared_name}}-container-config{{boss__rsyslog__centralized__configmap_suffix}}

@@ -1,0 +1,36 @@
+# Ansible managed | /Users/malcolm/dev/bossjones/bossjones-playbook-suite/bosslab-playbooks/extra_playbooks/roles/kubernetes-apps/rsyslog-centralized/templates/0rsyslog-centralized.pvc.yaml.j2
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: rsyslog-centralized-pvc
+  namespace: kube-system
+  labels:
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    k8s-app: rsyslog-centralized
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: "nfs-dynamic-class"
+  resources:
+    requests:
+      storage: "100Mi"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: rsyslog-centralized-pv
+  namespace: kube-system
+  labels:
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    k8s-app: rsyslog-centralized
+spec:
+  capacity:
+    storage: 100Mi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: 192.168.1.174
+    path: "/mnt/publicdata/rsyslog"
