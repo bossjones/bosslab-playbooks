@@ -26,8 +26,9 @@ spec:
       serviceAccountName: rsyslog-centralized
       initContainers:
       - name: init-rsyslog
-        image: alpine:3.7
-        command: ['sh', '-c', 'mkdir -p /var/spool/rsyslog']
+        image: bossjones/rsyslog:0.2.0
+        command: [ "/bin/sh" ]
+        args: ['-c', 'mkdir -p /var/spool/rsyslog; mkdir -p /log/client_logs; install -o rsyslog /dev/null -m 640 /var/log/rsyslog-debug']
       containers:
       - name: rsyslog-centralized
         image: bossjones/rsyslog:0.2.0

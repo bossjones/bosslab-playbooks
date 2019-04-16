@@ -11,6 +11,85 @@ data:
     # Quick overview of message flow and objects
     # msg sent -> input module -> ruleset(conditionally applied) -> rule match -> action (eg. write it to a file, database or forward it to remote host )
 
+    # ORDER OF OPS: https://github.com/lilgreenwein/rsyslog-examples/blob/a546ad2c62b478bf57b004b5b9c522251686e6cf/rsyslog.conf
+    # $IncludeConfig /etc/rsyslog/rsyslog.d/globals/*.conf
+    # $IncludeConfig /etc/rsyslog/rsyslog.d/modules/*.conf
+    # $IncludeConfig /etc/rsyslog/rsyslog.d/templates/*.conf
+    # $IncludeConfig /etc/rsyslog/rsyslog.d/inputs/*.conf
+    # $IncludeConfig /etc/rsyslog/rsyslog.d/rules/*.conf
+    # $IncludeConfig /etc/rsyslog/rsyslog.d/*.conf
+
+    ###########################
+    #### GLOBAL DIRECTIVES ####
+    ###########################
+    # SOURCE: https://github.com/rsyslog/rsyslog-docker/blob/master/appliance/alpine/rsyslog.conf
+    # SOURCE: https://github.com/rsyslog/rsyslog-pkg-alpine/blob/master/daily/rsyslog/rsyslog.conf
+
+    #
+    # Use traditional timestamp format.
+    # To enable high precision timestamps, comment out the following line.
+    #
+    $ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat
+    # Set default permissions for all log files
+    $FileOwner root
+    $FileGroup adm
+    $FileCreateMode 0640
+    $DirCreateMode 0755
+    $Umask 0022
+
+    # Reduce repeating messages (default off)
+    $RepeatedMsgReduction on
+
+    $CreateDirs on
+
+    # global(processInternalMessages="on")
+    # SOURCE: https://itnext.io/metrics-from-kubernetes-logs-82cb1dcb3551
+    global(parser.permitSlashInProgramName="on")
+    # default location for work (spool) files
+    # Raise limits within /etc/systemd/journald.conf on the host(s) - ie., RateLimitIntervalSec=30s + RateLimitBurst=1000000
+    # global(workDirectory="/var/spool/rsyslog")
+
+    #
+    # where to place spool files
+    #
+    # global(workDirectory=`echo $_RSYSLOG_SPOOL_PATH`)
+    global(
+      workDirectory="/spool"
+      preserveFQDN                        = "on"
+      action.reportSuspension             = "on"
+      action.reportSuspensionContinuation = "on"
+      senders.keepTrack                   = "on"
+      senders.timeoutAfter                = "86400"
+      senders.reportGoneAway              = "on"
+      senders.reportNew                   = "on"
+    )
+
+    # Options for rsyslogd
+    # -x disables DNS lookups for remote messages
+    # See rsyslogd(8) for more details
+
+    # LogFuncFlow - print out the logical flow of functions (entering and exiting them)
+
+    # FileTrace - specifies which files to trace LogFuncFlow. If not set (the default), a LogFuncFlow trace is provided for all files. Set to limit it to the files specified. FileTrace may be specified multiple times, one file each (e.g. export RSYSLOG_DEBUG="LogFuncFlow FileTrace=vm.c FileTrace=expr.c"
+
+    # PrintFuncDB - print the content of the debug function database whenever debug information is printed (e.g. abort case)!
+
+    # PrintAllDebugInfoOnExit - print all debug information immediately before rsyslogd exits (currently not implemented!)
+
+    # PrintMutexAction - print mutex action as it happens. Useful for finding deadlocks and such.
+
+    # NoLogTimeStamp - do not prefix log lines with a timestamp (default is to do that).
+
+    # NoStdOut - do not emit debug messages to stdout. If RSYSLOG_DEBUGLOG is not set, this means no messages will be displayed at all.
+
+    # Debug - if present, turns on the debug system and enables debug output
+
+    # DebugOnDemand - if present, turns on the debug system but does not enable debug output itself. You need to send SIGUSR1 to turn it on when desired.
+
+    # OutputTidToStderr - if present, makes rsyslog output information about the thread id (tid) of newly created processes to stderr. Note that not necessarily all new threads are reported (depends on the code, e.g. of plugins). This is only available under Linux. This usually does NOT work when privileges have been dropped (that's not a bug, but the way it is). help - display a very short list of commands - hopefully a life saver if you can't access the documentation…
+    # $DebugFile /tmp/rsyslogd.debug.log
+    # $DebugLevel 2
+
     # FIXME: Enable this 4/10/2019
     # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
     # ***********************************************************************
@@ -55,30 +134,196 @@ data:
     # module(load="imptcp")
     module(load="imudp" TimeRequery="500")
     module(load="omstdout")
-    module(load="builtin:omfile")
+    # module(load="builtin:omfile")
+    # Default parameters for file output. Old-style global settings are not working with new-style actions
+    module(load="builtin:omfile" FileOwner="root" FileGroup="adm" dirOwner="root" dirGroup="adm" FileCreateMode="0640" DirCreateMode="0755")
     module(load="omelasticsearch")
     module(load="mmjsonparse")
     module(load="mmutf8fix")
     # module(load="imuxsock")
     # module(load="imklog")
     # module(load="imfile" PollingInterval="10")
+    # module(
+    #     load = "mmfields"
+    # )
 
+
+    ###########################
+    #### TEMPLATES         ####
+    ###########################
+    # Templates(SOURCE: https://linux-help.org/wiki/logging/rsyslog/advanced-rsyslog)
+    # template(name="RemoteHost" type="string" string="/srv/log/%HOSTNAME%/%$YEAR%/%$MONTH%/syslog-%$DAY%.log")
+
+    # DISABLED: # $IncludeConfig /rsyslog-centralized/etc/rsyslog.conf.d/*.template
+
+    # includes done explicitely
+    # include(file="/rsyslog-centralized/etc/rsyslog.conf.d/log_to_logsene.conf" config.enabled=`echo $ENABLE_LOGSENE`)
+    # DISABLED: # include(file="/rsyslog-centralized/etc/rsyslog.conf.d/log_to_files.conf" config.enabled=`echo $ENABLE_LOGFILES`)
+    # include(file="/rsyslog-centralized/etc/rsyslog.conf.d/log_to_stdout.conf" config.enabled=`echo $ENABLE_STDOUT`)
+
+
+    # DISABLED: # $template RemoteHost, "/srv/log/%HOSTNAME%/%$YEAR%/%$MONTH%/syslog-%$DAY%.log"
+    # DISABLED: # $template TmplMsg, "/log/client_logs/%HOSTNAME%/%PROGRAMNAME%.log"
+
+    #########################################################################
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # SOURCE: https://github.com/lilgreenwein/rsyslog-examples/blob/a546ad2c62b478bf57b004b5b9c522251686e6cf/rsyslog.d/templates/01_local.conf
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    #########################################################################
+    template(
+        name   = "LOCAL_MessagesFileTemplate"
+        type   = "string"
+        string = "/var/log/messages"
+    )
+    template(
+        name   = "LOCAL_SecureFileTemplate"
+        type   = "string"
+        string = "/var/log/secure"
+    )
+    template(
+        name   = "LOCAL_MailFileTemplate"
+        type   = "string"
+        string = "/var/log/maillog"
+    )
+    template(
+        name   = "LOCAL_CronFileTemplate"
+        type   = "string"
+        string = "/var/log/cron"
+    )
+    template(
+        name   = "LOCAL_SpoolerFileTemplate"
+        type   = "string"
+        string = "/var/log/spooler"
+    )
+    template(
+        name   = "LOCAL_BootFileTemplate"
+        type   = "string"
+        string = "/var/log/boot.log"
+    )
+    template(
+        name   = "LOCAL_SyslogFileTemplate"
+        type   = "string"
+        string = "/var/log/rsyslogd.log"
+    )
+    template(
+        name   = "LOCAL_UncategorizedFileTemplate"
+        type   = "string"
+        string = "/var/log/uncategorized"
+    )
+    template(
+        name   = "LOCAL_FacilitySeverityFileTemplate"
+        type   = "list"
+    ) {
+        constant(value = "/var/log/")
+        property(name = "syslogfacility-text")
+        constant(value = ".")
+        property(name = "syslogseverity-text")
+        constant(value = ".log")
+    }
+
+    #########################################################################
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # SOURCE: https://github.com/lilgreenwein/rsyslog-examples/blob/a546ad2c62b478bf57b004b5b9c522251686e6cf/rsyslog.d/templates/02_remote.conf
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    #########################################################################
+    template(
+        name = "REMOTE_MessagesFileTemplate"
+        type = "list"
+    ) {
+        constant(value = "/log/client_logs/")
+        property(name  = "fromhost")
+        constant(value = "/messages")
+    }
+    template(
+        name = "REMOTE_SecureFileTemplate"
+        type = "list"
+    ) {
+        constant(value = "/log/client_logs/")
+        property(name  = "fromhost")
+        constant(value = "/secure")
+    }
+    template(
+        name = "REMOTE_MailFileTemplate"
+        type = "list"
+    ) {
+        constant(value = "/log/client_logs/")
+        property(name  = "fromhost")
+        constant(value = "/maillog")
+    }
+    template(
+        name = "REMOTE_CronFileTemplate"
+        type = "list"
+    ) {
+        constant(value = "/log/client_logs/")
+        property(name  = "fromhost")
+        constant(value = "/cron")
+    }
+    template(
+        name = "REMOTE_SpoolerFileTemplate"
+        type = "list"
+    ) {
+        constant(value = "/log/client_logs/")
+        property(name  = "fromhost")
+        constant(value = "/spooler")
+    }
+    template(
+        name = "REMOTE_BootFileTemplate"
+        type = "list"
+    ) {
+        constant(value = "/log/client_logs/")
+        property(name  = "fromhost")
+        constant(value = "/boot.log")
+    }
+    template(
+        name = "REMOTE_SyslogFileTemplate"
+        type = "list"
+    ) {
+        constant(value = "/log/client_logs/")
+        property(name  = "fromhost")
+        constant(value = "/rsyslogd.log")
+    }
+    template(
+        name = "REMOTE_UncategorizedFileTemplate"
+        type = "list"
+    ) {
+        constant(value = "/log/client_logs/")
+        property(name  = "fromhost")
+        constant(value = "/uncategorized")
+    }
+    template(
+        name = "REMOTE_FacilitySeverityFileTemplate"
+        type = "list"
+    ) {
+        constant(value = "/log/client_logs/")
+        property(name  = "fromhost")
+        constant(value = "/")
+        property(name  = "syslogfacility-text")
+        constant(value = ".")
+        property(name  = "syslogseverity-text")
+        constant(value = ".log")
+    }
+
+    ###########################
+    #### INPUTS            ####
+    ###########################
     # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
     # ***********************************************************************
     # Setup listeners
     # ***********************************************************************
-    input(type="imptcp"
-      Address="0.0.0.0"
-      port=`echo $_IMTCP_PORT`)
-    # input(type="imptcp"
-    #   port=`echo $_IMTCP_PORT`)
-
     # $UDPServerAddress 0.0.0.0
     # $UDPServerRun 6160
     input(type="imudp"
       Address="0.0.0.0"
       RateLimit.Interval="0"
       port=`echo $_IMUDP_PORT`)
+
+    input(type="imptcp"
+      Address="0.0.0.0"
+      port=`echo $_IMTCP_PORT`
+    )
+    # ruleset="remote"
+    # input(type="imptcp"
+    #   port=`echo $_IMTCP_PORT`)
 
     input(type="imrelp"
       Address="0.0.0.0"
@@ -93,78 +338,6 @@ data:
     #   StateFile="unifi_server_log"
     #   Facility="local0"
     #   Severity="info")
-
-    # includes done explicitely
-    # include(file="/rsyslog-centralized/etc/rsyslog.conf.d/log_to_logsene.conf" config.enabled=`echo $ENABLE_LOGSENE`)
-    include(file="/rsyslog-centralized/etc/rsyslog.conf.d/log_to_files.conf" config.enabled=`echo $ENABLE_LOGFILES`)
-    # include(file="/rsyslog-centralized/etc/rsyslog.conf.d/log_to_stdout.conf" config.enabled=`echo $ENABLE_STDOUT`)
-
-
-    ###########################
-    #### GLOBAL DIRECTIVES ####
-    ###########################
-    # SOURCE: https://github.com/rsyslog/rsyslog-docker/blob/master/appliance/alpine/rsyslog.conf
-    # SOURCE: https://github.com/rsyslog/rsyslog-pkg-alpine/blob/master/daily/rsyslog/rsyslog.conf
-
-
-    # Templates(SOURCE: https://linux-help.org/wiki/logging/rsyslog/advanced-rsyslog)
-    template(name="RemoteHost" type="string" string="/srv/log/%HOSTNAME%/%$YEAR%/%$MONTH%/syslog-%$DAY%.log")
-    #
-    # Use traditional timestamp format.
-    # To enable high precision timestamps, comment out the following line.
-    #
-    $ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat
-    # Set default permissions for all log files
-    $FileOwner root
-    $FileGroup adm
-    $FileCreateMode 0640
-    $DirCreateMode 0755
-    $Umask 0022
-
-    # Reduce repeating messages (default off)
-    $RepeatedMsgReduction on
-
-    $CreateDirs on
-
-    # global(processInternalMessages="on")
-    # SOURCE: https://itnext.io/metrics-from-kubernetes-logs-82cb1dcb3551
-    global(parser.permitSlashInProgramName="on")
-    # default location for work (spool) files
-    # Raise limits within /etc/systemd/journald.conf on the host(s) - ie., RateLimitIntervalSec=30s + RateLimitBurst=1000000
-    # global(workDirectory="/var/spool/rsyslog")
-
-    #
-    # where to place spool files
-    #
-    # global(workDirectory=`echo $_RSYSLOG_SPOOL_PATH`)
-    global(workDirectory="/spool")
-
-    # Options for rsyslogd
-    # -x disables DNS lookups for remote messages
-    # See rsyslogd(8) for more details
-
-    # LogFuncFlow - print out the logical flow of functions (entering and exiting them)
-
-    # FileTrace - specifies which files to trace LogFuncFlow. If not set (the default), a LogFuncFlow trace is provided for all files. Set to limit it to the files specified. FileTrace may be specified multiple times, one file each (e.g. export RSYSLOG_DEBUG="LogFuncFlow FileTrace=vm.c FileTrace=expr.c"
-
-    # PrintFuncDB - print the content of the debug function database whenever debug information is printed (e.g. abort case)!
-
-    # PrintAllDebugInfoOnExit - print all debug information immediately before rsyslogd exits (currently not implemented!)
-
-    # PrintMutexAction - print mutex action as it happens. Useful for finding deadlocks and such.
-
-    # NoLogTimeStamp - do not prefix log lines with a timestamp (default is to do that).
-
-    # NoStdOut - do not emit debug messages to stdout. If RSYSLOG_DEBUGLOG is not set, this means no messages will be displayed at all.
-
-    # Debug - if present, turns on the debug system and enables debug output
-
-    # DebugOnDemand - if present, turns on the debug system but does not enable debug output itself. You need to send SIGUSR1 to turn it on when desired.
-
-    # OutputTidToStderr - if present, makes rsyslog output information about the thread id (tid) of newly created processes to stderr. Note that not necessarily all new threads are reported (depends on the code, e.g. of plugins). This is only available under Linux. This usually does NOT work when privileges have been dropped (that's not a bug, but the way it is). help - display a very short list of commands - hopefully a life saver if you can't access the documentation…
-    # $DebugFile /tmp/rsyslogd.debug.log
-    # $DebugLevel 2
-
 
     # $MaxMessageSize 64k
     # $ActionQueueFileName fwdRule1     # unique name prefix for spool files
@@ -299,13 +472,221 @@ data:
     #  action(type="omfile" DynaFile="d_firewall_log")
     # }
 
-
-
     #################### default ruleset begins ####################
+    ###########################
+    #### RULES            ####
+    ###########################
+
+    #########################################################################
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # SOURCE: https://github.com/lilgreenwein/rsyslog-examples/blob/a546ad2c62b478bf57b004b5b9c522251686e6cf/rsyslog.d/rules/99_fallback.conf
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    #########################################################################
+    if not $fromhost-ip or $fromhost-ip startswith "127." then {
+        if prifilt("*.info;mail.none;authpriv.none;cron.none") then {
+            # action(
+            #     name     = "LOCAL_MessagesToFile"
+            #     type     = "omfile"
+            #     dynaFile = "LOCAL_MessagesFileTemplate"
+            #     sync     = "on"
+            #     template = "RSYSLOG_TraditionalFileFormat"
+            # )
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
+            stop
+        }
+        if prifilt("syslog.*") then {
+            # action(
+            #     name     = "LOCAL_SyslogToFile"
+            #     type     = "omfile"
+            #     dynaFile = "LOCAL_SyslogFileTemplate"
+            #     template = "RSYSLOG_TraditionalFileFormat"
+            # )
+
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
+            stop
+        }
+        if prifilt("authpriv.*") then {
+            # action(
+            #     name     = "LOCAL_SecureToFile"
+            #     type     = "omfile"
+            #     dynaFile = "LOCAL_SecureFileTemplate"
+            #     template = "RSYSLOG_TraditionalFileFormat"
+            # )
+
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
+            stop
+        }
+        if prifilt("mail.*") then {
+            # action(
+            #     name     = "LOCAL_MailToFile"
+            #     type     = "omfile"
+            #     dynaFile = "LOCAL_MailFileTemplate"
+            #     sync     = "on"
+            #     template = "RSYSLOG_TraditionalFileFormat"
+            # )
+
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
+            stop
+        }
+        if prifilt("cron.*") then {
+            # action(
+            #     name     = "LOCAL_CronToFile"
+            #     type     = "omfile"
+            #     dynaFile = "LOCAL_CronFileTemplate"
+            #     template = "RSYSLOG_TraditionalFileFormat"
+            # )
+
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
+            stop
+        }
+        if prifilt("uucp,news.crit") then {
+            # action(
+            #     name     = "LOCAL_SpoolToFile"
+            #     type     = "omfile"
+            #     dynaFile = "LOCAL_SpoolerFileTemplate"
+            #     template = "RSYSLOG_TraditionalFileFormat"
+            # )
+
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
+            stop
+        }
+        if prifilt("local7.*") then {
+            # action(
+            #     name     = "LOCAL_BootToFile"
+            #     type     = "omfile"
+            #     dynaFile = "LOCAL_BootFileTemplate"
+            #     template = "RSYSLOG_TraditionalFileFormat"
+            # )
+
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
+            stop
+        }
+        if prifilt("*.emerg") then {
+            # action(
+            #     name     = "LOCAL_EmergToFile"
+            #     type     = "omusrmsg"
+            #     users    = "*"
+            #     template = "RSYSLOG_TraditionalFileFormat"
+            # )
+
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
+            stop
+        }
+        if prifilt("*.*") then {
+            # action(
+            #     name     = "LOCAL_UncategorizedToFile"
+            #     type     = "omfile"
+            #     dynaFile = "LOCAL_UncategorizedFileTemplate"
+            #     template = "RSYSLOG_TraditionalFileFormat"
+            # )
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
+            stop
+        }
+    } else {
+        if prifilt("*.info;mail.none;authpriv.none;cron.none") then {
+            action(
+                name     = "REMOTE_MessagesToFile"
+                type     = "omfile"
+                dynaFile = "REMOTE_MessagesFileTemplate"
+                sync     = "on"
+                template = "RSYSLOG_TraditionalFileFormat"
+            )
+            stop
+        }
+        if prifilt("syslog.*") then {
+            action(
+                name     = "LOCAL_SyslogToFile"
+                type     = "omfile"
+                dynaFile = "REMOTE_SyslogFileTemplate"
+                template = "RSYSLOG_TraditionalFileFormat"
+            )
+            stop
+        }
+        if prifilt("authpriv.*") then {
+            action(
+                name     = "REMOTE_SecureToFile"
+                type     = "omfile"
+                dynaFile = "REMOTE_SecureFileTemplate"
+                template = "RSYSLOG_TraditionalFileFormat"
+            )
+            stop
+        }
+        if prifilt("mail.*") then {
+            action(
+                name     = "REMOTE_MailToFile"
+                type     = "omfile"
+                dynaFile = "REMOTE_MailFileTemplate"
+                sync     = "on"
+                template = "RSYSLOG_TraditionalFileFormat"
+            )
+            stop
+        }
+        if prifilt("cron.*") then {
+            action(
+                name     = "REMOTE_CronToFile"
+                type     = "omfile"
+                dynaFile = "REMOTE_CronFileTemplate"
+                template = "RSYSLOG_TraditionalFileFormat"
+            )
+            stop
+        }
+        if prifilt("uucp,news.crit") then {
+            action(
+                name     = "REMOTE_SpoolToFile"
+                type     = "omfile"
+                dynaFile = "REMOTE_SpoolerFileTemplate"
+                template = "RSYSLOG_TraditionalFileFormat"
+            )
+            stop
+        }
+        if prifilt("local7.*") then {
+            action(
+                name     = "REMOTE_BootToFile"
+                type     = "omfile"
+                dynaFile = "REMOTE_BootFileTemplate"
+                template = "RSYSLOG_TraditionalFileFormat"
+            )
+            stop
+        }
+        if prifilt("*.*") then {
+            action(
+                name     = "REMOTE_UncategorizedToFile"
+                type     = "omfile"
+                dynaFile = "REMOTE_UncategorizedFileTemplate"
+                template = "RSYSLOG_TraditionalFileFormat"
+            )
+            stop
+        }
+    }
+
+    # DISABLED: 4/15/2019    ruleset(name="catchall") {
+    # DISABLED: 4/15/2019      *.* :omstdout:
+    # DISABLED: 4/15/2019    }
+    # DISABLED: 4/15/2019
+    # DISABLED: 4/15/2019    $DefaultRuleset catchall
+    # DISABLED: 4/15/2019
+    # DISABLED: 4/15/2019    ruleset(name="remote") {
+    # DISABLED: 4/15/2019        $IncludeConfig /etc/rsyslog.d/*.remote
+    # DISABLED: 4/15/2019
+    # DISABLED: 4/15/2019        action(type="omfile" DynaFile="RemoteHost")
+    # DISABLED: 4/15/2019    }
+
+    # input(type="imudp" port=`echo $_IMUDP_PORT` ruleset="remote")
+    # input(type="imtcp" port=`echo $_IMTCP_PORT` ruleset="remote")
+
 
     # we emit our own messages to docker console:
     # syslog.* :omstdout:
-    *.* :omstdout:
+    # *.* :omstdout:
     # action(type="omstdout")
 
     include(file="/config/droprules.conf" mode="optional")  # this permits the user to easily drop unwanted messages
@@ -384,6 +765,20 @@ metadata:
   labels:
     k8s-app: rsyslog-centralized
 data:
+  unifi.template: |-
+    template(name="unifi_dynafile" type="string" string="/var/log/%hostname%/unifi.log")
+
+  10-unifi_remote.remote: |-
+    # if $hostname == 'UniFiSecurityGateway3P' then {
+    # action(type="omfile" DynaFile="unifi_dynafile" template="RSYSLOG_DebugFormat")
+    # stop
+    # }
+    # SOURCE: https://github.com/evertrue/logserver-cookbook/wiki/Supplemental-rsyslog-documentation
+    # Handy debugging tips
+    $template myDebug, "hostname: <%hostname%> fromhost: <%fromhost%> fromhost-ip: <%fromhost-ip%> syslogtag: <%syslogtag%> pri: <%pri%> pri-text: <%pri-text%> iut: <%iut%> syslogfacility: <%syslogfacility%> syslogfacility-text: <%syslogfacility-text%> syslogseverity: <%syslogseverity%> syslogseverity-text: <%syslogseverity-text%> timegenerated: <%timegenerated%> timereported: <%timereported%> timestamp: <%timestamp%> protocol-version: <%protocol-version%> structured-data: <%structured-data%> app-name: <%app-name%> procid: <%procid%> msgid: <%msgid%> inputname: <%inputname%> rawmsg: <%rawmsg%>\n"
+
+    action(type="omfile" file="/log/rsyslog-debug" template="myDebug")
+
   debug_logging.conf: |-
     $DebugFile /tmp/rsyslogd.debug.log
     $DebugLevel 2
@@ -514,7 +909,7 @@ data:
     # Settings for debugging the container
     #export USE_VALGRIND=on
     # export RSYSLOG_DEBUG="debug nostdout"
-    export RSYSLOG_DEBUG="debug DebugOnDemand"
+    export RSYSLOG_DEBUG="debug DebugOnDemand LogFuncFlow FileTrace=imptcp.c FileTrace=impudp.c FileTrace=rsyslogd.c FileTrace=action.c"
     # export RSYSLOG_DEBUGLOG="/log/rsyslog-internal-debug.log"
 
     export _IMTCP_PORT=${_IMTCP_PORT}
