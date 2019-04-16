@@ -39,6 +39,14 @@ spec:
 {% endif %}
     spec:
       serviceAccountName: {{boss__rsyslog__centralized__serviceAccountName}}
+{% if boss__rsyslog__centralized__deployment_spec_template_initContainers is defined %}
+{% if boss__rsyslog__centralized__deployment_spec_template_initContainers == "disabled" %}
+      # initContainers:
+{% else %}
+      initContainers:
+{{ boss__rsyslog__centralized__deployment_spec_template_initContainers | indent( width=6, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
       containers:
       - name: {{boss__rsyslog__centralized__shared_name}}
         image: {{ boss__rsyslog__centralized__rsyslog_image_repo }}:{{ boss__rsyslog__centralized__rsyslog_image_tag }}

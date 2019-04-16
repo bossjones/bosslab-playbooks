@@ -10,7 +10,7 @@ data:
   rsyslog.conf: |-
     # Quick overview of message flow and objects
     # msg sent -> input module -> ruleset(conditionally applied) -> rule match -> action (eg. write it to a file, database or forward it to remote host )
-
+    
     # ORDER OF OPS: https://github.com/lilgreenwein/rsyslog-examples/blob/a546ad2c62b478bf57b004b5b9c522251686e6cf/rsyslog.conf
     # $IncludeConfig /etc/rsyslog/rsyslog.d/globals/*.conf
     # $IncludeConfig /etc/rsyslog/rsyslog.d/modules/*.conf
@@ -18,13 +18,13 @@ data:
     # $IncludeConfig /etc/rsyslog/rsyslog.d/inputs/*.conf
     # $IncludeConfig /etc/rsyslog/rsyslog.d/rules/*.conf
     # $IncludeConfig /etc/rsyslog/rsyslog.d/*.conf
-
+    
     ###########################
     #### GLOBAL DIRECTIVES ####
     ###########################
     # SOURCE: https://github.com/rsyslog/rsyslog-docker/blob/master/appliance/alpine/rsyslog.conf
     # SOURCE: https://github.com/rsyslog/rsyslog-pkg-alpine/blob/master/daily/rsyslog/rsyslog.conf
-
+    
     #
     # Use traditional timestamp format.
     # To enable high precision timestamps, comment out the following line.
@@ -36,19 +36,19 @@ data:
     $FileCreateMode 0640
     $DirCreateMode 0755
     $Umask 0022
-
+    
     # Reduce repeating messages (default off)
     $RepeatedMsgReduction on
-
+    
     $CreateDirs on
-
+    
     # global(processInternalMessages="on")
     # SOURCE: https://itnext.io/metrics-from-kubernetes-logs-82cb1dcb3551
     global(parser.permitSlashInProgramName="on")
     # default location for work (spool) files
     # Raise limits within /etc/systemd/journald.conf on the host(s) - ie., RateLimitIntervalSec=30s + RateLimitBurst=1000000
     # global(workDirectory="/var/spool/rsyslog")
-
+    
     #
     # where to place spool files
     #
@@ -63,33 +63,33 @@ data:
       senders.reportGoneAway              = "on"
       senders.reportNew                   = "on"
     )
-
+    
     # Options for rsyslogd
     # -x disables DNS lookups for remote messages
     # See rsyslogd(8) for more details
-
+    
     # LogFuncFlow - print out the logical flow of functions (entering and exiting them)
-
+    
     # FileTrace - specifies which files to trace LogFuncFlow. If not set (the default), a LogFuncFlow trace is provided for all files. Set to limit it to the files specified. FileTrace may be specified multiple times, one file each (e.g. export RSYSLOG_DEBUG="LogFuncFlow FileTrace=vm.c FileTrace=expr.c"
-
+    
     # PrintFuncDB - print the content of the debug function database whenever debug information is printed (e.g. abort case)!
-
+    
     # PrintAllDebugInfoOnExit - print all debug information immediately before rsyslogd exits (currently not implemented!)
-
+    
     # PrintMutexAction - print mutex action as it happens. Useful for finding deadlocks and such.
-
+    
     # NoLogTimeStamp - do not prefix log lines with a timestamp (default is to do that).
-
+    
     # NoStdOut - do not emit debug messages to stdout. If RSYSLOG_DEBUGLOG is not set, this means no messages will be displayed at all.
-
+    
     # Debug - if present, turns on the debug system and enables debug output
-
+    
     # DebugOnDemand - if present, turns on the debug system but does not enable debug output itself. You need to send SIGUSR1 to turn it on when desired.
-
+    
     # OutputTidToStderr - if present, makes rsyslog output information about the thread id (tid) of newly created processes to stderr. Note that not necessarily all new threads are reported (depends on the code, e.g. of plugins). This is only available under Linux. This usually does NOT work when privileges have been dropped (that's not a bug, but the way it is). help - display a very short list of commands - hopefully a life saver if you can't access the documentation…
     # $DebugFile /tmp/rsyslogd.debug.log
     # $DebugLevel 2
-
+    
     # FIXME: Enable this 4/10/2019
     # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
     # ***********************************************************************
@@ -114,7 +114,7 @@ data:
     #   uuid support:				Yes
     #   systemd support:			No
     #   Number of Bits in RainerScript integers: 64
-
+    
     # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
     # ***********************************************************************
     #################
@@ -128,7 +128,7 @@ data:
     # If you do not load inputs, nothing happens!
     # You may need to set the module load path if modules are not found.
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    module(load="impstats")
+    module(load="impstats" interval="600")
     module(load="imrelp")
     module(load="imptcp" MaxSessions="5000")
     # module(load="imptcp")
@@ -146,25 +146,25 @@ data:
     # module(
     #     load = "mmfields"
     # )
-
-
+    
+    
     ###########################
     #### TEMPLATES         ####
     ###########################
     # Templates(SOURCE: https://linux-help.org/wiki/logging/rsyslog/advanced-rsyslog)
     # template(name="RemoteHost" type="string" string="/srv/log/%HOSTNAME%/%$YEAR%/%$MONTH%/syslog-%$DAY%.log")
-
+    
     # DISABLED: # $IncludeConfig /rsyslog-centralized/etc/rsyslog.conf.d/*.template
-
+    
     # includes done explicitely
     # include(file="/rsyslog-centralized/etc/rsyslog.conf.d/log_to_logsene.conf" config.enabled=`echo $ENABLE_LOGSENE`)
     # DISABLED: # include(file="/rsyslog-centralized/etc/rsyslog.conf.d/log_to_files.conf" config.enabled=`echo $ENABLE_LOGFILES`)
     # include(file="/rsyslog-centralized/etc/rsyslog.conf.d/log_to_stdout.conf" config.enabled=`echo $ENABLE_STDOUT`)
-
-
+    
+    
     # DISABLED: # $template RemoteHost, "/srv/log/%HOSTNAME%/%$YEAR%/%$MONTH%/syslog-%$DAY%.log"
     # DISABLED: # $template TmplMsg, "/log/client_logs/%HOSTNAME%/%PROGRAMNAME%.log"
-
+    
     #########################################################################
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # SOURCE: https://github.com/lilgreenwein/rsyslog-examples/blob/a546ad2c62b478bf57b004b5b9c522251686e6cf/rsyslog.d/templates/01_local.conf
@@ -220,7 +220,7 @@ data:
         property(name = "syslogseverity-text")
         constant(value = ".log")
     }
-
+    
     #########################################################################
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # SOURCE: https://github.com/lilgreenwein/rsyslog-examples/blob/a546ad2c62b478bf57b004b5b9c522251686e6cf/rsyslog.d/templates/02_remote.conf
@@ -302,7 +302,7 @@ data:
         property(name  = "syslogseverity-text")
         constant(value = ".log")
     }
-
+    
     ###########################
     #### INPUTS            ####
     ###########################
@@ -316,7 +316,7 @@ data:
       Address="0.0.0.0"
       RateLimit.Interval="0"
       port=`echo $_IMUDP_PORT`)
-
+    
     input(type="imptcp"
       Address="0.0.0.0"
       port=`echo $_IMTCP_PORT`
@@ -324,13 +324,13 @@ data:
     # ruleset="remote"
     # input(type="imptcp"
     #   port=`echo $_IMTCP_PORT`)
-
+    
     input(type="imrelp"
       Address="0.0.0.0"
       port=`echo $_IMRELP_PORT`)
     # input(type="imrelp"
     # port=`echo $_IMRELP_PORT`)
-
+    
     # SOURCE: https://github.com/PLOS-Formulas/ubiquiti-formula/blob/71305bcb06117953cd7b8ba6babbdd051aa44fea/ubiquiti/conf/etc/rsyslog.d/ubiquiti.conf
     # input(type="imfile"
     #   File="/log/unifi/server.log"
@@ -338,14 +338,14 @@ data:
     #   StateFile="unifi_server_log"
     #   Facility="local0"
     #   Severity="info")
-
+    
     # $MaxMessageSize 64k
     # $ActionQueueFileName fwdRule1     # unique name prefix for spool files
     # $ActionQueueMaxDiskSpace 1g       # 1gb space limit (use as much as possible)
     # $ActionQueueSaveOnShutdown on     # save messages to disk on shutdown
     # $ActionQueueType LinkedList       # run asynchronously
     # $ActionResumeRetryCount -1        # infinite retries if host is down
-
+    
     # SOURCE: https://github.com/dcv-cloud/dcv-kubernetes/blob/50221c0fb3ee7b2f799930b336662ab1d896f871/kubeManifests/infra-repo-197/datafeed/addConfigMapDatafeed.yaml
     # *********************************************************
     #### GLOBAL DIRECTIVES ####
@@ -361,31 +361,31 @@ data:
     # File to store the position in the journal
     # $IMJournalStateFile imjournal.state
     # *********************************************************
-
+    
     # $InputFilePollInterval 10
     # template(
     #   name="RemoteHostUnifiServer"
     #   type="string"
     #   string="/log/unifiserver.log"
     # )
-
+    
     # $ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat
-
+    
     # *********************************************************************************************************
     # SOURCE: https://github.com/rsyslog/rsyslog/issues/2040
     # *********************************************************************************************************
     # cat /etc/rsyslog.d/udp-nonlocaladdr-bug.conf
     # module(load="imudp")
-
+    
     # input(type="imudp" address="127.0.0.1" port="514" RateLimit.Interval="0" ruleset="logtest")
-
+    
     # input(type="imudp" address="192.168.99.99" port="514" RateLimit.Interval="0" ruleset="logtest")
-
+    
     # ruleset(name="logtest") {
     #     action(type="omfile" file="/tmp/logtest")
     # }
     # *********************************************************************************************************
-
+    
     # FIXME: Enable this 4/10/2019
     # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
     # ***********************************************************************
@@ -399,7 +399,7 @@ data:
     #   set $!custom_hostname = "FROM-RSYSLOGD";
     # }
     # ***************************************************************************************
-
+    
     # ***************************************************************************************
     # SOURCE: https://github.com/instantlinux/docker-tools/blob/f4ce5659047cbf258908f8a090efa1a49688c337/images/rsyslogd/kubernetes.yaml
     # SOURCE: https://www.rsyslog.com/doc/v8-stable/configuration/filters.html
@@ -409,7 +409,7 @@ data:
     # :msg, contains, "Client request was invalid, bailing out..." stop
     # :msg, contains, "required revision has been compacted" stop
     # ***************************************************************************************
-
+    
     # # FIXME: Enable this 4/10/2019
     # # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
     # # ***********************************************************************
@@ -451,7 +451,7 @@ data:
     #   constant(value="\"}")
     #   constant(value="\n")
     # }
-
+    
     # # FIXME: Enable this 4/10/2019
     # # INFO: https://www.aplura.com/wp-content/uploads/2017/08/syslog_cheatsheet.pdf
     # # ***********************************************************************
@@ -471,12 +471,12 @@ data:
     # ruleset(name="f_firewall") {
     #  action(type="omfile" DynaFile="d_firewall_log")
     # }
-
+    
     #################### default ruleset begins ####################
     ###########################
     #### RULES            ####
     ###########################
-
+    
     #########################################################################
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # SOURCE: https://github.com/lilgreenwein/rsyslog-examples/blob/a546ad2c62b478bf57b004b5b9c522251686e6cf/rsyslog.d/rules/99_fallback.conf
@@ -502,7 +502,7 @@ data:
             #     dynaFile = "LOCAL_SyslogFileTemplate"
             #     template = "RSYSLOG_TraditionalFileFormat"
             # )
-
+    
             action(type="omstdout"
                    template="RSYSLOG_TraditionalFileFormat")
             stop
@@ -514,7 +514,7 @@ data:
             #     dynaFile = "LOCAL_SecureFileTemplate"
             #     template = "RSYSLOG_TraditionalFileFormat"
             # )
-
+    
             action(type="omstdout"
                    template="RSYSLOG_TraditionalFileFormat")
             stop
@@ -527,7 +527,7 @@ data:
             #     sync     = "on"
             #     template = "RSYSLOG_TraditionalFileFormat"
             # )
-
+    
             action(type="omstdout"
                    template="RSYSLOG_TraditionalFileFormat")
             stop
@@ -539,7 +539,7 @@ data:
             #     dynaFile = "LOCAL_CronFileTemplate"
             #     template = "RSYSLOG_TraditionalFileFormat"
             # )
-
+    
             action(type="omstdout"
                    template="RSYSLOG_TraditionalFileFormat")
             stop
@@ -551,7 +551,7 @@ data:
             #     dynaFile = "LOCAL_SpoolerFileTemplate"
             #     template = "RSYSLOG_TraditionalFileFormat"
             # )
-
+    
             action(type="omstdout"
                    template="RSYSLOG_TraditionalFileFormat")
             stop
@@ -563,7 +563,7 @@ data:
             #     dynaFile = "LOCAL_BootFileTemplate"
             #     template = "RSYSLOG_TraditionalFileFormat"
             # )
-
+    
             action(type="omstdout"
                    template="RSYSLOG_TraditionalFileFormat")
             stop
@@ -575,7 +575,7 @@ data:
             #     users    = "*"
             #     template = "RSYSLOG_TraditionalFileFormat"
             # )
-
+    
             action(type="omstdout"
                    template="RSYSLOG_TraditionalFileFormat")
             stop
@@ -600,7 +600,7 @@ data:
                 sync     = "on"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
-
+    
             action(type="omstdout"
                    template="RSYSLOG_TraditionalFileFormat")
             stop
@@ -612,7 +612,7 @@ data:
                 dynaFile = "REMOTE_SyslogFileTemplate"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
-
+    
             action(type="omstdout"
                    template="RSYSLOG_TraditionalFileFormat")
             stop
@@ -624,7 +624,7 @@ data:
                 dynaFile = "REMOTE_SecureFileTemplate"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
-
+    
             action(type="omstdout"
                    template="RSYSLOG_TraditionalFileFormat")
             stop
@@ -637,7 +637,7 @@ data:
                 sync     = "on"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
-
+    
             action(type="omstdout"
                    template="RSYSLOG_TraditionalFileFormat")
             stop
@@ -649,7 +649,7 @@ data:
                 dynaFile = "REMOTE_CronFileTemplate"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
-
+    
             action(type="omstdout"
                    template="RSYSLOG_TraditionalFileFormat")
             stop
@@ -661,7 +661,7 @@ data:
                 dynaFile = "REMOTE_SpoolerFileTemplate"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
-
+    
             action(type="omstdout"
                    template="RSYSLOG_TraditionalFileFormat")
             stop
@@ -673,7 +673,7 @@ data:
                 dynaFile = "REMOTE_BootFileTemplate"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
-
+    
             action(type="omstdout"
                    template="RSYSLOG_TraditionalFileFormat")
             stop
@@ -685,13 +685,13 @@ data:
                 dynaFile = "REMOTE_UncategorizedFileTemplate"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
-
+    
             action(type="omstdout"
                    template="RSYSLOG_TraditionalFileFormat")
             stop
         }
     }
-
+    
     # DISABLED: 4/15/2019    ruleset(name="catchall") {
     # DISABLED: 4/15/2019      *.* :omstdout:
     # DISABLED: 4/15/2019    }
@@ -703,27 +703,27 @@ data:
     # DISABLED: 4/15/2019
     # DISABLED: 4/15/2019        action(type="omfile" DynaFile="RemoteHost")
     # DISABLED: 4/15/2019    }
-
+    
     # input(type="imudp" port=`echo $_IMUDP_PORT` ruleset="remote")
     # input(type="imtcp" port=`echo $_IMTCP_PORT` ruleset="remote")
-
-
+    
+    
     # we emit our own messages to docker console:
     # syslog.* :omstdout:
     # *.* :omstdout:
     # action(type="omstdout")
-
+    
     include(file="/config/droprules.conf" mode="optional")  # this permits the user to easily drop unwanted messages
-
+    
     action(name="main_utf8fix" type="mmutf8fix" replacementChar="?")
-
+    
     # include(text=`echo $CNF_CALL_LOG_TO_LOGFILES`)
     # include(text=`echo $CNF_CALL_LOG_TO_LOGSENE`)
     # include(text=`echo $CNF_CALL_LOG_TO_STDOUT`)
     # include(text=`echo $_IMTCP_PORT`)
     # include(text=`echo $_IMUDP_PORT`)
     # include(text=`echo $_IMRELP_PORT`)
-
+    
     # SOURCE: https://itnext.io/metrics-from-kubernetes-logs-82cb1dcb3551
     # ***************************************************************************************
     # Compose RFC5424 message
@@ -767,17 +767,16 @@ data:
     #     action(type="omfile" file="/log/unifi.log")
     #     stop
     # }
-
+    
     # if ($msg contains "UniFiSecurityGateway3P") then {
     #   action(type="omfile" file="/log/unifi.log")
     #   # action(type="omfile" DynaFile="RemoteHostCronLog")
     #   # action(type="omfile" DynaFile="RemoteServiceCronLog")
     #   stop
     # }
-
+    
     # *.* action(type="omfile" File="/log/rsyslog_messages.log" template="dcloud-metrics")
     #
-
 
 ---
 
@@ -789,31 +788,13 @@ metadata:
   labels:
     k8s-app: rsyslog-centralized
 data:
-  unifi.template: |-
-    template(name="unifi_dynafile" type="string" string="/var/log/%hostname%/unifi.log")
-
-  10-unifi_remote.remote: |-
-    # if $hostname == 'UniFiSecurityGateway3P' then {
-    # action(type="omfile" DynaFile="unifi_dynafile" template="RSYSLOG_DebugFormat")
-    # stop
-    # }
-    # SOURCE: https://github.com/evertrue/logserver-cookbook/wiki/Supplemental-rsyslog-documentation
-    # Handy debugging tips
-    $template myDebug, "hostname: <%hostname%> fromhost: <%fromhost%> fromhost-ip: <%fromhost-ip%> syslogtag: <%syslogtag%> pri: <%pri%> pri-text: <%pri-text%> iut: <%iut%> syslogfacility: <%syslogfacility%> syslogfacility-text: <%syslogfacility-text%> syslogseverity: <%syslogseverity%> syslogseverity-text: <%syslogseverity-text%> timegenerated: <%timegenerated%> timereported: <%timereported%> timestamp: <%timestamp%> protocol-version: <%protocol-version%> structured-data: <%structured-data%> app-name: <%app-name%> procid: <%procid%> msgid: <%msgid%> inputname: <%inputname%> rawmsg: <%rawmsg%>\n"
-
-    action(type="omfile" file="/log/rsyslog-debug" template="myDebug")
-
-  debug_logging.conf: |-
-    $DebugFile /tmp/rsyslogd.debug.log
-    $DebugLevel 2
-
   log_to_files.conf: |-
+
     # logging to files in /log
-    # template(name="log_to_files_dynafile" type="string" string=`echo $LOGFILES_STORE`)
-    template(name="log_to_files_dynafile" type="string" string="/var/log/hosts/%hostname:::secpath-replace%/%programname:::secpath-replace%.log")
-    # template(name="log_to_files_dynafile" type="string" string="/log/hosts/%hostname:::secpath-replace%/%programname:::secpath-replace%.log")
+
+    template(name="log_to_files_dynafile" type="string" string=`echo $LOGFILES_STORE`)
     ruleset(name="log_to_files") {
-      /var/log/debug;RSYSLOG_DebugFormat
+      /log/debug;RSYSLOG_DebugFormat
       action(type="omfile" dynafile="log_to_files_dynafile" name="log_to_logfiles")
     }
 
@@ -902,51 +883,42 @@ data:
     # This file will be sourced upon container startup.
     # Uncomment those settings that you need and set them to your
     # desired values.
-
-    tree /var/log/
+    
     tree /log
-    tree /logs
-
+    
     # general container app settings:
     export TZ=UTC
     #export CONTAINER_SILENT=on  # do not emit startup message
     export ENABLE_STATISTICS=on
-
+    
     # Do we write log files?
     # yes, we do (comment out to disable)
     export ENABLE_LOGFILES=on
     # Where do we write to?
-    # path for host-specific files is: /log/hosts/HOSTNAME
-    # export LOGFILES_STORE="/log/hosts/%hostname:::secpath-replace%/messages.log"
+    # path for host-specific files is: /log/client_logs/HOSTNAME
+    # export LOGFILES_STORE="/log/client_logs/%hostname:::secpath-replace%/messages.log"
     # you can of course overwrite this. For example, the below definition
     # uses the program name instead of a fixed name "messages.log". That means
     # for each host, a separate file for each program will be generated.
-    export LOGFILES_STORE="/log/hosts/%hostname:::secpath-replace%/%programname:::secpath-replace%.log"
-
+    export LOGFILES_STORE="/log/client_logs/%hostname:::secpath-replace%/%programname:::secpath-replace%.log"
+    
     # If you have an account with Logsene, enter your access
     # information below:
     #export LOGSENE_TOKEN=
     #export LOGSENE_URL=logsene-receiver.eu.sematext.com
-
+    
     # export CNF_CALL_LOG_TO_STDOUT="off"
-
+    
     # Settings for debugging the container
     #export USE_VALGRIND=on
     # export RSYSLOG_DEBUG="debug nostdout"
-    export RSYSLOG_DEBUG="debug DebugOnDemand LogFuncFlow FileTrace=imptcp.c FileTrace=impudp.c FileTrace=rsyslogd.c FileTrace=action.c"
+    # export RSYSLOG_DEBUG="debug DebugOnDemand LogFuncFlow FileTrace=imptcp.c FileTrace=impudp.c FileTrace=rsyslogd.c FileTrace=action.c"
     # export RSYSLOG_DEBUGLOG="/log/rsyslog-internal-debug.log"
-
+    
     export _IMTCP_PORT=${_IMTCP_PORT}
     export _IMUDP_PORT=${_IMUDP_PORT}
     export _IMRELP_PORT=${_IMRELP_PORT}
     export _RSYSLOG_SPOOL_PATH=${_RSYSLOG_SPOOL_PATH:-/var/spool/rsyslog}
-
-  droprules.conf: |-
-    # This file permits to do drop unneded messages
-    # Uncomment the samples below to activate them. You can
-    # add as many drop rules as you like.
-
-    #if $rawmsg contains "somejunk
 
 
 ---
@@ -962,10 +934,10 @@ data:
     # This file created from k8s configmap
     # the mail log files are used by all syslog daemons
     # the news log files are used by all syslog daemons
-    /var/log/warn /var/log/messages /var/log/allmessages /var/log/localmessages
-    /var/log/mail /var/log/mail.info /var/log/mail.warn /var/log/mail.err
-    /var/log/news/news.crit /var/log/news/news.err /var/log/news/news.notice
-    /var/log/cron /var/log/secure
+    /log/client_logs/*/warn /log/client_logs/*/allmessages /log/client_logs/*/localmessages
+    /log/client_logs/*/mail /log/client_logs/*/mail.info /log/client_logs/*/mail.warn /log/client_logs/*/mail.err
+    /log/client_logs/*/news/news.crit /log/client_logs/*/news/news.err /log/client_logs/*/news/news.notice
+    /log/client_logs/*/cron /log/client_logs/*/secure
     {
         compress
         dateext
@@ -977,34 +949,12 @@ data:
         create 640 root root
         sharedscripts
         postrotate
-            /usr/bin/killall -HUP rsyslogd
+            /bin/kill -HUP `ps aux | grep rsyslog.conf | cut -d " " -f1` 2> /dev/null || true
         endscript
     }
 
     # SOURCE: https://github.com/dcv-cloud/dcv-kubernetes/blob/50221c0fb3ee7b2f799930b336662ab1d896f871/kubeManifests/infra-repo-197/datafeed/addConfigMapDatafeed.yaml
-    /log/rsyslog_messages.log
-    {
-        hourly
-        rotate 5
-        create
-        dateext
-        sharedscripts
-        postrotate
-            /bin/kill -HUP `ps aux | grep rsyslog.conf | cut -d " " -f1` 2> /dev/null || true
-        endscript
-    }
-    /log/metricsFeed.log
-    {
-        hourly
-        rotate 5
-        create
-        dateext
-        sharedscripts
-        postrotate
-            /bin/kill -HUP `ps aux | grep rsyslog.conf | cut -d " " -f1` 2> /dev/null || true
-        endscript
-    }
-    /log/unifi.log /var/log/unifi.log
+    /log/client_logs/*/messages
     {
         hourly
         rotate 5

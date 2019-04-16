@@ -2375,9 +2375,9 @@ boss__rsyslog__centralized__deployment_spec_template_containers_ports: |-
     name: in-relp
     protocol: TCP
 
-boss__rsyslog__centralized__deployment_spec_template_initContainers:
+boss__rsyslog__centralized__deployment_spec_template_initContainers: |-
   - name: init-rsyslog
-    image: "{{boss__rsyslog__centralized__rsyslog_image_repo}}:{{boss__rsyslog__centralized__rsyslog_image_tag}}"
+    image: {{boss__rsyslog__centralized__rsyslog_image_repo}}:{{boss__rsyslog__centralized__rsyslog_image_tag}}
     command: [ "/bin/sh" ]
     args: ['-c', 'mkdir -p /var/spool/rsyslog; mkdir -p {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs; install -o rsyslog /dev/null -m 640 /var/log/rsyslog-debug']
 
@@ -2534,7 +2534,7 @@ boss__rsyslog__centralized__deployment_spec_template_spec_sidcar_container: |-
     - name: LOGROTATE_CRONSCHEDULE
       value: "* * * * * *"
     - name: LOGROTATE_POSTROTATE_COMMAND
-      value: "/bin/kill -HUP `ps aux | grep rsyslog.conf | cut -d " " -f1` 2> /dev/null || true"
+      value: "/bin/kill -HUP `ps aux | grep rsyslog.conf | cut -d ' ' -f1` 2> /dev/null || true"
     - name: TZ
       value: "UTC"
     # v: Verbose
