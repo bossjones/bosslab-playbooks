@@ -2058,10 +2058,10 @@ boss__elasticsearch__exporter__deployment_spec_template_metadata_labels: |-
 
 boss__elasticsearch__exporter__deployment_spec_template_metadata_annotations: |
   prometheus.io/scrape: "true"
-  prometheus.io/port: "9114"
+  prometheus.io/port: "9108"
 
 boss__elasticsearch__exporter__deployment_spec_template_containers_ports: |-
-  - containerPort: 9114
+  - containerPort: 9108
     name: http-metrics
 
 boss__elasticsearch__exporter__deployment_spec_template_containers_env: |-
@@ -2106,8 +2106,8 @@ boss__elasticsearch__exporter__service_annotations: "disabled"
 boss__elasticsearch__exporter__service_spec_type: ClusterIP
 
 boss__elasticsearch__exporter__service_spec_ports: |-
-  - port: 9114
-    targetPort: 9114
+  - port: 9108
+    targetPort: 9108
     protocol: TCP
     name: http-metrics
 
@@ -2159,14 +2159,14 @@ boss__elasticsearch__exporter__deployment_spec_template_spec_containers_security
 boss__elasticsearch__exporter__deployment_spec_template_spec_containers_livenessProbe: |-
   httpGet:
     path: /health
-    port: 9114
+    port: 9108
   initialDelaySeconds: 30
   timeoutSeconds: 10
 
 boss__elasticsearch__exporter__deployment_spec_template_spec_containers_readinessProbe: |-
   httpGet:
     path: /health
-    port: 9114
+    port: 9108
   initialDelaySeconds: 10
   timeoutSeconds: 10
 
