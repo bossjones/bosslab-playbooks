@@ -2034,7 +2034,7 @@ boss__elasticsearch__exporter__deployment_spec_template_containers_resources: |
     cpu: "0.05"
     memory: "64Mi"
 
-boss__elasticsearch__exporter__serviceAccountName: "{{boss__elasticsearch__exporter__shared_name}}"
+boss__elasticsearch__exporter__serviceAccountName: "{{boss__elasticsearch__exporter__shared_name}}-read"
 boss__elasticsearch__exporter__deployment_spec_replicas: 1
 boss__elasticsearch__exporter__deployment_spec_strategy: |-
   rollingUpdate:
@@ -2169,6 +2169,87 @@ boss__elasticsearch__exporter__deployment_spec_template_spec_containers_readines
     port: 9114
   initialDelaySeconds: 10
   timeoutSeconds: 10
+
+boss__elasticsearch__exporter__cluster_role_rules: |-
+  - apiGroups:
+    - ""
+    resources:
+    - "namespaces"
+    - "pods"
+    - "secrets"
+    - "pods/log"
+    - "deployments"
+    - "batch"
+    - "extensions"
+    - "crontabs"
+    verbs:
+    - "get"
+    - "watch"
+    - "list"
+    - "update"
+    - "post"
+  # DEBUG: CUSTOM FROM HERE ON OUT ---- 5/10/2019
+  - apiGroups:
+    - ""
+    resources:
+    - persistentvolumes
+    verbs:
+    - get
+    - list
+    - patch
+    - update
+    - watch
+  - apiGroups:
+    - storage.k8s.io
+    resources:
+    - volumeattachments
+    verbs:
+    - get
+    - list
+    - patch
+    - update
+    - watch
+  - apiGroups:
+    - ""
+    resources:
+    - configmaps
+    - secrets
+    verbs:
+    - '*'
+  - apiGroups:
+    - ""
+    resources:
+    - pods
+    verbs:
+    - list
+    - delete
+  - apiGroups:
+    - ""
+    resources:
+    - services
+    - services/finalizers
+    - endpoints
+    verbs:
+    - get
+    - create
+    - update
+    - delete
+  - apiGroups:
+    - ""
+    resources:
+    - nodes
+    verbs:
+    - list
+    - watch
+  - apiGroups:
+    - ""
+    resources:
+    - namespaces
+    verbs:
+    - get
+    - list
+    - watch
+  # DEBUG: CUSTOM FROM HERE ON OUT END ---- 5/10/2019
 
 ##########################################################################################################
 # .########.##.......##.....##.########.##....##.########.########...........######..########.##....##.########.########.....###....##.......####.########.########.########.
