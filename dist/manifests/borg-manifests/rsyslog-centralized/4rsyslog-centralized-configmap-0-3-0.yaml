@@ -240,7 +240,7 @@ data:
     ) {
         constant(value = "/log/client_logs/")
         property(name  = "fromhost")
-        constant(value = "/secure")
+        constant(value = "/secure.log")
     }
     template(
         name = "REMOTE_MailFileTemplate"
@@ -248,7 +248,7 @@ data:
     ) {
         constant(value = "/log/client_logs/")
         property(name  = "fromhost")
-        constant(value = "/maillog")
+        constant(value = "/maillog.log")
     }
     template(
         name = "REMOTE_CronFileTemplate"
@@ -256,7 +256,7 @@ data:
     ) {
         constant(value = "/log/client_logs/")
         property(name  = "fromhost")
-        constant(value = "/cron")
+        constant(value = "/cron.log")
     }
     template(
         name = "REMOTE_SpoolerFileTemplate"
@@ -264,7 +264,7 @@ data:
     ) {
         constant(value = "/log/client_logs/")
         property(name  = "fromhost")
-        constant(value = "/spooler")
+        constant(value = "/spooler.log")
     }
     template(
         name = "REMOTE_BootFileTemplate"
@@ -288,7 +288,7 @@ data:
     ) {
         constant(value = "/log/client_logs/")
         property(name  = "fromhost")
-        constant(value = "/uncategorized")
+        constant(value = "/uncategorized.log")
     }
     template(
         name = "REMOTE_FacilitySeverityFileTemplate"
