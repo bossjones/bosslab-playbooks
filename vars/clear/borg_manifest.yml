@@ -2018,7 +2018,7 @@ boss__elasticsearch__exporter__subdomain: elasticsearch-exporter
 boss__elasticsearch__exporter__manifest_path: "{{manifest_dir_path}}/elasticsearch-exporter"
 boss__elasticsearch__exporter__namespace_name: kube-system
 boss__elasticsearch__exporter__fluent_bit_version: 1.0.1
-boss__elasticsearch__exporter__fluent_bit_image_repo: "fjustwatch/elasticsearch_exporter"
+boss__elasticsearch__exporter__fluent_bit_image_repo: "justwatch/elasticsearch_exporter"
 boss__elasticsearch__exporter__fluent_bit_image_tag: "{{ boss__elasticsearch__exporter__fluent_bit_version }}"
 boss__elasticsearch__exporter__shared_name: p8s-elastic-exporter
 boss__elasticsearch__exporter__configmap_suffix: "-0-3-0"
@@ -2058,10 +2058,10 @@ boss__elasticsearch__exporter__deployment_spec_template_metadata_labels: |-
 
 boss__elasticsearch__exporter__deployment_spec_template_metadata_annotations: |
   prometheus.io/scrape: "true"
-  prometheus.io/port: "9114"
+  prometheus.io/port: "9108"
 
 boss__elasticsearch__exporter__deployment_spec_template_containers_ports: |-
-  - containerPort: 9114
+  - containerPort: 9108
     name: http-metrics
 
 boss__elasticsearch__exporter__deployment_spec_template_containers_env: |-
@@ -2106,8 +2106,8 @@ boss__elasticsearch__exporter__service_annotations: "disabled"
 boss__elasticsearch__exporter__service_spec_type: ClusterIP
 
 boss__elasticsearch__exporter__service_spec_ports: |-
-  - port: 9114
-    targetPort: 9114
+  - port: 9108
+    targetPort: 9108
     protocol: TCP
     name: http-metrics
 
@@ -2159,16 +2159,97 @@ boss__elasticsearch__exporter__deployment_spec_template_spec_containers_security
 boss__elasticsearch__exporter__deployment_spec_template_spec_containers_livenessProbe: |-
   httpGet:
     path: /health
-    port: 9114
+    port: 9108
   initialDelaySeconds: 30
   timeoutSeconds: 10
 
 boss__elasticsearch__exporter__deployment_spec_template_spec_containers_readinessProbe: |-
   httpGet:
     path: /health
-    port: 9114
+    port: 9108
   initialDelaySeconds: 10
   timeoutSeconds: 10
+
+boss__elasticsearch__exporter__cluster_role_rules: |-
+  - apiGroups:
+    - ""
+    resources:
+    - "namespaces"
+    - "pods"
+    - "secrets"
+    - "pods/log"
+    - "deployments"
+    - "batch"
+    - "extensions"
+    - "crontabs"
+    verbs:
+    - "get"
+    - "watch"
+    - "list"
+    - "update"
+    - "post"
+  # DEBUG: CUSTOM FROM HERE ON OUT ---- 5/10/2019
+  - apiGroups:
+    - ""
+    resources:
+    - persistentvolumes
+    verbs:
+    - get
+    - list
+    - patch
+    - update
+    - watch
+  - apiGroups:
+    - storage.k8s.io
+    resources:
+    - volumeattachments
+    verbs:
+    - get
+    - list
+    - patch
+    - update
+    - watch
+  - apiGroups:
+    - ""
+    resources:
+    - configmaps
+    - secrets
+    verbs:
+    - '*'
+  - apiGroups:
+    - ""
+    resources:
+    - pods
+    verbs:
+    - list
+    - delete
+  - apiGroups:
+    - ""
+    resources:
+    - services
+    - services/finalizers
+    - endpoints
+    verbs:
+    - get
+    - create
+    - update
+    - delete
+  - apiGroups:
+    - ""
+    resources:
+    - nodes
+    verbs:
+    - list
+    - watch
+  - apiGroups:
+    - ""
+    resources:
+    - namespaces
+    verbs:
+    - get
+    - list
+    - watch
+  # DEBUG: CUSTOM FROM HERE ON OUT END ---- 5/10/2019
 
 ##########################################################################################################
 # .########.##.......##.....##.########.##....##.########.########...........######..########.##....##.########.########.....###....##.......####.########.########.########.

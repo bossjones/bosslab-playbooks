@@ -21,7 +21,7 @@ spec:
 
       annotations:
         prometheus.io/scrape: "true"
-        prometheus.io/port: "9108"
+        prometheus.io/port: "9114"
         
     spec:
       serviceAccountName: p8s-elastic-exporter
@@ -31,7 +31,7 @@ spec:
         # command:
         command:
         - /bin/elasticsearch_exporter
-        - -es.uri=http://elasticsearch-logging:9200
+        - -es.uri=http://elasticsearch:9200
         - -es.all=true
         securityContext:
           capabilities:
@@ -54,13 +54,13 @@ spec:
         livenessProbe:
           httpGet:
             path: /health
-            port: 9108
+            port: 9114
           initialDelaySeconds: 30
           timeoutSeconds: 10
         readinessProbe:
           httpGet:
             path: /health
-            port: 9108
+            port: 9114
           initialDelaySeconds: 10
           timeoutSeconds: 10
 
@@ -106,7 +106,7 @@ spec:
           
 
         ports:
-        - containerPort: 9108
+        - containerPort: 9114
           name: http-metrics
 
       # volumes:

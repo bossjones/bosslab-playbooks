@@ -2030,7 +2030,7 @@ boss__elasticsearch__exporter__subdomain: elasticsearch-exporter
 boss__elasticsearch__exporter__manifest_path: "{{manifest_dir_path}}/elasticsearch-exporter"
 boss__elasticsearch__exporter__namespace_name: kube-system
 boss__elasticsearch__exporter__fluent_bit_version: 1.0.1
-boss__elasticsearch__exporter__fluent_bit_image_repo: "fjustwatch/elasticsearch_exporter"
+boss__elasticsearch__exporter__fluent_bit_image_repo: "justwatch/elasticsearch_exporter"
 boss__elasticsearch__exporter__fluent_bit_image_tag: "{{ boss__elasticsearch__exporter__fluent_bit_version }}"
 boss__elasticsearch__exporter__shared_name: p8s-elastic-exporter
 boss__elasticsearch__exporter__configmap_suffix: "-0-3-0"
@@ -2182,6 +2182,87 @@ boss__elasticsearch__exporter__deployment_spec_template_spec_containers_readines
   initialDelaySeconds: 10
   timeoutSeconds: 10
 
+
+boss__elasticsearch__exporter__cluster_role_rules: |-
+  - apiGroups:
+    - ""
+    resources:
+    - "namespaces"
+    - "pods"
+    - "secrets"
+    - "pods/log"
+    - "deployments"
+    - "batch"
+    - "extensions"
+    - "crontabs"
+    verbs:
+    - "get"
+    - "watch"
+    - "list"
+    - "update"
+    - "post"
+  # DEBUG: CUSTOM FROM HERE ON OUT ---- 5/10/2019
+  - apiGroups:
+    - ""
+    resources:
+    - persistentvolumes
+    verbs:
+    - get
+    - list
+    - patch
+    - update
+    - watch
+  - apiGroups:
+    - storage.k8s.io
+    resources:
+    - volumeattachments
+    verbs:
+    - get
+    - list
+    - patch
+    - update
+    - watch
+  - apiGroups:
+    - ""
+    resources:
+    - configmaps
+    - secrets
+    verbs:
+    - '*'
+  - apiGroups:
+    - ""
+    resources:
+    - pods
+    verbs:
+    - list
+    - delete
+  - apiGroups:
+    - ""
+    resources:
+    - services
+    - services/finalizers
+    - endpoints
+    verbs:
+    - get
+    - create
+    - update
+    - delete
+  - apiGroups:
+    - ""
+    resources:
+    - nodes
+    verbs:
+    - list
+    - watch
+  - apiGroups:
+    - ""
+    resources:
+    - namespaces
+    verbs:
+    - get
+    - list
+    - watch
+  # DEBUG: CUSTOM FROM HERE ON OUT END ---- 5/10/2019
 
 ##########################################################################################################
 # .########...######..##....##..######..##........#######...######............######..########.##....##.########.########.....###....##.......####.########.########.########.
