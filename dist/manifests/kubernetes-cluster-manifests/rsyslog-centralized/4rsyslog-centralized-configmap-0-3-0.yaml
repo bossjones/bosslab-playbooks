@@ -600,6 +600,9 @@ data:
                 sync     = "on"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
+
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
             stop
         }
         if prifilt("syslog.*") then {
@@ -609,6 +612,9 @@ data:
                 dynaFile = "REMOTE_SyslogFileTemplate"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
+
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
             stop
         }
         if prifilt("authpriv.*") then {
@@ -618,6 +624,9 @@ data:
                 dynaFile = "REMOTE_SecureFileTemplate"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
+
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
             stop
         }
         if prifilt("mail.*") then {
@@ -628,6 +637,9 @@ data:
                 sync     = "on"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
+
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
             stop
         }
         if prifilt("cron.*") then {
@@ -637,6 +649,9 @@ data:
                 dynaFile = "REMOTE_CronFileTemplate"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
+
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
             stop
         }
         if prifilt("uucp,news.crit") then {
@@ -646,6 +661,9 @@ data:
                 dynaFile = "REMOTE_SpoolerFileTemplate"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
+
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
             stop
         }
         if prifilt("local7.*") then {
@@ -655,6 +673,9 @@ data:
                 dynaFile = "REMOTE_BootFileTemplate"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
+
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
             stop
         }
         if prifilt("*.*") then {
@@ -664,6 +685,9 @@ data:
                 dynaFile = "REMOTE_UncategorizedFileTemplate"
                 template = "RSYSLOG_TraditionalFileFormat"
             )
+
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
             stop
         }
     }
