@@ -5,6 +5,9 @@ import urllib2
 import sys, os
 import textwrap
 
+import collections
+from collections import OrderedDict
+
 # SOURCE: https://github.com/mglen/grafana-tools/blob/master/grafana_import.py
 
 # Note:
@@ -29,12 +32,14 @@ parser = argparse.ArgumentParser(description='Import grafana dashboard files int
               http://grafana.example.net:3000 *.json --force
         """))
 parser.add_argument('url', help='Grafana server URL. ex: http://grafana.example.net:3000')
-parser.add_argument('file', nargs='+', help='Files to upload')
+parser.add_argument('from_dir', nargs='+', help='Folder with Files to upload')
 parser.add_argument('-k', '--key', dest="key", help='API Key for auth')
 parser.add_argument('-n', dest='dry_run', action='store_const', const=True, help='Print results of actions taken without actually making any changes (dry run)')
 parser.add_argument('-f', '--force', dest='force', action='store_const', const=True, help='Force overwrite of existing dashboards on the server (Default: create new dashboards only)')
 
 args = parser.parse_args()
+
+print(args)
 
 GRAFANA_SITE = args.url.rstrip('/')
 
@@ -56,43 +61,125 @@ def get_dashboards():
 def update_dashboard(dashboard_json):
     return _request('/api/dashboards/db', data=dashboard_json)
 
-if __name__ == '__main__':
+def replace_dashboard_var(panel, vartype, name, label):
+    if panel[vartype] == '${{{name}}}'.format(name=name):
+        # import pdb;pdb.set_trace()
+        panel[vartype] = label
 
-    json_files = [os.path.join(args.from_dir, f) for
-            f in os.listdir(args.from_dir)
+def recursive_variable_check(dashboard):
+    # dashboard = dashboard.copy()
+    try:
+        for element in enumerate(dashboard.copy()):
+            if '__inputs' in element:
+                for inputs_index, inputs in enumerate(dashboard['__inputs']):
+                    # print(dashboard)
+                    name = dashboard['__inputs'][inputs_index]['name']
+                    label = dashboard['__inputs'][inputs_index]['label']
+                    vartype = dashboard['__inputs'][inputs_index]['type']
+                    # import pdb;pdb.set_trace()
+
+                    if name.startswith('DS_'):
+                        if 'panels' in element:
+                            for panel_index, panel in enumerate(dashboard['panels']):
+                                # if 'datasource' in panel:
+                                #     if panel['datasource'] == '${DS_PROMETHEUS}':
+                                #         dashboard['panels'][panel_index]['datasource'] = 'Prometheus'
+                                if panel['type'] == 'row':
+                                    for rowpanel_index, rowpanel in enumerate(dashboard['panels']):
+                                        replace_dashboard_var(rowpanel, vartype, name, label)
+                                else:
+                                    replace_dashboard_var(panel, vartype, name, label)
+                                    pass
+    except KeyError as ke:
+        print(ke)
+        pass
+
+    #     for inputvar in dashboard['__inputs']:
+    #         name = inputvar['name']
+    #         label = inputvar['label']
+    #         vartype = inputvar['type']
+    #         # import pdb;pdb.set_trace()
+    #         if name.startswith('DS_'):
+    #             # search and replace
+    #             for panel in dashboard['panels']:
+    #                 if panel['type'] == 'row':
+    #                     for rowpanel in panel['panels']:
+    #                         replace_dashboard_var(rowpanel, vartype, name, label)
+    #                 else:
+    #                     replace_dashboard_var(panel, vartype, name, label)
+    #                     pass
+    # except KeyError as ke:
+    #     print(ke)
+    #     pass
+
+    return dashboard
+
+class OrdDictSub(collections.OrderedDict):
+    def __init__(self, *args, **kwds):
+        return super(OrdDictSub, self).__init__(*args, **kwds)
+
+    def change_key(self, old, new):
+        for _ in range(len(self)):
+            k, v = self.popitem(False)
+            self[new if old == k else k] = v
+
+if __name__ == '__main__':
+    json_files = []
+
+    file_list = os.listdir(args.from_dir[0])
+
+    # for f in file_list:
+    #     base, ext = os.path.splitext(f)
+
+    #     if os.path.isfile(f) and ext =='.json':
+    #         fpath = os.path.join(args.from_dir[0], f)
+    #         json_files.extend(fpath)
+    #     else:
+    #         pass
+
+    json_files = [os.path.join(args.from_dir[0], f) for
+            f in os.listdir(args.from_dir[0])
             if os.path.isfile(f) and f.endswith('.json')]
 
+    print(json_files)
+
     dashboards = []
-    for f in json_files:
+    for full_file in json_files:
         try:
-            with open(f) as fh:
-                data = json.loads(fh.read())
-                dashboards.append({'dashboard':data,'file':f})
+            with open(full_file) as fh:
+                # data = json.loads(fh.read())
+                data = json.load(fh, object_pairs_hook=OrderedDict)
+                data = recursive_variable_check(data)
+                # dashboard = data['dashboard'] if 'dashboard' in data else data
+                # print(dash)
+                # import pdb;pdb.set_trace()
+                dashboards.append({'dashboard':data,'file':full_file})
         except IOError as e:
-            print "Could not open file: " + e
+            print("Could not open file: " + e)
         except ValueError as e:
-            print "Could not parse file '{}' as json".format(f)
+            print("Could not parse file '{}' as json".format(full_file))
 
     if args.dry_run:
         for dashboard in dashboards:
-            print "Will upload '{}' ({}) to {}".format(
+            print("Will upload '{}' ({}) to {}".format(
                     dashboard['dashboard']['title'],
                     dashboard['file'],
-                    GRAFANA_SITE)
+                    GRAFANA_SITE))
         sys.exit(0)
 
     if not args.force:
         existing_dashboards = get_dashboards()
         for dashboard in dashboards:
             if any(dashboard['dashboard']['title'] == b['title'] for b in existing_dashboards):
-                print "Found existing dashboard '{}' on server. If you intend to overwrite it, specify [-f,--force]".format(dashboard['dashboard']['title'])
+                print("Found existing dashboard '{}' on server. If you intend to overwrite it, specify [-f,--force]".format(dashboard['dashboard']['title']))
                 sys.exit(1)
 
+    # import pdb;pdb.set_trace()
     for dashboard in dashboards:
-        print "Uploading dashboard: " + dashboard['dashboard']['title']
+        print("Uploading dashboard: " + dashboard['dashboard']['title'])
         try:
             del dashboard['file']
             update_dashboard(json.dumps(dashboard))
         except urllib2.HTTPError as e:
-            print "Error: " + e.read()
+            print("Error: " + e.read())
 

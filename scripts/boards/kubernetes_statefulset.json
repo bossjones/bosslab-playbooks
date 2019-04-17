@@ -49,7 +49,7 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "editable": true,
           "format": "none",
           "gauge": {
@@ -120,7 +120,7 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "editable": true,
           "format": "none",
           "gauge": {
@@ -191,7 +191,7 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "editable": true,
           "format": "Bps",
           "gauge": {
@@ -271,7 +271,7 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "editable": true,
           "format": "none",
           "gauge": {
@@ -342,7 +342,7 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "editable": true,
           "format": "none",
           "gauge": {
@@ -412,7 +412,7 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "editable": true,
           "format": "none",
           "gauge": {
@@ -482,7 +482,7 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "editable": true,
           "format": "none",
           "gauge": {
@@ -558,7 +558,7 @@
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "editable": true,
           "error": false,
           "fill": 1,
@@ -652,7 +652,7 @@
       {
         "allValue": ".*",
         "current": {},
-        "datasource": "${DS_PROMETHEUS}",
+        "datasource": "prometheus",
         "hide": 0,
         "includeAll": false,
         "label": "Namespace",
@@ -672,7 +672,7 @@
       {
         "allValue": null,
         "current": {},
-        "datasource": "${DS_PROMETHEUS}",
+        "datasource": "prometheus",
         "hide": 0,
         "includeAll": false,
         "label": "StatefulSet",

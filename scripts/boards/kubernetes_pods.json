@@ -67,7 +67,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "fill": 1,
       "gridPos": {
         "h": 9,
@@ -152,7 +152,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "fill": 1,
       "gridPos": {
         "h": 9,
@@ -235,7 +235,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "description": "nginx_upstream_response_msecs_avg",
       "fill": 1,
       "gridPos": {
@@ -320,7 +320,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "fill": 1,
       "gridPos": {
         "h": 9,
@@ -405,7 +405,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "fill": 1,
       "gridPos": {
         "h": 9,
@@ -488,7 +488,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "fill": 1,
       "gridPos": {
         "h": 9,
@@ -579,7 +579,7 @@
           "text": "default",
           "value": "default"
         },
-        "datasource": "${DS_PROMETHEUS}",
+        "datasource": "prometheus",
         "hide": 0,
         "includeAll": false,
         "label": null,

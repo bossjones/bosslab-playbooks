@@ -112,7 +112,7 @@
           "value": "avg"
         }
       ],
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "fontSize": "100%",
       "gridPos": {
         "h": 6,
@@ -329,7 +329,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "decimals": 3,
       "description": "This graph attempts to show you CPU use of your application vs its requests",
       "editable": true,
@@ -441,7 +441,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "decimals": 3,
       "description": "This graph attempts to show you RAM use of your application vs its requests",
       "editable": true,
@@ -554,7 +554,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "decimals": 2,
       "description": "Traffic in and out of this pod, as a sum of its containers",
       "editable": true,
@@ -668,7 +668,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "decimals": 2,
       "description": "Disk read writes",
       "editable": true,
@@ -910,7 +910,7 @@
       {
         "allValue": null,
         "current": {},
-        "datasource": "${DS_PROMETHEUS}",
+        "datasource": "prometheus",
         "hide": 0,
         "includeAll": false,
         "label": "NS",
@@ -930,7 +930,7 @@
       {
         "allValue": null,
         "current": {},
-        "datasource": "${DS_PROMETHEUS}",
+        "datasource": "prometheus",
         "hide": 0,
         "includeAll": false,
         "label": "Pod",

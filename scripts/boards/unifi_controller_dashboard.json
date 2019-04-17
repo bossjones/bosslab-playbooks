@@ -60,7 +60,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "fill": 1,
       "gridPos": {
         "h": 8,
@@ -150,7 +150,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "fill": 1,
       "gridPos": {
         "h": 8,
@@ -252,7 +252,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "fill": 1,
       "gridPos": {
         "h": 8,
@@ -360,7 +360,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "fill": 1,
       "gridPos": {
         "h": 9,
@@ -455,7 +455,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "fill": 1,
       "gridPos": {
         "h": 8,
@@ -556,7 +556,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "fill": 1,
       "gridPos": {
         "h": 8,
@@ -658,7 +658,7 @@
           "value": "total"
         }
       ],
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "fontSize": "100%",
       "gridPos": {
         "h": 8,
@@ -771,7 +771,7 @@
           "value": "current"
         }
       ],
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "fontSize": "100%",
       "gridPos": {
         "h": 8,
@@ -867,7 +867,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "fill": 1,
       "gridPos": {
         "h": 8,
@@ -954,7 +954,7 @@
     },
     {
       "columns": [],
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "fontSize": "100%",
       "gridPos": {
         "h": 8,
@@ -1051,7 +1051,7 @@
       {
         "allValue": null,
         "current": {},
-        "datasource": "${DS_PROMETHEUS}",
+        "datasource": "prometheus",
         "hide": 0,
         "includeAll": true,
         "label": "Client",
@@ -1071,7 +1071,7 @@
       {
         "allValue": null,
         "current": {},
-        "datasource": "${DS_PROMETHEUS}",
+        "datasource": "prometheus",
         "hide": 0,
         "includeAll": true,
         "label": "Device",

@@ -112,7 +112,7 @@
           "value": "avg"
         }
       ],
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "fontSize": "100%",
       "gridPos": {
         "h": 9,
@@ -333,7 +333,7 @@
           "value": "avg"
         }
       ],
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "fontSize": "100%",
       "gridPos": {
         "h": 9,
@@ -458,7 +458,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "decimals": 3,
       "description": "This panel shows historical utilisation as an average across all pods in this namespace.  It only accounts for currently deployed pods",
       "editable": true,
@@ -563,7 +563,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "decimals": 2,
       "description": "This panel shows historical utilisation as an average across all pods in this namespace.  It only accounts for currently deployed pods",
       "editable": true,
@@ -663,7 +663,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "decimals": 2,
       "description": "Traffic in and out of this namespace, as a sum of the pods within it",
       "editable": true,
@@ -777,7 +777,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "decimals": 2,
       "description": "Disk reads and writes for the namespace, as a sum of the pods within it",
       "editable": true,
@@ -1019,7 +1019,7 @@
       {
         "allValue": null,
         "current": {},
-        "datasource": "${DS_PROMETHEUS}",
+        "datasource": "prometheus",
         "hide": 0,
         "includeAll": false,
         "label": "NS",
