@@ -84,7 +84,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      prometheus,
+      "datasource": "prometheus",
       "format": "s",
       "gauge": {
         "maxValue": 100,
@@ -164,7 +164,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      prometheus,
+      "datasource": "prometheus",
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -244,7 +244,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#299c46"
       ],
-      prometheus,
+      "datasource": "prometheus",
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -324,7 +324,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#299c46"
       ],
-      prometheus,
+      "datasource": "prometheus",
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -404,7 +404,7 @@
         "rgba(237, 129, 40, 0.89)",
         "rgba(245, 54, 54, 0.9)"
       ],
-      prometheus,
+      "datasource": "prometheus",
       "editable": true,
       "error": false,
       "format": "percent",
@@ -489,7 +489,7 @@
         "rgba(237, 129, 40, 0.89)",
         "rgba(245, 54, 54, 0.9)"
       ],
-      prometheus,
+      "datasource": "prometheus",
       "decimals": 2,
       "editable": true,
       "error": false,
@@ -576,7 +576,7 @@
         "rgba(237, 129, 40, 0.89)",
         "rgba(245, 54, 54, 0.9)"
       ],
-      prometheus,
+      "datasource": "prometheus",
       "decimals": 2,
       "editable": true,
       "error": false,
@@ -662,7 +662,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      prometheus,
+      "datasource": "prometheus",
       "fill": 4,
       "gridPos": {
         "h": 9,
@@ -758,7 +758,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      prometheus,
+      "datasource": "prometheus",
       "fill": 3,
       "gridPos": {
         "h": 9,
@@ -857,7 +857,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      prometheus,
+      "datasource": "prometheus",
       "fill": 3,
       "gridPos": {
         "h": 9,
@@ -957,7 +957,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      prometheus,
+      "datasource": "prometheus",
       "decimals": 3,
       "editable": true,
       "error": false,
@@ -1054,7 +1054,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      prometheus,
+      "datasource": "prometheus",
       "decimals": 2,
       "editable": true,
       "error": false,
@@ -1148,7 +1148,7 @@
     },
     {
       "columns": [],
-      prometheus,
+      "datasource": "prometheus",
       "fontSize": "100%",
       "gridPos": {
         "h": 13,
@@ -1204,7 +1204,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      prometheus,
+      "datasource": "prometheus",
       "decimals": 2,
       "editable": true,
       "error": false,
@@ -1300,7 +1300,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      prometheus,
+      "datasource": "prometheus",
       "decimals": 2,
       "editable": true,
       "error": false,
@@ -1393,7 +1393,7 @@
     },
     {
       "columns": [],
-      prometheus,
+      "datasource": "prometheus",
       "fontSize": "100%",
       "gridPos": {
         "h": 10,
