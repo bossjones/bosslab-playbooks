@@ -1287,4 +1287,6 @@ popeye:
 	@echo ""
 	popeye version
 
+# cd ~/dev/bossjones/bosslab-playbooks/scripts/boards; python ../../scripts/grafana_import.py http://grafana.scarlettlab.com "$(pwd)" -k "${GRAFANA_TOOLS_AUTH}"
+
 include *.mk

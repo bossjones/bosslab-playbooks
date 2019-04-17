@@ -5,6 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Terminal Grafana Import (integrated)",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": [
+                "http://grafana.scarlettlab.com",
+                "/Users/malcolm/dev/bossjones/bosslab-playbooks/scripts/boards"
+            ],
+        },
+        {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",

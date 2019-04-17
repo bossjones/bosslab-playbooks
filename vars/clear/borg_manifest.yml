@@ -1616,7 +1616,26 @@ boss__prometheus__operator__prometheus_additional_scrape_configs: |
     honor_labels: true
 
     static_configs:
-      - targets: ['192.168.1.172:19999','192.168.1.173:19999','192.168.1.174:19999']
+      - targets: ['192.168.1.172:19999','192.168.1.173:19999','192.168.1.174:19999', '192.168.1.218:19999']
+
+  # - job_name: 'elasticsearch_exporter'
+  #   scrape_interval: 30s
+  #   kubernetes_sd_configs:
+  #   - api_servers:
+  #     - 'https://kubernetes.default.svc'
+  #     in_cluster: true
+  #     role: node
+  #   # Extract label __address__ inner ip address and replace the port to exporter's port to build target address.
+  #   # Prometheus will fetch data from target address.
+  #   relabel_configs:
+  #   - source_labels: [__address__]
+  #     regex: '([^:]+)(:\d*)?'
+  #     replacement: '${1}:9108'
+  #     target_label: __address__
+  #   - role: pod
+  #     namespaces:
+  #       names:
+  #       - kube-system
 
   - job_name: 'ingress-nginx-endpoints'
     kubernetes_sd_configs:
@@ -3170,7 +3189,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
     ) {
         constant(value = "{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/")
         property(name  = "fromhost")
-        constant(value = "/secure")
+        constant(value = "/secure.log")
     }
     template(
         name = "REMOTE_MailFileTemplate"
@@ -3178,7 +3197,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
     ) {
         constant(value = "{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/")
         property(name  = "fromhost")
-        constant(value = "/maillog")
+        constant(value = "/maillog.log")
     }
     template(
         name = "REMOTE_CronFileTemplate"
@@ -3186,7 +3205,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
     ) {
         constant(value = "{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/")
         property(name  = "fromhost")
-        constant(value = "/cron")
+        constant(value = "/cron.log")
     }
     template(
         name = "REMOTE_SpoolerFileTemplate"
@@ -3194,7 +3213,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
     ) {
         constant(value = "{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/")
         property(name  = "fromhost")
-        constant(value = "/spooler")
+        constant(value = "/spooler.log")
     }
     template(
         name = "REMOTE_BootFileTemplate"
@@ -3218,7 +3237,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
     ) {
         constant(value = "{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/")
         property(name  = "fromhost")
-        constant(value = "/uncategorized")
+        constant(value = "/uncategorized.log")
     }
     template(
         name = "REMOTE_FacilitySeverityFileTemplate"

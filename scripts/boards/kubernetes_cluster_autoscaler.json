@@ -60,7 +60,7 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "format": "none",
           "gauge": {
             "maxValue": 100,
@@ -137,7 +137,7 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(245, 54, 54, 0.9)"
           ],
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "decimals": null,
           "description": "Shows the nodes which are ready as a percent of the total nodes",
           "format": "percent",
@@ -216,7 +216,7 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "format": "none",
           "gauge": {
             "maxValue": 100,
@@ -299,7 +299,7 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(245, 54, 54, 0.9)"
           ],
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "description": "Tells you if there are unscheduled pods",
           "format": "none",
           "gauge": {
@@ -372,7 +372,7 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "format": "s",
           "gauge": {
             "maxValue": 100,
@@ -450,7 +450,7 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "format": "s",
           "gauge": {
             "maxValue": 100,
@@ -537,7 +537,7 @@
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "description": "Shows the evicted and unscheduled pods",
           "editable": true,
           "error": false,
@@ -630,7 +630,7 @@
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "description": "Shows the state of the nodes as scaling happens",
           "editable": true,
           "error": false,
@@ -743,7 +743,7 @@
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "editable": true,
           "error": false,
           "fill": 1,
@@ -846,7 +846,7 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "description": "Is the cluster scaling up, down or ticking along okay?",
           "format": "none",
           "gauge": {

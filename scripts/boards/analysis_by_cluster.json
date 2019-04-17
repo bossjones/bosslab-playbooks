@@ -135,7 +135,7 @@
         "rgba(50, 172, 45, 0.97)",
         "#c15c17"
       ],
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "decimals": 2,
       "description": "This gauge shows the current CPU use vs CPU available",
       "editable": true,
@@ -225,7 +225,7 @@
         "rgba(50, 172, 45, 0.97)",
         "#c15c17"
       ],
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "decimals": 2,
       "description": "This panel shows current CPU reservation requests by applications, vs CPU available",
       "editable": true,
@@ -313,7 +313,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "decimals": 2,
       "format": "currencyUSD",
       "gauge": {
@@ -398,7 +398,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "decimals": 2,
       "format": "currencyUSD",
       "gauge": {
@@ -481,7 +481,7 @@
           "value": "avg"
         }
       ],
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "description": "This table shows the comparison of CPU and RAM requests by applications, vs the capacity of the node",
       "fontSize": "100%",
       "gridPos": {
@@ -609,7 +609,7 @@
         "rgba(50, 172, 45, 0.97)",
         "#c15c17"
       ],
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "description": "This gauge shows current RAM use by RAM available",
       "editable": true,
       "error": false,
@@ -699,7 +699,7 @@
         "rgba(50, 172, 45, 0.97)",
         "#c15c17"
       ],
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "description": "This panel shows current RAM reservation requests by applications, vs RAM available",
       "editable": true,
       "error": false,
@@ -787,7 +787,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "decimals": 2,
       "format": "currencyUSD",
       "gauge": {
@@ -872,7 +872,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "decimals": 2,
       "format": "currencyUSD",
       "gauge": {
@@ -955,7 +955,7 @@
           "value": "avg"
         }
       ],
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "fontSize": "100%",
       "gridPos": {
         "h": 11,
@@ -1180,7 +1180,7 @@
           "value": "avg"
         }
       ],
-      "datasource": "${DS_PROMETHEUS}",
+      "datasource": "prometheus",
       "fontSize": "100%",
       "gridPos": {
         "h": 11,
