@@ -325,6 +325,7 @@ data:
   # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [source-dest-default-D]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:65:29:b6:2a:08:00 SRC=192.168.110.116 DST=192.0.2.25 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=0 DF PROTO=TCP SPT=50093 DPT=1443 WINDOW=2857 RES=0x00 ACK URGP=0
   # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [WAN_OUT-2000-A]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:65:29:b6:2a:08:00 SRC=192.168.110.116 DST=192.0.2.25 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=0 DF PROTO=TCP SPT=50093 DPT=1443 WINDOW=2853 RES=0x00 ACK URGP=0
   # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [WAN_OUT-2000-A]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:65:29:b6:2a:08:00 SRC=192.168.110.116 DST=192.0.2.25 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=0 DF PROTO=TCP SPT=50093 DPT=1443 WINDOW=2850 RES=0x00 ACK URGP=0
+
   unifi_patterns: |-
     # PATTERN: https://github.com/effertzdv/elasticstack/blob/92c6332265f1d83dfc282b30d415bcd4f8917846/logstash/patterns/pattern.yml
     UNIFI_FW [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+
@@ -343,6 +344,7 @@ data:
   # EXAMPLE: Jan  8 03:41:23 example-host kernel: iptables DROP_INPUT: IN=eth0 OUT= MAC=90:10:35:5a:1e:3a:90:10:76:e0:e2:d5:08:00 SRC=198.51.100.167 DST=172.16.54.114 LEN=52 TOS=0x00 PREC=0x00 TTL=45 ID=6319 DF PROTO=TCP SPT=4099 DPT=445 WINDOW=8192 RES=0x00 SYN URGP=0
   # EXAMPLE: Jan  8 03:43:18 example-host kernel: iptables DROP_INPUT: IN=eth0 OUT= MAC=90:10:35:5a:1e:3a:90:10:9e:ec:2c:71:08:00 SRC=198.51.100.19 DST=172.16.54.114 LEN=40 TOS=0x00 PREC=0x00 TTL=245 ID=48624 PROTO=TCP SPT=59287 DPT=139 WINDOW=1024 RES=0x00 SYN URGP=0
   # EXAMPLE: Jan  8 03:43:42 example-host kernel: iptables DROP_INPUT: IN=eth0 OUT= MAC=90:10:35:5a:1e:3a:90:10:76:e0:
+
   unifi_iptables_patterns: |-
     # SOURCE: https://github.com/adriansr/beats/blob/938b0322a993021d79ed2a8be24055a7f3e69300/x-pack/filebeat/module/iptables/log/ingest/pipeline.json
     UNSIGNED_INT [0-9]+
@@ -396,35 +398,39 @@ data:
     <source>
       @type tail
       @id ingest_from_unifi
-      @label ingest_from_unifi
+      @label @ingest_from_unifi
       read_from_head true
       tag ingest_from_unifi
       pos_file {{boss__fluentd__centralized__path_to_logs_inside_container}}/fluentd.pos
       # format none
-      path {{boss__fluentd__centralized__path_to_nfs_mount}}/
+      path {{boss__fluentd__centralized__path_to_logs_inside_container}}/client_logs/**/*.log
       tag unifi_syslog
-      custom_pattern_path {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
       <parse>
         @type grok
         <grok>
           pattern %{SYSLOG5424PRI}%{SYSLOGTIMESTAMP:syslog_timestamp}%{UNIFI_DEV_TYPE} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{WORD:unifi_interface}: STA %{MAC:unifi_sta_mac} %{UNIFI_EVENT_TYPE:unifi_sta_event_type}: %{GREEDYDATA:unifi_sta_event}
           time_format %m%d %H:%M:%S.%N
+          custom_pattern_path {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
         </grok>
         <grok>
           pattern %{SYSLOG5424PRI}%{SYSLOGTIMESTAMP:syslog_timestamp}%{UNIFI_DEV_TYPE} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{WORD:unifi_interface}: %{UNIFI_EVENT_TYPE:unifi_sta_event_type} %{GREEDYDATA:unifi_sta_event}
           time_format %m%d %H:%M:%S.%N
+          custom_pattern_path {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
         </grok>
         <grok>
           pattern %{SYSLOG5424PRI}%{SYSLOGTIMESTAMP:syslog_timestamp}%{UNIFI_DEV_TYPE} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{WORD:unifi_interface}: STA %{MAC:unifi_sta_mac} %{GREEDYDATA:syslog_message}\n?
           time_format %m%d %H:%M:%S.%N
+          custom_pattern_path {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
         </grok>
         <grok>
           pattern %{SYSLOG5424PRI}%{SYSLOGTIMESTAMP:syslog_timestamp}%{UNIFI_DEV_TYPE} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{UNIFI_CUSTOM_EVENT}\n?
           time_format %m%d %H:%M:%S.%N
+          custom_pattern_path {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
         </grok>
         <grok>
           pattern %{SYSLOG5424PRI}%{SYSLOGTIMESTAMP:syslog_timestamp}%{UNIFI_DEV_TYPE} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{GREEDYDATA:syslog_message}\n?
           time_format %m%d %H:%M:%S.%N
+          custom_pattern_path {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
         </grok>
       </parse>
     </source>
@@ -433,7 +439,7 @@ data:
     <source>
       @type tail
       @id ingest_from_unifiserver
-      @label ingest_from_unifiserver
+      @label @ingest_from_unifiserver
       read_from_head true
       tag ingest_from_unifiserver
       pos_file {{boss__fluentd__centralized__path_to_logs_inside_container}}/fluentd.pos
@@ -446,6 +452,7 @@ data:
         <grok>
           pattern %{TIME:time}] <%{WORD}-%{WORD}> %{WORD:LEVEL} %{SPACE} %{DATA} - from \[%{DATA:CLIENTMAC}\]\(%{GREEDYDATA:MSG}\): state=%{WORD:state}
           time_format %m%d %H:%M:%S.%N
+          custom_pattern_path {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
         </grok>
       </parse>
     </source>
@@ -453,7 +460,7 @@ data:
     <source>
       @type tail
       @id ingest_from_unifi_iptables
-      @label ingest_from_unifi_iptables
+      @label @ingest_from_unifi_iptables
       read_from_head true
       tag ingest_from_unifi_iptables
       pos_file {{boss__fluentd__centralized__path_to_logs_inside_container}}/fluentd.pos
@@ -466,18 +473,22 @@ data:
         <grok>
           pattern %{SYSLOGTIMESTAMP:iptables.raw_date}%{GREEDYDATA}\\[%{UBIQUITI_LABEL}\\]%{IPTABLES}%{SPACE}
           time_format %m%d %H:%M:%S.%N
+          custom_pattern_path {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
         </grok>
         <grok>
           pattern %{SYSLOGTIMESTAMP:iptables.raw_date}%{GREEDYDATA}%{IPTABLES}%{SPACE}
           time_format %m%d %H:%M:%S.%N
+          custom_pattern_path {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
         </grok>
         <grok>
           pattern %{GREEDYDATA}\\[%{UBIQUITI_LABEL}\\]%{IPTABLES}%{SPACE}
           time_format %m%d %H:%M:%S.%N
+          custom_pattern_path {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
         </grok>
         <grok>
           pattern %{GREEDYDATA}%{IPTABLES}%{SPACE}
           time_format %m%d %H:%M:%S.%N
+          custom_pattern_path {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
         </grok>
       </parse>
     </source>
@@ -485,7 +496,7 @@ data:
     <source>
       @type tail
       @id ingest_from_unifi_iptables_ubiquiti_rule_set
-      @label ingest_from_unifi_iptables_ubiquiti_rule_set
+      @label @ingest_from_unifi_iptables_ubiquiti_rule_set
       read_from_head true
       tag ingest_from_unifi_iptables_ubiquiti_rule_set
       pos_file {{boss__fluentd__centralized__path_to_logs_inside_container}}/fluentd.pos
@@ -496,8 +507,9 @@ data:
       <parse>
         @type grok
         <grok>
-          pattern %{UBIQUITI_FIELD:iptables.ubiquiti.input_zone}-%{UBIQUITI_FIELD:iptables.ubiquiti.output_zone}
+          pattern %{UBIQUITI_FIELD_IPTABLES_RULE_SET:iptables.ubiquiti.input_zone}-%{UBIQUITI_FIELD_IPTABLES_RULE_SET:iptables.ubiquiti.output_zone}
           time_format %m%d %H:%M:%S.%N
+          custom_pattern_path {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
         </grok>
       </parse>
     </source>
@@ -541,6 +553,7 @@ data:
       <labels>
         host ${hostname}
       </labels>
+    </source>
 
 
   output.conf: |-

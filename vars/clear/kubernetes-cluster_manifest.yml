@@ -3531,7 +3531,7 @@ boss__rsyslog__centralized__container_config_config_map: |-
 boss__fluentd__centralized__subdomain: fluentd-centralized
 boss__fluentd__centralized__manifest_path: "{{manifest_dir_path}}/fluentd-centralized"
 boss__fluentd__centralized__namespace_name: kube-system
-boss__fluentd__centralized__fluentd_version: v2.5.0
+boss__fluentd__centralized__fluentd_version: v2.4.0
 boss__fluentd__centralized__fluentd_image_repo: "bossjones/fluentd-elasticsearch"
 boss__fluentd__centralized__fluentd_image_tag: "{{ boss__fluentd__centralized__fluentd_version }}"
 boss__fluentd__centralized__shared_name: fluentd-centralized
@@ -3726,9 +3726,11 @@ boss__fluentd__centralized__deployment_spec_template_initContainers: |-
   - name: init-{{boss__fluentd__centralized__shared_name}}
     image: {{boss__fluentd__centralized__fluentd_image_repo}}:{{boss__fluentd__centralized__fluentd_image_tag}}
     command: [ "/bin/sh" ]
-    args: ['-c', 'tree']
+    args: ['-c', 'ls -lta']
 
 boss__fluentd__centralized__deployment_spec_template_containers_env: |-
+  - name: FLUENTD_ARGS
+    value: "--no-supervisor"
   # - name: FLUENT_ELASTICSEARCH_HOST
   #   value: "elasticsearch"
   # - name: FLUENT_ELASTICSEARCH_PORT
@@ -3796,9 +3798,10 @@ boss__fluentd__centralized__deployment_spec_template_spec_volumes: |
   - name: spool
     emptyDir: {}
   # log file store (if used)
+  # This is rsyslog-pvc on purpose, we'r trying to mount the pvc that rsyslog-pvc creates
   - name: log
     persistentVolumeClaim:
-      claimName: {{boss__fluentd__centralized__shared_name}}-pvc
+      claimName: rsyslog-pvc
 
   - name: config-volume
     configMap:
