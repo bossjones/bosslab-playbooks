@@ -213,3 +213,5 @@ vendor/
 results/
 tars/
 *.yaml.part*
+
+realunifilogs.tar.gz
