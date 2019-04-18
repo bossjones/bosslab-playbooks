@@ -2826,8 +2826,6 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
     module(load="impstats" interval="600")
     module(load="imrelp")
     module(load="imptcp" MaxSessions="5000")
-    # module(load="imtcp" NotifyOnConnectionClose="on" MaxListeners="128" MaxSessions="65536" KeepAlive="on" KeepAlive.Probes="5" KeepAlive.Interval="120" KeepAlive.Time="300")
-
     # module(load="imptcp")
     module(load="imudp" TimeRequery="500")
     module(load="omstdout")
@@ -2875,17 +2873,17 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
     template(
         name   = "LOCAL_SecureFileTemplate"
         type   = "string"
-        string = "/var/log/secure"
+        string = "/var/log/secure.log"
     )
     template(
         name   = "LOCAL_MailFileTemplate"
         type   = "string"
-        string = "/var/log/maillog"
+        string = "/var/log/maillog.log"
     )
     template(
         name   = "LOCAL_CronFileTemplate"
         type   = "string"
-        string = "/var/log/cron"
+        string = "/var/log/cron.log"
     )
     template(
         name   = "LOCAL_SpoolerFileTemplate"
@@ -2924,6 +2922,14 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     #########################################################################
     template(
+        name = "REMOTE_IptablesFileTemplate"
+        type = "list"
+    ) {
+        constant(value = "{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/")
+        property(name  = "fromhost")
+        constant(value = "/iptables.log")
+    }
+    template(
         name = "REMOTE_MessagesFileTemplate"
         type = "list"
     ) {
@@ -2932,12 +2938,20 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
         constant(value = "/messages.log")
     }
     template(
+        name = "REMOTE_KernelFileTemplate"
+        type = "list"
+    ) {
+        constant(value = "{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/")
+        property(name  = "fromhost")
+        constant(value = "/kernel.log")
+    }
+    template(
         name = "REMOTE_SecureFileTemplate"
         type = "list"
     ) {
         constant(value = "{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/")
         property(name  = "fromhost")
-        constant(value = "/secure")
+        constant(value = "/secure.log")
     }
     template(
         name = "REMOTE_MailFileTemplate"
@@ -2945,7 +2959,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
     ) {
         constant(value = "{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/")
         property(name  = "fromhost")
-        constant(value = "/maillog")
+        constant(value = "/maillog.log")
     }
     template(
         name = "REMOTE_CronFileTemplate"
@@ -2953,7 +2967,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
     ) {
         constant(value = "{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/")
         property(name  = "fromhost")
-        constant(value = "/cron")
+        constant(value = "/cron.log")
     }
     template(
         name = "REMOTE_SpoolerFileTemplate"
@@ -2961,7 +2975,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
     ) {
         constant(value = "{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/")
         property(name  = "fromhost")
-        constant(value = "/spooler")
+        constant(value = "/spooler.log")
     }
     template(
         name = "REMOTE_BootFileTemplate"
@@ -2985,7 +2999,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
     ) {
         constant(value = "{{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/")
         property(name  = "fromhost")
-        constant(value = "/uncategorized")
+        constant(value = "/uncategorized.log")
     }
     template(
         name = "REMOTE_FacilitySeverityFileTemplate"
@@ -3289,6 +3303,30 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
             stop
         }
     } else {
+        if prifilt("kern.*") and ($msg contains "iptables") then {
+            action(
+                name     = "REMOTE_IptablesToFile"
+                type     = "omfile"
+                dynaFile = "REMOTE_IptablesFileTemplate"
+                template = "RSYSLOG_TraditionalFileFormat"
+            )
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
+            stop
+        }
+        if prifilt("kern.*") then {
+            action(
+                name     = "REMOTE_KernelToFile"
+                type     = "omfile"
+                dynaFile = "REMOTE_KernelFileTemplate"
+                template = "RSYSLOG_TraditionalFileFormat"
+            )
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
+            stop
+        }
+        # Log anything (except mail) of level info or higher.
+        # Don't log private authentication messages!
         if prifilt("*.info;mail.none;authpriv.none;cron.none") then {
             action(
                 name     = "REMOTE_MessagesToFile"
@@ -3304,7 +3342,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
         }
         if prifilt("syslog.*") then {
             action(
-                name     = "LOCAL_SyslogToFile"
+                name     = "REMOTE_SyslogToFile"
                 type     = "omfile"
                 dynaFile = "REMOTE_SyslogFileTemplate"
                 template = "RSYSLOG_TraditionalFileFormat"
@@ -3314,6 +3352,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
                    template="RSYSLOG_TraditionalFileFormat")
             stop
         }
+        # The authpriv file has restricted access.
         if prifilt("authpriv.*") then {
             action(
                 name     = "REMOTE_SecureToFile"
@@ -3326,6 +3365,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
                    template="RSYSLOG_TraditionalFileFormat")
             stop
         }
+        # Log all the mail messages in one place.
         if prifilt("mail.*") then {
             action(
                 name     = "REMOTE_MailToFile"
@@ -3339,6 +3379,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
                    template="RSYSLOG_TraditionalFileFormat")
             stop
         }
+        # Log cron stuff
         if prifilt("cron.*") then {
             action(
                 name     = "REMOTE_CronToFile"
@@ -3351,6 +3392,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
                    template="RSYSLOG_TraditionalFileFormat")
             stop
         }
+        # Save news errors of level crit and higher in a special file.
         if prifilt("uucp,news.crit") then {
             action(
                 name     = "REMOTE_SpoolToFile"
@@ -3363,6 +3405,7 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
                    template="RSYSLOG_TraditionalFileFormat")
             stop
         }
+        # Save boot messages also to boot.log
         if prifilt("local7.*") then {
             action(
                 name     = "REMOTE_BootToFile"
