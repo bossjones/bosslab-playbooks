@@ -2608,7 +2608,7 @@ boss__fluentd__centralized__deployment_spec_template_spec_securityContext: |-
 
 boss__fluentd__centralized__deployment_spec_template_spec_containers_livenessProbe: |-
   tcpSocket:
-    port: {{boss__fluentd__centralized__tcp_in_port}}
+    port: {{boss__fluentd__centralized__promths_mtr_in_port}}
   initialDelaySeconds: 60
   timeoutSeconds: 10
 

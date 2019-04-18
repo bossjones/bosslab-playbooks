@@ -1,0 +1,154 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: fluentd-centralized
+  namespace: kube-system
+  labels:
+    k8s-app: fluentd-centralized
+    version: v2.5.0
+    kubernetes.io/cluster-service: "true"
+spec:
+  replicas: 3
+
+  # selector:
+  #  matchLabels:
+  template:
+    metadata:
+      labels:
+        k8s-app: fluentd-centralized
+        version: v2.5.0
+        kubernetes.io/cluster-service: "true"
+
+      # annotations:
+    spec:
+      serviceAccountName: fluentd-centralized
+      initContainers:
+      - name: init-fluentd-centralized
+        image: bossjones/fluentd-elasticsearch:v2.5.0
+        command: [ "/bin/sh" ]
+        args: ['-c', 'tree']
+      containers:
+      - name: fluentd-centralized
+        image: bossjones/fluentd-elasticsearch:v2.5.0
+        imagePullPolicy: Always
+        # command:
+
+        env:
+        # - name: FLUENT_ELASTICSEARCH_HOST
+        #   value: "elasticsearch"
+        # - name: FLUENT_ELASTICSEARCH_PORT
+        #   value: "9200"
+        
+        # Memory limit that the file tail plugin can use when appending data to the Engine
+        - name: TAIL_BUF_LIMIT
+          value: "5MB"
+        
+        - name: NODE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: POD_UID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: NODE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        
+        - name: TZ
+          value: "UTC"
+
+        volumeMounts:
+        # fluentd work files; do not share with multiple instances
+        - name: work
+          mountPath: /work
+          readOnly: false
+        # log file store (if used)
+        - name: log
+          mountPath: /log
+          readOnly: false
+        
+        - name: spool
+          mountPath: /spool
+          readOnly: false
+        
+        - name: config-volume
+          mountPath: /etc/fluent/config.d
+        
+        - name: grok-patterns
+          mountPath: /grok.d
+        
+
+        resources:
+          limits:
+            cpu: ".2"
+            memory: "100Mi"
+          requests:
+            cpu: "0.05"
+            memory: "10Mi"
+          
+
+        securityContext:
+          # SOURCE: https://docs.okd.io/latest/rest_api/apis-apps/v1beta2.Deployment.html
+          privileged: true
+
+        livenessProbe:
+          tcpSocket:
+            port: 24231
+          initialDelaySeconds: 60
+          timeoutSeconds: 10
+
+        ports:
+        - containerPort: 24231
+          name: promths-mtr
+          protocol: TCP
+        - containerPort: 24220
+          name: monitor-agnt
+          protocol: TCP
+
+      # sidecar disabled
+
+      volumes:
+      - name: work
+        emptyDir: {}
+      - name: spool
+        emptyDir: {}
+      # log file store (if used)
+      - name: log
+        persistentVolumeClaim:
+          claimName: fluentd-centralized-pvc
+      
+      - name: config-volume
+        configMap:
+          name: fluentd-centralized-grokconfig-0-3-0
+          # defaultMode: 0775
+      
+      - name: grok-patterns
+        configMap:
+          name: fluentd-centralized-grok-patterns-0-3-0
+          # defaultMode: 0775
+      
+
+      hostNetwork: True
+
+      hostPID: True
+
+      nodeSelector:
+        beta.kubernetes.io/os: linux

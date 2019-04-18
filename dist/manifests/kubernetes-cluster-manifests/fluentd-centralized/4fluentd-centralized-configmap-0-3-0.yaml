@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{boss__fluentd__centralized__shared_name}}-grok-patterns-0-3-0
-  namespace: {{boss__fluentd__centralized__namespace_name}}
+  name: fluentd-centralized-grok-patterns-0-3-0
+  namespace: kube-system
   labels:
-    k8s-app: {{boss__fluentd__centralized__shared_name}}
+    k8s-app: fluentd-centralized
 # SOURCE: https://github.com/adriansr/beats/blob/938b0322a993021d79ed2a8be24055a7f3e69300/x-pack/filebeat/module/iptables/log/ingest/pipeline.json
-{% raw %}
+
 data:
   grok_patterns: |-
     USERNAME [a-zA-Z0-9._-]+
@@ -373,7 +373,6 @@ data:
     UBIQUITI_RULESET_NAME [^\\]]*
     UBIQUITI_LABEL %{UBIQUITI_RULESET_NAME:iptables.ubiquiti.rule_set}-%{UBIQUITI_FIELD:iptables.ubiquiti.rule_number}-%{UBIQUITI_FIELD:event.outcome}"
     UBIQUITI_FIELD_IPTABLES_RULE_SET [^-]*
-{% endraw %}
 
 ---
 
@@ -381,10 +380,10 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{boss__fluentd__centralized__shared_name}}-grokconfig-0-3-0
-  namespace: {{boss__fluentd__centralized__namespace_name}}
+  name: fluentd-centralized-grokconfig-0-3-0
+  namespace: kube-system
   labels:
-    k8s-app: {{boss__fluentd__centralized__shared_name}}
+    k8s-app: fluentd-centralized
 data:
   system.conf: |-
     <system>
@@ -399,11 +398,11 @@ data:
       @label ingest_from_unifi
       read_from_head true
       tag ingest_from_unifi
-      pos_file {{boss__fluentd__centralized__path_to_logs_inside_container}}/fluentd.pos
+      pos_file /log/fluentd.pos
       # format none
-      path {{boss__fluentd__centralized__path_to_nfs_mount}}/
+      path /mnt/publicdata/rsyslog/
       tag unifi_syslog
-      custom_pattern_path {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
+      custom_pattern_path /grok.d
       <parse>
         @type grok
         <grok>
@@ -436,11 +435,11 @@ data:
       @label ingest_from_unifiserver
       read_from_head true
       tag ingest_from_unifiserver
-      pos_file {{boss__fluentd__centralized__path_to_logs_inside_container}}/fluentd.pos
+      pos_file /log/fluentd.pos
       # format none
-      path {{boss__fluentd__centralized__path_to_logs_inside_container}}/client_logs/**/*.log
+      path /log/client_logs/**/*.log
       tag unifiserver_syslog
-      custom_pattern_path {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
+      custom_pattern_path /grok.d
       <parse>
         @type grok
         <grok>
@@ -456,11 +455,11 @@ data:
       @label ingest_from_unifi_iptables
       read_from_head true
       tag ingest_from_unifi_iptables
-      pos_file {{boss__fluentd__centralized__path_to_logs_inside_container}}/fluentd.pos
+      pos_file /log/fluentd.pos
       # format none
-      path {{boss__fluentd__centralized__path_to_logs_inside_container}}/client_logs/**/*.log
+      path /log/client_logs/**/*.log
       tag unifi_iptables_syslog
-      custom_pattern_path {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
+      custom_pattern_path /grok.d
       <parse>
         @type grok
         <grok>
@@ -488,11 +487,11 @@ data:
       @label ingest_from_unifi_iptables_ubiquiti_rule_set
       read_from_head true
       tag ingest_from_unifi_iptables_ubiquiti_rule_set
-      pos_file {{boss__fluentd__centralized__path_to_logs_inside_container}}/fluentd.pos
+      pos_file /log/fluentd.pos
       # format none
-      path {{boss__fluentd__centralized__path_to_logs_inside_container}}/client_logs/**/*.log
+      path /log/client_logs/**/*.log
       tag unifi_iptables_ubiquiti_rule_set_syslog
-      custom_pattern_path {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
+      custom_pattern_path /grok.d
       <parse>
         @type grok
         <grok>

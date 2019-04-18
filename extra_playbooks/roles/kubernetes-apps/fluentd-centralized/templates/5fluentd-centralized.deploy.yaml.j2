@@ -47,7 +47,7 @@ spec:
 {% endif %}
       containers:
       - name: {{boss__fluentd__centralized__shared_name}}
-        image: {{ boss__fluentd__centralized__fluent_bit_image_repo }}:{{ boss__fluentd__centralized__fluent_bit_image_tag }}
+        image: {{ boss__fluentd__centralized__fluentd_image_repo }}:{{ boss__fluentd__centralized__fluentd_image_tag }}
         imagePullPolicy: Always
         # command:
 

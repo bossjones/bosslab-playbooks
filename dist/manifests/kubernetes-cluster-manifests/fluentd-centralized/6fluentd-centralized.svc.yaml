@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fluentd-centralized
+  namespace: kube-system
+  labels:
+    k8s-app: fluentd-centralized
+    version: v2.5.0
+    kubernetes.io/cluster-service: "true"
+  # annotations:
+spec:
+  type: ClusterIP
+  ports:
+    - name: promths-mtr
+      port: 24231
+      protocol: TCP
+      targetPort: 24231
+    - name: monitor-agnt
+      port: 24220
+      protocol: TCP
+      targetPort: 24220
+  selector:
+    k8s-app: fluentd-centralized
