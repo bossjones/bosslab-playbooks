@@ -2282,8 +2282,6 @@ boss__elasticsearch__exporter__cluster_role_rules: |-
 boss__fluentd__centralized__subdomain: fluentd-centralized
 boss__fluentd__centralized__manifest_path: "{{manifest_dir_path}}/fluentd-centralized"
 boss__fluentd__centralized__namespace_name: kube-system
-# boss__fluentd__centralized__fluentd_version: v2.0.4-ui
-# boss__fluentd__centralized__fluentd_image_repo: "alogoc/fluentd-elasticsearch"
 boss__fluentd__centralized__fluentd_version: v2.5.0
 boss__fluentd__centralized__fluentd_image_repo: "bossjones/fluentd-elasticsearch"
 boss__fluentd__centralized__fluentd_image_tag: "{{ boss__fluentd__centralized__fluentd_version }}"
@@ -2292,6 +2290,57 @@ boss__fluentd__centralized__configmap_suffix: "-0-3-0"
 boss__fluentd__centralized__create_namespace: "absent"
 boss__fluentd__centralized__create_ingress: "present"
 boss__fluentd__centralized__loglevel: "debug"
+boss__fluentd__centralized__main_config_folder_prefix: "/fluentd-centralized/etc"
+boss__fluentd__centralized__promths_mtr_in_port: 24231
+boss__fluentd__centralized__monitor_agnt_in_port: 24220
+boss__fluentd__centralized__relp_in_port: 1601
+boss__fluentd__centralized__path_to_logs_inside_container: "/log"
+boss__fluentd__centralized__path_to_config_inside_container: "/config"
+boss__fluentd__centralized__path_to_work_inside_container: "/work"
+boss__fluentd__centralized__path_to_spool_inside_container: "/spool"
+boss__fluentd__centralized__path_to_grok_patterns_inside_container: "/grok.d"
+boss__fluentd__centralized__path_to_nfs_mount: "/mnt/publicdata/rsyslog"
+
+
+boss__fluentd__centralized__logrotate_version: 1.3
+boss__fluentd__centralized__logrotate_image_repo: "blacklabelops/logrotate"
+boss__fluentd__centralized__logrotate_image_tag: "{{ boss__fluentd__centralized__logrotate_version }}"
+
+
+################# Persistent volume claims - begin #########################
+
+# persistent volume claim - fluentd
+boss__fluentd__centralized__fluentd_pvc_labels: |-
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  k8s-app: {{boss__fluentd__centralized__shared_name}}
+
+boss__fluentd__centralized__fluentd_pvc_spec_storageClassName: "nfs-dynamic-class"
+boss__fluentd__centralized__fluentd_pvc_spec_resources_requests_storage: "100Mi"
+
+# persistent volume - fluentd
+boss__fluentd__centralized__fluentd_pv_labels: |-
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    k8s-app: {{boss__fluentd__centralized__shared_name}}
+
+boss__fluentd__centralized__fluentd_pv_spec_capacity_storage: 100Mi
+boss__fluentd__centralized__fluentd_pv_spec_nfs: |-
+    server: {{nfs_server_ip_override}}
+    path: "{{boss__fluentd__centralized__path_to_nfs_mount}}"
+# NOTE: ^ this is the /mnt/publicdata/rsyslog folder on purpose
+################# Persistent volume claims - end #########################
+
+
+# NOTE: Test using this!
+# NOTE: Test using this!
+# NOTE: Test using this!
+#  malcolm  ⎇  feature-centralized-fluentd-aggregator {24}  ⓔ bosslab-playbooks2  ⓔ 2.4.3  ~/dev/bossjones/bosslab-playbooks   syslog-netcat-test fluentd-centralized.scarlettlab.com 6170
+# Looks like a macOS
+# <150>Apr 10 00:17:13 darktop.localdomain syslog-netcat-test[76775]: testing baby
+# fluentd-centralized.scarlettlab.com [192.168.205.10] 6170 open
+#  malcolm  ⎇  feature-centralized-fluentd-aggregator {24}  ⓔ bosslab-playbooks2  ⓔ 2.4.3  ~/dev/bossjones/bosslab-playbooks   syslog-netcat-test-udp fluentd-centralized.scarlettlab.com 6160
+
 
 boss__fluentd__centralized__deployment_spec_template_containers_resources: |
   limits:
@@ -2324,60 +2373,111 @@ boss__fluentd__centralized__cluster_role_rules: |-
     - "list"
     - "update"
     - "post"
+  # DEBUG: CUSTOM FROM HERE ON OUT ---- 5/10/2019
+  - apiGroups:
+    - ""
+    resources:
+    - persistentvolumes
+    verbs:
+    - get
+    - list
+    - patch
+    - update
+    - watch
+  - apiGroups:
+    - storage.k8s.io
+    resources:
+    - volumeattachments
+    verbs:
+    - get
+    - list
+    - patch
+    - update
+    - watch
+  - apiGroups:
+    - ""
+    resources:
+    - configmaps
+    - secrets
+    verbs:
+    - '*'
+  - apiGroups:
+    - ""
+    resources:
+    - pods
+    verbs:
+    - list
+    - delete
+  - apiGroups:
+    - ""
+    resources:
+    - services
+    - services/finalizers
+    - endpoints
+    verbs:
+    - get
+    - create
+    - update
+    - delete
+  - apiGroups:
+    - ""
+    resources:
+    - nodes
+    verbs:
+    - list
+    - watch
+  - apiGroups:
+    - ""
+    resources:
+    - namespaces
+    verbs:
+    - get
+    - list
+    - watch
+  # DEBUG: CUSTOM FROM HERE ON OUT END ---- 5/10/2019
 
 boss__fluentd__centralized__deployment_labels: |-
   k8s-app: {{boss__fluentd__centralized__shared_name}}
-  version: v2.5.0
+  version: {{boss__fluentd__centralized__fluentd_version}}
   kubernetes.io/cluster-service: "true"
 
 boss__fluentd__centralized__deployment_spec_matchLabels: "disabled"
 
 # boss__fluentd__centralized__deployment_spec_matchLabels: |-
 #   k8s-app: {{boss__fluentd__centralized__shared_name}}
-#   version: v2.5.0
+#   version: {{boss__fluentd__centralized__fluentd_version}}
 
 boss__fluentd__centralized__deployment_spec_template_metadata_labels: |-
   k8s-app: {{boss__fluentd__centralized__shared_name}}
-  version: v2.5.0
+  version: {{boss__fluentd__centralized__fluentd_version}}
   kubernetes.io/cluster-service: "true"
 
-boss__fluentd__centralized__deployment_spec_template_metadata_annotations: |
-  prometheus.io/scrape: "true"
-  prometheus.io/port: "24231"
+boss__fluentd__centralized__deployment_spec_template_metadata_annotations: "disabled"
 
 boss__fluentd__centralized__deployment_spec_template_containers_ports: |-
-  # - containerPort: 2020
-  #   name: http-metrics
-  # - containerPort: 5140
-  #   name: syslog
-  #   protocol: UDP
-  - containerPort: 24224
-    name: in-forward
-    protocol: TCP
-  - containerPort: 9880
-    name: http
-    protocol: TCP
-  - containerPort: 161
-    name: snmp
-    protocol: UDP
-  - containerPort: 5160
-    name: in-udp
-    protocol: UDP
-  - containerPort: 5170
-    name: in-tcp
-    protocol: TCP
-  - containerPort: 5140
-    name: in-syslog
-    protocol: TCP
-  - containerPort: 9292
-    name: fluentd-ui
-    protocol: TCP
-  - containerPort: 24231
+  - containerPort: {{boss__fluentd__centralized__promths_mtr_in_port}}
     name: promths-mtr
     protocol: TCP
-  - containerPort: 24220
+  - containerPort: {{boss__fluentd__centralized__monitor_agnt_in_port}}
     name: monitor-agnt
     protocol: TCP
+
+
+boss__fluentd__centralized__service_spec_ports: |-
+  - name: promths-mtr
+    port: {{boss__fluentd__centralized__promths_mtr_in_port}}
+    protocol: TCP
+    targetPort: {{boss__fluentd__centralized__promths_mtr_in_port}}
+  - name: monitor-agnt
+    port: {{boss__fluentd__centralized__monitor_agnt_in_port}}
+    protocol: TCP
+    targetPort: {{boss__fluentd__centralized__monitor_agnt_in_port}}
+
+boss__fluentd__centralized__deployment_spec_template_initContainers: |-
+  - name: init-{{boss__fluentd__centralized__shared_name}}
+    image: {{boss__fluentd__centralized__fluentd_image_repo}}:{{boss__fluentd__centralized__fluentd_image_tag}}
+    command: [ "/bin/sh" ]
+    args: ['-c', 'tree']
 
 boss__fluentd__centralized__deployment_spec_template_containers_env: |-
   # - name: FLUENT_ELASTICSEARCH_HOST
@@ -2385,7 +2485,7 @@ boss__fluentd__centralized__deployment_spec_template_containers_env: |-
   # - name: FLUENT_ELASTICSEARCH_PORT
   #   value: "9200"
 
-    # Memory limit that the file tail plugin can use when appending data to the Engine
+  # Memory limit that the file tail plugin can use when appending data to the Engine
   - name: TAIL_BUF_LIMIT
     value: "5MB"
 
@@ -2418,80 +2518,62 @@ boss__fluentd__centralized__deployment_spec_template_containers_env: |-
       fieldRef:
         fieldPath: spec.nodeName
 
+  - name: TZ
+    value: "UTC"
+
 boss__fluentd__centralized__deployment_spec_template_spec_volumeMounts: |
-  # The volume where logs will be delivered by the Docker logging driver
-  - name: logging-volume
-    mountPath: /logging-volume
-  # The volume where Fluent Bit stores persistent data (position databases for tracking ingested files)
-  - name: fluent-data
-    mountPath: /var/fluent-bit
-  # The Fluent Bit config file to use
-  - name: fluent-bit-config
-    mountPath: /fluent-bit/etc
+  # fluentd work files; do not share with multiple instances
+  - name: work
+    mountPath: {{boss__fluentd__centralized__path_to_work_inside_container}}
+    readOnly: false
+  # log file store (if used)
+  - name: log
+    mountPath: {{boss__fluentd__centralized__path_to_logs_inside_container}}
+    readOnly: false
+
+  - name: spool
+    mountPath: {{boss__fluentd__centralized__path_to_spool_inside_container}}
+    readOnly: false
+
+  - name: config-volume
+    mountPath: /etc/fluent/config.d
+
+  - name: grok-patterns
+    mountPath: {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
 
 boss__fluentd__centralized__deployment_spec_template_spec_volumes: |
-  - name: logging-volume
+  - name: work
     emptyDir: {}
-  - name: fluent-bit-config
+  - name: spool
+    emptyDir: {}
+  # log file store (if used)
+  - name: log
+    persistentVolumeClaim:
+      claimName: {{boss__fluentd__centralized__shared_name}}-pvc
+
+  - name: config-volume
     configMap:
-      name: {{boss__fluentd__centralized__shared_name}}-config{{boss__fluentd__centralized__configmap_suffix}}
-  - name: fluent-data
-    emptyDir: {}
+      name: {{boss__fluentd__centralized__shared_name}}-grokconfig{{boss__fluentd__centralized__configmap_suffix}}
+      # defaultMode: 0775
+
+  - name: grok-patterns
+    configMap:
+      name: {{boss__fluentd__centralized__shared_name}}-grok-patterns{{boss__fluentd__centralized__configmap_suffix}}
+      # defaultMode: 0775
+
+
+boss__fluentd__centralized__deployment_spec_template_spec_sidcar_container: "disabled"
 
 boss__fluentd__centralized__service_labels: |-
   k8s-app: {{boss__fluentd__centralized__shared_name}}
-  version: v2.5.0
+  version: {{boss__fluentd__centralized__fluentd_version}}
   kubernetes.io/cluster-service: "true"
+
 
 boss__fluentd__centralized__service_annotations: "disabled"
 
 boss__fluentd__centralized__service_spec_type: ClusterIP
 
-boss__fluentd__centralized__service_spec_ports: |-
-  # - port: 2020
-  #   targetPort: 2020
-  #   protocol: TCP
-  #   name: http-metrics
-  # - port: 5140
-  #   targetPort: 5140
-  #   protocol: UDP
-  #   name: syslog
-  - name: in-forward
-    port: 24224
-    protocol: TCP
-    targetPort: in-forward
-  - name: http
-    port: 9880
-    protocol: TCP
-    targetPort: http
-  - name: snmp
-    port: 161
-    protocol: UDP
-    targetPort: snmp
-  - name: in-udp
-    port: 5160
-    protocol: UDP
-    targetPort: in-udp
-  - name: in-tcp
-    port: 5170
-    protocol: TCP
-    targetPort: in-tcp
-  - name: in-syslog
-    port: 5140
-    protocol: TCP
-    targetPort: in-syslog
-  - name: fluentd-ui
-    port: 9292
-    protocol: TCP
-    targetPort: fluentd-ui
-  - name: promths-mtr
-    port: 24231
-    protocol: TCP
-    targetPort: promths-mtr
-  - name: monitor-agnt
-    port: 24220
-    protocol: TCP
-    targetPort: monitor-agnt
 
 boss__fluentd__centralized__service_spec_selector: |-
   k8s-app: {{boss__fluentd__centralized__shared_name}}
@@ -2500,11 +2582,11 @@ boss__fluentd__centralized__ingress_spec_rules_http_paths: |
   - path: /
     backend:
       serviceName: {{boss__fluentd__centralized__shared_name}}
-      servicePort: 5160
+      servicePort: {{boss__fluentd__centralized__promths_mtr_in_port}}
 
 boss__fluentd__centralized__ingress_labels: |-
   k8s-app: {{boss__fluentd__centralized__shared_name}}
-  version: v2.5.0
+  version: {{boss__fluentd__centralized__fluentd_version}}
   kubernetes.io/cluster-service: "true"
 
 boss__fluentd__centralized__ingress_annotations: |-
@@ -2518,17 +2600,18 @@ boss__fluentd__centralized__deployment_spec_template_spec_hostPID: True
 boss__fluentd__centralized__deployment_spec_template_spec_nodeSelector: |-
   beta.kubernetes.io/os: linux
 
-boss__fluentd__centralized__deployment_spec_template_spec_securityContext: "disabled"
+# boss__fluentd__centralized__deployment_spec_template_spec_securityContext: "disabled"
+boss__fluentd__centralized__deployment_spec_template_spec_securityContext: |-
+  # SOURCE: https://docs.okd.io/latest/rest_api/apis-apps/v1beta2.Deployment.html
+  privileged: true
 
-#      hostNetwork: true
-#      hostPID: true
-#      nodeSelector:
-#        beta.kubernetes.io/os: linux
-#      securityContext:
-#        runAsNonRoot: true
-#        runAsUser: 65534
 
-# [20:34:19,104] <inform-707> INFO inform - from [MAC ADDRESS](UniFi Security Gateway 3P, UGW3, 4.4.36.5146617): state=CONNECTED, last_inform=3, ext/stun_ip=192.168.1.1, dev_ip=192.168.0.3, up=4955230
+boss__fluentd__centralized__deployment_spec_template_spec_containers_livenessProbe: |-
+  tcpSocket:
+    port: {{boss__fluentd__centralized__tcp_in_port}}
+  initialDelaySeconds: 60
+  timeoutSeconds: 10
+
 
 ##########################################################################################################
 # .########...######..##....##..######..##........#######...######............######..########.##....##.########.########.....###....##.......####.########.########.########.
