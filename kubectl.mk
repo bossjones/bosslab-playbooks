@@ -2354,3 +2354,101 @@ lint-rsyslog-centralized:
 code-rsyslog-centralized:
 	$(call check_defined, cluster, Please set cluster)
 	code dist/manifests/$(cluster)-manifests/rsyslog-centralized
+
+
+
+redeploy-fluentd-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "delete fluentd-centralized:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN delete fluentd-centralized$$NC\n"
+	@printf "=======================================\n"
+	-kubectl delete -f dist/manifests/$(cluster)-manifests/fluentd-centralized/
+
+	@printf "render fluentd-centralized manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN render fluentd-centralized manifest$$NC\n"
+	@printf "=======================================\n"
+	-ansible-playbook -c local -vvvvv playbooks/render_fluentd_centralized.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@echo ""
+	@echo ""
+
+	@printf "lint fluentd-centralized manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint fluentd-centralized manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/fluentd-centralized -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+
+	@printf "quick sleep:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN quick sleep$$NC\n"
+	@printf "=======================================\n"
+	sleep 10
+	@echo ""
+	@echo ""
+
+	@printf "apply-fluentd-centralized:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy fluentd-centralized$$NC\n"
+	@printf "=======================================\n"
+	-kubectl apply -f dist/manifests/$(cluster)-manifests/fluentd-centralized/
+	@echo ""
+	@echo ""
+
+create-fluentd-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-fluentd-centralized:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy fluentd-centralized$$NC\n"
+	@printf "=======================================\n"
+	kubectl create -f dist/manifests/$(cluster)-manifests/fluentd-centralized/
+	@echo ""
+	@echo ""
+
+apply-fluentd-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-fluentd-centralized:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy fluentd-centralized$$NC\n"
+	@printf "=======================================\n"
+	kubectl apply -f dist/manifests/$(cluster)-manifests/fluentd-centralized/
+	@echo ""
+	@echo ""
+
+# https://github.com/kubernetes/kubernetes/blob/3d7d35ee8f099f4611dca06de4453f958b4b8492/cluster/addons/storage-class/local/default.yaml
+apply-fluentd-centralized-ingress:
+	$(call check_defined, cluster, Please set cluster)
+	@printf "create-fluentd-centralized:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN deploy fluentd-centralized$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/fluentd-centralized/* -type f -name '*ingress*y*ml' -print0 | xargs -I FILE -t -0 -n1 kubectl apply -f FILE"
+	@echo ""
+	@echo ""
+
+
+delete-fluentd-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl delete -f dist/manifests/$(cluster)-manifests/fluentd-centralized/
+
+describe-fluentd-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	kubectl describe -f dist/manifests/$(cluster)-manifests/fluentd-centralized/ | highlight
+
+debug-fluentd-centralized: describe-fluentd-centralized
+	kubectl -n kube-system get pod -l app=fluentd-centralized --output=yaml | highlight
+
+log-fluentd-centralized:
+	kubetail -n kube-system -l k8s-app=fluentd-centralized
+
+test-fluentd-centralized-curl:
+	-curl -v -L 'http://fluentd-centralized.hyenaclan.org'
+
+lint-fluentd-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	bash -c "find dist/manifests/$(cluster)-manifests/fluentd-centralized -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+	kubeval-part-lint $(cluster) fluentd-centralized
+
+code-fluentd-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	code dist/manifests/$(cluster)-manifests/fluentd-centralized
