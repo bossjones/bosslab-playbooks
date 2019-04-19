@@ -1,0 +1,77 @@
+{
+    "firewall": {
+            "name": {
+                    "WAN_IN": {
+                            "rule": {
+                                    "3002": {
+                                            "log": "enable"
+                                    }
+                            }
+                    },
+                    "WAN_LOCAL": {
+                            "rule": {
+                                    "3002": {
+                                            "log": "enable"
+                                    }
+                            }
+                    }
+            }
+    },
+    "system": {
+        "static-host-mapping": {
+            "host-name": {
+                "weave.borglab.duckdns.org": {
+                    "inet": "192.168.1.172"
+                },
+                "weave.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "scope.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "traefik-internal.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "whoami.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "echoserver.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "elasticsearch.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "kibana.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "prometheus.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "grafana.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "alertmanager.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "registry.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "debug.registry.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "registry-ui.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "jenkins.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "syslog.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
+                "fluent-bit-centralized.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                }
+            }
+        }
+    }
+}
