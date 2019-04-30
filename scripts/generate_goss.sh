@@ -40,7 +40,10 @@ lsmod_array=( ip_vs_wrr ip_vs_rr ip_vs_sh ip_vs nf_conntrack_ipv4 bridge br_netf
 
 for i in "${lsmod_array[@]}"; do goss add command "lsmod | grep -- \"^${i}\" | wc -l"; done
 
-
+# TODO: check for this GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1" inside of /etc/default/grub
+# TODO: check for this GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1" inside of /etc/default/grub
+# TODO: check for this GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1" inside of /etc/default/grub
+# TODO: check for this GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1" inside of /etc/default/grub
 
 # Remove the node from the ClusterStatus key of kubeadm-config ConfigMap (in
 # kube-system namespace). If this isn't done, the new node will fail to join
