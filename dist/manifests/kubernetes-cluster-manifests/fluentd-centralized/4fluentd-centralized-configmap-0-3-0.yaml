@@ -636,7 +636,7 @@ data:
     # --------------------------------------------------------------------------------------
     # DEBUG: Matches -> [WAN_LOCAL-3002-D]
     # --------------------------------------------------------------------------------------
-    BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS \[%{WORD:firewall.interface}-%{WORD:firewall.rule_index}-%{WORD:firewall.rule_action}]
+    BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS \[%{WORD:firewall.interface}-%{WORD:firewall.rule_index}-%{WORD:firewall.rule_action}\]
 
     # --------------------------------------------------------------------------------------
     # DEBUG: Matches -> IN=eth0 OUT= MAC=80:2a:a8:00:11:33:00:11:22:33:44:66:08:00
@@ -818,6 +818,33 @@ data:
     #   </parse>
     # </source>
 
+    # NOTE: This was the only one that was working!!!!! 5/1/2019
+    # NOTE: This was the only one that was working!!!!! 5/1/2019
+    # NOTE: This was the only one that was working!!!!! 5/1/2019
+    # NOTE: This was the only one that was working!!!!! 5/1/2019
+    # NOTE: This was the only one that was working!!!!! 5/1/2019
+    # NOTE: This was the only one that was working!!!!! 5/1/2019
+    # DISABLED: <source>
+    # DISABLED:   @type tail
+    # DISABLED:   @id ingest_from_unifi_iptables_ubiquiti_rule_set
+    # DISABLED:   @label @ingest_from_unifi_iptables_ubiquiti_rule_set
+    # DISABLED:   read_from_head true
+    # DISABLED:   tag ingest_from_unifi_iptables_ubiquiti_rule_set
+    # DISABLED:   pos_file /log/fluentd.pos
+    # DISABLED:   # format none
+    # DISABLED:   path /log/client_logs/**/*.log
+    # DISABLED:   tag unifi_iptables_ubiquiti_rule_set_syslog
+    # DISABLED:   <parse>
+    # DISABLED:     @type grok
+    # DISABLED:     custom_pattern_path /grok.d
+    # DISABLED:     # pattern %{UBIQUITI_FIELD_IPTABLES_RULE_SET:iptables.ubiquiti.input_zone}-%{UBIQUITI_FIELD_IPTABLES_RULE_SET:iptables.ubiquiti.output_zone}
+    # DISABLED:     pattern %{UBIQUITI_FIELD_IPTABLES_RULE_SET:iptables.ubiquiti.input_zone}
+    # DISABLED:     grok_pattern %{UBIQUITI_FIELD_IPTABLES_RULE_SET:iptables.ubiquiti.input_zone}
+    # DISABLED:     time_format %m%d %H:%M:%S.%N
+    # DISABLED:     time_key timestamp
+    # DISABLED:   </parse>
+    # DISABLED: </source>
+
     <source>
       @type tail
       @id ingest_from_unifi_iptables_ubiquiti_rule_set
@@ -831,9 +858,8 @@ data:
       <parse>
         @type grok
         custom_pattern_path /grok.d
-        # pattern %{UBIQUITI_FIELD_IPTABLES_RULE_SET:iptables.ubiquiti.input_zone}-%{UBIQUITI_FIELD_IPTABLES_RULE_SET:iptables.ubiquiti.output_zone}
-        pattern %{UBIQUITI_FIELD_IPTABLES_RULE_SET:iptables.ubiquiti.input_zone}
-        grok_pattern %{UBIQUITI_FIELD_IPTABLES_RULE_SET:iptables.ubiquiti.input_zone}
+        # pattern %{BOSSJONES_UNIFI_SECURITYGATEWAY_KERNEL_START} %{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS}%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_IPTABLES_ETHERNET} %{BOSSJONES_IPTABLES_IP_START}
+        grok_pattern %{BOSSJONES_UNIFI_SECURITYGATEWAY_KERNEL_START} %{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS}%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_IPTABLES_ETHERNET} %{BOSSJONES_IPTABLES_IP_START}
         time_format %m%d %H:%M:%S.%N
         time_key timestamp
       </parse>
