@@ -592,6 +592,62 @@ data:
     # FIXME: Todo, add field names to these guys
     BOSS_UNIFI_IPTABLES_LOG_RULES %{SYSLOGTIMESTAMP:timestamp_logged}%{SPACE}%{BACULA_DEVICE}%{SPACE}%{BACULA_JOB}%{NOTSPACE}%{SPACE}\[%{WORD:iptables.interface}-%{WORD:iptables.rule_index}-%{UBIQUITI_FIELD:iptables.rule_action}\]%{UBIQUITI_FIELD_IPTABLES_RULE_SET}
 
+    # Matches the following lines
+    # EXAMPLE: SRC=192.168.1.8 DST=192.168.1.1 LEN=52 TOS=0x00 PREC=0x00 TTL=64 ID=61516 DF PROTO=TCP SPT=8080 DPT=45096 WINDOW=246 RES=0x00 ACK URGP=0
+    # EXAMPLE: SRC=172.217.10.138 DST=192.168.0.3 LEN=115 TOS=0x00 PREC=0x00 TTL=122 ID=53703 PROTO=TCP SPT=443 DPT=52170 WINDOW=294 RES=0x00 ACK PSH URGP=0
+    # EXAMPLE: SRC=192.168.1.212 DST=192.168.1.1 LEN=102 TOS=0x00 PREC=0x00 TTL=64 ID=2810 PROTO=UDP SPT=61080 DPT=53 LEN=82
+    BOSSJONES_IPTABLES_IP_START SRC=%{IPV4:firewall.source.ip} DST=%{IPV4:firewall.destination.ip} LEN=%{UNSIGNED_INT:firewall.packet_length} TOS=0x%{BASE16NUM:firewall.tos} PREC=0x%{BASE16NUM:firewall.precidence_field} TTL=%{UNSIGNED_INT:firewall.ttl} ID=%{UNSIGNED_INT:firewall.id} %{GREEDYDATA:firewall.tcp_opts} PROTO=%{WORD:firewall.nf_protocol} SPT=%{INT:firewall.spt} DPT=%{INT:firewall.dtp} %{GREEDYDATA:firewall.tcp_opts}
+
+    # --------------------------------------------------------------------------------------
+    # SOURCE: https://community.ubnt.com/t5/UniFi-Routing-Switching/
+    # Analyzing-USG-firewall-logs-for-attack-visibility/m-p/2150450#M67353
+    # --------------------------------------------------------------------------------------
+
+    # --------------------------------------------------------------------------------------
+    # WAN_LOCAL rule 3002 drop
+    # --------------------------------------------------------------------------------------
+    # 2017-11-24T00:01:42-05:00 NetworkSecurityUbiquitiUSGULAN kernel: [WAN_LOCAL-3002-D]IN=eth0 OUT= MAC=80:2a:a8:00:11:33:00:11:22:33:44:66:08:00 src=203.0.113.1 DST=198.51.100.1 LEN=40 TOS=0x00 PREC=0x00 TTL=234 ID=13813 DF PROTO=TCP SPT=443 DPT=45137 WINDOW=0 RES=0x00 RST URGP=0
+    # --------------------------------------------------------------------------------------
+
+
+    # --------------------------------------------------------------------------------------
+    # WAN_LOCAL rule 4000 drop with repeat
+    # --------------------------------------------------------------------------------------
+    # 2017-11-24T01:13:06-05:00 NetworkSecurityUbiquitiUSGULAN kernel: [WAN_LOCAL-4000-D]IN=eth0 OUT= MAC=80:2a:a8:00:11:33:00:11:22:33:44:66:08:00 src=203.0.113.2 DST=198.51.100.1 LEN=40 TOS=0x00 PREC=0x00 TTL=48 ID=64173 PROTO=TCP SPT=57142 DPT=23 WINDOW=61184 RES=0x00 SYN URGP=0
+    # 2017-11-24T01:13:56-05:00 NetworkSecurityUbiquitiUSGULAN kernel: last message repeated 2 times
+    # --------------------------------------------------------------------------------------
+
+
+    # --------------------------------------------------------------------------------------
+    # EXAMPLE: Apr 18 20:24:04 UniFiSecurityGateway3P kernel: [LAN_LOCAL-default-A]IN=eth1 OUT= MAC=80:2a:a8:00:11:33:00:11:22:33:44:66:08:00 SRC=192.168.1.8 DST=192.168.1.1 LEN=52 TOS=0x00 PREC=0x00 TTL=64 ID=61516 DF PROTO=TCP SPT=8080 DPT=45096 WINDOW=246 RES=0x00 ACK URGP=0
+    # --------------------------------------------------------------------------------------
+    # EXAMPLE: Apr 18 20:54:31 UniFiSecurityGateway3P kernel: [WAN_LOCAL-4000-D]IN=eth0 OUT= MAC=80:2a:a8:00:11:33:00:11:22:33:44:66:08:00 SRC=172.217.10.138 DST=192.168.0.3 LEN=115 TOS=0x00 PREC=0x00 TTL=122 ID=53703 PROTO=TCP SPT=443 DPT=52170 WINDOW=294 RES=0x00 ACK PSH URGP=0
+    # --------------------------------------------------------------------------------------
+    # EXAMPLE: Apr 18 20:54:32 UniFiSecurityGateway3P kernel: [LAN_LOCAL-default-A]IN=eth1 OUT= MAC=80:2a:a8:00:11:33:00:11:22:33:44:66:08:00 SRC=192.168.1.212 DST=192.168.1.1 LEN=102 TOS=0x00 PREC=0x00 TTL=64 ID=2810 PROTO=UDP SPT=61080 DPT=53 LEN=82
+    # --------------------------------------------------------------------------------------
+
+    # --------------------------------------------------------------------------------------
+    # Combined these guys parse this:
+    # --------------------------------------------------------------------------------------
+    # DEBUG: Matches -> 2017-11-24T00:01:42-05:00 NetworkSecurityUbiquitiUSGULAN kernel:
+    # --------------------------------------------------------------------------------------
+    BOSSJONES_UNIFI_SECURITYGATEWAY_KERNEL_START %{SYSLOGTIMESTAMP:timestamp_logged} %{HOSTNAME:hostname} %{WORD:process_name}:
+
+    # --------------------------------------------------------------------------------------
+    # DEBUG: Matches -> [WAN_LOCAL-3002-D]
+    # --------------------------------------------------------------------------------------
+    BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS \[%{WORD:firewall.interface}-%{WORD:firewall.rule_index}-%{WORD:firewall.rule_action}]
+
+    # --------------------------------------------------------------------------------------
+    # DEBUG: Matches -> IN=eth0 OUT= MAC=80:2a:a8:00:11:33:00:11:22:33:44:66:08:00
+    # --------------------------------------------------------------------------------------
+    BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_IPTABLES_ETHERNET IN=%{DATA:iptables.input_device} OUT=%{DATA:iptables.output_device}?(?: MAC=%{NETFILTERMAC:mac})?
+
+    # --------------------------------------------------------------------------------------
+    # DEBUG: Matches -> SRC=192.168.1.212 DST=192.168.1.1 LEN=102 TOS=0x00 PREC=0x00 TTL=64 ID=2810 PROTO=UDP SPT=61080 DPT=53 LEN=82
+    # --------------------------------------------------------------------------------------
+    BOSSJONES_IPTABLES_IP_START SRC=%{IPV4:firewall.source.ip} DST=%{IPV4:firewall.destination.ip} LEN=%{UNSIGNED_INT:firewall.packet_length} TOS=0x%{BASE16NUM:firewall.tos} PREC=0x%{BASE16NUM:firewall.precidence_field} TTL=%{UNSIGNED_INT:firewall.ttl} ID=%{UNSIGNED_INT:firewall.id} %{GREEDYDATA:firewall.tcp_opts} PROTO=%{WORD:firewall.nf_protocol} SPT=%{INT:firewall.spt} DPT=%{INT:firewall.dtp} %{GREEDYDATA:firewall.tcp_opts}
+
   # # SOURCE: https://github.com/adriansr/beats/blob/938b0322a993021d79ed2a8be24055a7f3e69300/x-pack/filebeat/module/iptables/log/test/ubiquiti.log
   # # EXAMPLE: Jan  5 20:17:05 MainFirewall kernel: [LAN_LOCAL-default-A]IN=eth0.90 OUT= MAC=90:10:92:6e:ea:a7:90:10:73:ba:d6:77:08:00:45:fc:02:1c SRC=192.168.48.137 DST=255.55.174.225 LEN=540 TOS=0x1C PREC=0xE0 TTL=64 ID=27223 PROTO=UDP SPT=48689 DPT=48689 LEN=520
   # # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [WAN_OUT-2000-A]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:24:67:f4:89:08:00 SRC=192.168.134.158 DST=192.0.2.25 LEN=265 TOS=0x00 PREC=0x00 TTL=63 ID=51768 DF PROTO=TCP SPT=43189 DPT=443 WINDOW=159 RES=0x00 ACK PSH URGP=0
@@ -657,12 +713,10 @@ data:
   #   # FIXME: Todo, add field names to these guys
   #   BOSS_UNIFI_IPTABLES_LOG_RULES \A%{SYSLOGTIMESTAMP:timestamp_logged}%{SPACE}%{BACULA_DEVICE}%{SPACE}%{BACULA_JOB}%{NOTSPACE}%{SPACE}\[%{WORD:iptables.interface}-%{WORD:iptables.rule_index}-%{UBIQUITI_FIELD:iptables.rule_action}\]%{UBIQUITI_FIELD_IPTABLES_RULE_SET}
 
-  BOSSJONES_IPTABLES_IP_START SRC=%{IPV4:source.ip} DST=%{IPV4:destination.ip} LEN=%{UNSIGNED_INT:iptables.length:interger} TOS=0x%{BASE16NUM:iptables.tos} PREC=0x%{BASE16NUM:iptables.precedence_bits} TTL=%{UNSIGNED_INT:iptables.ttl:interger} ID=%{UNSIGNED_INT:iptables.id:interger}.?*PROTO=(%{WORD:nf_protocol})
+  # BOSSJONES_IPTABLES_IP_START SRC=%{IPV4:firewall.source.ip}\s*DST=%{IPV4:firewall.destination.ip}\s*LEN=%{UNSIGNED_INT:firewall.packet_length}\s*TOS=0x%{BASE16NUM:firewall.tos}\s*PREC=0x%{BASE16NUM:firewall.precidence_field}\s*TTL=%{UNSIGNED_INT:firewall.ttl}\s*ID=%{UNSIGNED_INT.firewall.id}\s*?*PROTO=(%{WORD:nf_protocol})
 
-  # (?: %{IPTABLES_IP_FRAGFLAG:iptables.fragment_flags})?(?: FRAG: %{UNSIGNED_INT:iptables.fragment_offset:interger})?
-  # SRC=192.168.1.8 DST=192.168.1.1 LEN=52 TOS=0x00 PREC=0x00 TTL=64 ID=61516 DF PROTO=TCP SPT=8080 DPT=45096 WINDOW=246 RES=0x00 ACK URGP=0
-  # SRC=172.217.10.138 DST=192.168.0.3 LEN=115 TOS=0x00 PREC=0x00 TTL=122 ID=53703 PROTO=TCP SPT=443 DPT=52170 WINDOW=294 RES=0x00 ACK PSH URGP=0
-  # SRC=192.168.1.212 DST=192.168.1.1 LEN=102 TOS=0x00 PREC=0x00 TTL=64 ID=2810 PROTO=UDP SPT=61080 DPT=53 LEN=82
+
+
 ---
 
 
