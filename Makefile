@@ -1298,6 +1298,14 @@ popeye:
 	@echo ""
 	popeye version
 
+GROK_PATTERN ?= %{HOSTNAME}
+
+groktoregex-fluentd:
+	./scripts/run_grok_to_regex.sh fluentd "$(GROK_PATTERN)"
+
+groktoregex-standard:
+	./scripts/run_grok_to_regex.sh standard "$(GROK_PATTERN)"
+
 # cd ~/dev/bossjones/bosslab-playbooks/scripts/boards; python ../../scripts/grafana_import.py http://grafana.scarlettlab.com "$(pwd)" -k "${GRAFANA_TOOLS_AUTH}"
 
 include *.mk

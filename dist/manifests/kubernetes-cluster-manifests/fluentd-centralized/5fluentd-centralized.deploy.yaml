@@ -5,10 +5,12 @@ metadata:
   namespace: kube-system
   labels:
     k8s-app: fluentd-centralized
-    version: v2.5.0
+    version: v2.4.0
     kubernetes.io/cluster-service: "true"
 spec:
   replicas: 3
+  strategy:
+    type: Recreate
 
   # selector:
   #  matchLabels:
@@ -16,7 +18,7 @@ spec:
     metadata:
       labels:
         k8s-app: fluentd-centralized
-        version: v2.5.0
+        version: v2.4.0
         kubernetes.io/cluster-service: "true"
 
       # annotations:
@@ -24,25 +26,29 @@ spec:
       serviceAccountName: fluentd-centralized
       initContainers:
       - name: init-fluentd-centralized
-        image: bossjones/fluentd-elasticsearch:v2.5.0
+        image: bossjones/fluentd-elasticsearch:v2.4.0
         command: [ "/bin/sh" ]
-        args: ['-c', 'tree']
+        args: ['-c', 'sleep 15']
       containers:
       - name: fluentd-centralized
-        image: bossjones/fluentd-elasticsearch:v2.5.0
+        image: bossjones/fluentd-elasticsearch:v2.4.0
         imagePullPolicy: Always
-        # command:
+        command: [ "/bin/bash" ]
+        args: ['-c', 'set -x; tree /grok.d; /usr/local/bin/fluentd $(echo ${FLUENTD_ARGS} | xargs)']
+
 
         env:
+        - name: FLUENTD_ARGS
+          value: "--no-supervisor -vv"
         # - name: FLUENT_ELASTICSEARCH_HOST
         #   value: "elasticsearch"
         # - name: FLUENT_ELASTICSEARCH_PORT
         #   value: "9200"
-        
+
         # Memory limit that the file tail plugin can use when appending data to the Engine
         - name: TAIL_BUF_LIMIT
           value: "5MB"
-        
+
         - name: NODE_IP
           valueFrom:
             fieldRef:
@@ -71,7 +77,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-        
+
         - name: TZ
           value: "UTC"
 
@@ -84,17 +90,17 @@ spec:
         - name: log
           mountPath: /log
           readOnly: false
-        
+
         - name: spool
           mountPath: /spool
           readOnly: false
-        
+
         - name: config-volume
           mountPath: /etc/fluent/config.d
-        
+
         - name: grok-patterns
           mountPath: /grok.d
-        
+
 
         resources:
           limits:
@@ -103,7 +109,7 @@ spec:
           requests:
             cpu: "0.05"
             memory: "10Mi"
-          
+
 
         securityContext:
           # SOURCE: https://docs.okd.io/latest/rest_api/apis-apps/v1beta2.Deployment.html
@@ -112,7 +118,7 @@ spec:
         livenessProbe:
           tcpSocket:
             port: 24231
-          initialDelaySeconds: 60
+          initialDelaySeconds: 90
           timeoutSeconds: 10
 
         ports:
@@ -131,20 +137,21 @@ spec:
       - name: spool
         emptyDir: {}
       # log file store (if used)
+      # This is rsyslog-centralized-pvc on purpose, we'r trying to mount the pvc that rsyslog-centralized-pvc creates
       - name: log
         persistentVolumeClaim:
-          claimName: fluentd-centralized-pvc
-      
+          claimName: rsyslog-centralized-pvc
+
       - name: config-volume
         configMap:
           name: fluentd-centralized-grokconfig-0-3-0
           # defaultMode: 0775
-      
+
       - name: grok-patterns
         configMap:
           name: fluentd-centralized-grok-patterns-0-3-0
           # defaultMode: 0775
-      
+
 
       hostNetwork: True
 
