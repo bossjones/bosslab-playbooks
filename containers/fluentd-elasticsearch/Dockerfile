@@ -176,6 +176,16 @@ RUN apt-get update \
         apt install -y autogen autoconf libtool libgeoip-dev \
     && clean-apt
 
+RUN mkdir -p /geoip && \
+    cd /geoip && \
+    wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz && \
+    wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz && \
+    wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-ASN.tar.gz && \
+    gunzip GeoLite2-City.tar.gz && \
+    gunzip GeoLite2-Country.tar.gz && \
+    gunzip GeoLite2-ASN.tar.gz && \
+    rm -rfv *.tar.gz
+
 ENV LD_PRELOAD="/usr/lib/libjemalloc.so.2"
 
 # EXPOSE 24224 24220 5170 5140
