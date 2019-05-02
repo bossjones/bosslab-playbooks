@@ -429,6 +429,8 @@ VENV_NAME="${PACKAGE_NAME}${PY_VER_MAJOR}"
 GIT_ROOT_DIR=${shell git rev-parse --show-toplevel}
 PROJECT_ROOT_DIR=${shell pwd}
 
+OS=${shell uname -s}
+
 ifeq (${OS}, Windows_NT)
     DETECTED_OS := Windows
 else

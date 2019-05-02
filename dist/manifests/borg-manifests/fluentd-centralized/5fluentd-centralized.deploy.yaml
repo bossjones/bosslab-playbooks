@@ -26,7 +26,7 @@ spec:
       - name: init-fluentd-centralized
         image: bossjones/fluentd-elasticsearch:v2.5.0
         command: [ "/bin/sh" ]
-        args: ['-c', 'tree']
+        args: ['-c', 'sleep 15']
       containers:
       - name: fluentd-centralized
         image: bossjones/fluentd-elasticsearch:v2.5.0
@@ -34,6 +34,8 @@ spec:
         # command:
 
         env:
+        - name: FLUENTD_ARGS
+          value: "--no-supervisor"
         # - name: FLUENT_ELASTICSEARCH_HOST
         #   value: "elasticsearch"
         # - name: FLUENT_ELASTICSEARCH_PORT
@@ -112,7 +114,7 @@ spec:
         livenessProbe:
           tcpSocket:
             port: 24231
-          initialDelaySeconds: 60
+          initialDelaySeconds: 90
           timeoutSeconds: 10
 
         ports:
@@ -131,9 +133,10 @@ spec:
       - name: spool
         emptyDir: {}
       # log file store (if used)
+      # This is rsyslog-centralized-pvc on purpose, we'r trying to mount the pvc that rsyslog-centralized-pvc creates
       - name: log
         persistentVolumeClaim:
-          claimName: fluentd-centralized-pvc
+          claimName: rsyslog-centralized-pvc
       
       - name: config-volume
         configMap:
