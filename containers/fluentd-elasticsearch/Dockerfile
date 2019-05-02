@@ -173,7 +173,7 @@ RUN set -x; BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gn
     && ulimit -n 65536
 
 RUN apt-get update \
-    && apt-get install supervisor net-tools procps tree tcpdump netcat bash-completion htop -y \
+    && apt-get install supervisor net-tools procps tree tcpdump netcat bash-completion htop wget gzip -y \
     && clean-apt
 
 # SOURCE: https://dev.maxmind.com/geoip/geoip2/geolite2/
