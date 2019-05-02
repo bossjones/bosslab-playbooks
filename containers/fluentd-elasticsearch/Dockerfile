@@ -173,7 +173,7 @@ RUN apt-get update \
     && apt-get install supervisor net-tools procps tree tcpdump netcat bash-completion htop -y \
     && \
         apt-get install -y build-essential && \
-        apt-get install -y autogen autoconf libtool libgeoip-dev gzip \
+        apt-get install -y autogen autoconf libtool libgeoip-dev gzip wget \
     && clean-apt
 
 RUN mkdir -p /geoip && \
