@@ -172,7 +172,8 @@ RUN set -x; BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gn
 RUN apt-get update \
     && apt-get install supervisor net-tools procps tree tcpdump netcat bash-completion htop -y \
     && \
-        apt-get install -y build-essential autogen autoconf libtool libgeoip-dev \
+        apt install -y build-essential && \
+        apt install -y autogen autoconf libtool libgeoip-dev \
     && clean-apt
 
 ENV LD_PRELOAD="/usr/lib/libjemalloc.so.2"
