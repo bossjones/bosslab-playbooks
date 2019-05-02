@@ -898,16 +898,19 @@ data:
     </source>
 
   filter.conf: |-
-    # DOWNLOAD - GeoLiteCity.dat
-    # <filter **>
-    #   @type    geoip
-    #   geoip_lookup_keys  src_ip
-    #   <record>
-    #     city ${city.names.en["src_ip"]}
-    #     region ${subdivisions.0.iso_code["src_ip"]}
-    #     country  ${country.iso_code["src_ip"]}
-    #   </record>
-    # </filter>
+    <filter **>
+      @type    geoip
+      backend_library geoip2_c
+      # WAN_LOCAL
+      geoip_lookup_keys  firewall.source.ip
+      regexp1 firewall.interface WAN_LOCAL
+      regexp2 firewall.rule_action D
+      <record>
+        city ${city.names.en["src_ip"]}
+        region ${subdivisions.0.iso_code["src_ip"]}
+        country  ${country.iso_code["src_ip"]}
+      </record>
+    </filter>
 
     <filter access>
       @type record_transformer
