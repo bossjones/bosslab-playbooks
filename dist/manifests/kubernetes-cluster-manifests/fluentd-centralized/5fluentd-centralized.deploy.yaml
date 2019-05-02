@@ -5,7 +5,7 @@ metadata:
   namespace: kube-system
   labels:
     k8s-app: fluentd-centralized
-    version: v2.4.0
+    version: v2.5.0
     kubernetes.io/cluster-service: "true"
 spec:
   replicas: 3
@@ -18,7 +18,7 @@ spec:
     metadata:
       labels:
         k8s-app: fluentd-centralized
-        version: v2.4.0
+        version: v2.5.0
         kubernetes.io/cluster-service: "true"
 
       # annotations:
@@ -26,12 +26,12 @@ spec:
       serviceAccountName: fluentd-centralized
       initContainers:
       - name: init-fluentd-centralized
-        image: bossjones/fluentd-elasticsearch:v2.4.0
+        image: bossjones/fluentd-elasticsearch:v2.5.0
         command: [ "/bin/sh" ]
         args: ['-c', 'sleep 15']
       containers:
       - name: fluentd-centralized
-        image: bossjones/fluentd-elasticsearch:v2.4.0
+        image: bossjones/fluentd-elasticsearch:v2.5.0
         imagePullPolicy: Always
         command: [ "/bin/bash" ]
         args: ['-c', 'set -x; tree /grok.d; /usr/local/bin/fluentd $(echo ${FLUENTD_ARGS} | xargs)']
