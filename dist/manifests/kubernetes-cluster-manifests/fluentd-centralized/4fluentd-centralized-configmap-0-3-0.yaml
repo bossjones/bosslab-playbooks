@@ -915,7 +915,7 @@ data:
         firewall.latitude        ${location.latitude["firewall.source.ip"]}
         firewall.longitude       ${location.longitude["firewall.source.ip"]}
         firewall.longitude       ${location.longitude["firewall.source.ip"]}
-        flow.src_geo_location    '{ "lat" : ${location.latitude["firewall.source.ip"]}, "lon" : ${location.longitude["firewall.source.ip"]} }'
+        firewall.src_geo_location    '{ "lat" : ${location.latitude["firewall.source.ip"]}, "lon" : ${location.longitude["firewall.source.ip"]} }'
         firewall.country         ${country.iso_code["firewall.source.ip"]}
         firewall.country_name    ${country.names.en["firewall.source.ip"]}
         firewall.postal_code     ${postal.code["firewall.source.ip"]}
@@ -991,26 +991,26 @@ data:
 
 
   output.conf: |-
-    <label @ingest_from_unifi>
-      <match **>
-        @type stdout
-        output_type json
-      </match>
-    </label>
+    # <label @ingest_from_unifi>
+    #   <match **>
+    #     @type stdout
+    #     output_type json
+    #   </match>
+    # </label>
 
-    <label @ingest_from_unifiserver>
-      <match **>
-        @type stdout
-        output_type json
-      </match>
-    </label>
+    # <label @ingest_from_unifiserver>
+    #   <match **>
+    #     @type stdout
+    #     output_type json
+    #   </match>
+    # </label>
 
-    <label @ingest_from_unifi_iptables>
-      <match **>
-        @type stdout
-        output_type json
-      </match>
-    </label>
+    # <label @ingest_from_unifi_iptables>
+    #   <match **>
+    #     @type stdout
+    #     output_type json
+    #   </match>
+    # </label>
 
     # <label @ingest_from_unifi_iptables_ubiquiti_rule_set>
     #   <match **>
@@ -1078,6 +1078,15 @@ data:
         # </store>
         <store>
           @type stdout
+          output_type json
+        </store>
+        <store>
+          @type flowcounter
+          @id applog_high_metrics
+          tag fluentd.apploghigh.metrics
+          aggregate all
+          count_keys *
+          unit minute
         </store>
       </match>
     </label>
