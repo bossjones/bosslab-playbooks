@@ -3574,7 +3574,7 @@ boss__rsyslog__centralized__container_config_config_map: |-
 boss__fluentd__centralized__subdomain: fluentd-centralized
 boss__fluentd__centralized__manifest_path: "{{manifest_dir_path}}/fluentd-centralized"
 boss__fluentd__centralized__namespace_name: kube-system
-boss__fluentd__centralized__fluentd_version: v2.4.0
+boss__fluentd__centralized__fluentd_version: v2.5.0
 boss__fluentd__centralized__fluentd_image_repo: "bossjones/fluentd-elasticsearch"
 boss__fluentd__centralized__fluentd_image_tag: "{{ boss__fluentd__centralized__fluentd_version }}"
 boss__fluentd__centralized__shared_name: fluentd-centralized
@@ -3769,7 +3769,7 @@ boss__fluentd__centralized__deployment_spec_template_initContainers: |-
   - name: init-{{boss__fluentd__centralized__shared_name}}
     image: {{boss__fluentd__centralized__fluentd_image_repo}}:{{boss__fluentd__centralized__fluentd_image_tag}}
     command: [ "/bin/sh" ]
-    args: ['-c', 'ls -lta']
+    args: ['-c', 'sleep 15']
 
 boss__fluentd__centralized__deployment_spec_template_containers_env: |-
   - name: FLUENTD_ARGS
@@ -3844,7 +3844,7 @@ boss__fluentd__centralized__deployment_spec_template_spec_volumes: |
   # This is rsyslog-pvc on purpose, we'r trying to mount the pvc that rsyslog-pvc creates
   - name: log
     persistentVolumeClaim:
-      claimName: rsyslog-pvc
+      claimName: {{boss__rsyslog__centralized__shared_name}}-pvc
 
   - name: config-volume
     configMap:
@@ -3904,7 +3904,7 @@ boss__fluentd__centralized__deployment_spec_template_spec_securityContext: |-
 boss__fluentd__centralized__deployment_spec_template_spec_containers_livenessProbe: |-
   tcpSocket:
     port: {{boss__fluentd__centralized__promths_mtr_in_port}}
-  initialDelaySeconds: 60
+  initialDelaySeconds: 90
   timeoutSeconds: 10
 
 
