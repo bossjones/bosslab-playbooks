@@ -900,16 +900,54 @@ data:
   filter.conf: |-
     <filter **>
       @type    geoip
+      # Specify optional geoip2 database
+      geoip2_database   "/geoip/GeoLite2-City.mmdb"
+      # Specify backend library (geoip2_c, geoip, geoip2_compat)
       backend_library geoip2_c
-      # WAN_LOCAL
+
+
       geoip_lookup_keys  firewall.source.ip
       regexp1 firewall.interface WAN_LOCAL
       regexp2 firewall.rule_action D
+
       <record>
-        city ${city.names.en["src_ip"]}
-        region ${subdivisions.0.iso_code["src_ip"]}
-        country  ${country.iso_code["src_ip"]}
+        firewall.city            ${city.names.en["firewall.source.ip"]}
+        firewall.latitude        ${location.latitude["firewall.source.ip"]}
+        firewall.longitude       ${location.longitude["firewall.source.ip"]}
+        firewall.longitude       ${location.longitude["firewall.source.ip"]}
+        flow.src_geo_location    '{ "lat" : ${location.latitude["firewall.source.ip"]}, "lon" : ${location.longitude["firewall.source.ip"]} }'
+        firewall.country         ${country.iso_code["firewall.source.ip"]}
+        firewall.country_name    ${country.names.en["firewall.source.ip"]}
+        firewall.postal_code     ${postal.code["firewall.source.ip"]}
       </record>
+
+      # To avoid get stacktrace error with `[null, null]` array for elasticsearch.
+      skip_adding_null_record  true
+
+      # Set @log_level (default: warn)
+      @log_level         info
+    </filter>
+
+
+    # <filter access.apache>
+    #   @type                  geoip
+    #   geoip_lookup_keys      host
+    #   <record>
+    #     # lat lon as properties
+    #     # ex. {"lat" => 37.4192008972168, "lon" => -122.05740356445312 }
+    #     location_properties  '{ "lat" : ${location.latitude["host"]}, "lon" : ${location.longitude["host"]} }'
+
+    #     # lat lon as string
+    #     # ex. "37.4192008972168,-122.05740356445312"
+    #     location_string      ${location.latitude["host"]},${location.longitude["host"]}
+
+    #     # GeoJSON (lat lon as array) is useful for Kibana's bettermap.
+    #     # ex. [-122.05740356445312, 37.4192008972168]
+    #     location_array       '[${location.longitude["host"]},${location.latitude["host"]}]'
+    #   </record>
+
+    #   # To avoid get stacktrace error with `[null, null]` array for elasticsearch.
+      skip_adding_null_record  true
     </filter>
 
     <filter access>
@@ -981,26 +1019,64 @@ data:
       </match>
     </label>
 
-    # <match **>
-    #   @id elasticsearch
-    #   @type elasticsearch
-    #   @log_level info
-    #   include_tag_key true
-    #   host elasticsearch-logging
-    #   port 9200
-    #   logstash_format true
-    #   <buffer>
-    #     @type file
-    #     path /var/log/fluentd-buffers/kubernetes.system.buffer
-    #     flush_mode interval
-    #     retry_type exponential_backoff
-    #     flush_thread_count 2
-    #     flush_interval 5s
-    #     retry_forever
-    #     retry_max_interval 30
-    #     chunk_limit_size 2M
-    #     queue_limit_length 8
-    #     overflow_action block
-    #   </buffer>
-    # </match>
+    # <label @unifi_iptables_ubiquiti_rule_set_syslog>
+
+    #   <match **>
+    #     @type copy
+    #     <store>
+    #       @id elasticsearch
+    #       @type elasticsearch
+    #       @log_level info
+    #       include_tag_key true
+    #       host elasticsearch-logging
+    #       port 9200
+    #       logstash_format true
+    #       <buffer>
+    #         @type file
+    #         path /var/log/fluentd-buffers/kubernetes.system.buffer
+    #         flush_mode interval
+    #         retry_type exponential_backoff
+    #         flush_thread_count 2
+    #         flush_interval 5s
+    #         retry_forever
+    #         retry_max_interval 30
+    #         chunk_limit_size 2M
+    #         queue_limit_length 8
+    #         overflow_action block
+    #       </buffer>
+    #     </store>
+    #     <store>
+    #       @type stdout
+    #     </store>
+    #   </match>
+    # </label>
+
+    <match **>
+      @type copy
+      <store>
+        @id elasticsearch
+        @type elasticsearch
+        @log_level info
+        include_tag_key true
+        host elasticsearch-logging
+        port 9200
+        logstash_format true
+        <buffer>
+          @type file
+          path /var/log/fluentd-buffers/kubernetes.system.buffer
+          flush_mode interval
+          retry_type exponential_backoff
+          flush_thread_count 2
+          flush_interval 5s
+          retry_forever
+          retry_max_interval 30
+          chunk_limit_size 2M
+          queue_limit_length 8
+          overflow_action block
+        </buffer>
+      </store>
+      <store>
+        @type stdout
+      </store>
+    </match>
 

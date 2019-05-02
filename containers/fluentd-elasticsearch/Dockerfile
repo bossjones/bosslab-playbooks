@@ -176,6 +176,7 @@ RUN apt-get update \
         apt-get install -y autogen autoconf libtool libgeoip-dev gzip wget \
     && clean-apt
 
+# SOURCE: https://dev.maxmind.com/geoip/geoip2/geolite2/
 RUN set -x; mkdir -p /geoip && \
     cd /geoip && \
     wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz && \
