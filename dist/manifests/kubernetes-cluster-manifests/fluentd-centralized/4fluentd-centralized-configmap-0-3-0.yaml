@@ -947,8 +947,8 @@ data:
     #   </record>
 
     #   # To avoid get stacktrace error with `[null, null]` array for elasticsearch.
-      skip_adding_null_record  true
-    </filter>
+    #   skip_adding_null_record  true
+    # </filter>
 
     <filter access>
       @type record_transformer
@@ -1053,28 +1053,28 @@ data:
 
     <match **>
       @type copy
-      <store>
-        @id elasticsearch
-        @type elasticsearch
-        @log_level info
-        include_tag_key true
-        host elasticsearch-logging
-        port 9200
-        logstash_format true
-        <buffer>
-          @type file
-          path /var/log/fluentd-buffers/kubernetes.system.buffer
-          flush_mode interval
-          retry_type exponential_backoff
-          flush_thread_count 2
-          flush_interval 5s
-          retry_forever
-          retry_max_interval 30
-          chunk_limit_size 2M
-          queue_limit_length 8
-          overflow_action block
-        </buffer>
-      </store>
+      # <store>
+      #   @id elasticsearch
+      #   @type elasticsearch
+      #   @log_level info
+      #   include_tag_key true
+      #   host elasticsearch-logging
+      #   port 9200
+      #   logstash_format true
+      #   <buffer>
+      #     @type file
+      #     path /var/log/fluentd-buffers/kubernetes.system.buffer
+      #     flush_mode interval
+      #     retry_type exponential_backoff
+      #     flush_thread_count 2
+      #     flush_interval 5s
+      #     retry_forever
+      #     retry_max_interval 30
+      #     chunk_limit_size 2M
+      #     queue_limit_length 8
+      #     overflow_action block
+      #   </buffer>
+      # </store>
       <store>
         @type stdout
       </store>
