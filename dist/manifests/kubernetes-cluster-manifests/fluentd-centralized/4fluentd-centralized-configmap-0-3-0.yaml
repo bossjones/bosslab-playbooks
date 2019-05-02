@@ -1064,6 +1064,7 @@ data:
         host elasticsearch-logging
         port 9200
         logstash_format true
+        index_name logstash
         <buffer>
           @type file
           path /var/log/fluentd-buffers/kubernetes.system.buffer
