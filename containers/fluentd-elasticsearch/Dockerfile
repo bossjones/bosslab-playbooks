@@ -172,8 +172,8 @@ RUN set -x; BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gn
 RUN apt-get update \
     && apt-get install supervisor net-tools procps tree tcpdump netcat bash-completion htop -y \
     && \
-        apt install -y build-essential && \
-        apt install -y autogen autoconf libtool libgeoip-dev \
+        apt-get install -y build-essential && \
+        apt-get install -y autogen autoconf libtool libgeoip-dev gzip \
     && clean-apt
 
 RUN mkdir -p /geoip && \
