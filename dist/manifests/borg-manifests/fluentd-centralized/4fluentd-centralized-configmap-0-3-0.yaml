@@ -920,7 +920,7 @@ data:
         custom_pattern_path /grok.d
 
         # pattern %{BOSSJONES_UNIFI_SECURITYGATEWAY_KERNEL_START} %{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS}%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_IPTABLES_ETHERNET} %{BOSSJONES_IPTABLES_IP_START}
-        grok_pattern %{BOSSJONES_UNIFI_SECURITYGATEWAY_KERNEL_START} %{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS}(?:%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_IPTABLES_ETHERNET}|%{BOSSJONES_IPTABLES_IP_START})? (?:%{BOSSJONES_IPTABLES_IP_START})?
+        grok_pattern %{BOSSJONES_UNIFI_SECURITYGATEWAY_KERNEL_START} (?:%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS})?(?:%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_IPTABLES_ETHERNET}|%{BOSSJONES_IPTABLES_IP_START})? (?:%{BOSSJONES_IPTABLES_IP_START})?
         #time_type string
         time_key timestamp
         # time_format %b %d %H:%M:%S
@@ -934,12 +934,38 @@ data:
 
   filter.conf: |-
     # exclude all commands that have pam_unix in them
+
+    # <filter **>
+    #   @type parser
+    #   @id exclude_pam_unix
+    #   <parse>
+    #     @type grok
+    #     grok_failure_key grokfailure
+    #     <grok>
+    #       pattern %{PATH:path}
+    #     </grok>
+    #   </parse>
+    #   <exclude>
+    #     key message
+    #     pattern pam_unix
+    #   </exclude>
+    # </filter>
+
     <filter **>
       @type grep
       @id exclude_pam_unix
       <exclude>
         key message
         pattern pam_unix
+      </exclude>
+    </filter>
+
+    <filter **>
+      @type grep
+      @id exclude_mcad
+      <exclude>
+        key message
+        pattern mcad
       </exclude>
     </filter>
 
