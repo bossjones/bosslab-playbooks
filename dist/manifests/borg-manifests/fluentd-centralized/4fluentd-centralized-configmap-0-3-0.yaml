@@ -874,40 +874,89 @@ data:
     # DISABLED:   </parse>
     # DISABLED: </source>
 
+    # EXAMPLE: log file produced
+    # 2019-04-16 04:18:57.000000000 +0000 unifi_iptables_ubiquiti_rule_set_sysloglog.client_logs.unifisecuritygateway3p.messages.log:
+    # {
+    #     "hostname": "UniFiSecurityGateway3P",
+    #     "process_name": "kernel",
+    #     "firewall.interface": "LAN_LOCAL",
+    #     "firewall.rule_index": "default",
+    #     "firewall.rule_action": "A",
+    #     "iptables.input_device": "eth1",
+    #     "iptables.output_device": "",
+    #     "mac": "80:2a:a8:00:11:33:00:11:22",
+    #     "destination.mac": "33:44:66:08:00",
+    #     "source.mac": "80:2a:a8:00:00",
+    #     "iptables.ether_type": "08:00",
+    #     "firewall.source.ip": "192.168.1.172",
+    #     "firewall.destination.ip": "192.168.1.1",
+    #     "firewall.packet_length": "72",
+    #     "firewall.tos": "00",
+    #     "firewall.precidence_field": "00",
+    #     "firewall.ttl": "63",
+    #     "firewall.id": "22949",
+    #     "firewall.tcp_opts": "LEN=52 ",
+    #     "firewall.nf_protocol": "UDP",
+    #     "firewall.spt": "25761",
+    #     "firewall.dtp": "53"
+    # }
+
     <source>
       @type tail
       @id ingest_from_unifi_iptables_ubiquiti_rule_set
       # @label @ingest_from_unifi_iptables_ubiquiti_rule_set
       read_from_head true
-      tag ingest_from_unifi_iptables_ubiquiti_rule_set
+      # tag ingest_from_unifi_iptables_ubiquiti_rule_set.**
       pos_file /log/fluentd.pos
       # format none
+      # time_type string
+      # time_format +%b %d %H:%M:%S
       path /log/client_logs/**/*.log
       tag unifi_iptables_ubiquiti_rule_set_syslog
       <parse>
         @type grok
+        # grok_name_key grok_name
+        # grok_failure_key grokfailure
         custom_pattern_path /grok.d
 
         # pattern %{BOSSJONES_UNIFI_SECURITYGATEWAY_KERNEL_START} %{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS}%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_IPTABLES_ETHERNET} %{BOSSJONES_IPTABLES_IP_START}
         grok_pattern %{BOSSJONES_UNIFI_SECURITYGATEWAY_KERNEL_START} %{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS}(?:%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_IPTABLES_ETHERNET}|%{BOSSJONES_IPTABLES_IP_START})? (?:%{BOSSJONES_IPTABLES_IP_START})?
-        time_format %m%d %H:%M:%S.%N
+        #time_type string
         time_key timestamp
+        # FIXME: This is the correct one # time_format %b %d %H:%M:%S
+        # FIXME: This is the one that worked # time_format %m%d %H:%M:%S.%N
+        # keep_time_key true
+        # EXAMPLE: Apr 20 05:51:40 UniFiSecurityGateway3P sudo: pam_unix(sudo:session): session closed for user root
+        # 2019-05-02 22:28:09.449511513 +0000
+        # format json
+        # time_key timestamp_logged
       </parse>
     </source>
 
   filter.conf: |-
+    # <filter unifi_iptables_ubiquiti_rule_set_syslog>
+    #   @type grep
+    #   @id filter_iptables_deny_on_wan_local
+    #   <regexp>
+    #     key firewall.interface
+    #     pattern WAN_LOCAL
+    #   </regexp>
+    #   <regexp>
+    #     key firewall.rule_action
+    #     pattern D
+    #   </regexp>
+    #   tag remote_unifi_iptables_ubiquiti_rule_set_syslog
+    # </filter>
+
     # <label @unifi_iptables_ubiquiti_rule_set_syslog>
-    <filter **>
+    <filter remote_unifi_iptables_ubiquiti_rule_set_syslog>
       @type    geoip
       # Specify optional geoip2 database
       geoip2_database   "/geoip/GeoLite2-City.mmdb"
       # Specify backend library (geoip2_c, geoip, geoip2_compat)
       backend_library geoip2_c
 
-
       geoip_lookup_keys  firewall.source.ip
-      regexp1 firewall.interface WAN_LOCAL
-      regexp2 firewall.rule_action D
 
       <record>
         firewall.city            ${city.names.en["firewall.source.ip"]}
@@ -1054,29 +1103,29 @@ data:
     # <label @ingest_from_unifi_iptables_ubiquiti_rule_set>
     <match **>
       @type copy
-      <store>
-        @id elasticsearch
-        @type elasticsearch
-        @log_level debug
-        include_tag_key true
-        host elasticsearch-logging
-        port 9200
-        logstash_format true
-        index_name logstash
-        <buffer>
-          @type file
-          path /var/log/fluentd-buffers/kubernetes.system.buffer
-          flush_mode interval
-          retry_type exponential_backoff
-          flush_thread_count 2
-          flush_interval 5s
-          retry_forever
-          retry_max_interval 30
-          chunk_limit_size 2M
-          queue_limit_length 8
-          overflow_action block
-        </buffer>
-      </store>
+      # <store>
+      #   @id elasticsearch
+      #   @type elasticsearch
+      #   @log_level debug
+      #   include_tag_key true
+      #   host elasticsearch-logging
+      #   port 9200
+      #   logstash_format true
+      #   index_name logstash
+      #   <buffer>
+      #     @type file
+      #     path /var/log/fluentd-buffers/kubernetes.system.buffer
+      #     flush_mode interval
+      #     retry_type exponential_backoff
+      #     flush_thread_count 2
+      #     flush_interval 5s
+      #     retry_forever
+      #     retry_max_interval 30
+      #     chunk_limit_size 2M
+      #     queue_limit_length 8
+      #     overflow_action block
+      #   </buffer>
+      # </store>
       <store>
         @type stdout
         output_type json
