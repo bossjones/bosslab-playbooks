@@ -933,6 +933,25 @@ data:
     </source>
 
   filter.conf: |-
+    # exclude all commands that have pam_unix in them
+    <filter **>
+      @type grep
+      @id exclude_pam_unix
+      <exclude>
+        key message
+        pattern pam_unix
+      </exclude>
+    </filter>
+
+    <filter **>
+      @type grep
+      @id exclude_ipsec_statusall
+      <exclude>
+        key message
+        pattern sudo:     root : TTY=unknown ; PWD=/ ; USER=root ; COMMAND=/usr/sbin/ipsec statusall
+      </exclude>
+    </filter>
+
     # <filter unifi_iptables_ubiquiti_rule_set_syslog>
     #   @type grep
     #   @id filter_iptables_deny_on_wan_local
@@ -1111,7 +1130,7 @@ data:
       #   host elasticsearch-logging
       #   port 9200
       #   logstash_format true
-      #   index_name logstash
+      #   index_name unifi
       #   <buffer>
       #     @type file
       #     path /var/log/fluentd-buffers/kubernetes.system.buffer
