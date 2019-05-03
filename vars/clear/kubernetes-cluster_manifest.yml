@@ -3744,7 +3744,9 @@ boss__fluentd__centralized__deployment_spec_template_metadata_labels: |-
   version: {{boss__fluentd__centralized__fluentd_version}}
   kubernetes.io/cluster-service: "true"
 
-boss__fluentd__centralized__deployment_spec_template_metadata_annotations: "disabled"
+boss__fluentd__centralized__deployment_spec_template_metadata_annotations: |-
+  prometheus.io/port: "{{boss__fluentd__centralized__promths_mtr_in_port}}"
+  prometheus.io/scrape: "true"
 
 boss__fluentd__centralized__deployment_spec_template_containers_ports: |-
   - containerPort: {{boss__fluentd__centralized__promths_mtr_in_port}}
