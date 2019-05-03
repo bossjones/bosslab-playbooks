@@ -924,8 +924,8 @@ data:
         #time_type string
         # NOTE: THIS WORKED BEFORE #time_key timestamp
         time_key time
-        # time_format %b %d %H:%M:%S
-        # keep_time_key true
+        time_format %b %d %H:%M:%S
+        keep_time_key true
         # EXAMPLE: Apr 20 05:51:40 UniFiSecurityGateway3P sudo: pam_unix(sudo:session): session closed for user root
         # 2019-05-02 22:28:09.449511513 +0000
         # format json
@@ -1019,7 +1019,7 @@ data:
       skip_adding_null_record  true
 
       # Set @log_level (default: warn)
-      @log_level         info
+      @log_level         debug
     </filter>
     # </label>
 
@@ -1149,41 +1149,41 @@ data:
     # <label @ingest_from_unifi_iptables_ubiquiti_rule_set>
     <match **>
       @type copy
-      <store>
-        @id elasticsearch
-        @type elasticsearch
-        @log_level debug
-        with_transporter_log true
-        type_name fluentd
-        include_tag_key true
-        # host elasticsearch.borglab.scarlettlab.home
-        host elasticsearch-logging
-        port 9200
-        logstash_format true
-        # emit_error_for_missing_id true
-        # scheme http
-        # time_key @timestamp
-        # index_name unifi
-        # logstash_prefix unifi
-        # include_timestamp true
-        reload_on_failure true
-        reconnect_on_error true
-        # template_file /etc/fluent/config.d/elasticsearch-template-es5x.json
-        # template_name elasticsearch-template-es5x.json
-        <buffer>
-          @type file
-          path /var/log/fluentd-buffers/kubernetes.system.buffer
-          flush_mode interval
-          retry_type exponential_backoff
-          flush_thread_count 2
-          flush_interval 5s
-          retry_forever
-          retry_max_interval 30
-          chunk_limit_size 2M
-          queue_limit_length 8
-          overflow_action block
-        </buffer>
-      </store>
+      # <store>
+      #   @id elasticsearch
+      #   @type elasticsearch
+      #   @log_level debug
+      #   with_transporter_log true
+      #   type_name fluentd
+      #   include_tag_key true
+      #   # host elasticsearch.borglab.scarlettlab.home
+      #   host elasticsearch-logging
+      #   port 9200
+      #   logstash_format true
+      #   # emit_error_for_missing_id true
+      #   # scheme http
+      #   # time_key @timestamp
+      #   # index_name unifi
+      #   # logstash_prefix unifi
+      #   # include_timestamp true
+      #   reload_on_failure true
+      #   reconnect_on_error true
+      #   # template_file /etc/fluent/config.d/elasticsearch-template-es5x.json
+      #   # template_name elasticsearch-template-es5x.json
+      #   <buffer>
+      #     @type file
+      #     path /var/log/fluentd-buffers/kubernetes.system.buffer
+      #     flush_mode interval
+      #     retry_type exponential_backoff
+      #     flush_thread_count 2
+      #     flush_interval 5s
+      #     retry_forever
+      #     retry_max_interval 30
+      #     chunk_limit_size 4M
+      #     queue_limit_length 256
+      #     overflow_action block
+      #   </buffer>
+      # </store>
       <store>
         @type stdout
         output_type json
