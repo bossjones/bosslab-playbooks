@@ -8,7 +8,7 @@ metadata:
     version: v2.5.0
     kubernetes.io/cluster-service: "true"
 spec:
-  replicas: 3
+  replicas: 1
 
   # selector:
   #  matchLabels:
@@ -40,11 +40,11 @@ spec:
         #   value: "elasticsearch"
         # - name: FLUENT_ELASTICSEARCH_PORT
         #   value: "9200"
-        
+
         # Memory limit that the file tail plugin can use when appending data to the Engine
         - name: TAIL_BUF_LIMIT
           value: "5MB"
-        
+
         - name: NODE_IP
           valueFrom:
             fieldRef:
@@ -73,7 +73,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-        
+
         - name: TZ
           value: "UTC"
 
@@ -86,17 +86,17 @@ spec:
         - name: log
           mountPath: /log
           readOnly: false
-        
+
         - name: spool
           mountPath: /spool
           readOnly: false
-        
+
         - name: config-volume
           mountPath: /etc/fluent/config.d
-        
+
         - name: grok-patterns
           mountPath: /grok.d
-        
+
 
         resources:
           limits:
@@ -105,7 +105,7 @@ spec:
           requests:
             cpu: "0.05"
             memory: "10Mi"
-          
+
 
         securityContext:
           # SOURCE: https://docs.okd.io/latest/rest_api/apis-apps/v1beta2.Deployment.html
@@ -137,17 +137,17 @@ spec:
       - name: log
         persistentVolumeClaim:
           claimName: rsyslog-centralized-pvc
-      
+
       - name: config-volume
         configMap:
           name: fluentd-centralized-grokconfig-0-3-0
           # defaultMode: 0775
-      
+
       - name: grok-patterns
         configMap:
           name: fluentd-centralized-grok-patterns-0-3-0
           # defaultMode: 0775
-      
+
 
       hostNetwork: True
 
