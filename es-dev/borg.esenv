@@ -1,0 +1,4 @@
+{
+    "host": "http://elasticsearch.borglab.scarlettlab.home",
+    "name": "es-borg"
+}
