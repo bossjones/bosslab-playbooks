@@ -764,193 +764,59 @@ data:
 
   system.input.conf: |-
 
-    # SOURCE: https://github.com/adriansr/beats/blob/938b0322a993021d79ed2a8be24055a7f3e69300/x-pack/filebeat/module/iptables/log/test/ubiquiti.log
-    # EXAMPLE: Jan  5 20:17:05 MainFirewall kernel: [LAN_LOCAL-default-A]IN=eth0.90 OUT= MAC=90:10:92:6e:ea:a7:90:10:73:ba:d6:77:08:00:45:fc:02:1c SRC=192.168.48.137 DST=255.55.174.225 LEN=540 TOS=0x1C PREC=0xE0 TTL=64 ID=27223 PROTO=UDP SPT=48689 DPT=48689 LEN=520
-    # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [WAN_OUT-2000-A]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:24:67:f4:89:08:00 SRC=192.168.134.158 DST=192.0.2.25 LEN=265 TOS=0x00 PREC=0x00 TTL=63 ID=51768 DF PROTO=TCP SPT=43189 DPT=443 WINDOW=159 RES=0x00 ACK PSH URGP=0
-    # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [source-dest-default-D]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:65:29:b6:2a:08:00 SRC=192.168.110.116 DST=192.0.2.25 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=0 DF PROTO=TCP SPT=50093 DPT=1443 WINDOW=2857 RES=0x00 ACK URGP=0
-    # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [WAN_OUT-2000-A]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:65:29:b6:2a:08:00 SRC=192.168.110.116 DST=192.0.2.25 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=0 DF PROTO=TCP SPT=50093 DPT=1443 WINDOW=2853 RES=0x00 ACK URGP=0
-    # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [WAN_OUT-2000-A]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:65:29:b6:2a:08:00 SRC=192.168.110.116 DST=192.0.2.25 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=0 DF PROTO=TCP SPT=50093 DPT=1443 WINDOW=2850 RES=0x00 ACK URGP=0
-    # <source>
-    #   @type tail
-    #   @id ingest_from_unifi
-    #   @label @ingest_from_unifi
-    #   read_from_head true
-    #   tag ingest_from_unifi
-    #   pos_file /log/fluentd.pos
-    #   # format none
-    #   path /log/client_logs/**/*.log
-    #   tag unifi_syslog
-    #   # <parse>
-    #   #   @type grok
-    #   #   <grok>
-    #   #     custom_pattern_path /grok.d
-    #   #     pattern %{SYSLOG5424PRI}%{SYSLOGTIMESTAMP:syslog_timestamp}%{UNIFI_DEV_TYPE} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{GREEDYDATA:syslog_message}\n?
-    #   #     time_format %m%d %H:%M:%S.%N
-    #   #   </grok>
-    #   # </parse>
-    # </source>
-
-
-    # <source>
-    #   @type tail
-    #   @id ingest_from_unifiserver
-    #   @label @ingest_from_unifiserver
-    #   read_from_head true
-    #   tag ingest_from_unifiserver
-    #   pos_file /log/fluentd.pos
-    #   # format none
-    #   path /log/client_logs/**/*.log
-    #   tag unifiserver_syslog
-    #   <parse>
-    #     @type grok
-    #     <grok>
-    #       pattern %{TIME:time}\\] <%{WORD}-%{WORD}> %{WORD:LEVEL} %{SPACE} %{DATA} - from \\[%{DATA:CLIENTMAC}\\]\\(%{GREEDYDATA:MSG}\\): state=%{WORD:state}
-    #       time_format %m%d %H:%M:%S.%N
-    #       custom_pattern_path /grok.d
-    #     </grok>
-    #   </parse>
-    # </source>
-
-    # <source>
-    #   @type tail
-    #   @id ingest_from_unifi_iptables
-    #   @label @ingest_from_unifi_iptables
-    #   read_from_head true
-    #   tag ingest_from_unifi_iptables
-    #   pos_file /log/fluentd.pos
-    #   # format none
-    #   path /log/client_logs/**/*.log
-    #   tag unifi_iptables_syslog
-    #   custom_pattern_path /grok.d
-    #   <parse>
-    #     @type grok
-    #     <grok>
-    #       pattern %{SYSLOGTIMESTAMP:iptables.raw_date}%{GREEDYDATA}\\[%{UBIQUITI_LABEL}\\]%{IPTABLES}%{SPACE}
-    #       time_format %m%d %H:%M:%S.%N
-    #       custom_pattern_path /grok.d
-    #     </grok>
-    #     <grok>
-    #       pattern %{SYSLOGTIMESTAMP:iptables.raw_date}%{GREEDYDATA}%{IPTABLES}%{SPACE}
-    #       time_format %m%d %H:%M:%S.%N
-    #       custom_pattern_path /grok.d
-    #     </grok>
-    #     <grok>
-    #       pattern %{GREEDYDATA}\\[%{UBIQUITI_LABEL}\\]%{IPTABLES}%{SPACE}
-    #       time_format %m%d %H:%M:%S.%N
-    #       custom_pattern_path /grok.d
-    #     </grok>
-    #     <grok>
-    #       pattern %{GREEDYDATA}%{IPTABLES}%{SPACE}
-    #       time_format %m%d %H:%M:%S.%N
-    #       custom_pattern_path /grok.d
-    #     </grok>
-    #   </parse>
-    # </source>
-
-    # NOTE: This was the only one that was working!!!!! 5/1/2019
-    # NOTE: This was the only one that was working!!!!! 5/1/2019
-    # NOTE: This was the only one that was working!!!!! 5/1/2019
-    # NOTE: This was the only one that was working!!!!! 5/1/2019
-    # NOTE: This was the only one that was working!!!!! 5/1/2019
-    # NOTE: This was the only one that was working!!!!! 5/1/2019
-    # DISABLED: <source>
-    # DISABLED:   @type tail
-    # DISABLED:   @id ingest_from_unifi_iptables_ubiquiti_rule_set
-    # DISABLED:   @label @ingest_from_unifi_iptables_ubiquiti_rule_set
-    # DISABLED:   read_from_head true
-    # DISABLED:   tag ingest_from_unifi_iptables_ubiquiti_rule_set
-    # DISABLED:   pos_file /log/fluentd.pos
-    # DISABLED:   # format none
-    # DISABLED:   path /log/client_logs/**/*.log
-    # DISABLED:   tag unifi_iptables_ubiquiti_rule_set_syslog
-    # DISABLED:   <parse>
-    # DISABLED:     @type grok
-    # DISABLED:     custom_pattern_path /grok.d
-    # DISABLED:     # pattern %{UBIQUITI_FIELD_IPTABLES_RULE_SET:iptables.ubiquiti.input_zone}-%{UBIQUITI_FIELD_IPTABLES_RULE_SET:iptables.ubiquiti.output_zone}
-    # DISABLED:     pattern %{UBIQUITI_FIELD_IPTABLES_RULE_SET:iptables.ubiquiti.input_zone}
-    # DISABLED:     grok_pattern %{UBIQUITI_FIELD_IPTABLES_RULE_SET:iptables.ubiquiti.input_zone}
-    # DISABLED:     time_format %m%d %H:%M:%S.%N
-    # DISABLED:     time_key timestamp
-    # DISABLED:   </parse>
-    # DISABLED: </source>
-
-    # EXAMPLE: log file produced
-    # 2019-04-16 04:18:57.000000000 +0000 unifi_iptables_ubiquiti_rule_set_syslog.log.client_logs.unifisecuritygateway3p.messages.log:
-    # {
-    #     "hostname": "UniFiSecurityGateway3P",
-    #     "process_name": "kernel",
-    #     "firewall.interface": "LAN_LOCAL",
-    #     "firewall.rule_index": "default",
-    #     "firewall.rule_action": "A",
-    #     "iptables.input_device": "eth1",
-    #     "iptables.output_device": "",
-    #     "mac": "80:2a:a8:00:11:33:00:11:22",
-    #     "destination.mac": "33:44:66:08:00",
-    #     "source.mac": "80:2a:a8:00:00",
-    #     "iptables.ether_type": "08:00",
-    #     "firewall.source.ip": "192.168.1.172",
-    #     "firewall.destination.ip": "192.168.1.1",
-    #     "firewall.packet_length": "72",
-    #     "firewall.tos": "00",
-    #     "firewall.precidence_field": "00",
-    #     "firewall.ttl": "63",
-    #     "firewall.id": "22949",
-    #     "firewall.tcp_opts": "LEN=52 ",
-    #     "firewall.nf_protocol": "UDP",
-    #     "firewall.spt": "25761",
-    #     "firewall.dtp": "53"
-    # }
-
     <source>
       @type tail
-      @id ingest_from_unifi_iptables_ubiquiti_rule_set
-      # @label @ingest_from_unifi_iptables_ubiquiti_rule_set
+      @id ingest_dummy_logs
       read_from_head true
-      # tag ingest_from_unifi_iptables_ubiquiti_rule_set
-      pos_file /log/fluentd.pos
-      # format none
-      # time_type string
-      # time_format +%b %d %H:%M:%S
-      path /log/client_logs/**/*.log
-      tag unifi_iptables_ubiquiti_rule_set_syslog
+      path /log/client_logs/dummy.log
+      tag unifi_dummy_logs.**
+      # dummy May 18 20:54:31 UniFiSecurityGateway3P kernel: [WAN_LOCAL-4000-D]IN=eth0 OUT= MAC=80:2a:a8:00:11:33:00:11:22:33:44:66:08:00 SRC=172.217.10.138 DST=192.168.0.3 LEN=115 TOS=0x00 PREC=0x00 TTL=122 ID=53703 PROTO=TCP SPT=443 DPT=52170 WINDOW=294 RES=0x00 ACK PSH URGP=0
       <parse>
         @type grok
-        # grok_name_key grok_name
-        # grok_failure_key grokfailure
         custom_pattern_path /grok.d
-
-        # pattern %{BOSSJONES_UNIFI_SECURITYGATEWAY_KERNEL_START} %{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS}%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_IPTABLES_ETHERNET} %{BOSSJONES_IPTABLES_IP_START}
         grok_pattern %{BOSSJONES_UNIFI_SECURITYGATEWAY_KERNEL_START} (?:%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS})?(?:%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_IPTABLES_ETHERNET}|%{BOSSJONES_IPTABLES_IP_START})? (?:%{BOSSJONES_IPTABLES_IP_START})?
         #time_type string
         # NOTE: THIS WORKED BEFORE #time_key timestamp
         time_key time
         time_format %b %d %H:%M:%S
         keep_time_key true
-        # EXAMPLE: Apr 20 05:51:40 UniFiSecurityGateway3P sudo: pam_unix(sudo:session): session closed for user root
-        # 2019-05-02 22:28:09.449511513 +0000
-        # format json
-        # time_key timestamp_logged
       </parse>
     </source>
 
-  filter.conf: |-
-    # exclude all commands that have pam_unix in them
-
-    # <filter **>
-    #   @type parser
-    #   @id exclude_pam_unix
+    # <source>
+    #   @type tail
+    #   @id ingest_from_unifi_iptables_ubiquiti_rule_set
+    #   # @label @ingest_from_unifi_iptables_ubiquiti_rule_set
+    #   read_from_head true
+    #   # tag ingest_from_unifi_iptables_ubiquiti_rule_set
+    #   pos_file /log/fluentd.pos
+    #   # format none
+    #   # time_type string
+    #   # time_format +%b %d %H:%M:%S
+    #   path /log/client_logs/**/*.log
+    #   tag unifi_iptables_ubiquiti_rule_set_syslog
     #   <parse>
     #     @type grok
-    #     grok_failure_key grokfailure
-    #     <grok>
-    #       pattern %{PATH:path}
-    #     </grok>
+    #     # grok_name_key grok_name
+    #     # grok_failure_key grokfailure
+    #     custom_pattern_path /grok.d
+
+    #     # pattern %{BOSSJONES_UNIFI_SECURITYGATEWAY_KERNEL_START} %{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS}%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_IPTABLES_ETHERNET} %{BOSSJONES_IPTABLES_IP_START}
+    #     grok_pattern %{BOSSJONES_UNIFI_SECURITYGATEWAY_KERNEL_START} (?:%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS})?(?:%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_IPTABLES_ETHERNET}|%{BOSSJONES_IPTABLES_IP_START})? (?:%{BOSSJONES_IPTABLES_IP_START})?
+    #     #time_type string
+    #     # NOTE: THIS WORKED BEFORE #time_key timestamp
+    #     time_key time
+    #     time_format %b %d %H:%M:%S
+    #     keep_time_key true
+    #     # EXAMPLE: Apr 20 05:51:40 UniFiSecurityGateway3P sudo: pam_unix(sudo:session): session closed for user root
+    #     # 2019-05-02 22:28:09.449511513 +0000
+    #     # format json
+    #     # time_key timestamp_logged
     #   </parse>
-    #   <exclude>
-    #     key message
-    #     pattern pam_unix
-    #   </exclude>
-    # </filter>
+    # </source>
+
+  filter.conf: |-
+    # exclude all commands that have pam_unix in them
 
     <filter **>
       @type grep
@@ -979,22 +845,7 @@ data:
       </exclude>
     </filter>
 
-    # <filter unifi_iptables_ubiquiti_rule_set_syslog>
-    #   @type grep
-    #   @id filter_iptables_deny_on_wan_local
-    #   <regexp>
-    #     key firewall.interface
-    #     pattern WAN_LOCAL
-    #   </regexp>
-    #   <regexp>
-    #     key firewall.rule_action
-    #     pattern D
-    #   </regexp>
-    #   tag remote_unifi_iptables_ubiquiti_rule_set_syslog
-    # </filter>
-
-    # <label @unifi_iptables_ubiquiti_rule_set_syslog>
-    <filter ingest_from_unifi_iptables_ubiquiti_rule_set.**>
+    <filter unifi_dummy_logs.**>
       @type    geoip
       # Specify optional geoip2 database
       geoip2_database   "/geoip/GeoLite2-City.mmdb"
@@ -1021,29 +872,6 @@ data:
       # Set @log_level (default: warn)
       @log_level         debug
     </filter>
-    # </label>
-
-
-    # <filter access.apache>
-    #   @type                  geoip
-    #   geoip_lookup_keys      host
-    #   <record>
-    #     # lat lon as properties
-    #     # ex. {"lat" => 37.4192008972168, "lon" => -122.05740356445312 }
-    #     location_properties  '{ "lat" : ${location.latitude["host"]}, "lon" : ${location.longitude["host"]} }'
-
-    #     # lat lon as string
-    #     # ex. "37.4192008972168,-122.05740356445312"
-    #     location_string      ${location.latitude["host"]},${location.longitude["host"]}
-
-    #     # GeoJSON (lat lon as array) is useful for Kibana's bettermap.
-    #     # ex. [-122.05740356445312, 37.4192008972168]
-    #     location_array       '[${location.longitude["host"]},${location.latitude["host"]}]'
-    #   </record>
-
-    #   # To avoid get stacktrace error with `[null, null]` array for elasticsearch.
-    #   skip_adding_null_record  true
-    # </filter>
 
     <filter access>
       @type record_transformer
@@ -1086,104 +914,45 @@ data:
 
 
   output.conf: |-
-    # <label @ingest_from_unifi>
-    #   <match **>
-    #     @type stdout
-    #     output_type json
-    #   </match>
-    # </label>
-
-    # <label @ingest_from_unifiserver>
-    #   <match **>
-    #     @type stdout
-    #     output_type json
-    #   </match>
-    # </label>
-
-    # <label @ingest_from_unifi_iptables>
-    #   <match **>
-    #     @type stdout
-    #     output_type json
-    #   </match>
-    # </label>
-
-    # <label @ingest_from_unifi_iptables_ubiquiti_rule_set>
-    #   <match **>
-    #     @type stdout
-    #     output_type json
-    #   </match>
-    # </label>
-
-    # <label @unifi_iptables_ubiquiti_rule_set_syslog>
-
-    #   <match **>
-    #     @type copy
-    #     <store>
-    #       @id elasticsearch
-    #       @type elasticsearch
-    #       @log_level info
-    #       include_tag_key true
-    #       host elasticsearch-logging
-    #       port 9200
-    #       logstash_format true
-    #       <buffer>
-    #         @type file
-    #         path /var/log/fluentd-buffers/kubernetes.system.buffer
-    #         flush_mode interval
-    #         retry_type exponential_backoff
-    #         flush_thread_count 2
-    #         flush_interval 5s
-    #         retry_forever
-    #         retry_max_interval 30
-    #         chunk_limit_size 2M
-    #         queue_limit_length 8
-    #         overflow_action block
-    #       </buffer>
-    #     </store>
-    #     <store>
-    #       @type stdout
-    #     </store>
-    #   </match>
-    # </label>
-
-    # <label @ingest_from_unifi_iptables_ubiquiti_rule_set>
-    <match **>
+    <match unifi_dummy_logs.**>
       @type copy
-      # <store>
-      #   @id elasticsearch
-      #   @type elasticsearch
-      #   @log_level debug
-      #   with_transporter_log true
-      #   type_name fluentd
-      #   include_tag_key true
-      #   # host elasticsearch.borglab.scarlettlab.home
-      #   host elasticsearch-logging
-      #   port 9200
-      #   logstash_format true
-      #   # emit_error_for_missing_id true
-      #   # scheme http
-      #   # time_key @timestamp
-      #   # index_name unifi
-      #   # logstash_prefix unifi
-      #   # include_timestamp true
-      #   reload_on_failure true
-      #   reconnect_on_error true
-      #   # template_file /etc/fluent/config.d/elasticsearch-template-es5x.json
-      #   # template_name elasticsearch-template-es5x.json
-      #   <buffer>
-      #     @type file
-      #     path /var/log/fluentd.centralized.system.buffer
-      #     flush_mode interval
-      #     retry_type exponential_backoff
-      #     flush_thread_count 2
-      #     flush_interval 5s
-      #     retry_forever
-      #     retry_max_interval 30
-      #     chunk_limit_size 4M
-      #     queue_limit_length 256
-      #     overflow_action block
-      #   </buffer>
-      # </store>
+      <store ignore_error>
+        @id elasticsearch
+        @type elasticsearch
+        @log_level debug
+        with_transporter_log true
+        type_name fluentd
+        include_tag_key true
+        # host elasticsearch.borglab.scarlettlab.home
+        host elasticsearch-logging.kube-system
+        port 9200
+        logstash_format true
+        emit_error_for_missing_id true
+        # scheme http
+        # time_key @timestamp
+        # index_name unifi
+        logstash_prefix logstash-unifi
+        index_prefix logstash-unifi
+        log_es_400_reason true
+        # include_timestamp true
+        reload_on_failure true
+        reconnect_on_error true
+        # template_file /etc/fluent/config.d/elasticsearch-template-es5x.json
+        # template_name elasticsearch-template-es5x.json
+        <buffer>
+          @type file
+          path /var/log/fluentd.centralized.system.buffer
+          flush_mode interval
+          retry_type exponential_backoff
+          flush_thread_count 2
+          flush_interval 5s
+          retry_forever
+          retry_max_interval 30
+          chunk_limit_size 4M
+          queue_limit_length 256
+          overflow_action block
+        </buffer>
+      </store>
       <store>
         @type stdout
         output_type json
@@ -1197,4 +966,3 @@ data:
         unit minute
       </store>
     </match>
-    # </label>

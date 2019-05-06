@@ -13,6 +13,7 @@ rules:
     - "deployments"
     - "batch"
     - "extensions"
+    - "configmaps"
     - "crontabs"
     verbs:
     - "get"

@@ -4,11 +4,12 @@ kind: ClusterRoleBinding
 metadata:
   name: fluentd-centralized-read
 roleRef:
-  apiGroup: rbac.authorization.k8s.io
+  apiGroup: ""
+  # apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: fluentd-centralized-read
 subjects:
 - kind: ServiceAccount
   name: fluentd-centralized
   namespace: kube-system
-  # apiGroup: ""
+  apiGroup: ""
