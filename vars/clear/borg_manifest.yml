@@ -2282,7 +2282,7 @@ boss__elasticsearch__exporter__cluster_role_rules: |-
 boss__fluentd__centralized__subdomain: fluentd-centralized
 boss__fluentd__centralized__manifest_path: "{{manifest_dir_path}}/fluentd-centralized"
 boss__fluentd__centralized__namespace_name: kube-system
-boss__fluentd__centralized__fluentd_version: v2.5.0
+boss__fluentd__centralized__fluentd_version: v3.0.0
 boss__fluentd__centralized__fluentd_image_repo: "bossjones/fluentd-elasticsearch"
 boss__fluentd__centralized__fluentd_image_tag: "{{ boss__fluentd__centralized__fluentd_version }}"
 boss__fluentd__centralized__shared_name: fluentd-centralized
@@ -2300,6 +2300,7 @@ boss__fluentd__centralized__path_to_work_inside_container: "/work"
 boss__fluentd__centralized__path_to_spool_inside_container: "/spool"
 boss__fluentd__centralized__path_to_grok_patterns_inside_container: "/grok.d"
 boss__fluentd__centralized__path_to_nfs_mount: "/mnt/publicdata/rsyslog"
+boss__fluentd__centralized__path_to_es_templates_inside_container: "/templates.d"
 
 
 boss__fluentd__centralized__logrotate_version: 1.3
@@ -2557,6 +2558,9 @@ boss__fluentd__centralized__deployment_spec_template_spec_volumeMounts: |
   - name: grok-patterns
     mountPath: {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
 
+  - name: templates-d
+    mountPath: {{boss__fluentd__centralized__path_to_es_templates_inside_container}}
+
 boss__fluentd__centralized__deployment_spec_template_spec_volumes: |
   - name: work
     emptyDir: {}
@@ -2577,6 +2581,10 @@ boss__fluentd__centralized__deployment_spec_template_spec_volumes: |
     configMap:
       name: {{boss__fluentd__centralized__shared_name}}-grok-patterns{{boss__fluentd__centralized__configmap_suffix}}
       # defaultMode: 0775
+
+  - name: templates-d
+    configMap:
+      name: {{boss__fluentd__centralized__shared_name}}-elasticseach-template
 
 
 boss__fluentd__centralized__deployment_spec_template_spec_sidcar_container: "disabled"

@@ -19,8 +19,8 @@
 # Note that fluentd is run with root permssion to allow access to
 # log files with root only access under /var/log/containers/*
 
-# FROM debian:stretch-slim
-FROM k8s.gcr.io/fluentd-elasticsearch:v2.2.0
+FROM debian:stretch-slim
+# FROM k8s.gcr.io/fluentd-elasticsearch:v2.2.0
 
 ENV RBSPY_RELEASE="https://github.com/rbspy/rbspy/releases/download/v0.3.3/rbspy-v0.3.3-x86_64-unknown-linux-musl.tar.gz" \
     RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR="1.2" \
@@ -107,8 +107,8 @@ ENV RBSPY_RELEASE="https://github.com/rbspy/rbspy/releases/download/v0.3.3/rbspy
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-# COPY clean-apt /usr/bin
-# COPY clean-install /usr/bin
+COPY clean-apt /usr/bin
+COPY clean-install /usr/bin
 COPY Gemfile /Gemfile
 
 # SOURCE: https://docs.fluentd.org/v1.0/articles/before-install
@@ -172,8 +172,12 @@ RUN set -x; BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gn
     # Ensure fluent has enough file descriptors
     && ulimit -n 65536
 
+# Copy the Fluentd configuration file for logging Docker container logs.
+COPY fluent.conf /etc/fluent/fluent.conf
+COPY run.sh /run.sh
+
 RUN apt-get update \
-    && apt-get install supervisor net-tools procps tree tcpdump netcat bash-completion htop wget gzip ngrep -y \
+    && apt-get install supervisor net-tools procps tree tcpdump netcat bash-completion htop wget gzip -y \
     && clean-apt
 
 # SOURCE: https://dev.maxmind.com/geoip/geoip2/geolite2/
