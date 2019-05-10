@@ -41,6 +41,7 @@ spec:
         env:
         - name: FLUENTD_ARGS
           value: "--no-supervisor -vv"
+        # value: "--under-supervisor -vv --workers 4"
         # - name: FLUENT_ELASTICSEARCH_HOST
         #   value: "elasticsearch"
         # - name: FLUENT_ELASTICSEARCH_PORT
@@ -83,7 +84,7 @@ spec:
           value: "UTC"
         
         - name: RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR
-          value: "0.9"
+          value: "1.2"
         
           # RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR=0.9 or RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR=1.2.
 
@@ -112,23 +113,23 @@ spec:
         
 
         resources:
-          limits:
-            cpu: "200m"
-            memory: "700Mi"
+          # limits:
+          #   # cpu: "200m"
+          #   memory: "700Mi"
           requests:
             cpu: "0.05"
             memory: "10Mi"
           
 
         securityContext:
-          runAsNonRoot: false
+          # runAsNonRoot: false
           # SOURCE: https://docs.okd.io/latest/rest_api/apis-apps/v1beta2.Deployment.html
           privileged: true
 
         livenessProbe:
           tcpSocket:
             port: 24231
-          initialDelaySeconds: 90
+          initialDelaySeconds: 300
           timeoutSeconds: 10
 
         ports:
@@ -173,4 +174,4 @@ spec:
 
       nodeSelector:
         beta.kubernetes.io/os: linux
-        kubernetes.io/hostname: "borg-worker-02"
+        kubernetes.io/hostname: "borg-worker-01"

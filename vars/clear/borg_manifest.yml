@@ -2358,9 +2358,9 @@ boss__fluentd__centralized__fluentd_pv_spec_nfs: |-
 
 
 boss__fluentd__centralized__deployment_spec_template_containers_resources: |
-  limits:
+  # limits:
     cpu: "200m"
-    memory: "700Mi"
+    memory: "900Mi"
   requests:
     cpu: "0.05"
     memory: "10Mi"
@@ -2506,6 +2506,7 @@ boss__fluentd__centralized__deployment_spec_template_initContainers: |-
 boss__fluentd__centralized__deployment_spec_template_containers_env: |-
   - name: FLUENTD_ARGS
     value: "--no-supervisor -vv"
+  # value: "--under-supervisor -vv --workers 4"
   # - name: FLUENT_ELASTICSEARCH_HOST
   #   value: "elasticsearch"
   # - name: FLUENT_ELASTICSEARCH_PORT
@@ -2548,7 +2549,7 @@ boss__fluentd__centralized__deployment_spec_template_containers_env: |-
     value: "UTC"
 
   - name: RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR
-    value: "0.9"
+    value: "1.2"
 
     # RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR=0.9 or RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR=1.2.
 
@@ -2638,11 +2639,11 @@ boss__fluentd__centralized__deployment_spec_template_spec_hostPID: False
 
 boss__fluentd__centralized__deployment_spec_template_spec_nodeSelector: |-
   beta.kubernetes.io/os: linux
-  kubernetes.io/hostname: "borg-worker-02"
+  kubernetes.io/hostname: "borg-worker-01"
 
 # boss__fluentd__centralized__deployment_spec_template_spec_securityContext: "disabled"
 boss__fluentd__centralized__deployment_spec_template_spec_securityContext: |-
-  runAsNonRoot: false
+  # runAsNonRoot: false
   # SOURCE: https://docs.okd.io/latest/rest_api/apis-apps/v1beta2.Deployment.html
   privileged: true
 
@@ -2650,7 +2651,7 @@ boss__fluentd__centralized__deployment_spec_template_spec_securityContext: |-
 boss__fluentd__centralized__deployment_spec_template_spec_containers_livenessProbe: |-
   tcpSocket:
     port: {{boss__fluentd__centralized__promths_mtr_in_port}}
-  initialDelaySeconds: 90
+  initialDelaySeconds: 300
   timeoutSeconds: 10
 
 
