@@ -836,7 +836,7 @@ data:
     <source>
       @type tail
       @id ingest_from_unifi_iptables_ubiquiti_rule_set
-      read_from_head true
+      # read_from_head true
       # tag ingest_from_unifi_iptables_ubiquiti_rule_set
       # pos_file {{boss__fluentd__centralized__path_to_logs_inside_container}}/fluentd.unifi.pos
       pos_file /var/log/fluentd.unifi.pos
@@ -1110,15 +1110,15 @@ data:
         template_name elasticsearch-template-es5x.json
         <buffer>
           @type file
-          flush_thread_count 2
+          flush_thread_count 8
           path /var/log/fluentd.centralized.system.buffer
           flush_mode interval
           retry_type exponential_backoff
           # flush_thread_count 2
-          flush_interval 60s
+          flush_interval 5s
           retry_forever
           retry_max_interval 30
-          chunk_limit_size 4M
+          chunk_limit_size 16M
           queue_limit_length 256
           overflow_action block
         </buffer>
