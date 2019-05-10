@@ -1078,12 +1078,12 @@ data:
 
 
     # Concatenate multi-line logs
-    <filter **>
-      @type concat
-      key message
-      multiline_end_regexp /\n$/
-      separator ""
-    </filter>
+    # <filter **>
+    #   @type concat
+    #   key message
+    #   multiline_end_regexp /\n$/
+    #   separator ""
+    # </filter>
 
     <match **.**>
       @type copy
@@ -1109,7 +1109,7 @@ data:
           flush_mode interval
           retry_type exponential_backoff
           # flush_thread_count 2
-          flush_interval 5s
+          flush_interval 60s
           retry_forever
           retry_max_interval 30
           chunk_limit_size 4M
