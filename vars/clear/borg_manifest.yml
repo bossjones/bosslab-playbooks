@@ -2383,6 +2383,8 @@ boss__fluentd__centralized__cluster_role_rules: |-
     - "crontabs"
     - "extensions"
     - "secrets"
+    - "services"
+    - "endpoints"
     verbs:
     - "get"
     - "list"

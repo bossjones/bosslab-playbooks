@@ -177,7 +177,7 @@ COPY fluent.conf /etc/fluent/fluent.conf
 COPY run.sh /run.sh
 
 RUN apt-get update \
-    && apt-get install supervisor net-tools procps tree tcpdump netcat bash-completion htop wget gzip -y \
+    && apt-get install supervisor net-tools procps tree tcpdump netcat bash-completion htop wget gzip curl -y \
     && clean-apt
 
 # SOURCE: https://dev.maxmind.com/geoip/geoip2/geolite2/
