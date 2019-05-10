@@ -2360,7 +2360,7 @@ boss__fluentd__centralized__fluentd_pv_spec_nfs: |-
 boss__fluentd__centralized__deployment_spec_template_containers_resources: |
   limits:
     cpu: "200m"
-    memory: "500Mi"
+    memory: "700Mi"
   requests:
     cpu: "0.05"
     memory: "10Mi"
@@ -2546,6 +2546,11 @@ boss__fluentd__centralized__deployment_spec_template_containers_env: |-
 
   - name: TZ
     value: "UTC"
+
+  - name: RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR
+    value: "0.9"
+
+    # RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR=0.9 or RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR=1.2.
 
 boss__fluentd__centralized__deployment_spec_template_spec_volumeMounts: |
   # fluentd work files; do not share with multiple instances

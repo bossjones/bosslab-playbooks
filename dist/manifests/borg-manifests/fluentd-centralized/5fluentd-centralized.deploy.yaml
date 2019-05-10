@@ -81,6 +81,11 @@ spec:
         
         - name: TZ
           value: "UTC"
+        
+        - name: RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR
+          value: "0.9"
+        
+          # RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR=0.9 or RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR=1.2.
 
         volumeMounts:
         # fluentd work files; do not share with multiple instances
@@ -109,7 +114,7 @@ spec:
         resources:
           limits:
             cpu: "200m"
-            memory: "500Mi"
+            memory: "700Mi"
           requests:
             cpu: "0.05"
             memory: "10Mi"

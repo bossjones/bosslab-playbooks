@@ -836,7 +836,7 @@ data:
       @id ingest_from_unifi_iptables_ubiquiti_rule_set
       read_from_head true
       # tag ingest_from_unifi_iptables_ubiquiti_rule_set
-      pos_file {{boss__fluentd__centralized__path_to_logs_inside_container}}/fluentd.pos
+      pos_file /var/log/fluentd.pos
       path {{boss__fluentd__centralized__path_to_logs_inside_container}}/client_logs/**/*.log
       tag unifi.syslog.**
       <parse>
@@ -1106,7 +1106,8 @@ data:
         template_name elasticsearch-template-es5x.json
         <buffer>
           @type file
-          path {{boss__fluentd__centralized__path_to_logs_inside_container}}/fluentd.centralized.system.buffer
+          flush_thread_count 8
+          path /var/log/fluentd.centralized.system.buffer
           flush_mode interval
           retry_type exponential_backoff
           flush_thread_count 2
