@@ -2359,7 +2359,7 @@ boss__fluentd__centralized__fluentd_pv_spec_nfs: |-
 
 boss__fluentd__centralized__deployment_spec_template_containers_resources: |
   limits:
-    cpu: "100m"
+    cpu: "200m"
     memory: "500Mi"
   requests:
     cpu: "0.05"
@@ -2633,6 +2633,7 @@ boss__fluentd__centralized__deployment_spec_template_spec_hostPID: False
 
 boss__fluentd__centralized__deployment_spec_template_spec_nodeSelector: |-
   beta.kubernetes.io/os: linux
+  kubernetes.io/hostname: "borg-worker-02"
 
 # boss__fluentd__centralized__deployment_spec_template_spec_securityContext: "disabled"
 boss__fluentd__centralized__deployment_spec_template_spec_securityContext: |-
