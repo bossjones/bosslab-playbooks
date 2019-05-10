@@ -1056,6 +1056,7 @@ data:
     # input plugin that collects metrics for output plugin
     <source>
       @type prometheus_output_monitor
+      # update the metrics every 5 seconds
       interval 5
       <labels>
         host ${hostname}
@@ -1064,6 +1065,7 @@ data:
     # input plugin that collects metrics for in_tail plugin
     <source>
       @type prometheus_tail_monitor
+      # update the metrics every 5 seconds
       interval 5
       <labels>
         host ${hostname}

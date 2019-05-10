@@ -8,7 +8,7 @@ metadata:
     version: v3.0.0
     kubernetes.io/cluster-service: "true"
 spec:
-  replicas: 3
+  replicas: 1
 
   # selector:
   #  matchLabels:
@@ -19,7 +19,12 @@ spec:
         version: v3.0.0
         kubernetes.io/cluster-service: "true"
 
-      # annotations:
+      annotations:
+        # This annotation ensures that fluentd does not get evicted if the node
+        # supports critical pod annotation based priority scheme.
+        # Note that this does not guarantee admission on the nodes (#40573).
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+        seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
     spec:
       serviceAccountName: fluentd-centralized
       initContainers:
@@ -103,7 +108,7 @@ spec:
 
         resources:
           limits:
-            cpu: ".2"
+            cpu: ".4"
             memory: "100Mi"
           requests:
             cpu: "0.05"

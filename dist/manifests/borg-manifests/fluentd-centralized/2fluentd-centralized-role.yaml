@@ -11,6 +11,7 @@ rules:
     - "secrets"
     - "pods/log"
     - "deployments"
+    # - "configmaps"
     - "batch"
     - "extensions"
     - "crontabs"
