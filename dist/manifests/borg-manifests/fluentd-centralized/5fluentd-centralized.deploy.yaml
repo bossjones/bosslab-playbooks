@@ -116,6 +116,7 @@ spec:
           
 
         securityContext:
+          runAsNonRoot: false
           # SOURCE: https://docs.okd.io/latest/rest_api/apis-apps/v1beta2.Deployment.html
           privileged: true
 

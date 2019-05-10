@@ -8,19 +8,19 @@ rules:
     resources:
     - "namespaces"
     - "pods"
-    - "secrets"
     - "pods/log"
     - "deployments"
-    # - "configmaps"
+    - "configmaps"
     - "batch"
-    - "extensions"
     - "crontabs"
+    - "extensions"
+    - "secrets"
     verbs:
     - "get"
-    - "watch"
     - "list"
-    - "update"
     - "post"
+    - "update"
+    - "watch"
   # DEBUG: CUSTOM FROM HERE ON OUT ---- 5/10/2019
   - apiGroups:
     - ""

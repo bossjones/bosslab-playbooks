@@ -1078,6 +1078,15 @@ data:
       </labels>
     </source>
 
+
+    # Concatenate multi-line logs
+    <filter **>
+      @type concat
+      key message
+      multiline_end_regexp /\n$/
+      separator ""
+    </filter>
+
     <match **.**>
       @type copy
       <store ignore_error>

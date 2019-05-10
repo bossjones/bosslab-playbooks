@@ -2376,19 +2376,19 @@ boss__fluentd__centralized__cluster_role_rules: |-
     resources:
     - "namespaces"
     - "pods"
-    - "secrets"
     - "pods/log"
     - "deployments"
-    # - "configmaps"
+    - "configmaps"
     - "batch"
-    - "extensions"
     - "crontabs"
+    - "extensions"
+    - "secrets"
     verbs:
     - "get"
-    - "watch"
     - "list"
-    - "update"
     - "post"
+    - "update"
+    - "watch"
   # DEBUG: CUSTOM FROM HERE ON OUT ---- 5/10/2019
   - apiGroups:
     - ""
@@ -2634,6 +2634,7 @@ boss__fluentd__centralized__deployment_spec_template_spec_nodeSelector: |-
 
 # boss__fluentd__centralized__deployment_spec_template_spec_securityContext: "disabled"
 boss__fluentd__centralized__deployment_spec_template_spec_securityContext: |-
+  runAsNonRoot: false
   # SOURCE: https://docs.okd.io/latest/rest_api/apis-apps/v1beta2.Deployment.html
   privileged: true
 
