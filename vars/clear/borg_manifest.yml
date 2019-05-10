@@ -2360,7 +2360,7 @@ boss__fluentd__centralized__fluentd_pv_spec_nfs: |-
 boss__fluentd__centralized__deployment_spec_template_containers_resources: |
   limits:
     cpu: "100m"
-    memory: "300Mi"
+    memory: "500Mi"
   requests:
     cpu: "0.05"
     memory: "10Mi"
