@@ -1117,10 +1117,10 @@ data:
           overflow_action block
         </buffer>
       </store>
-      # <store>
-      #   @type stdout
-      #   output_type json
-      # </store>
+      <store>
+        @type stdout
+        output_type json
+      </store>
       <store>
         @type flowcounter
         @id applog_high_metrics
