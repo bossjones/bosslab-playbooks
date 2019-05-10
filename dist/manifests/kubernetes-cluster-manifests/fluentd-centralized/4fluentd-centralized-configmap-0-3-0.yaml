@@ -1,18 +1,18 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{boss__fluentd__centralized__shared_name}}-grok-patterns-0-3-0
-  namespace: {{boss__fluentd__centralized__namespace_name}}
+  name: fluentd-centralized-grok-patterns-0-3-0
+  namespace: kube-system
   labels:
-    k8s-app: {{boss__fluentd__centralized__shared_name}}
+    k8s-app: fluentd-centralized
 # SOURCE: https://github.com/adriansr/beats/blob/938b0322a993021d79ed2a8be24055a7f3e69300/x-pack/filebeat/module/iptables/log/ingest/pipeline.json
-{% raw %}
+
 data:
   0_logstash_grok_patterns: |-
     # SOURCE: https://github.com/logstash-plugins/logstash-patterns-core/tree/master/patterns
     S3_REQUEST_LINE (?:%{WORD:verb} %{NOTSPACE:request}(?: HTTP/%{NUMBER:httpversion})?|%{DATA:rawrequest})
 
-    S3_ACCESS_LOG %{WORD:owner} %{NOTSPACE:bucket} \[%{HTTPDATE:timestamp}\] %{IP:clientip} %{NOTSPACE:requester} %{NOTSPACE:request_id} %{NOTSPACE:operation} %{NOTSPACE:key} (?:"%{S3_REQUEST_LINE}"|-) (?:%{INT:response:integer}|-) (?:-|%{NOTSPACE:error_code}) (?:%{INT:bytes:integer}|-) (?:%{INT:object_size:integer}|-) (?:%{INT:request_time_ms:integer}|-) (?:%{INT:turnaround_time_ms:integer}|-) (?:%{QS:referrer}|-) (?:"?%{QS:agent}"?|-) (?:-|%{NOTSPACE:version_id})
+    S3_ACCESS_LOG %{WORD:owner} %{NOTSPACE:bucket} \[%{HTTPDATE:timestamp}\] %{IP:clientip} %{NOTSPACE:requester} %{NOTSPACE:request_id} %{NOTSPACE:operation} %{NOTSPACE:key} (?:"%{S3_REQUEST_LINE}"|-) (?:%{INT:response:interger}|-) (?:-|%{NOTSPACE:error_code}) (?:%{INT:bytes:interger}|-) (?:%{INT:object_size:interger}|-) (?:%{INT:request_time_ms:interger}|-) (?:%{INT:turnaround_time_ms:interger}|-) (?:%{QS:referrer}|-) (?:"?%{QS:agent}"?|-) (?:-|%{NOTSPACE:version_id})
 
     ELB_URIPATHPARAM %{URIPATH:path}(?:%{URIPARAM:params})?
 
@@ -20,9 +20,9 @@ data:
 
     ELB_REQUEST_LINE (?:%{WORD:verb} %{ELB_URI:request}(?: HTTP/%{NUMBER:httpversion})?|%{DATA:rawrequest})
 
-    ELB_ACCESS_LOG %{TIMESTAMP_ISO8601:timestamp} %{NOTSPACE:elb} %{IP:clientip}:%{INT:clientport:integer} (?:(%{IP:backendip}:?:%{INT:backendport:integer})|-) %{NUMBER:request_processing_time:float} %{NUMBER:backend_processing_time:float} %{NUMBER:response_processing_time:float} %{INT:response:integer} %{INT:backend_response:integer} %{INT:received_bytes:integer} %{INT:bytes:integer} "%{ELB_REQUEST_LINE}"
+    ELB_ACCESS_LOG %{TIMESTAMP_ISO8601:timestamp} %{NOTSPACE:elb} %{IP:clientip}:%{INT:clientport:interger} (?:(%{IP:backendip}:?:%{INT:backendport:interger})|-) %{NUMBER:request_processing_time:float} %{NUMBER:backend_processing_time:float} %{NUMBER:response_processing_time:float} %{INT:response:interger} %{INT:backend_response:interger} %{INT:received_bytes:interger} %{INT:bytes:interger} "%{ELB_REQUEST_LINE}"
 
-    CLOUDFRONT_ACCESS_LOG (?<timestamp>%{YEAR}-%{MONTHNUM}-%{MONTHDAY}\t%{TIME})\t%{WORD:x_edge_location}\t(?:%{NUMBER:sc_bytes:integer}|-)\t%{IPORHOST:clientip}\t%{WORD:cs_method}\t%{HOSTNAME:cs_host}\t%{NOTSPACE:cs_uri_stem}\t%{NUMBER:sc_status:integer}\t%{GREEDYDATA:referrer}\t%{GREEDYDATA:agent}\t%{GREEDYDATA:cs_uri_query}\t%{GREEDYDATA:cookies}\t%{WORD:x_edge_result_type}\t%{NOTSPACE:x_edge_request_id}\t%{HOSTNAME:x_host_header}\t%{URIPROTO:cs_protocol}\t%{INT:cs_bytes:integer}\t%{GREEDYDATA:time_taken:float}\t%{GREEDYDATA:x_forwarded_for}\t%{GREEDYDATA:ssl_protocol}\t%{GREEDYDATA:ssl_cipher}\t%{GREEDYDATA:x_edge_response_result_type}
+    CLOUDFRONT_ACCESS_LOG (?<timestamp>%{YEAR}-%{MONTHNUM}-%{MONTHDAY}\t%{TIME})\t%{WORD:x_edge_location}\t(?:%{NUMBER:sc_bytes:interger}|-)\t%{IPORHOST:clientip}\t%{WORD:cs_method}\t%{HOSTNAME:cs_host}\t%{NOTSPACE:cs_uri_stem}\t%{NUMBER:sc_status:interger}\t%{GREEDYDATA:referrer}\t%{GREEDYDATA:agent}\t%{GREEDYDATA:cs_uri_query}\t%{GREEDYDATA:cookies}\t%{WORD:x_edge_result_type}\t%{NOTSPACE:x_edge_request_id}\t%{HOSTNAME:x_host_header}\t%{URIPROTO:cs_protocol}\t%{INT:cs_bytes:interger}\t%{GREEDYDATA:time_taken:float}\t%{GREEDYDATA:x_forwarded_for}\t%{GREEDYDATA:ssl_protocol}\t%{GREEDYDATA:ssl_cipher}\t%{GREEDYDATA:x_edge_response_result_type}
 
     BACULA_TIMESTAMP %{MONTHDAY}-%{MONTH} %{HOUR}:%{MINUTE}
     BACULA_HOST [a-zA-Z0-9-]+
@@ -560,23 +560,23 @@ data:
     ETHTYPE_DISCARD (?::[A-Fa-f0-9]{2})*
     NETFILTERMAC (?:%{MAC:destination.mac}:%{MAC:source.mac}:%{ETHTYPE:iptables.ether_type}?%{ETHTYPE_DISCARD}|%{MAC:destination.mac}%{ETHTYPE_DISCARD}:%{ETHTYPE:iptables.ether_type}?)
     IPTABLES_ETHERNET IN=%{DATA:iptables.input_device} OUT=%{DATA:iptables.output_device}?(?: MAC=%{NETFILTERMAC})?
-    IPTABLES_PORT_PAIR SPT=%{UNSIGNED_INT:source.port:integer} DPT=%{UNSIGNED_INT:destination.port:integer}
+    IPTABLES_PORT_PAIR SPT=%{UNSIGNED_INT:source.port:interger} DPT=%{UNSIGNED_INT:destination.port:interger}
     IPTABLES_TCP_FLAGS ((?<= )(CWR|ECE|URG|ACK|PSH|RST|SYN|FIN))*
-    IPTABLES_TCP_SEQ SEQ=%{UNSIGNED_INT:iptables.tcp.seq:integer} ACK=%{UNSIGNED_INT:iptables.tcp.ack:integer}
-    IPTABLES_TCP_DETAILS (?:%{IPTABLES_TCP_SEQ} )?WINDOW=%{UNSIGNED_INT:iptables.tcp.window:integer} RES=0x%{BASE16NUM:iptables.tcp_reserved_bits} %{IPTABLES_TCP_FLAGS:iptables.tcp.flags}
-    IPTABLES_INCOMPLETE_PACKET INCOMPLETE \\[%{UNSIGNED_INT:iptables.incomplete_bytes:integer} bytes\\]
-    IPTABLES_UDP_DETAILS LEN=%{UNSIGNED_INT:iptables.udp.length:integer}
-    IPTABLES_ICMP_EXTRA_ECHO ID=%{UNSIGNED_INT:iptables.icmp.id:integer} SEQ=%{UNSIGNED_INT:iptables.icmp.seq:integer}
-    IPTABLES_ICMP_EXTRA_PARAM PARAMETER=%{UNSIGNED_INT:iptables.icmp.parameter:integer}
+    IPTABLES_TCP_SEQ SEQ=%{UNSIGNED_INT:iptables.tcp.seq:interger} ACK=%{UNSIGNED_INT:iptables.tcp.ack:interger}
+    IPTABLES_TCP_DETAILS (?:%{IPTABLES_TCP_SEQ} )?WINDOW=%{UNSIGNED_INT:iptables.tcp.window:interger} RES=0x%{BASE16NUM:iptables.tcp_reserved_bits} %{IPTABLES_TCP_FLAGS:iptables.tcp.flags}
+    IPTABLES_INCOMPLETE_PACKET INCOMPLETE \\[%{UNSIGNED_INT:iptables.incomplete_bytes:interger} bytes\\]
+    IPTABLES_UDP_DETAILS LEN=%{UNSIGNED_INT:iptables.udp.length:interger}
+    IPTABLES_ICMP_EXTRA_ECHO ID=%{UNSIGNED_INT:iptables.icmp.id:interger} SEQ=%{UNSIGNED_INT:iptables.icmp.seq:interger}
+    IPTABLES_ICMP_EXTRA_PARAM PARAMETER=%{UNSIGNED_INT:iptables.icmp.parameter:interger}
     IPTABLES_ICMP_EXTRA_REDIRECT GATEWAY=%{IP:iptables.icmp.redirect}
     IPTABLES_ICMP_EXTRA ( (?:%{IPTABLES_ICMP_EXTRA_ECHO}|%{IPTABLES_ICMP_EXTRA_PARAM}|%{IPTABLES_ICMP_EXTRA_REDIRECT}))*
-    IPTABLES_ICMP_DETAILS TYPE=%{UNSIGNED_INT:iptables.icmp.type:integer} CODE=%{UNSIGNED_INT:iptables.icmp.code:integer}(( %{IPTABLES_INCOMPLETE_PACKET})|%{IPTABLES_ICMP_EXTRA})
+    IPTABLES_ICMP_DETAILS TYPE=%{UNSIGNED_INT:iptables.icmp.type:interger} CODE=%{UNSIGNED_INT:iptables.icmp.code:interger}(( %{IPTABLES_INCOMPLETE_PACKET})|%{IPTABLES_ICMP_EXTRA})
     IPTABLES_PROTOCOL PROTO=(?<network.transport>[a-zA-Z0-9]+)
     IPTABLES_IP_PAYLOAD %{IPTABLES_PROTOCOL}( %{IPTABLES_PORT_PAIR})?( (%{IPTABLES_TCP_DETAILS}|%{IPTABLES_UDP_DETAILS}|%{IPTABLES_ICMP_DETAILS}|%{IPTABLES_INCOMPLETE_PACKET}))?
     IPTABLES_IP_FRAGFLAG ((?<= )(CE|DF|MF))*
-    IPTABLES_IP_START SRC=%{IPV4:source.ip} DST=%{IPV4:destination.ip} LEN=%{UNSIGNED_INT:iptables.length:integer} TOS=0x%{BASE16NUM:iptables.tos} PREC=0x%{BASE16NUM:iptables.precedence_bits} TTL=%{UNSIGNED_INT:iptables.ttl:integer} ID=%{UNSIGNED_INT:iptables.id:integer}(?: %{IPTABLES_IP_FRAGFLAG:iptables.fragment_flags})?(?: FRAG: %{UNSIGNED_INT:iptables.fragment_offset:integer})?
+    IPTABLES_IP_START SRC=%{IPV4:source.ip} DST=%{IPV4:destination.ip} LEN=%{UNSIGNED_INT:iptables.length:interger} TOS=0x%{BASE16NUM:iptables.tos} PREC=0x%{BASE16NUM:iptables.precedence_bits} TTL=%{UNSIGNED_INT:iptables.ttl:interger} ID=%{UNSIGNED_INT:iptables.id:interger}(?: %{IPTABLES_IP_FRAGFLAG:iptables.fragment_flags})?(?: FRAG: %{UNSIGNED_INT:iptables.fragment_offset:interger})?
     IPTABLES_IP %{IPTABLES_IP_START} %{IPTABLES_IP_PAYLOAD}
-    IPTABLES_IPV6_START SRC=%{IPV6:source.ip} DST=%{IPV6:destination.ip} LEN=%{UNSIGNED_INT:iptables.length:integer} TC=%{UNSIGNED_INT:iptables.tos} HOPLIMIT=%{UNSIGNED_INT:iptables.ttl:integer} FLOWLBL=%{UNSIGNED_INT:iptables.flow_label:integer}
+    IPTABLES_IPV6_START SRC=%{IPV6:source.ip} DST=%{IPV6:destination.ip} LEN=%{UNSIGNED_INT:iptables.length:interger} TC=%{UNSIGNED_INT:iptables.tos} HOPLIMIT=%{UNSIGNED_INT:iptables.ttl:interger} FLOWLBL=%{UNSIGNED_INT:iptables.flow_label:interger}
     IPTABLES_IPV6 %{IPTABLES_IPV6_START} %{IPTABLES_IP_PAYLOAD}
     IPTABLES %{IPTABLES_ETHERNET} (:?%{IPTABLES_IP}|%{IPTABLES_IPV6})
     UBIQUITI_FIELD [^-\\]]*
@@ -661,34 +661,9 @@ data:
     # --------------------------------------------------------------------------------------
     # Combined these guys parse this:
     # --------------------------------------------------------------------------------------
-    # DEBUG: Matches -> 2017-11-24T00:01:42-05:00 NetworkSecurityUbiquitiUSGULAN
-    # --------------------------------------------------------------------------------------
-    BOSSJONES_UNIFI %{SYSLOGTIMESTAMP:time} %{HOSTNAME:hostname}
-
-    # --------------------------------------------------------------------------------------
-    # Combined these guys parse this:
-    # --------------------------------------------------------------------------------------
-    # DEBUG: Matches -> 2017-11-24T00:01:42-05:00 NetworkSecurityUbiquitiUSGULAN
-    # --------------------------------------------------------------------------------------
-    BOSSJONES_UNIFI_RAW %{BOSSJONES_UNIFI} %{GREEDYDATA:message}
-
-    BOSSJONES_UNIFI_PROCESS_NAME %{WORD:process_name}:
-
-    # --------------------------------------------------------------------------------------
-    # Combined these guys parse this:
-    # --------------------------------------------------------------------------------------
     # DEBUG: Matches -> 2017-11-24T00:01:42-05:00 NetworkSecurityUbiquitiUSGULAN kernel:
     # --------------------------------------------------------------------------------------
-    BOSSJONES_UNIFI_SECURITYGATEWAY_KERNEL_START %{BOSSJONES_UNIFI} %{BOSSJONES_UNIFI_PROCESS_NAME}
-
-    # --------------------------------------------------------------------------------------
-    # Combined these guys parse this:
-    # --------------------------------------------------------------------------------------
-    # DEBUG: Matches ->  ALIEN BLOCK:
-    # DEBUG: Matches ->  TOR BLOCK:
-    # INFO: https://community.ubnt.com/t5/UniFi-Routing-Switching/IPS-and-Firewall-ordering/td-p/2295457
-    # --------------------------------------------------------------------------------------
-    BOSSJONES_UNIFI_SECURITYGATEWAY_IDS_LOGS_START %{WORD:firewall.ids_block_type} BLOCK:\s+
+    BOSSJONES_UNIFI_SECURITYGATEWAY_KERNEL_START %{SYSLOGTIMESTAMP:timestamp_logged} %{HOSTNAME:hostname} %{WORD:process_name}:
 
     # --------------------------------------------------------------------------------------
     # DEBUG: Matches -> [WAN_LOCAL-3002-D]
@@ -703,338 +678,279 @@ data:
     # --------------------------------------------------------------------------------------
     # DEBUG: Matches -> SRC=192.168.1.212 DST=192.168.1.1 LEN=102 TOS=0x00 PREC=0x00 TTL=64 ID=2810 PROTO=UDP SPT=61080 DPT=53 LEN=82
     # --------------------------------------------------------------------------------------
-    BOSSJONES_IPTABLES_IP_START SRC=%{IPV4:firewall.source.ip} DST=%{IPV4:firewall.destination.ip} LEN=%{UNSIGNED_INT:firewall.packet_length} TOS=0x%{BASE16NUM:firewall.tos} PREC=0x%{BASE16NUM:firewall.precidence_field} TTL=%{UNSIGNED_INT:firewall.ttl} ID=%{UNSIGNED_INT:firewall.id}(?:%{SPACE})?(?:%{WORD:firewall.dont_fragment})?(?:%{SPACE})?PROTO=%{WORD:firewall.nf_protocol} SPT=%{INT:firewall.spt} DPT=%{INT:firewall.dtp} %{GREEDYDATA:firewall.tcp_opts}
+    BOSSJONES_IPTABLES_IP_START SRC=%{IPV4:firewall.source.ip} DST=%{IPV4:firewall.destination.ip} LEN=%{UNSIGNED_INT:firewall.packet_length} TOS=0x%{BASE16NUM:firewall.tos} PREC=0x%{BASE16NUM:firewall.precidence_field} TTL=%{UNSIGNED_INT:firewall.ttl} ID=%{UNSIGNED_INT:firewall.id} %{GREEDYDATA:firewall.tcp_opts} PROTO=%{WORD:firewall.nf_protocol} SPT=%{INT:firewall.spt} DPT=%{INT:firewall.dtp} %{GREEDYDATA:firewall.tcp_opts}
 
-    # # SOURCE: https://github.com/adriansr/beats/blob/938b0322a993021d79ed2a8be24055a7f3e69300/x-pack/filebeat/module/iptables/log/test/ubiquiti.log
-    # # EXAMPLE: Jan  5 20:17:05 MainFirewall kernel: [LAN_LOCAL-default-A]IN=eth0.90 OUT= MAC=90:10:92:6e:ea:a7:90:10:73:ba:d6:77:08:00:45:fc:02:1c SRC=192.168.48.137 DST=255.55.174.225 LEN=540 TOS=0x1C PREC=0xE0 TTL=64 ID=27223 PROTO=UDP SPT=48689 DPT=48689 LEN=520
-    # # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [WAN_OUT-2000-A]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:24:67:f4:89:08:00 SRC=192.168.134.158 DST=192.0.2.25 LEN=265 TOS=0x00 PREC=0x00 TTL=63 ID=51768 DF PROTO=TCP SPT=43189 DPT=443 WINDOW=159 RES=0x00 ACK PSH URGP=0
-    # # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [source-dest-default-D]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:65:29:b6:2a:08:00 SRC=192.168.110.116 DST=192.0.2.25 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=0 DF PROTO=TCP SPT=50093 DPT=1443 WINDOW=2857 RES=0x00 ACK URGP=0
-    # # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [WAN_OUT-2000-A]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:65:29:b6:2a:08:00 SRC=192.168.110.116 DST=192.0.2.25 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=0 DF PROTO=TCP SPT=50093 DPT=1443 WINDOW=2853 RES=0x00 ACK URGP=0
-    # # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [WAN_OUT-2000-A]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:65:29:b6:2a:08:00 SRC=192.168.110.116 DST=192.0.2.25 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=0 DF PROTO=TCP SPT=50093 DPT=1443 WINDOW=2850 RES=0x00 ACK URGP=0
+  # # SOURCE: https://github.com/adriansr/beats/blob/938b0322a993021d79ed2a8be24055a7f3e69300/x-pack/filebeat/module/iptables/log/test/ubiquiti.log
+  # # EXAMPLE: Jan  5 20:17:05 MainFirewall kernel: [LAN_LOCAL-default-A]IN=eth0.90 OUT= MAC=90:10:92:6e:ea:a7:90:10:73:ba:d6:77:08:00:45:fc:02:1c SRC=192.168.48.137 DST=255.55.174.225 LEN=540 TOS=0x1C PREC=0xE0 TTL=64 ID=27223 PROTO=UDP SPT=48689 DPT=48689 LEN=520
+  # # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [WAN_OUT-2000-A]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:24:67:f4:89:08:00 SRC=192.168.134.158 DST=192.0.2.25 LEN=265 TOS=0x00 PREC=0x00 TTL=63 ID=51768 DF PROTO=TCP SPT=43189 DPT=443 WINDOW=159 RES=0x00 ACK PSH URGP=0
+  # # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [source-dest-default-D]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:65:29:b6:2a:08:00 SRC=192.168.110.116 DST=192.0.2.25 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=0 DF PROTO=TCP SPT=50093 DPT=1443 WINDOW=2857 RES=0x00 ACK URGP=0
+  # # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [WAN_OUT-2000-A]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:65:29:b6:2a:08:00 SRC=192.168.110.116 DST=192.0.2.25 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=0 DF PROTO=TCP SPT=50093 DPT=1443 WINDOW=2853 RES=0x00 ACK URGP=0
+  # # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [WAN_OUT-2000-A]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:65:29:b6:2a:08:00 SRC=192.168.110.116 DST=192.0.2.25 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=0 DF PROTO=TCP SPT=50093 DPT=1443 WINDOW=2850 RES=0x00 ACK URGP=0
 
-    # unifi_patterns: |-
-    #   # PATTERN: https://github.com/effertzdv/elasticstack/blob/92c6332265f1d83dfc282b30d415bcd4f8917846/logstash/patterns/pattern.yml
-    #   UNIFI_FW [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+
-    #   UNIFI_DEV_TYPE \s?(\("%{WORD:unifi_type},%{WORD:unifi_ap_mac},v%{UNIFI_FW:unifi_firmware}"\))?
-    #   UNIFI_EVENT_TYPE (IEEE 802\.11|WPA|WEP)
-    #   UNIFI_CUSTOM_EVENT (wevent.ubnt_custom_event\(\): %{WORD:CUSTOM_UNFI_EVENT} %{WORD:unifi_interface}: %{MAC:unifi_sta_mac} \/ %{GREEDYDATA:CUSTOM_UNIFI_EVENT_DATA})
+  # unifi_patterns: |-
+  #   # PATTERN: https://github.com/effertzdv/elasticstack/blob/92c6332265f1d83dfc282b30d415bcd4f8917846/logstash/patterns/pattern.yml
+  #   UNIFI_FW [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+
+  #   UNIFI_DEV_TYPE \s?(\("%{WORD:unifi_type},%{WORD:unifi_ap_mac},v%{UNIFI_FW:unifi_firmware}"\))?
+  #   UNIFI_EVENT_TYPE (IEEE 802\.11|WPA|WEP)
+  #   UNIFI_CUSTOM_EVENT (wevent.ubnt_custom_event\(\): %{WORD:CUSTOM_UNFI_EVENT} %{WORD:unifi_interface}: %{MAC:unifi_sta_mac} \/ %{GREEDYDATA:CUSTOM_UNIFI_EVENT_DATA})
 
-    # SOURCE: https://github.com/adriansr/beats/blob/938b0322a993021d79ed2a8be24055a7f3e69300/x-pack/filebeat/module/iptables/log/test/iptables.log
-    # EXAMPLE: Jan  8 03:37:09 example-host kernel: iptables DROP_INPUT: IN=eth0 OUT= MAC=90:10:35:5a:1e:3a:90:10:9e:ec:2c:71:08:00 SRC=203.0.113.36 DST=172.16.54.114 LEN=52 TOS=0x00 PREC=0x00 TTL=115 ID=15743 DF PROTO=TCP SPT=17805 DPT=445 WINDOW=8192 RES=0x00 SYN URGP=0
-    # EXAMPLE: Jan  8 03:37:57 example-host kernel: iptables DROP_INPUT: IN=eth0 OUT= MAC=90:10:35:5a:1e:3a:90:10:76:e0:e2:d5:08:00 SRC=198.51.100.198 DST=172.16.54.114 LEN=40 TOS=0x00 PREC=0x00 TTL=243 ID=17703 PROTO=TCP SPT=47091 DPT=1433 WINDOW=1024 RES=0x00 SYN URGP=0
-    # EXAMPLE: Jan  8 03:38:45 example-host kernel: iptables DROP_INPUT: IN=eth0 OUT= MAC=90:10:35:5a:1e:3a:90:10:9e:ec:2c:71:08:00 SRC=203.0.113.201 DST=172.16.54.114 LEN=52 TOS=0x00 PREC=0x00 TTL=115 ID=19619 DF PROTO=TCP SPT=59319 DPT=445 WINDOW=8192 RES=0x00 SYN URGP=0
-    # EXAMPLE: Jan  8 03:39:25 example-host kernel: iptables DROP_INPUT: IN=eth0 OUT= MAC=90:10:35:5a:1e:3a:90:10:9e:ec:2c:71:08:00 SRC=203.0.113.246 DST=172.16.54.114 LEN=40 TOS=0x00 PREC=0x00 TTL=240 ID=4255 DF PROTO=TCP SPT=44181 DPT=80 WINDOW=14600 RES=0x00 SYN URGP=0
-    # EXAMPLE: Jan  8 03:40:21 example-host kernel: iptables DROP_INPUT: IN=eth0 OUT= MAC=90:10:35:5a:1e:3a:90:10:76:e0:e2:d5:08:00 SRC=203.0.113.208 DST=172.16.54.114 LEN=52 TOS=0x00 PREC=0x00 TTL=110 ID=27150 DF PROTO=TCP SPT=64358 DPT=445 WINDOW=8192 RES=0x00 SYN URGP=0
-    # EXAMPLE: Jan  8 03:40:25 example-host kernel: iptables DROP_INPUT: IN=eth0 OUT= MAC=90:10:35:5a:1e:3a:90:10:9e:ec:2c:71:08:00 SRC=198.51.100.160 DST=172.16.54.114 LEN=40 TOS=0x00 PREC=0x00 TTL=242 ID=7264 PROTO=TCP SPT=58830 DPT=445 WINDOW=1024 RES=0x00 SYN URGP=0
-    # EXAMPLE: Jan  8 03:41:17 example-host kernel: iptables DROP_INPUT: IN=eth0 OUT= MAC=90:10:35:5a:1e:3a:90:10:76:e0:e2:d5:08:00 SRC=198.51.100.115 DST=172.16.54.114 LEN=52 TOS=0x00 PREC=0x00 TTL=117 ID=6101 DF PROTO=TCP SPT=51985 DPT=445 WINDOW=8192 RES=0x00 SYN URGP=0
-    # EXAMPLE: Jan  8 03:41:23 example-host kernel: iptables DROP_INPUT: IN=eth0 OUT= MAC=90:10:35:5a:1e:3a:90:10:76:e0:e2:d5:08:00 SRC=198.51.100.167 DST=172.16.54.114 LEN=52 TOS=0x00 PREC=0x00 TTL=45 ID=6319 DF PROTO=TCP SPT=4099 DPT=445 WINDOW=8192 RES=0x00 SYN URGP=0
-    # EXAMPLE: Jan  8 03:43:18 example-host kernel: iptables DROP_INPUT: IN=eth0 OUT= MAC=90:10:35:5a:1e:3a:90:10:9e:ec:2c:71:08:00 SRC=198.51.100.19 DST=172.16.54.114 LEN=40 TOS=0x00 PREC=0x00 TTL=245 ID=48624 PROTO=TCP SPT=59287 DPT=139 WINDOW=1024 RES=0x00 SYN URGP=0
-    # EXAMPLE: Jan  8 03:43:42 example-host kernel: iptables DROP_INPUT: IN=eth0 OUT= MAC=90:10:35:5a:1e:3a:90:10:76:e0:
+  # SOURCE: https://github.com/adriansr/beats/blob/938b0322a993021d79ed2a8be24055a7f3e69300/x-pack/filebeat/module/iptables/log/test/iptables.log
+  # EXAMPLE: Jan  8 03:37:09 example-host kernel: iptables DROP_INPUT: IN=eth0 OUT= MAC=90:10:35:5a:1e:3a:90:10:9e:ec:2c:71:08:00 SRC=203.0.113.36 DST=172.16.54.114 LEN=52 TOS=0x00 PREC=0x00 TTL=115 ID=15743 DF PROTO=TCP SPT=17805 DPT=445 WINDOW=8192 RES=0x00 SYN URGP=0
+  # EXAMPLE: Jan  8 03:37:57 example-host kernel: iptables DROP_INPUT: IN=eth0 OUT= MAC=90:10:35:5a:1e:3a:90:10:76:e0:e2:d5:08:00 SRC=198.51.100.198 DST=172.16.54.114 LEN=40 TOS=0x00 PREC=0x00 TTL=243 ID=17703 PROTO=TCP SPT=47091 DPT=1433 WINDOW=1024 RES=0x00 SYN URGP=0
+  # EXAMPLE: Jan  8 03:38:45 example-host kernel: iptables DROP_INPUT: IN=eth0 OUT= MAC=90:10:35:5a:1e:3a:90:10:9e:ec:2c:71:08:00 SRC=203.0.113.201 DST=172.16.54.114 LEN=52 TOS=0x00 PREC=0x00 TTL=115 ID=19619 DF PROTO=TCP SPT=59319 DPT=445 WINDOW=8192 RES=0x00 SYN URGP=0
+  # EXAMPLE: Jan  8 03:39:25 example-host kernel: iptables DROP_INPUT: IN=eth0 OUT= MAC=90:10:35:5a:1e:3a:90:10:9e:ec:2c:71:08:00 SRC=203.0.113.246 DST=172.16.54.114 LEN=40 TOS=0x00 PREC=0x00 TTL=240 ID=4255 DF PROTO=TCP SPT=44181 DPT=80 WINDOW=14600 RES=0x00 SYN URGP=0
+  # EXAMPLE: Jan  8 03:40:21 example-host kernel: iptables DROP_INPUT: IN=eth0 OUT= MAC=90:10:35:5a:1e:3a:90:10:76:e0:e2:d5:08:00 SRC=203.0.113.208 DST=172.16.54.114 LEN=52 TOS=0x00 PREC=0x00 TTL=110 ID=27150 DF PROTO=TCP SPT=64358 DPT=445 WINDOW=8192 RES=0x00 SYN URGP=0
+  # EXAMPLE: Jan  8 03:40:25 example-host kernel: iptables DROP_INPUT: IN=eth0 OUT= MAC=90:10:35:5a:1e:3a:90:10:9e:ec:2c:71:08:00 SRC=198.51.100.160 DST=172.16.54.114 LEN=40 TOS=0x00 PREC=0x00 TTL=242 ID=7264 PROTO=TCP SPT=58830 DPT=445 WINDOW=1024 RES=0x00 SYN URGP=0
+  # EXAMPLE: Jan  8 03:41:17 example-host kernel: iptables DROP_INPUT: IN=eth0 OUT= MAC=90:10:35:5a:1e:3a:90:10:76:e0:e2:d5:08:00 SRC=198.51.100.115 DST=172.16.54.114 LEN=52 TOS=0x00 PREC=0x00 TTL=117 ID=6101 DF PROTO=TCP SPT=51985 DPT=445 WINDOW=8192 RES=0x00 SYN URGP=0
+  # EXAMPLE: Jan  8 03:41:23 example-host kernel: iptables DROP_INPUT: IN=eth0 OUT= MAC=90:10:35:5a:1e:3a:90:10:76:e0:e2:d5:08:00 SRC=198.51.100.167 DST=172.16.54.114 LEN=52 TOS=0x00 PREC=0x00 TTL=45 ID=6319 DF PROTO=TCP SPT=4099 DPT=445 WINDOW=8192 RES=0x00 SYN URGP=0
+  # EXAMPLE: Jan  8 03:43:18 example-host kernel: iptables DROP_INPUT: IN=eth0 OUT= MAC=90:10:35:5a:1e:3a:90:10:9e:ec:2c:71:08:00 SRC=198.51.100.19 DST=172.16.54.114 LEN=40 TOS=0x00 PREC=0x00 TTL=245 ID=48624 PROTO=TCP SPT=59287 DPT=139 WINDOW=1024 RES=0x00 SYN URGP=0
+  # EXAMPLE: Jan  8 03:43:42 example-host kernel: iptables DROP_INPUT: IN=eth0 OUT= MAC=90:10:35:5a:1e:3a:90:10:76:e0:
 
-    # unifi_iptables_patterns: |-
-    #   # SOURCE: https://github.com/adriansr/beats/blob/938b0322a993021d79ed2a8be24055a7f3e69300/x-pack/filebeat/module/iptables/log/ingest/pipeline.json
-    #   UNSIGNED_INT [0-9]+
-    #   ETHTYPE (?:[A-Fa-f0-9]{2}):(?:[A-Fa-f0-9]{2})
-    #   ETHTYPE_DISCARD (?::[A-Fa-f0-9]{2})*
-    #   NETFILTERMAC (?:%{MAC:destination.mac}:%{MAC:source.mac}:%{ETHTYPE:iptables.ether_type}?%{ETHTYPE_DISCARD}|%{MAC:destination.mac}%{ETHTYPE_DISCARD}:%{ETHTYPE:iptables.ether_type}?)
-    #   IPTABLES_ETHERNET IN=%{DATA:iptables.input_device} OUT=%{DATA:iptables.output_device}?(?: MAC=%{NETFILTERMAC})?
-    #   IPTABLES_PORT_PAIR SPT=%{UNSIGNED_INT:source.port:integer} DPT=%{UNSIGNED_INT:destination.port:integer}
-    #   IPTABLES_TCP_FLAGS ((?<= )(CWR|ECE|URG|ACK|PSH|RST|SYN|FIN))*
-    #   IPTABLES_TCP_SEQ SEQ=%{UNSIGNED_INT:iptables.tcp.seq:integer} ACK=%{UNSIGNED_INT:iptables.tcp.ack:integer}
-    #   IPTABLES_TCP_DETAILS (?:%{IPTABLES_TCP_SEQ} )?WINDOW=%{UNSIGNED_INT:iptables.tcp.window:integer} RES=0x%{BASE16NUM:iptables.tcp_reserved_bits} %{IPTABLES_TCP_FLAGS:iptables.tcp.flags}
-    #   IPTABLES_INCOMPLETE_PACKET INCOMPLETE \\[%{UNSIGNED_INT:iptables.incomplete_bytes:integer} bytes\\]
-    #   IPTABLES_UDP_DETAILS LEN=%{UNSIGNED_INT:iptables.udp.length:integer}
-    #   IPTABLES_ICMP_EXTRA_ECHO ID=%{UNSIGNED_INT:iptables.icmp.id:integer} SEQ=%{UNSIGNED_INT:iptables.icmp.seq:integer}
-    #   IPTABLES_ICMP_EXTRA_PARAM PARAMETER=%{UNSIGNED_INT:iptables.icmp.parameter:integer}
-    #   IPTABLES_ICMP_EXTRA_REDIRECT GATEWAY=%{IP:iptables.icmp.redirect}
-    #   IPTABLES_ICMP_EXTRA ( (?:%{IPTABLES_ICMP_EXTRA_ECHO}|%{IPTABLES_ICMP_EXTRA_PARAM}|%{IPTABLES_ICMP_EXTRA_REDIRECT}))*
-    #   IPTABLES_ICMP_DETAILS TYPE=%{UNSIGNED_INT:iptables.icmp.type:integer} CODE=%{UNSIGNED_INT:iptables.icmp.code:integer}(( %{IPTABLES_INCOMPLETE_PACKET})|%{IPTABLES_ICMP_EXTRA})
-    #   IPTABLES_PROTOCOL PROTO=(?<network.transport>[a-zA-Z0-9]+)
-    #   IPTABLES_IP_PAYLOAD %{IPTABLES_PROTOCOL}( %{IPTABLES_PORT_PAIR})?( (%{IPTABLES_TCP_DETAILS}|%{IPTABLES_UDP_DETAILS}|%{IPTABLES_ICMP_DETAILS}|%{IPTABLES_INCOMPLETE_PACKET}))?
-    #   IPTABLES_IP_FRAGFLAG ((?<= )(CE|DF|MF))*
-    #   IPTABLES_IP_START SRC=%{IPV4:source.ip} DST=%{IPV4:destination.ip} LEN=%{UNSIGNED_INT:iptables.length:integer} TOS=0x%{BASE16NUM:iptables.tos} PREC=0x%{BASE16NUM:iptables.precedence_bits} TTL=%{UNSIGNED_INT:iptables.ttl:integer} ID=%{UNSIGNED_INT:iptables.id:integer}(?: %{IPTABLES_IP_FRAGFLAG:iptables.fragment_flags})?(?: FRAG: %{UNSIGNED_INT:iptables.fragment_offset:integer})?
-    #   IPTABLES_IP %{IPTABLES_IP_START} %{IPTABLES_IP_PAYLOAD}
-    #   IPTABLES_IPV6_START SRC=%{IPV6:source.ip} DST=%{IPV6:destination.ip} LEN=%{UNSIGNED_INT:iptables.length:integer} TC=%{UNSIGNED_INT:iptables.tos} HOPLIMIT=%{UNSIGNED_INT:iptables.ttl:integer} FLOWLBL=%{UNSIGNED_INT:iptables.flow_label:integer}
-    #   IPTABLES_IPV6 %{IPTABLES_IPV6_START} %{IPTABLES_IP_PAYLOAD}
-    #   IPTABLES %{IPTABLES_ETHERNET} (:?%{IPTABLES_IP}|%{IPTABLES_IPV6})
-    #   UBIQUITI_FIELD [^-\\]]*
-    #   UBIQUITI_RULESET_NAME [^\\]]*
-    #   UBIQUITI_LABEL %{UBIQUITI_RULESET_NAME:iptables.ubiquiti.rule_set}-%{UBIQUITI_FIELD:iptables.ubiquiti.rule_number}-%{UBIQUITI_FIELD:event.outcome}"
-    #   UBIQUITI_FIELD_IPTABLES_RULE_SET [^-]*
+  # unifi_iptables_patterns: |-
+  #   # SOURCE: https://github.com/adriansr/beats/blob/938b0322a993021d79ed2a8be24055a7f3e69300/x-pack/filebeat/module/iptables/log/ingest/pipeline.json
+  #   UNSIGNED_INT [0-9]+
+  #   ETHTYPE (?:[A-Fa-f0-9]{2}):(?:[A-Fa-f0-9]{2})
+  #   ETHTYPE_DISCARD (?::[A-Fa-f0-9]{2})*
+  #   NETFILTERMAC (?:%{MAC:destination.mac}:%{MAC:source.mac}:%{ETHTYPE:iptables.ether_type}?%{ETHTYPE_DISCARD}|%{MAC:destination.mac}%{ETHTYPE_DISCARD}:%{ETHTYPE:iptables.ether_type}?)
+  #   IPTABLES_ETHERNET IN=%{DATA:iptables.input_device} OUT=%{DATA:iptables.output_device}?(?: MAC=%{NETFILTERMAC})?
+  #   IPTABLES_PORT_PAIR SPT=%{UNSIGNED_INT:source.port:interger} DPT=%{UNSIGNED_INT:destination.port:interger}
+  #   IPTABLES_TCP_FLAGS ((?<= )(CWR|ECE|URG|ACK|PSH|RST|SYN|FIN))*
+  #   IPTABLES_TCP_SEQ SEQ=%{UNSIGNED_INT:iptables.tcp.seq:interger} ACK=%{UNSIGNED_INT:iptables.tcp.ack:interger}
+  #   IPTABLES_TCP_DETAILS (?:%{IPTABLES_TCP_SEQ} )?WINDOW=%{UNSIGNED_INT:iptables.tcp.window:interger} RES=0x%{BASE16NUM:iptables.tcp_reserved_bits} %{IPTABLES_TCP_FLAGS:iptables.tcp.flags}
+  #   IPTABLES_INCOMPLETE_PACKET INCOMPLETE \\[%{UNSIGNED_INT:iptables.incomplete_bytes:interger} bytes\\]
+  #   IPTABLES_UDP_DETAILS LEN=%{UNSIGNED_INT:iptables.udp.length:interger}
+  #   IPTABLES_ICMP_EXTRA_ECHO ID=%{UNSIGNED_INT:iptables.icmp.id:interger} SEQ=%{UNSIGNED_INT:iptables.icmp.seq:interger}
+  #   IPTABLES_ICMP_EXTRA_PARAM PARAMETER=%{UNSIGNED_INT:iptables.icmp.parameter:interger}
+  #   IPTABLES_ICMP_EXTRA_REDIRECT GATEWAY=%{IP:iptables.icmp.redirect}
+  #   IPTABLES_ICMP_EXTRA ( (?:%{IPTABLES_ICMP_EXTRA_ECHO}|%{IPTABLES_ICMP_EXTRA_PARAM}|%{IPTABLES_ICMP_EXTRA_REDIRECT}))*
+  #   IPTABLES_ICMP_DETAILS TYPE=%{UNSIGNED_INT:iptables.icmp.type:interger} CODE=%{UNSIGNED_INT:iptables.icmp.code:interger}(( %{IPTABLES_INCOMPLETE_PACKET})|%{IPTABLES_ICMP_EXTRA})
+  #   IPTABLES_PROTOCOL PROTO=(?<network.transport>[a-zA-Z0-9]+)
+  #   IPTABLES_IP_PAYLOAD %{IPTABLES_PROTOCOL}( %{IPTABLES_PORT_PAIR})?( (%{IPTABLES_TCP_DETAILS}|%{IPTABLES_UDP_DETAILS}|%{IPTABLES_ICMP_DETAILS}|%{IPTABLES_INCOMPLETE_PACKET}))?
+  #   IPTABLES_IP_FRAGFLAG ((?<= )(CE|DF|MF))*
+  #   IPTABLES_IP_START SRC=%{IPV4:source.ip} DST=%{IPV4:destination.ip} LEN=%{UNSIGNED_INT:iptables.length:interger} TOS=0x%{BASE16NUM:iptables.tos} PREC=0x%{BASE16NUM:iptables.precedence_bits} TTL=%{UNSIGNED_INT:iptables.ttl:interger} ID=%{UNSIGNED_INT:iptables.id:interger}(?: %{IPTABLES_IP_FRAGFLAG:iptables.fragment_flags})?(?: FRAG: %{UNSIGNED_INT:iptables.fragment_offset:interger})?
+  #   IPTABLES_IP %{IPTABLES_IP_START} %{IPTABLES_IP_PAYLOAD}
+  #   IPTABLES_IPV6_START SRC=%{IPV6:source.ip} DST=%{IPV6:destination.ip} LEN=%{UNSIGNED_INT:iptables.length:interger} TC=%{UNSIGNED_INT:iptables.tos} HOPLIMIT=%{UNSIGNED_INT:iptables.ttl:interger} FLOWLBL=%{UNSIGNED_INT:iptables.flow_label:interger}
+  #   IPTABLES_IPV6 %{IPTABLES_IPV6_START} %{IPTABLES_IP_PAYLOAD}
+  #   IPTABLES %{IPTABLES_ETHERNET} (:?%{IPTABLES_IP}|%{IPTABLES_IPV6})
+  #   UBIQUITI_FIELD [^-\\]]*
+  #   UBIQUITI_RULESET_NAME [^\\]]*
+  #   UBIQUITI_LABEL %{UBIQUITI_RULESET_NAME:iptables.ubiquiti.rule_set}-%{UBIQUITI_FIELD:iptables.ubiquiti.rule_number}-%{UBIQUITI_FIELD:event.outcome}"
+  #   UBIQUITI_FIELD_IPTABLES_RULE_SET [^-]*
 
-    #   # EXAMPLE: Apr 18 20:24:04 UniFiSecurityGateway3P kernel: [LAN_LOCAL-default-A]IN=eth1 OUT= MAC=80:2a:a8:00:11:33:00:11:22:33:44:66:08:00 SRC=192.168.1.8 DST=192.168.1.1 LEN=52 TOS=0x00 PREC=0x00 TTL=64 ID=61516 DF PROTO=TCP SPT=8080 DPT=45096 WINDOW=246 RES=0x00 ACK URGP=0
-      #   # EXAMPLE: Apr 18 20:54:31 UniFiSecurityGateway3P kernel: [WAN_LOCAL-4000-D]IN=eth0 OUT= MAC=80:2a:a8:00:11:33:00:11:22:33:44:66:08:00 SRC=172.217.10.138 DST=192.168.0.3 LEN=115 TOS=0x00 PREC=0x00 TTL=122 ID=53703 PROTO=TCP SPT=443 DPT=52170 WINDOW=294 RES=0x00 ACK PSH URGP=0
-      #   # EXAMPLE: Apr 18 20:54:32 UniFiSecurityGateway3P kernel: [LAN_LOCAL-default-A]IN=eth1 OUT= MAC=80:2a:a8:00:11:33:00:11:22:33:44:66:08:00 SRC=192.168.1.212 DST=192.168.1.1 LEN=102 TOS=0x00 PREC=0x00 TTL=64 ID=2810 PROTO=UDP SPT=61080 DPT=53 LEN=82
-      #   # SOURCE: https://grokconstructor.appspot.com/do/constructionstep
-      #   BOSS_UNIFI_IPTABLES_SECURITY_GATEWAY \A%{SYSLOGTIMESTAMP:timestamp_logged}%{SPACE}%{SYSLOGHOST:hostname}%{SPACE}%{WORD:programname}%{NOTSPACE}%{SPACE}\[%{WORD:iptables.interface}-%{WORD:iptables.rule_index}-%{UBIQUITI_FIELD:iptables.rule_action}\]%{UBIQUITI_FIELD_IPTABLES_RULE_SET:iptables.rule_set}
-      #   # FIXME: Todo, add field names to these guys
-      #   BOSS_UNIFI_IPTABLES_LOG_RULES \A%{SYSLOGTIMESTAMP:timestamp_logged}%{SPACE}%{BACULA_DEVICE}%{SPACE}%{BACULA_JOB}%{NOTSPACE}%{SPACE}\[%{WORD:iptables.interface}-%{WORD:iptables.rule_index}-%{UBIQUITI_FIELD:iptables.rule_action}\]%{UBIQUITI_FIELD_IPTABLES_RULE_SET}
+  #   # EXAMPLE: Apr 18 20:24:04 UniFiSecurityGateway3P kernel: [LAN_LOCAL-default-A]IN=eth1 OUT= MAC=80:2a:a8:00:11:33:00:11:22:33:44:66:08:00 SRC=192.168.1.8 DST=192.168.1.1 LEN=52 TOS=0x00 PREC=0x00 TTL=64 ID=61516 DF PROTO=TCP SPT=8080 DPT=45096 WINDOW=246 RES=0x00 ACK URGP=0
+  #   # EXAMPLE: Apr 18 20:54:31 UniFiSecurityGateway3P kernel: [WAN_LOCAL-4000-D]IN=eth0 OUT= MAC=80:2a:a8:00:11:33:00:11:22:33:44:66:08:00 SRC=172.217.10.138 DST=192.168.0.3 LEN=115 TOS=0x00 PREC=0x00 TTL=122 ID=53703 PROTO=TCP SPT=443 DPT=52170 WINDOW=294 RES=0x00 ACK PSH URGP=0
+  #   # EXAMPLE: Apr 18 20:54:32 UniFiSecurityGateway3P kernel: [LAN_LOCAL-default-A]IN=eth1 OUT= MAC=80:2a:a8:00:11:33:00:11:22:33:44:66:08:00 SRC=192.168.1.212 DST=192.168.1.1 LEN=102 TOS=0x00 PREC=0x00 TTL=64 ID=2810 PROTO=UDP SPT=61080 DPT=53 LEN=82
+  #   # SOURCE: https://grokconstructor.appspot.com/do/constructionstep
+  #   BOSS_UNIFI_IPTABLES_SECURITY_GATEWAY \A%{SYSLOGTIMESTAMP:timestamp_logged}%{SPACE}%{SYSLOGHOST:hostname}%{SPACE}%{WORD:programname}%{NOTSPACE}%{SPACE}\[%{WORD:iptables.interface}-%{WORD:iptables.rule_index}-%{UBIQUITI_FIELD:iptables.rule_action}\]%{UBIQUITI_FIELD_IPTABLES_RULE_SET:iptables.rule_set}
+  #   # FIXME: Todo, add field names to these guys
+  #   BOSS_UNIFI_IPTABLES_LOG_RULES \A%{SYSLOGTIMESTAMP:timestamp_logged}%{SPACE}%{BACULA_DEVICE}%{SPACE}%{BACULA_JOB}%{NOTSPACE}%{SPACE}\[%{WORD:iptables.interface}-%{WORD:iptables.rule_index}-%{UBIQUITI_FIELD:iptables.rule_action}\]%{UBIQUITI_FIELD_IPTABLES_RULE_SET}
 
-      # BOSSJONES_IPTABLES_IP_START SRC=%{IPV4:firewall.source.ip}\s*DST=%{IPV4:firewall.destination.ip}\s*LEN=%{UNSIGNED_INT:firewall.packet_length}\s*TOS=0x%{BASE16NUM:firewall.tos}\s*PREC=0x%{BASE16NUM:firewall.precidence_field}\s*TTL=%{UNSIGNED_INT:firewall.ttl}\s*ID=%{UNSIGNED_INT.firewall.id}\s*?*PROTO=(%{WORD:nf_protocol})
+  # BOSSJONES_IPTABLES_IP_START SRC=%{IPV4:firewall.source.ip}\s*DST=%{IPV4:firewall.destination.ip}\s*LEN=%{UNSIGNED_INT:firewall.packet_length}\s*TOS=0x%{BASE16NUM:firewall.tos}\s*PREC=0x%{BASE16NUM:firewall.precidence_field}\s*TTL=%{UNSIGNED_INT:firewall.ttl}\s*ID=%{UNSIGNED_INT.firewall.id}\s*?*PROTO=(%{WORD:nf_protocol})
 
 
-      # FIXME: ADD THIS TO BOSSLAB-PLAYBOOKS
-
-      BOSS_UNSIGNED_INT [0-9]+
-      BOSS_IPTABLES_ETHERNET IN=%{WORD:in_device}? OUT=%{WORD:out_device}?(?: MAC=%{NETFILTERMAC:mac})?
-
-      BOSS_IPTABLES_PORT_PAIR SPT=%{BOSS_UNSIGNED_INT:src_port} DPT=%{BOSS_UNSIGNED_INT:dst_port}
-
-      BOSS_IPTABLES_TCP_FLAGS ((?<= )(CWR|ECE|URG|ACK|PSH|RST|SYN|FIN))*
-      BOSS_IPTABLES_TCP_SEQ SEQ=%{BOSS_UNSIGNED_INT:seq_seq} ACK=%{BOSS_UNSIGNED_INT:seq_ack}
-      BOSS_IPTABLES_TCP_DETAILS (?:%{BOSS_IPTABLES_TCP_SEQ} )?WINDOW=%{BOSS_UNSIGNED_INT:window} RES=0x%{BASE16NUM:res} %{BOSS_IPTABLES_TCP_FLAGS:tcp_flags}
-      BOSS_IPTABLES_INCOMPLETE_PACKET INCOMPLETE \[%{BOSS_UNSIGNED_INT:incomplete} bytes\]
-
-      BOSS_IPTABLES_UDP_DETAILS LEN=%{BOSS_UNSIGNED_INT:udp_len}
-
-      BOSS_IPTABLES_ICMP_EXTRA_ECHO ID=%{BOSS_UNSIGNED_INT:icmp_id} SEQ=%{BOSS_UNSIGNED_INT:icmp_seq}
-      BOSS_IPTABLES_ICMP_EXTRA_PARAM PARAMETER=%{BOSS_UNSIGNED_INT:icmp_parameter}
-      BOSS_IPTABLES_ICMP_EXTRA_REDIRECT GATEWAY=%{IP:icmp_redirect}
-      BOSS_IPTABLES_ICMP_EXTRA ( (?:%{BOSS_IPTABLES_ICMP_EXTRA_ECHO}|%{BOSS_IPTABLES_ICMP_EXTRA_PARAM}|%{BOSS_IPTABLES_ICMP_EXTRA_REDIRECT}))*
-
-      BOSS_IPTABLES_ICMP_DETAILS TYPE=%{BOSS_UNSIGNED_INT:icmp_type} CODE=%{BOSS_UNSIGNED_INT:icmp_code}(( %{BOSS_IPTABLES_INCOMPLETE_PACKET})|%{IPTABLES_ICMP_EXTRA})
-
-      BOSS_IPTABLES_PROTOCOL PROTO=(%{WORD:proto})
-
-      BOSS_IPTABLES_IP_PAYLOAD %{BOSS_IPTABLES_PROTOCOL}( %{BOSS_IPTABLES_PORT_PAIR})?( (%{BOSS_IPTABLES_TCP_DETAILS}|%{BOSS_IPTABLES_UDP_DETAILS}|%{BOSS_IPTABLES_ICMP_DETAILS}|%{BOSS_IPTABLES_INCOMPLETE_PACKET}))?
-
-      BOSS_IPTABLES_IP_FRAGFLAG ((?<= )(CE|DF|MF))*
-      BOSS_IPTABLES_IP_START SRC=%{IP:src_ip} DST=%{IP:dst_ip} LEN=%{BOSS_UNSIGNED_INT:length} TOS=0x%{BASE16NUM:tos} PREC=0x%{BASE16NUM:prec} TTL=%{BOSS_UNSIGNED_INT:ttl} ID=%{BOSS_UNSIGNED_INT:id}(?: %{BOSS_IPTABLES_IP_FRAGFLAG:fragment_flags})?(?: FRAG: %{BOSS_UNSIGNED_INT:fragment})?
-      BOSS_IPTABLES_IP %{BOSS_IPTABLES_IP_START} %{BOSS_IPTABLES_IP_PAYLOAD}
-
-      # BOSS_IPTABLES (?<orig_date>[\S]+) (?<orig_time>[\S]+) (?<hostname>[\S]+) ([\S]+) \[(?<since_bootup>[\d\.]+)\] (?<prefix>[\S]+)? %{BOSS_IPTABLES_ETHERNET} %{BOSS_IPTABLES_IP}
-      BOSS_IPTABLES %{BOSS_IPTABLES_ETHERNET} %{BOSS_IPTABLES_IP}
-
-      BOSS_NULL (?:null)
-
-{% endraw %}
 
 ---
+
 
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{boss__fluentd__centralized__shared_name}}-grokconfig-0-3-0
-  namespace: {{boss__fluentd__centralized__namespace_name}}
+  name: fluentd-centralized-grokconfig-0-3-0
+  namespace: kube-system
   labels:
-    k8s-app: {{boss__fluentd__centralized__shared_name}}
+    k8s-app: fluentd-centralized
 data:
-  unified.conf: |-
-
-    <match fluent.**>
-      # this tells fluentd to not output its log on stdout
-      @type null
-    </match>
-
-    # system.conf: |-
+  system.conf: |-
     <system>
       root_dir /tmp/fluentd-buffers/
-      # workers 4
     </system>
 
-    # <worker 0>
+  system.input.conf: |-
+
+    # SOURCE: https://github.com/adriansr/beats/blob/938b0322a993021d79ed2a8be24055a7f3e69300/x-pack/filebeat/module/iptables/log/test/ubiquiti.log
+    # EXAMPLE: Jan  5 20:17:05 MainFirewall kernel: [LAN_LOCAL-default-A]IN=eth0.90 OUT= MAC=90:10:92:6e:ea:a7:90:10:73:ba:d6:77:08:00:45:fc:02:1c SRC=192.168.48.137 DST=255.55.174.225 LEN=540 TOS=0x1C PREC=0xE0 TTL=64 ID=27223 PROTO=UDP SPT=48689 DPT=48689 LEN=520
+    # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [WAN_OUT-2000-A]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:24:67:f4:89:08:00 SRC=192.168.134.158 DST=192.0.2.25 LEN=265 TOS=0x00 PREC=0x00 TTL=63 ID=51768 DF PROTO=TCP SPT=43189 DPT=443 WINDOW=159 RES=0x00 ACK PSH URGP=0
+    # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [source-dest-default-D]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:65:29:b6:2a:08:00 SRC=192.168.110.116 DST=192.0.2.25 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=0 DF PROTO=TCP SPT=50093 DPT=1443 WINDOW=2857 RES=0x00 ACK URGP=0
+    # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [WAN_OUT-2000-A]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:65:29:b6:2a:08:00 SRC=192.168.110.116 DST=192.0.2.25 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=0 DF PROTO=TCP SPT=50093 DPT=1443 WINDOW=2853 RES=0x00 ACK URGP=0
+    # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [WAN_OUT-2000-A]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:65:29:b6:2a:08:00 SRC=192.168.110.116 DST=192.0.2.25 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=0 DF PROTO=TCP SPT=50093 DPT=1443 WINDOW=2850 RES=0x00 ACK URGP=0
+    # <source>
+    #   @type tail
+    #   @id ingest_from_unifi
+    #   @label @ingest_from_unifi
+    #   read_from_head true
+    #   tag ingest_from_unifi
+    #   pos_file /log/fluentd.pos
+    #   # format none
+    #   path /log/client_logs/**/*.log
+    #   tag unifi_syslog
+    #   # <parse>
+    #   #   @type grok
+    #   #   <grok>
+    #   #     custom_pattern_path /grok.d
+    #   #     pattern %{SYSLOG5424PRI}%{SYSLOGTIMESTAMP:syslog_timestamp}%{UNIFI_DEV_TYPE} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{GREEDYDATA:syslog_message}\n?
+    #   #     time_format %m%d %H:%M:%S.%N
+    #   #   </grok>
+    #   # </parse>
+    # </source>
+
+
+    # <source>
+    #   @type tail
+    #   @id ingest_from_unifiserver
+    #   @label @ingest_from_unifiserver
+    #   read_from_head true
+    #   tag ingest_from_unifiserver
+    #   pos_file /log/fluentd.pos
+    #   # format none
+    #   path /log/client_logs/**/*.log
+    #   tag unifiserver_syslog
+    #   <parse>
+    #     @type grok
+    #     <grok>
+    #       pattern %{TIME:time}\\] <%{WORD}-%{WORD}> %{WORD:LEVEL} %{SPACE} %{DATA} - from \\[%{DATA:CLIENTMAC}\\]\\(%{GREEDYDATA:MSG}\\): state=%{WORD:state}
+    #       time_format %m%d %H:%M:%S.%N
+    #       custom_pattern_path /grok.d
+    #     </grok>
+    #   </parse>
+    # </source>
+
+    # <source>
+    #   @type tail
+    #   @id ingest_from_unifi_iptables
+    #   @label @ingest_from_unifi_iptables
+    #   read_from_head true
+    #   tag ingest_from_unifi_iptables
+    #   pos_file /log/fluentd.pos
+    #   # format none
+    #   path /log/client_logs/**/*.log
+    #   tag unifi_iptables_syslog
+    #   custom_pattern_path /grok.d
+    #   <parse>
+    #     @type grok
+    #     <grok>
+    #       pattern %{SYSLOGTIMESTAMP:iptables.raw_date}%{GREEDYDATA}\\[%{UBIQUITI_LABEL}\\]%{IPTABLES}%{SPACE}
+    #       time_format %m%d %H:%M:%S.%N
+    #       custom_pattern_path /grok.d
+    #     </grok>
+    #     <grok>
+    #       pattern %{SYSLOGTIMESTAMP:iptables.raw_date}%{GREEDYDATA}%{IPTABLES}%{SPACE}
+    #       time_format %m%d %H:%M:%S.%N
+    #       custom_pattern_path /grok.d
+    #     </grok>
+    #     <grok>
+    #       pattern %{GREEDYDATA}\\[%{UBIQUITI_LABEL}\\]%{IPTABLES}%{SPACE}
+    #       time_format %m%d %H:%M:%S.%N
+    #       custom_pattern_path /grok.d
+    #     </grok>
+    #     <grok>
+    #       pattern %{GREEDYDATA}%{IPTABLES}%{SPACE}
+    #       time_format %m%d %H:%M:%S.%N
+    #       custom_pattern_path /grok.d
+    #     </grok>
+    #   </parse>
+    # </source>
+
+    # NOTE: This was the only one that was working!!!!! 5/1/2019
+    # NOTE: This was the only one that was working!!!!! 5/1/2019
+    # NOTE: This was the only one that was working!!!!! 5/1/2019
+    # NOTE: This was the only one that was working!!!!! 5/1/2019
+    # NOTE: This was the only one that was working!!!!! 5/1/2019
+    # NOTE: This was the only one that was working!!!!! 5/1/2019
+    # DISABLED: <source>
+    # DISABLED:   @type tail
+    # DISABLED:   @id ingest_from_unifi_iptables_ubiquiti_rule_set
+    # DISABLED:   @label @ingest_from_unifi_iptables_ubiquiti_rule_set
+    # DISABLED:   read_from_head true
+    # DISABLED:   tag ingest_from_unifi_iptables_ubiquiti_rule_set
+    # DISABLED:   pos_file /log/fluentd.pos
+    # DISABLED:   # format none
+    # DISABLED:   path /log/client_logs/**/*.log
+    # DISABLED:   tag unifi_iptables_ubiquiti_rule_set_syslog
+    # DISABLED:   <parse>
+    # DISABLED:     @type grok
+    # DISABLED:     custom_pattern_path /grok.d
+    # DISABLED:     # pattern %{UBIQUITI_FIELD_IPTABLES_RULE_SET:iptables.ubiquiti.input_zone}-%{UBIQUITI_FIELD_IPTABLES_RULE_SET:iptables.ubiquiti.output_zone}
+    # DISABLED:     pattern %{UBIQUITI_FIELD_IPTABLES_RULE_SET:iptables.ubiquiti.input_zone}
+    # DISABLED:     grok_pattern %{UBIQUITI_FIELD_IPTABLES_RULE_SET:iptables.ubiquiti.input_zone}
+    # DISABLED:     time_format %m%d %H:%M:%S.%N
+    # DISABLED:     time_key timestamp
+    # DISABLED:   </parse>
+    # DISABLED: </source>
+
     <source>
       @type tail
       @id ingest_from_unifi_iptables_ubiquiti_rule_set
-      # read_from_head true
-      # tag ingest_from_unifi_iptables_ubiquiti_rule_set
-      # pos_file {{boss__fluentd__centralized__path_to_logs_inside_container}}/fluentd.unifi.pos
-      pos_file /var/log/fluentd.unifi.pos
-      path {{boss__fluentd__centralized__path_to_logs_inside_container}}/client_logs/**/*.log
-      tag unifi.syslog.**
+      # @label @ingest_from_unifi_iptables_ubiquiti_rule_set
+      read_from_head true
+      tag ingest_from_unifi_iptables_ubiquiti_rule_set
+      pos_file /log/fluentd.pos
+      # format none
+      path /log/client_logs/**/*.log
+      tag unifi_iptables_ubiquiti_rule_set_syslog
       <parse>
         @type grok
-        custom_pattern_path {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
-{% raw %}
-        grok_pattern %{BOSSJONES_UNIFI_RAW}
-{% endraw %}
-        time_key time
-        time_format %b %d %H:%M:%S
-        keep_time_key true
+        custom_pattern_path /grok.d
+        # pattern %{BOSSJONES_UNIFI_SECURITYGATEWAY_KERNEL_START} %{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS}%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_IPTABLES_ETHERNET} %{BOSSJONES_IPTABLES_IP_START}
+        grok_pattern %{BOSSJONES_UNIFI_SECURITYGATEWAY_KERNEL_START} %{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS}(?:%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_IPTABLES_ETHERNET}|%{BOSSJONES_IPTABLES_IP_START})? (?:%{BOSSJONES_IPTABLES_IP_START})?
+        time_format %m%d %H:%M:%S.%N
+        time_key timestamp
       </parse>
     </source>
-    # </worker>
 
-    # # Detect exceptions in the log output and forward them as one log entry.
-    # <match unifi.syslog.**>
-    #   @id unifi
-    #   @type detect_exceptions
-    #   remove_tag_prefix raw
-    #   message log
-    #   stream stream
-    #   multiline_flush_interval 5
-    #   max_bytes 500000
-    #   max_lines 1000
-    # </match>
-
-    <filter unifi.syslog.**>
-      @type parser
-      @id iptables_security_gateway_logs
-      key_name message
-      reserve_data true
-      reserve_time true
-      # remove_key_name_field true
-      <parse>
-        @type grok
-        custom_pattern_path {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
-        grok_failure_key grokfailure
-        # WITHOUT IDS BLOCK
-{% raw %}
-        <grok>
-          pattern (?:%{SPACE})?%{BOSSJONES_UNIFI_PROCESS_NAME}(?:%{SPACE})?(?:%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS})(?:%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS})?(?:%{SPACE})?(?:%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_IPTABLES_ETHERNET}|%{BOSSJONES_IPTABLES_IP_START})? (?:%{BOSSJONES_IPTABLES_IP_START})?
-        </grok>
-        # IDS BLOCK
-        # EG. Apr 17 21:10:16 UniFiSecurityGateway3P kernel: ALIEN BLOCK: IN=eth0 OUT=eth1 MAC=ff:ff:f2:fe:f0:fc:00:0f:29:08:ff:f2:08:00 SRC=46.246.123.145 DST=192.168.1.24 LEN=29 TOS=0x00 PREC=0x00 TTL=49 ID=4452 DF PROTO=UDP SPT=8888 DPT=60156 LEN=9
-        <grok>
-          pattern (?:%{SPACE})?%{BOSSJONES_UNIFI_PROCESS_NAME}(?:%{SPACE})?(?:%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS})?%{BOSSJONES_UNIFI_SECURITYGATEWAY_IDS_LOGS_START}(?:%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS})?(?:%{SPACE})?(?:%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_IPTABLES_ETHERNET}|%{BOSSJONES_IPTABLES_IP_START})? (?:%{BOSSJONES_IPTABLES_IP_START})?
-        </grok>
-        # IN= then SRC=
-        # EG. kernel: [LAN_LOCAL-default-A]IN=eth1 OUT= MAC=ff:ff:f2:fe:f0:fc:00:0f:29:08:ff:f2:08:00 SRC=192.168.1.172 DST=192.168.1.1 LEN=119 TOS=0x00 PREC=0x00 TTL=63 ID=21542 DF PROTO=UDP SPT=5432 DPT=53 LEN=99
-        <grok>
-          pattern (?:%{SPACE})?%{BOSSJONES_UNIFI_PROCESS_NAME}(?:%{SPACE})?(?:%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS})?(?:%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS})?(?:%{SPACE})?%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_IPTABLES_ETHERNET} (?:%{BOSSJONES_IPTABLES_IP_START})?
-        </grok>
-        <grok>
-          pattern %{GREEDYDATA:raw_log}
-        </grok>
-{% endraw %}
-      </parse>
-    </filter>
-
-    # <match unifi.syslog.**>
-    #   @type stdout
-    # </match>
-
-
-    # filter.conf: |-
-    # exclude all commands that have pam_unix in them
-    <filter unifi.syslog.**>
-      @type grep
-      @id exclude_pam_unix
-      <exclude>
-        key message
-        pattern pam_unix
-      </exclude>
-    </filter>
-    <filter unifi.syslog.**>
-      @type grep
-      @id exclude_mcad
-      <exclude>
-        key message
-        pattern mcad
-      </exclude>
-    </filter>
-    <filter unifi.syslog.**>
-      @type grep
-      @id exclude_ipsec_statusall
-      <exclude>
-        key message
-        pattern sudo:     root : TTY=unknown ; PWD=/ ; USER=root ; COMMAND=/usr/sbin/ipsec statusall
-      </exclude>
-    </filter>
-
-
-    # UNIFI SYSLOG ONLY
-
-    # <filter unifi.syslog.**>
-    #   @type grep
-    #   @id only_wan_local
-    #   <regexp>
-    #     key firewall.interface
-    #     pattern WAN_LOCAL
-    #   </regexp>
-    # </filter>
-
-{% raw %}
-    <filter unifi.syslog.**>
-      @type record_transformer
-      enable_ruby true
-      <record>
-        # NOTE: If null, set default value to 127.0.0.1
-        firewall_source_ip ${record.dig('firewall.source.ip') ? record.dig('firewall.source.ip') : ''}
-      </record>
-    </filter>
-{% endraw %}
-    # {
-    #   "found": true,
-    #   "_index": "my_index",
-    #   "_type": "my_type",
-    #   "_id": "my_id",
-    #   "_version": 1,
-    #   "_source": {
-    #     "ip": "8.8.8.8",
-    #     "geoip": {
-    #       "continent_name": "North America",
-    #       "country_iso_code": "US",
-    #       "region_name": "California",
-    #       "city_name": "Mountain View",
-    #       "location": { "lat": 37.386, "lon": -122.0838 }
-    #     }
-    #   }
-    # }
-
-{% raw %}
-    # unifi.syslog.log.client_logs.unifisecuritygateway3p.messages.log
-    <filter unifi.syslog.**>
+  filter.conf: |-
+    # <label @unifi_iptables_ubiquiti_rule_set_syslog>
+    <filter **>
       @type    geoip
       # Specify optional geoip2 database
       geoip2_database   "/geoip/GeoLite2-City.mmdb"
       # Specify backend library (geoip2_c, geoip, geoip2_compat)
       backend_library geoip2_c
-      geoip_lookup_keys  ["firewall.source.ip"]
+
+
+      geoip_lookup_keys  firewall.source.ip
+      regexp1 firewall.interface WAN_LOCAL
+      regexp2 firewall.rule_action D
+
       <record>
-        geoip.latitude         ${location.latitude["firewall.source.ip"]}
-        geoip.longitude        ${location.longitude["firewall.source.ip"]}
-
-        # lat lon as properties
-        # ex. {"lat" => 37.4192008972168, "lon" => -122.05740356445312 }
-        geoip.location    '{ "lat" : ${location.latitude["firewall.source.ip"]}, "lon" : ${location.longitude["firewall.source.ip"]} }'
-
-        # lat lon as string
-        # ex. "37.4192008972168,-122.05740356445312"
-        # geoip.location_string      ${location.latitude["firewall.source.ip"]},${location.longitude["firewall.source.ip"]}
-
-        # GeoJSON (lat lon as array) is useful for Kibana's bettermap.
-        # ex. [-122.05740356445312, 37.4192008972168]
-        # geoip.location_array  '[${location.longitude["firewall.source.ip"]},${location.latitude["firewall.source.ip"]}]'
-        # geoip.postal_code     ${postal.code["firewall.source.ip"]}
-        geoip.region_name     ${subdivisions.0.names.en["firewall.source.ip"]}
-        geoip.country_name    ${country.names.en["firewall.source.ip"]}
-        geoip.country_iso_code ${country.iso_code["firewall.source.ip"]}
-        geoip.city_name       ${city.names.en["firewall.source.ip"]}
+        firewall.city            ${city.names.en["firewall.source.ip"]}
+        firewall.latitude        ${location.latitude["firewall.source.ip"]}
+        firewall.longitude       ${location.longitude["firewall.source.ip"]}
+        firewall.longitude       ${location.longitude["firewall.source.ip"]}
+        firewall.src_geo_location    '{ "lat" : ${location.latitude["firewall.source.ip"]}, "lon" : ${location.longitude["firewall.source.ip"]} }'
+        firewall.country         ${country.iso_code["firewall.source.ip"]}
+        firewall.country_name    ${country.names.en["firewall.source.ip"]}
+        firewall.postal_code     ${postal.code["firewall.source.ip"]}
       </record>
+
       # To avoid get stacktrace error with `[null, null]` array for elasticsearch.
       skip_adding_null_record  true
+
       # Set @log_level (default: warn)
-      @log_level         debug
+      @log_level         info
     </filter>
-{% endraw %}
+    # </label>
 
-    <filter unifi.syslog.**>
-      @type parser
-      @id exclude_nil_firewall_source_ip
-      key_name firewall_source_ip
-      reserve_data true
-      reserve_time true
-      remove_key_name_field true
-      emit_invalid_record_to_error false
-      <parse>
-        @type grok
-        custom_pattern_path {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
-{% raw %}
-        <grok>
-          pattern %{IP:remote_ip}
-        </grok>
-{% endraw %}
-      </parse>
-    </filter>
 
-    # for debug
-    # <match kubernetes.var.log.containers.**fluentd**.log>
-    #   @type null
-    # </match>
-    # <match unifi.syslog.**>
-    #   @type stdout
-    # </match>
+    # <filter access.apache>
+    #   @type                  geoip
+    #   geoip_lookup_keys      host
+    #   <record>
+    #     # lat lon as properties
+    #     # ex. {"lat" => 37.4192008972168, "lon" => -122.05740356445312 }
+    #     location_properties  '{ "lat" : ${location.latitude["host"]}, "lon" : ${location.longitude["host"]} }'
+
+    #     # lat lon as string
+    #     # ex. "37.4192008972168,-122.05740356445312"
+    #     location_string      ${location.latitude["host"]},${location.longitude["host"]}
+
+    #     # GeoJSON (lat lon as array) is useful for Kibana's bettermap.
+    #     # ex. [-122.05740356445312, 37.4192008972168]
+    #     location_array       '[${location.longitude["host"]},${location.latitude["host"]}]'
+    #   </record>
+
+    #   # To avoid get stacktrace error with `[null, null]` array for elasticsearch.
+    #   skip_adding_null_record  true
+    # </filter>
 
     <filter access>
       @type record_transformer
@@ -1042,14 +958,13 @@ data:
         hostname ${hostname}
       </record>
     </filter>
-    # monitoring.conf: |-
+
+
+  monitoring.conf: |-
     # Prometheus Exporter Plugin
     # input plugin that exports metrics
     <source>
       @type prometheus
-      bind 0.0.0.0
-      port 24231
-      metrics_path /metrics
     </source>
     <source>
       @type monitor_agent
@@ -1057,8 +972,6 @@ data:
     # input plugin that collects metrics from MonitorAgent
     <source>
       @type prometheus_monitor
-      # update the metrics every 5 seconds
-      interval 5
       <labels>
         host ${hostname}
       </labels>
@@ -1066,8 +979,6 @@ data:
     # input plugin that collects metrics for output plugin
     <source>
       @type prometheus_output_monitor
-      # update the metrics every 5 seconds
-      interval 5
       <labels>
         host ${hostname}
       </labels>
@@ -1075,51 +986,96 @@ data:
     # input plugin that collects metrics for in_tail plugin
     <source>
       @type prometheus_tail_monitor
-      # update the metrics every 5 seconds
-      interval 5
       <labels>
         host ${hostname}
       </labels>
     </source>
 
 
-    # Concatenate multi-line logs
-    # <filter **>
-    #   @type concat
-    #   key message
-    #   multiline_end_regexp /\n$/
-    #   separator ""
-    # </filter>
+  output.conf: |-
+    # <label @ingest_from_unifi>
+    #   <match **>
+    #     @type stdout
+    #     output_type json
+    #   </match>
+    # </label>
 
-    <match **.**>
+    # <label @ingest_from_unifiserver>
+    #   <match **>
+    #     @type stdout
+    #     output_type json
+    #   </match>
+    # </label>
+
+    # <label @ingest_from_unifi_iptables>
+    #   <match **>
+    #     @type stdout
+    #     output_type json
+    #   </match>
+    # </label>
+
+    # <label @ingest_from_unifi_iptables_ubiquiti_rule_set>
+    #   <match **>
+    #     @type stdout
+    #     output_type json
+    #   </match>
+    # </label>
+
+    # <label @unifi_iptables_ubiquiti_rule_set_syslog>
+
+    #   <match **>
+    #     @type copy
+    #     <store>
+    #       @id elasticsearch
+    #       @type elasticsearch
+    #       @log_level info
+    #       include_tag_key true
+    #       host elasticsearch-logging
+    #       port 9200
+    #       logstash_format true
+    #       <buffer>
+    #         @type file
+    #         path /var/log/fluentd-buffers/kubernetes.system.buffer
+    #         flush_mode interval
+    #         retry_type exponential_backoff
+    #         flush_thread_count 2
+    #         flush_interval 5s
+    #         retry_forever
+    #         retry_max_interval 30
+    #         chunk_limit_size 2M
+    #         queue_limit_length 8
+    #         overflow_action block
+    #       </buffer>
+    #     </store>
+    #     <store>
+    #       @type stdout
+    #     </store>
+    #   </match>
+    # </label>
+
+    # <label @ingest_from_unifi_iptables_ubiquiti_rule_set>
+    <match **>
       @type copy
-      <store ignore_error>
+      <store>
         @id elasticsearch
         @type elasticsearch
-        @log_level info
-        type_name fluentd
+        @log_level debug
         include_tag_key true
         host elasticsearch-logging
         port 9200
         logstash_format true
-        logstash_prefix logstash-unifi
-        index_prefix logstash-unifi
-        reload_on_failure true
-        reconnect_on_error true
-        template_file {{boss__fluentd__centralized__path_to_es_templates_inside_container}}/elasticsearch-template-es5x.json
-        template_name elasticsearch-template-es5x.json
+        index_name logstash
         <buffer>
           @type file
-          flush_thread_count 8
-          path /var/log/fluentd.centralized.system.buffer
+          path /var/log/fluentd-buffers/kubernetes.system.buffer
           flush_mode interval
           retry_type exponential_backoff
-          # flush_thread_count 2
+          flush_thread_count 2
           flush_interval 5s
           retry_forever
           retry_max_interval 30
-          chunk_limit_size 16M
-          queue_limit_length 256
+          chunk_limit_size 2M
+          queue_limit_length 8
           overflow_action block
         </buffer>
       </store>
@@ -1136,83 +1092,5 @@ data:
         unit minute
       </store>
     </match>
+    # </label>
 
-
-    # SOURCE: https://github.com/adriansr/beats/blob/938b0322a993021d79ed2a8be24055a7f3e69300/x-pack/filebeat/module/iptables/log/test/ubiquiti.log
-    # EXAMPLE: Jan  5 20:17:05 MainFirewall kernel: [LAN_LOCAL-default-A]IN=eth0.90 OUT= MAC=90:10:92:6e:ea:a7:90:10:73:ba:d6:77:08:00:45:fc:02:1c SRC=192.168.48.137 DST=255.55.174.225 LEN=540 TOS=0x1C PREC=0xE0 TTL=64 ID=27223 PROTO=UDP SPT=48689 DPT=48689 LEN=520
-    # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [WAN_OUT-2000-A]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:24:67:f4:89:08:00 SRC=192.168.134.158 DST=192.0.2.25 LEN=265 TOS=0x00 PREC=0x00 TTL=63 ID=51768 DF PROTO=TCP SPT=43189 DPT=443 WINDOW=159 RES=0x00 ACK PSH URGP=0
-    # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [source-dest-default-D]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:65:29:b6:2a:08:00 SRC=192.168.110.116 DST=192.0.2.25 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=0 DF PROTO=TCP SPT=50093 DPT=1443 WINDOW=2857 RES=0x00 ACK URGP=0
-    # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [WAN_OUT-2000-A]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:65:29:b6:2a:08:00 SRC=192.168.110.116 DST=192.0.2.25 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=0 DF PROTO=TCP SPT=50093 DPT=1443 WINDOW=2853 RES=0x00 ACK URGP=0
-    # EXAMPLE: Jan  5 20:17:01 MainFirewall kernel: [WAN_OUT-2000-A]IN=eth0 OUT=eth2 MAC=90:10:20:76:8d:20:90:10:65:29:b6:2a:08:00 SRC=192.168.110.116 DST=192.0.2.25 LEN=52 TOS=0x00 PREC=0x00 TTL=63 ID=0 DF PROTO=TCP SPT=50093 DPT=1443 WINDOW=2850 RES=0x00 ACK URGP=0
-
-    # EXAMPLE: log file produced
-    # 2019-04-16 04:18:57.000000000 +0000 unifi_iptables_ubiquiti_rule_set_syslog.log.client_logs.unifisecuritygateway3p.messages.log:
-    # {
-    #     "hostname": "UniFiSecurityGateway3P",
-    #     "process_name": "kernel",
-    #     "firewall.interface": "LAN_LOCAL",
-    #     "firewall.rule_index": "default",
-    #     "firewall.rule_action": "A",
-    #     "iptables.input_device": "eth1",
-    #     "iptables.output_device": "",
-    #     "mac": "80:2a:a8:00:11:33:00:11:22",
-    #     "destination.mac": "33:44:66:08:00",
-    #     "source.mac": "80:2a:a8:00:00",
-    #     "iptables.ether_type": "08:00",
-    #     "firewall.source.ip": "192.168.1.172",
-    #     "firewall.destination.ip": "192.168.1.1",
-    #     "firewall.packet_length": "72",
-    #     "firewall.tos": "00",
-    #     "firewall.precidence_field": "00",
-    #     "firewall.ttl": "63",
-    #     "firewall.id": "22949",
-    #     "firewall.tcp_opts": "LEN=52 ",
-    #     "firewall.nf_protocol": "UDP",
-    #     "firewall.spt": "25761",
-    #     "firewall.dtp": "53"
-    # }
-
-
----
-
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{boss__fluentd__centralized__shared_name}}-elasticseach-template
-  namespace: {{boss__fluentd__centralized__namespace_name}}
-  labels:
-    k8s-app: {{boss__fluentd__centralized__shared_name}}
-data:
-  elasticsearch-template-es5x.json: |-
-{% raw %}
-    {
-      "template" : "*",
-      "mappings" : {
-        "_default_" : {
-          "properties" : {
-            "geoip"  : {
-              "dynamic": true,
-              "properties" : {
-                "location" : {
-                  "type" : "geo_point"
-                  },
-                "latitude": {
-                  "type": "half_float"
-                },
-                "longitude": {
-                  "type": "half_float"
-                }
-              }
-            },
-            "unifi.syslog*": {
-              "dynamic": true,
-              "properties" : {
-                "firewall_source_ip": { "type": "ip", "ignore_malformed": "true" },
-                "remote_ip": { "type": "ip", "ignore_malformed": "true" }
-              }
-            }
-          }
-        }
-      }
-    }
-{% endraw %}

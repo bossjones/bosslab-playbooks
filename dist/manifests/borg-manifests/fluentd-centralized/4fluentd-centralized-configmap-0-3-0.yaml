@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{boss__fluentd__centralized__shared_name}}-grok-patterns-0-3-0
-  namespace: {{boss__fluentd__centralized__namespace_name}}
+  name: fluentd-centralized-grok-patterns-0-3-0
+  namespace: kube-system
   labels:
-    k8s-app: {{boss__fluentd__centralized__shared_name}}
+    k8s-app: fluentd-centralized
 # SOURCE: https://github.com/adriansr/beats/blob/938b0322a993021d79ed2a8be24055a7f3e69300/x-pack/filebeat/module/iptables/log/ingest/pipeline.json
-{% raw %}
+
 data:
   0_logstash_grok_patterns: |-
     # SOURCE: https://github.com/logstash-plugins/logstash-patterns-core/tree/master/patterns
@@ -807,17 +807,16 @@ data:
 
       BOSS_NULL (?:null)
 
-{% endraw %}
 
 ---
 
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{boss__fluentd__centralized__shared_name}}-grokconfig-0-3-0
-  namespace: {{boss__fluentd__centralized__namespace_name}}
+  name: fluentd-centralized-grokconfig-0-3-0
+  namespace: kube-system
   labels:
-    k8s-app: {{boss__fluentd__centralized__shared_name}}
+    k8s-app: fluentd-centralized
 data:
   unified.conf: |-
 
@@ -838,16 +837,15 @@ data:
       @id ingest_from_unifi_iptables_ubiquiti_rule_set
       # read_from_head true
       # tag ingest_from_unifi_iptables_ubiquiti_rule_set
-      # pos_file {{boss__fluentd__centralized__path_to_logs_inside_container}}/fluentd.unifi.pos
+      # pos_file /log/fluentd.unifi.pos
       pos_file /var/log/fluentd.unifi.pos
-      path {{boss__fluentd__centralized__path_to_logs_inside_container}}/client_logs/**/*.log
+      path /log/client_logs/**/*.log
       tag unifi.syslog.**
       <parse>
         @type grok
-        custom_pattern_path {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
-{% raw %}
+        custom_pattern_path /grok.d
+
         grok_pattern %{BOSSJONES_UNIFI_RAW}
-{% endraw %}
         time_key time
         time_format %b %d %H:%M:%S
         keep_time_key true
@@ -876,10 +874,10 @@ data:
       # remove_key_name_field true
       <parse>
         @type grok
-        custom_pattern_path {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
+        custom_pattern_path /grok.d
         grok_failure_key grokfailure
         # WITHOUT IDS BLOCK
-{% raw %}
+
         <grok>
           pattern (?:%{SPACE})?%{BOSSJONES_UNIFI_PROCESS_NAME}(?:%{SPACE})?(?:%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS})(?:%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_LOGS})?(?:%{SPACE})?(?:%{BOSSJONES_UNIFI_SECURITYGATEWAY_FIREWALL_IPTABLES_ETHERNET}|%{BOSSJONES_IPTABLES_IP_START})? (?:%{BOSSJONES_IPTABLES_IP_START})?
         </grok>
@@ -896,7 +894,6 @@ data:
         <grok>
           pattern %{GREEDYDATA:raw_log}
         </grok>
-{% endraw %}
       </parse>
     </filter>
 
@@ -944,7 +941,7 @@ data:
     #   </regexp>
     # </filter>
 
-{% raw %}
+
     <filter unifi.syslog.**>
       @type record_transformer
       enable_ruby true
@@ -953,7 +950,6 @@ data:
         firewall_source_ip ${record.dig('firewall.source.ip') ? record.dig('firewall.source.ip') : ''}
       </record>
     </filter>
-{% endraw %}
     # {
     #   "found": true,
     #   "_index": "my_index",
@@ -972,7 +968,7 @@ data:
     #   }
     # }
 
-{% raw %}
+
     # unifi.syslog.log.client_logs.unifisecuritygateway3p.messages.log
     <filter unifi.syslog.**>
       @type    geoip
@@ -1007,7 +1003,6 @@ data:
       # Set @log_level (default: warn)
       @log_level         debug
     </filter>
-{% endraw %}
 
     <filter unifi.syslog.**>
       @type parser
@@ -1019,12 +1014,11 @@ data:
       emit_invalid_record_to_error false
       <parse>
         @type grok
-        custom_pattern_path {{boss__fluentd__centralized__path_to_grok_patterns_inside_container}}
-{% raw %}
+        custom_pattern_path /grok.d
+
         <grok>
           pattern %{IP:remote_ip}
         </grok>
-{% endraw %}
       </parse>
     </filter>
 
@@ -1106,7 +1100,7 @@ data:
         index_prefix logstash-unifi
         reload_on_failure true
         reconnect_on_error true
-        template_file {{boss__fluentd__centralized__path_to_es_templates_inside_container}}/elasticsearch-template-es5x.json
+        template_file /templates.d/elasticsearch-template-es5x.json
         template_name elasticsearch-template-es5x.json
         <buffer>
           @type file
@@ -1178,13 +1172,13 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{boss__fluentd__centralized__shared_name}}-elasticseach-template
-  namespace: {{boss__fluentd__centralized__namespace_name}}
+  name: fluentd-centralized-elasticseach-template
+  namespace: kube-system
   labels:
-    k8s-app: {{boss__fluentd__centralized__shared_name}}
+    k8s-app: fluentd-centralized
 data:
   elasticsearch-template-es5x.json: |-
-{% raw %}
+
     {
       "template" : "*",
       "mappings" : {
@@ -1215,4 +1209,3 @@ data:
         }
       }
     }
-{% endraw %}

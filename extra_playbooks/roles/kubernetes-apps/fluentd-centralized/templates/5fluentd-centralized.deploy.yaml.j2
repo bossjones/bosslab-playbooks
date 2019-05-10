@@ -37,9 +37,18 @@ spec:
 {% endif %}
     spec:
       serviceAccountName: {{boss__fluentd__centralized__serviceAccountName}}
+{% if boss__fluentd__centralized__deployment_spec_template_initContainers is defined %}
+{% if boss__fluentd__centralized__deployment_spec_template_initContainers == "disabled" %}
+      # initContainers:
+{% else %}
+      initContainers:
+{{ boss__fluentd__centralized__deployment_spec_template_initContainers | indent( width=6, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
       containers:
       - name: {{boss__fluentd__centralized__shared_name}}
-        image: {{ boss__fluentd__centralized__fluent_bit_image_repo }}:{{ boss__fluentd__centralized__fluent_bit_image_tag }}
+        image: {{ boss__fluentd__centralized__fluentd_image_repo }}:{{ boss__fluentd__centralized__fluentd_image_tag }}
+        imagePullPolicy: Always
         # command:
 
 {% if boss__fluentd__centralized__deployment_spec_template_containers_env is defined %}
@@ -69,9 +78,35 @@ spec:
 {% endif %}
 {% endif %}
 
+{% if boss__fluentd__centralized__deployment_spec_template_spec_securityContext is defined %}
+{% if boss__fluentd__centralized__deployment_spec_template_spec_securityContext == "disabled" %}
+        # securityContext:
+{% else %}
+        securityContext:
+{{ boss__fluentd__centralized__deployment_spec_template_spec_securityContext | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+
+{% if boss__fluentd__centralized__deployment_spec_template_spec_containers_livenessProbe is defined %}
+{% if boss__fluentd__centralized__deployment_spec_template_spec_containers_livenessProbe == "disabled" %}
+        # livenessProbe:
+{% else %}
+        livenessProbe:
+{{ boss__fluentd__centralized__deployment_spec_template_spec_containers_livenessProbe | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+
 {% if boss__fluentd__centralized__deployment_spec_template_containers_ports is defined %}
         ports:
 {{ boss__fluentd__centralized__deployment_spec_template_containers_ports | indent( width=8, indentfirst=True,blank=True) }}
+{% endif %}
+
+{% if boss__fluentd__centralized__deployment_spec_template_spec_sidcar_container is defined %}
+{% if boss__fluentd__centralized__deployment_spec_template_spec_sidcar_container == "disabled" %}
+      # sidecar disabled
+{% else %}
+{{ boss__fluentd__centralized__deployment_spec_template_spec_sidcar_container | indent( width=6, indentfirst=True,blank=True) }}
+{% endif %}
 {% endif %}
 
 {% if boss__fluentd__centralized__deployment_spec_template_spec_volumes is defined %}
@@ -107,24 +142,3 @@ spec:
 {{ boss__fluentd__centralized__deployment_spec_template_spec_nodeSelector | indent( width=8, indentfirst=True,blank=True) }}
 {% endif %}
 {% endif %}
-
-{% if boss__fluentd__centralized__deployment_spec_template_spec_securityContext is defined %}
-{% if boss__fluentd__centralized__deployment_spec_template_spec_securityContext == "disabled" %}
-      # securityContext:
-{% else %}
-      securityContext:
-{{ boss__fluentd__centralized__deployment_spec_template_spec_securityContext | indent( width=8, indentfirst=True,blank=True) }}
-{% endif %}
-{% endif %}
-
-
-
-
-
-#      hostNetwork: true
-#      hostPID: true
-#      nodeSelector:
-#        beta.kubernetes.io/os: linux
-#      securityContext:
-#        runAsNonRoot: true
-#        runAsUser: 65534

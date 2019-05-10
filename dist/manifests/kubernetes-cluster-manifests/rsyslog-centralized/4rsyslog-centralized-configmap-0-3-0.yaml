@@ -178,17 +178,17 @@ data:
     template(
         name   = "LOCAL_SecureFileTemplate"
         type   = "string"
-        string = "/var/log/secure"
+        string = "/var/log/secure.log"
     )
     template(
         name   = "LOCAL_MailFileTemplate"
         type   = "string"
-        string = "/var/log/maillog"
+        string = "/var/log/maillog.log"
     )
     template(
         name   = "LOCAL_CronFileTemplate"
         type   = "string"
-        string = "/var/log/cron"
+        string = "/var/log/cron.log"
     )
     template(
         name   = "LOCAL_SpoolerFileTemplate"
@@ -227,6 +227,14 @@ data:
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     #########################################################################
     template(
+        name = "REMOTE_IptablesFileTemplate"
+        type = "list"
+    ) {
+        constant(value = "/log/client_logs/")
+        property(name  = "fromhost")
+        constant(value = "/iptables.log")
+    }
+    template(
         name = "REMOTE_MessagesFileTemplate"
         type = "list"
     ) {
@@ -235,12 +243,20 @@ data:
         constant(value = "/messages.log")
     }
     template(
+        name = "REMOTE_KernelFileTemplate"
+        type = "list"
+    ) {
+        constant(value = "/log/client_logs/")
+        property(name  = "fromhost")
+        constant(value = "/kernel.log")
+    }
+    template(
         name = "REMOTE_SecureFileTemplate"
         type = "list"
     ) {
         constant(value = "/log/client_logs/")
         property(name  = "fromhost")
-        constant(value = "/secure")
+        constant(value = "/secure.log")
     }
     template(
         name = "REMOTE_MailFileTemplate"
@@ -248,7 +264,7 @@ data:
     ) {
         constant(value = "/log/client_logs/")
         property(name  = "fromhost")
-        constant(value = "/maillog")
+        constant(value = "/maillog.log")
     }
     template(
         name = "REMOTE_CronFileTemplate"
@@ -256,7 +272,7 @@ data:
     ) {
         constant(value = "/log/client_logs/")
         property(name  = "fromhost")
-        constant(value = "/cron")
+        constant(value = "/cron.log")
     }
     template(
         name = "REMOTE_SpoolerFileTemplate"
@@ -264,7 +280,7 @@ data:
     ) {
         constant(value = "/log/client_logs/")
         property(name  = "fromhost")
-        constant(value = "/spooler")
+        constant(value = "/spooler.log")
     }
     template(
         name = "REMOTE_BootFileTemplate"
@@ -288,7 +304,7 @@ data:
     ) {
         constant(value = "/log/client_logs/")
         property(name  = "fromhost")
-        constant(value = "/uncategorized")
+        constant(value = "/uncategorized.log")
     }
     template(
         name = "REMOTE_FacilitySeverityFileTemplate"
@@ -592,6 +608,30 @@ data:
             stop
         }
     } else {
+        if prifilt("kern.*") and ($msg contains "iptables") then {
+            action(
+                name     = "REMOTE_IptablesToFile"
+                type     = "omfile"
+                dynaFile = "REMOTE_IptablesFileTemplate"
+                template = "RSYSLOG_TraditionalFileFormat"
+            )
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
+            stop
+        }
+        if prifilt("kern.*") then {
+            action(
+                name     = "REMOTE_KernelToFile"
+                type     = "omfile"
+                dynaFile = "REMOTE_KernelFileTemplate"
+                template = "RSYSLOG_TraditionalFileFormat"
+            )
+            action(type="omstdout"
+                   template="RSYSLOG_TraditionalFileFormat")
+            stop
+        }
+        # Log anything (except mail) of level info or higher.
+        # Don't log private authentication messages!
         if prifilt("*.info;mail.none;authpriv.none;cron.none") then {
             action(
                 name     = "REMOTE_MessagesToFile"
@@ -607,7 +647,7 @@ data:
         }
         if prifilt("syslog.*") then {
             action(
-                name     = "LOCAL_SyslogToFile"
+                name     = "REMOTE_SyslogToFile"
                 type     = "omfile"
                 dynaFile = "REMOTE_SyslogFileTemplate"
                 template = "RSYSLOG_TraditionalFileFormat"
@@ -617,6 +657,7 @@ data:
                    template="RSYSLOG_TraditionalFileFormat")
             stop
         }
+        # The authpriv file has restricted access.
         if prifilt("authpriv.*") then {
             action(
                 name     = "REMOTE_SecureToFile"
@@ -629,6 +670,7 @@ data:
                    template="RSYSLOG_TraditionalFileFormat")
             stop
         }
+        # Log all the mail messages in one place.
         if prifilt("mail.*") then {
             action(
                 name     = "REMOTE_MailToFile"
@@ -642,6 +684,7 @@ data:
                    template="RSYSLOG_TraditionalFileFormat")
             stop
         }
+        # Log cron stuff
         if prifilt("cron.*") then {
             action(
                 name     = "REMOTE_CronToFile"
@@ -654,6 +697,7 @@ data:
                    template="RSYSLOG_TraditionalFileFormat")
             stop
         }
+        # Save news errors of level crit and higher in a special file.
         if prifilt("uucp,news.crit") then {
             action(
                 name     = "REMOTE_SpoolToFile"
@@ -666,6 +710,7 @@ data:
                    template="RSYSLOG_TraditionalFileFormat")
             stop
         }
+        # Save boot messages also to boot.log
         if prifilt("local7.*") then {
             action(
                 name     = "REMOTE_BootToFile"

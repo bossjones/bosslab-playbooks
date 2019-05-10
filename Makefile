@@ -429,6 +429,8 @@ VENV_NAME="${PACKAGE_NAME}${PY_VER_MAJOR}"
 GIT_ROOT_DIR=${shell git rev-parse --show-toplevel}
 PROJECT_ROOT_DIR=${shell pwd}
 
+OS=${shell uname -s}
+
 ifeq (${OS}, Windows_NT)
     DETECTED_OS := Windows
 else
@@ -967,6 +969,16 @@ render-manifest-rsyslog-centralized:
 	bash -c "find dist/manifests/$(cluster)-manifests/rsyslog-centralized -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
 	kubeval-part-lint $(cluster) rsyslog-centralized
 
+render-manifest-fluentd-centralized:
+	$(call check_defined, cluster, Please set cluster)
+	ansible-playbook -c local playbooks/render_fluentd_centralized.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	@printf "lint fluentd-centralized manifest:\n"
+	@printf "=======================================\n"
+	@printf "$$GREEN lint fluentd-centralized manifest$$NC\n"
+	@printf "=======================================\n"
+	bash -c "find dist/manifests/$(cluster)-manifests/fluentd-centralized -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+	kubeval-part-lint $(cluster) fluentd-centralized
+
 render-manifest:
 	$(call check_defined, cluster, Please set cluster)
 	ansible-playbook -c local -vvvvv playbooks/render_echoserver.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
@@ -990,6 +1002,7 @@ render-manifest:
 	ansible-playbook -c local playbooks/render_fluent_bit_centralized.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	ansible-playbook -c local playbooks/render_elasticsearch_exporter.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	ansible-playbook -c local playbooks/render_rsyslog_centralized.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_fluentd_centralized.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 
 tmp-shell-default:
 	kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash
@@ -1286,6 +1299,14 @@ popeye:
 	@echo "Popeye is a utility that cruises Kubernetes cluster resources and reports potential issues with your deployment manifests and configurations. By scanning your clusters, it detects misconfigurations and ensure best practices are in place thus preventing potential future headaches. It aims at reducing the cognitive overload one faces when managing and operating a Kubernetes cluster in the wild. Popeye is a readonly tool, it does not change or update any of your Kubernetes resources or configurations in any way!"
 	@echo ""
 	popeye version
+
+GROK_PATTERN ?= %{HOSTNAME}
+
+groktoregex-fluentd:
+	./scripts/run_grok_to_regex.sh fluentd "$(GROK_PATTERN)"
+
+groktoregex-standard:
+	./scripts/run_grok_to_regex.sh standard "$(GROK_PATTERN)"
 
 # cd ~/dev/bossjones/bosslab-playbooks/scripts/boards; python ../../scripts/grafana_import.py http://grafana.scarlettlab.com "$(pwd)" -k "${GRAFANA_TOOLS_AUTH}"
 

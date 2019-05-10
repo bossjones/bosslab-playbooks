@@ -327,6 +327,24 @@ On an Ubuntu install the path for the .json file is: /usr/lib/unifi/data/sites/[
 
 ```
 {
+    "firewall": {
+            "name": {
+                    "WAN_IN": {
+                            "rule": {
+                                    "3002": {
+                                            "log": "enable"
+                                    }
+                            }
+                    },
+                    "WAN_LOCAL": {
+                            "rule": {
+                                    "3002": {
+                                            "log": "enable"
+                                    }
+                            }
+                    }
+            }
+    },
     "system": {
         "static-host-mapping": {
             "host-name": {
@@ -381,7 +399,6 @@ On an Ubuntu install the path for the .json file is: /usr/lib/unifi/data/sites/[
                 "fluent-bit-centralized.borglab.scarlettlab.home": {
                     "inet": "192.168.1.172"
                 }
-
             }
         }
     }

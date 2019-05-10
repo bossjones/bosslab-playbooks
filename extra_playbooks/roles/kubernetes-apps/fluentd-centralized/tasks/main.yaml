@@ -15,7 +15,6 @@
     - "2fluentd-centralized-role.yaml"
     - "3fluentd-centralized-role-binding.yaml"
     - "4fluentd-centralized-configmap{{boss__fluentd__centralized__configmap_suffix}}.yaml"
-    # - "4fluentd-centralized-configmap.yaml"
     - "5fluentd-centralized.deploy.yaml"
     - "6fluentd-centralized.svc.yaml"
     - "7fluentd-centralized.ingress.yaml"

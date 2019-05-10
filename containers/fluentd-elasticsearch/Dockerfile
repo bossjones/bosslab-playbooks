@@ -19,8 +19,8 @@
 # Note that fluentd is run with root permssion to allow access to
 # log files with root only access under /var/log/containers/*
 
-# FROM debian:stretch-slim
-FROM k8s.gcr.io/fluentd-elasticsearch:v2.2.0
+FROM debian:stretch-slim
+# FROM k8s.gcr.io/fluentd-elasticsearch:v2.2.0
 
 ENV RBSPY_RELEASE="https://github.com/rbspy/rbspy/releases/download/v0.3.3/rbspy-v0.3.3-x86_64-unknown-linux-musl.tar.gz" \
     RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR="1.2" \
@@ -107,8 +107,8 @@ ENV RBSPY_RELEASE="https://github.com/rbspy/rbspy/releases/download/v0.3.3/rbspy
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-# COPY clean-apt /usr/bin
-# COPY clean-install /usr/bin
+COPY clean-apt /usr/bin
+COPY clean-install /usr/bin
 COPY Gemfile /Gemfile
 
 # SOURCE: https://docs.fluentd.org/v1.0/articles/before-install
@@ -147,6 +147,9 @@ RUN set -x; BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gn
                      tar \
                      wget \
     && update-ca-certificates \
+    && apt-get update \
+    && apt-get install -y build-essential \
+    && apt-get install -y autogen autoconf libtool libgeoip-dev gzip wget \
     && dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" \
     && wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch" \
     && wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc" \
@@ -169,9 +172,30 @@ RUN set -x; BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gn
     # Ensure fluent has enough file descriptors
     && ulimit -n 65536
 
+# Copy the Fluentd configuration file for logging Docker container logs.
+COPY fluent.conf /etc/fluent/fluent.conf
+COPY run.sh /run.sh
+
 RUN apt-get update \
-    && apt-get install supervisor net-tools procps tree tcpdump netcat bash-completion htop -y \
+    && apt-get install supervisor net-tools procps tree tcpdump netcat bash-completion htop wget gzip curl -y \
     && clean-apt
+
+# SOURCE: https://dev.maxmind.com/geoip/geoip2/geolite2/
+RUN set -x; mkdir -p /geoip && \
+    cd /geoip && \
+    wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz && \
+    wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz && \
+    wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-ASN.tar.gz && \
+    gunzip GeoLite2-City.tar.gz && \
+    gunzip GeoLite2-Country.tar.gz && \
+    gunzip GeoLite2-ASN.tar.gz && \
+    tar -xvf GeoLite2-City.tar && \
+    tar -xvf GeoLite2-Country.tar && \
+    tar -xvf GeoLite2-ASN.tar && \
+    mv -v GeoLite2-*/*.mmdb . && \
+    rm -rfv GeoLite2-{ASN,City,Country}_* && \
+    rm -rfv *.tar && \
+    rm -rfv *.tar.gz
 
 ENV LD_PRELOAD="/usr/lib/libjemalloc.so.2"
 

@@ -23,7 +23,11 @@ for i in "${sysctl_array[@]}"; do goss add command "sysctl -n ${i}"; done
 
 # INFO: kubelet config
 # cat /etc/default/kubelet
-# KUBELET_EXTRA_ARGS=--node-ip=192.168.205.10 --authentication-token-webhook=true --authorization-mode=Webhook --read-only-port=10255
+# FIXME: CHECK FOR --resolv-conf=/run/systemd/resolve/resolv.conf
+# FIXME: CHECK FOR --resolv-conf=/run/systemd/resolve/resolv.conf
+# FIXME: CHECK FOR --resolv-conf=/run/systemd/resolve/resolv.conf
+# FIXME: CHECK FOR --resolv-conf=/run/systemd/resolve/resolv.conf
+# KUBELET_EXTRA_ARGS=--node-ip=192.168.205.10 --authentication-token-webhook=true --authorization-mode=Webhook --read-only-port=10255 --resolv-conf=/run/systemd/resolve/resolv.conf
 
 for i in $(cat /etc/default/kubelet | sed 's,KUBELET_EXTRA_ARGS=,,g' | tr " " "\n"); do goss add command "grep -- ${i} /etc/default/kubelet | wc -l"; done
 
@@ -40,7 +44,10 @@ lsmod_array=( ip_vs_wrr ip_vs_rr ip_vs_sh ip_vs nf_conntrack_ipv4 bridge br_netf
 
 for i in "${lsmod_array[@]}"; do goss add command "lsmod | grep -- \"^${i}\" | wc -l"; done
 
-
+# TODO: check for this GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1" inside of /etc/default/grub
+# TODO: check for this GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1" inside of /etc/default/grub
+# TODO: check for this GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1" inside of /etc/default/grub
+# TODO: check for this GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1" inside of /etc/default/grub
 
 # Remove the node from the ClusterStatus key of kubeadm-config ConfigMap (in
 # kube-system namespace). If this isn't done, the new node will fail to join

@@ -213,3 +213,7 @@ vendor/
 results/
 tars/
 *.yaml.part*
+
+realunifilogs.tar.gz
+realunifilogs/
+popeye.txt

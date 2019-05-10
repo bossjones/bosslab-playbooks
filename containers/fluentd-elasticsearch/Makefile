@@ -35,7 +35,7 @@ container_name := fluentd-elasticsearch
 GIT_BRANCH  = $(shell git rev-parse --abbrev-ref HEAD)
 GIT_SHA     = $(shell git rev-parse HEAD)
 BUILD_DATE  = $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
-VERSION  ?= $(shell grep "k8s.gcr.io/fluentd-elasticsearch" Dockerfile | head -1 | cut -d":" -f2)
+VERSION     ?= v3.0.0
 
 TAG ?= $(VERSION)
 ifeq ($(TAG),@branch)
