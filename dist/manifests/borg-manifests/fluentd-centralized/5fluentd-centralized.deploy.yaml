@@ -5,10 +5,10 @@ metadata:
   namespace: kube-system
   labels:
     k8s-app: fluentd-centralized
-    version: v2.5.0
+    version: v3.0.0
     kubernetes.io/cluster-service: "true"
 spec:
-  replicas: 1
+  replicas: 3
 
   # selector:
   #  matchLabels:
@@ -16,27 +16,20 @@ spec:
     metadata:
       labels:
         k8s-app: fluentd-centralized
-        version: v2.5.0
+        version: v3.0.0
         kubernetes.io/cluster-service: "true"
-
-      # This annotation ensures that fluentd does not get evicted if the node
-      # supports critical pod annotation based priority scheme.
-      # Note that this does not guarantee admission on the nodes (#40573).
-      annotations:
-        scheduler.alpha.kubernetes.io/critical-pod: ''
-        seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
 
       # annotations:
     spec:
       serviceAccountName: fluentd-centralized
       initContainers:
       - name: init-fluentd-centralized
-        image: bossjones/fluentd-elasticsearch:v2.5.0
+        image: bossjones/fluentd-elasticsearch:v3.0.0
         command: [ "/bin/sh" ]
         args: ['-c', 'sleep 15']
       containers:
       - name: fluentd-centralized
-        image: bossjones/fluentd-elasticsearch:v2.5.0
+        image: bossjones/fluentd-elasticsearch:v3.0.0
         imagePullPolicy: Always
         # command:
 
@@ -47,11 +40,11 @@ spec:
         #   value: "elasticsearch"
         # - name: FLUENT_ELASTICSEARCH_PORT
         #   value: "9200"
-
+        
         # Memory limit that the file tail plugin can use when appending data to the Engine
         - name: TAIL_BUF_LIMIT
           value: "5MB"
-
+        
         - name: NODE_IP
           valueFrom:
             fieldRef:
@@ -80,7 +73,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-
+        
         - name: TZ
           value: "UTC"
 
@@ -93,17 +86,20 @@ spec:
         - name: log
           mountPath: /log
           readOnly: false
-
+        
         - name: spool
           mountPath: /spool
           readOnly: false
-
+        
         - name: config-volume
           mountPath: /etc/fluent/config.d
-
+        
         - name: grok-patterns
           mountPath: /grok.d
-
+        
+        - name: templates-d
+          mountPath: /templates.d
+        
 
         resources:
           limits:
@@ -112,10 +108,9 @@ spec:
           requests:
             cpu: "0.05"
             memory: "10Mi"
-
+          
 
         securityContext:
-          runAsNonRoot: false
           # SOURCE: https://docs.okd.io/latest/rest_api/apis-apps/v1beta2.Deployment.html
           privileged: true
 
@@ -145,17 +140,21 @@ spec:
       - name: log
         persistentVolumeClaim:
           claimName: rsyslog-centralized-pvc
-
+      
       - name: config-volume
         configMap:
           name: fluentd-centralized-grokconfig-0-3-0
           # defaultMode: 0775
-
+      
       - name: grok-patterns
         configMap:
           name: fluentd-centralized-grok-patterns-0-3-0
           # defaultMode: 0775
-
+      
+      - name: templates-d
+        configMap:
+          name: fluentd-centralized-elasticseach-template
+      
 
       hostNetwork: True
 

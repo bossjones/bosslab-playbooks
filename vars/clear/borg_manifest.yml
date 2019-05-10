@@ -2359,14 +2359,14 @@ boss__fluentd__centralized__fluentd_pv_spec_nfs: |-
 
 boss__fluentd__centralized__deployment_spec_template_containers_resources: |
   limits:
-    cpu: ".2"
+    cpu: ".4"
     memory: "100Mi"
   requests:
     cpu: "0.05"
     memory: "10Mi"
 
 boss__fluentd__centralized__serviceAccountName: "{{boss__fluentd__centralized__shared_name}}"
-boss__fluentd__centralized__deployment_spec_replicas: 3
+boss__fluentd__centralized__deployment_spec_replicas: 1
 
 # boss__fluentd__centralized__deployment_spec_template_containers_command: []
 
@@ -2379,6 +2379,7 @@ boss__fluentd__centralized__cluster_role_rules: |-
     - "secrets"
     - "pods/log"
     - "deployments"
+    # - "configmaps"
     - "batch"
     - "extensions"
     - "crontabs"
@@ -2467,7 +2468,13 @@ boss__fluentd__centralized__deployment_spec_template_metadata_labels: |-
   version: {{boss__fluentd__centralized__fluentd_version}}
   kubernetes.io/cluster-service: "true"
 
-boss__fluentd__centralized__deployment_spec_template_metadata_annotations: "disabled"
+# boss__fluentd__centralized__deployment_spec_template_metadata_annotations: "disabled"
+boss__fluentd__centralized__deployment_spec_template_metadata_annotations: |-
+  # This annotation ensures that fluentd does not get evicted if the node
+  # supports critical pod annotation based priority scheme.
+  # Note that this does not guarantee admission on the nodes (#40573).
+  scheduler.alpha.kubernetes.io/critical-pod: ''
+  seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
 
 boss__fluentd__centralized__deployment_spec_template_containers_ports: |-
   - containerPort: {{boss__fluentd__centralized__promths_mtr_in_port}}

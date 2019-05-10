@@ -5,7 +5,7 @@ metadata:
   namespace: kube-system
   labels:
     k8s-app: fluentd-centralized
-    version: v2.5.0
+    version: v3.0.0
     kubernetes.io/cluster-service: "true"
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
