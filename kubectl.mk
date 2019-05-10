@@ -470,6 +470,11 @@ describe-efk:
 debug-efk: describe-efk
 	kubectl -n kube-system get pod -l app=efk --output=yaml | highlight
 
+
+code-efk:
+	$(call check_defined, cluster, Please set cluster)
+	code dist/manifests/$(cluster)-manifests/efk
+
 create-efk2:
 	$(call check_defined, cluster, Please set cluster)
 	@printf "create-efk:\n"

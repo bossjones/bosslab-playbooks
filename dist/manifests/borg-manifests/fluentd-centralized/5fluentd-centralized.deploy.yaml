@@ -108,8 +108,8 @@ spec:
 
         resources:
           limits:
-            cpu: ".4"
-            memory: "100Mi"
+            cpu: "100m"
+            memory: "300Mi"
           requests:
             cpu: "0.05"
             memory: "10Mi"
@@ -162,9 +162,9 @@ spec:
           name: fluentd-centralized-elasticseach-template
       
 
-      hostNetwork: True
+      hostNetwork: False
 
-      hostPID: True
+      hostPID: False
 
       nodeSelector:
         beta.kubernetes.io/os: linux

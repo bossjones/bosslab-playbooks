@@ -2359,8 +2359,8 @@ boss__fluentd__centralized__fluentd_pv_spec_nfs: |-
 
 boss__fluentd__centralized__deployment_spec_template_containers_resources: |
   limits:
-    cpu: ".4"
-    memory: "100Mi"
+    cpu: "100m"
+    memory: "300Mi"
   requests:
     cpu: "0.05"
     memory: "10Mi"
@@ -2627,8 +2627,8 @@ boss__fluentd__centralized__ingress_annotations: |-
   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
   traefik.frontend.rule.type: PathPrefix
 
-boss__fluentd__centralized__deployment_spec_template_spec_hostNetwork: True
-boss__fluentd__centralized__deployment_spec_template_spec_hostPID: True
+boss__fluentd__centralized__deployment_spec_template_spec_hostNetwork: False
+boss__fluentd__centralized__deployment_spec_template_spec_hostPID: False
 
 
 boss__fluentd__centralized__deployment_spec_template_spec_nodeSelector: |-
