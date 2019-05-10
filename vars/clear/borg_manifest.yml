@@ -2505,7 +2505,7 @@ boss__fluentd__centralized__deployment_spec_template_initContainers: |-
 
 boss__fluentd__centralized__deployment_spec_template_containers_env: |-
   - name: FLUENTD_ARGS
-    value: "--no-supervisor"
+    value: "--no-supervisor -vv"
   # - name: FLUENT_ELASTICSEARCH_HOST
   #   value: "elasticsearch"
   # - name: FLUENT_ELASTICSEARCH_PORT
