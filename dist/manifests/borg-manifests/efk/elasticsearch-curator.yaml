@@ -6,7 +6,7 @@ metadata:
   labels:
     k8s-app: es-curator
     boss-part-of: efk
-    
+
 spec:
   replicas: 1
   selector:
@@ -27,11 +27,11 @@ spec:
             mountPath: /etc/config
         resources:
           limits:
-            cpu: 200m
-            memory: 500Mi
+            cpu: ".2"
+            memory: 50Mi
           requests:
-            cpu: 100m
-            memory: 200Mi
+            cpu: "0.05"
+            memory: 20Mi
       volumes:
         - name: config-volume
           secret:

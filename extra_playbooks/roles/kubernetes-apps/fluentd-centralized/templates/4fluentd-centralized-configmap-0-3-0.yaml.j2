@@ -1093,7 +1093,12 @@ data:
 
     <match **.**>
       @type copy
+
       <store ignore_error>
+        @type stdout
+        output_type json
+      </store>
+      <store>
         @id elasticsearch
         @type elasticsearch
         @log_level info
@@ -1123,18 +1128,14 @@ data:
           overflow_action block
         </buffer>
       </store>
-      <store>
-        @type stdout
-        output_type json
-      </store>
-      <store>
-        @type flowcounter
-        @id applog_high_metrics
-        tag fluentd.apploghigh.metrics
-        aggregate all
-        count_keys *
-        unit minute
-      </store>
+      # <store>
+      #   @type flowcounter
+      #   @id applog_high_metrics
+      #   tag fluentd.apploghigh.metrics
+      #   aggregate all
+      #   count_keys *
+      #   unit minute
+      # </store>
     </match>
 
 

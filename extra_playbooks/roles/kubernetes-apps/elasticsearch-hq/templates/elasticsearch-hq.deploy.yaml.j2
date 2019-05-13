@@ -40,13 +40,15 @@ spec:
         image: elastichq/elasticsearch-hq:release-v3.5.0
         resources:
           limits:
-            memory: 512Mi
-            cpu: 2000m
+            memory: 102Mi
+            cpu: ".2"
           requests:
-            cpu: 100m
+            cpu: "0.05"
             memory: 20Mi
         ports:
         - containerPort: 5000
+          name: elasticsearch-hq-web
+          protocol: TCP
         env:
         - name: "NAMESPACE"
           valueFrom:
