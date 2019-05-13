@@ -2359,11 +2359,11 @@ boss__fluentd__centralized__fluentd_pv_spec_nfs: |-
 
 boss__fluentd__centralized__deployment_spec_template_containers_resources: |
   limits:
-    cpu: "200m"
+    cpu: "2000m"
     memory: "900Mi"
   requests:
     # cpu: "0.05"
-    cpu: "100m"
+    cpu: "1000m"
     memory: "200Mi"
 
 boss__fluentd__centralized__serviceAccountName: "{{boss__fluentd__centralized__shared_name}}"
