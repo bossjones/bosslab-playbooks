@@ -111,6 +111,12 @@ spec:
         - name: templates-d
           mountPath: /templates.d
         
+        - name: buffers-d
+          mountPath: /buffers.d
+        
+        - name: position-d
+          mountPath: /position.d
+        
 
         resources:
           limits:
@@ -167,6 +173,18 @@ spec:
       - name: templates-d
         configMap:
           name: fluentd-centralized-elasticseach-template
+      
+      - name: buffers-d
+        hostPath:
+          # directory location on host
+          path: /buffers.d
+          type: DirectoryOrCreate
+      
+      - name: position-d
+        hostPath:
+          # directory location on host
+          path: /position.d
+          type: DirectoryOrCreate
       
 
       hostNetwork: False

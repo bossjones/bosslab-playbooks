@@ -835,11 +835,10 @@ data:
     <source>
       @type tail
       @id ingest_from_unifi_iptables_ubiquiti_rule_set
-      @log_level debug
-      # read_from_head true
+      read_from_head true
       # tag ingest_from_unifi_iptables_ubiquiti_rule_set
       # pos_file /log/fluentd.unifi.pos
-      pos_file /var/log/fluentd.unifi.pos
+      pos_file /position.d/fluentd.unifi.pos
       path /log/client_logs/**/*.log
       tag unifi.syslog.**
       <parse>
@@ -1077,9 +1076,19 @@ data:
       </labels>
     </source>
 
-    <match **.**>
+
+    # Concatenate multi-line logs
+    # <filter **>
+    #   @type concat
+    #   key message
+    #   multiline_end_regexp /\n$/
+    #   separator ""
+    # </filter>
+
+    <match unifi.syslog.**>
       @type copy
-      <store ignore_error>
+
+      <store>
         @id elasticsearch
         @type elasticsearch
         @log_level info
@@ -1097,7 +1106,7 @@ data:
         <buffer>
           @type file
           flush_thread_count 8
-          path /var/log/fluentd.centralized.system.buffer
+          path /buffers.d/fluentd.centralized.system.buffer
           flush_mode interval
           retry_type exponential_backoff
           # flush_thread_count 2

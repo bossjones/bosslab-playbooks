@@ -2577,6 +2577,12 @@ boss__fluentd__centralized__deployment_spec_template_spec_volumeMounts: |
   - name: templates-d
     mountPath: {{boss__fluentd__centralized__path_to_es_templates_inside_container}}
 
+  - name: buffers-d
+    mountPath: /buffers.d
+
+  - name: position-d
+    mountPath: /position.d
+
 boss__fluentd__centralized__deployment_spec_template_spec_volumes: |
   - name: work
     emptyDir: {}
@@ -2602,6 +2608,17 @@ boss__fluentd__centralized__deployment_spec_template_spec_volumes: |
     configMap:
       name: {{boss__fluentd__centralized__shared_name}}-elasticseach-template
 
+  - name: buffers-d
+    hostPath:
+      # directory location on host
+      path: /buffers.d
+      type: DirectoryOrCreate
+
+  - name: position-d
+    hostPath:
+      # directory location on host
+      path: /position.d
+      type: DirectoryOrCreate
 
 boss__fluentd__centralized__deployment_spec_template_spec_sidcar_container: "disabled"
 

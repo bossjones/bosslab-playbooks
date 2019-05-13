@@ -836,10 +836,10 @@ data:
     <source>
       @type tail
       @id ingest_from_unifi_iptables_ubiquiti_rule_set
-      # read_from_head true
+      read_from_head true
       # tag ingest_from_unifi_iptables_ubiquiti_rule_set
       # pos_file {{boss__fluentd__centralized__path_to_logs_inside_container}}/fluentd.unifi.pos
-      pos_file /var/log/fluentd.unifi.pos
+      pos_file /position.d/fluentd.unifi.pos
       path {{boss__fluentd__centralized__path_to_logs_inside_container}}/client_logs/**/*.log
       tag unifi.syslog.**
       <parse>
@@ -1091,13 +1091,9 @@ data:
     #   separator ""
     # </filter>
 
-    <match **.**>
+    <match unifi.syslog.**>
       @type copy
 
-      <store ignore_error>
-        @type stdout
-        output_type json
-      </store>
       <store>
         @id elasticsearch
         @type elasticsearch
@@ -1116,7 +1112,7 @@ data:
         <buffer>
           @type file
           flush_thread_count 8
-          path /var/log/fluentd.centralized.system.buffer
+          path /buffers.d/fluentd.centralized.system.buffer
           flush_mode interval
           retry_type exponential_backoff
           # flush_thread_count 2
@@ -1127,6 +1123,10 @@ data:
           queue_limit_length 256
           overflow_action block
         </buffer>
+      </store>
+      <store>
+        @type stdout
+        output_type json
       </store>
       # <store>
       #   @type flowcounter
