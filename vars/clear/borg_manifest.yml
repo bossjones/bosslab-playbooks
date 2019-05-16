@@ -2307,6 +2307,11 @@ boss__fluentd__centralized__logrotate_version: 1.3
 boss__fluentd__centralized__logrotate_image_repo: "blacklabelops/logrotate"
 boss__fluentd__centralized__logrotate_image_tag: "{{ boss__fluentd__centralized__logrotate_version }}"
 
+
+# https://container-solutions.com/kubernetes-deployment-strategies/
+boss__fluentd__centralized__deployment_spec_strategy: |-
+  type: Recreate
+
 # Example hostnames
 # ./
 # ./unifisecuritygateway3p/
@@ -2473,6 +2478,8 @@ boss__fluentd__centralized__deployment_spec_template_metadata_labels: |-
 
 # boss__fluentd__centralized__deployment_spec_template_metadata_annotations: "disabled"
 boss__fluentd__centralized__deployment_spec_template_metadata_annotations: |-
+  prometheus.io/port: "{{boss__fluentd__centralized__promths_mtr_in_port}}"
+  prometheus.io/scrape: "true"
   # This annotation ensures that fluentd does not get evicted if the node
   # supports critical pod annotation based priority scheme.
   # Note that this does not guarantee admission on the nodes (#40573).
@@ -2657,7 +2664,7 @@ boss__fluentd__centralized__deployment_spec_template_spec_hostPID: False
 
 boss__fluentd__centralized__deployment_spec_template_spec_nodeSelector: |-
   beta.kubernetes.io/os: linux
-  kubernetes.io/hostname: "borg-queen-01"
+  kubernetes.io/hostname: "{{queen_host}}"
 
 # boss__fluentd__centralized__deployment_spec_template_spec_securityContext: "disabled"
 boss__fluentd__centralized__deployment_spec_template_spec_securityContext: |-
@@ -2707,11 +2714,14 @@ boss__rsyslog__centralized__logrotate_version: 1.3
 boss__rsyslog__centralized__logrotate_image_repo: "blacklabelops/logrotate"
 boss__rsyslog__centralized__logrotate_image_tag: "{{ boss__rsyslog__centralized__logrotate_version }}"
 
+# https://container-solutions.com/kubernetes-deployment-strategies/
+boss__rsyslog__centralized__deployment_spec_strategy: |-
+  type: Recreate
 
 ################# Persistent volume claims - begin #########################
 
 boss__rsyslog__centralized__rsyslog_pvc_spec_accessModes: |-
-  - ReadWriteOnce
+  - ReadWriteMany
 
 # persistent volume claim - rsyslog
 boss__rsyslog__centralized__rsyslog_pvc_labels: |-
@@ -2769,7 +2779,7 @@ boss__rsyslog__centralized__statefulset_spec_template_containers_resources: |
     cpu: "0.05"
     memory: "10Mi"
 
-boss__rsyslog__centralized__statefulset_spec_replicas: 3
+boss__rsyslog__centralized__statefulset_spec_replicas: 1
 
 # boss__rsyslog__centralized__statefulset_spec_template_containers_command: []
 
@@ -2981,6 +2991,7 @@ boss__rsyslog__centralized__statefulset_spec_template_spec_hostPID: True
 
 boss__rsyslog__centralized__statefulset_spec_template_spec_nodeSelector: |-
   beta.kubernetes.io/os: linux
+  kubernetes.io/hostname: "{{queen_host}}"
 
 # boss__rsyslog__centralized__statefulset_spec_template_spec_securityContext: "disabled"
 boss__rsyslog__centralized__statefulset_spec_template_spec_securityContext: |-
@@ -3007,7 +3018,7 @@ boss__rsyslog__centralized__deployment_spec_template_containers_resources: |
     memory: "10Mi"
 
 boss__rsyslog__centralized__serviceAccountName: "{{boss__rsyslog__centralized__shared_name}}"
-boss__rsyslog__centralized__deployment_spec_replicas: 3
+boss__rsyslog__centralized__deployment_spec_replicas: 1
 
 # boss__rsyslog__centralized__deployment_spec_template_containers_command: []
 
@@ -3343,6 +3354,7 @@ boss__rsyslog__centralized__deployment_spec_template_spec_hostPID: True
 
 boss__rsyslog__centralized__deployment_spec_template_spec_nodeSelector: |-
   beta.kubernetes.io/os: linux
+  kubernetes.io/hostname: "{{queen_host}}"
 
 # boss__rsyslog__centralized__deployment_spec_template_spec_securityContext: "disabled"
 boss__rsyslog__centralized__deployment_spec_template_spec_securityContext: |-
