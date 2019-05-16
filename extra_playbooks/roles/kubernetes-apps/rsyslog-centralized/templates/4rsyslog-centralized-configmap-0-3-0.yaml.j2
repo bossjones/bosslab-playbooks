@@ -131,27 +131,27 @@ data:
     # This file created from k8s configmap
     # the mail log files are used by all syslog daemons
     # the news log files are used by all syslog daemons
-    {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/warn {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/allmessages {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/localmessages
-    {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/mail {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/mail.info {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/mail.warn {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/mail.err
-    {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/news/news.crit {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/news/news.err {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/news/news.notice
-    {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/cron {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/secure
-    {
-        compress
-        dateext
-        maxage 365
-        rotate 45
-        missingok
-        notifempty
-        size +4096k
-        create 640 root root
-        sharedscripts
-        postrotate
-            /bin/kill -HUP `ps aux | grep rsyslog.conf | cut -d " " -f1` 2> /dev/null || true
-        endscript
-    }
+    # {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/warn {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/allmessages {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/localmessages
+    # {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/mail {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/mail.info {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/mail.warn {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/mail.err
+    # {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/news/news.crit {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/news/news.err {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/news/news.notice
+    # {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/cron {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/secure
+    # {
+    #     compress
+    #     dateext
+    #     maxage 365
+    #     rotate 45
+    #     missingok
+    #     notifempty
+    #     size +4096k
+    #     create 640 root root
+    #     sharedscripts
+    #     postrotate
+    #         /bin/kill -HUP `ps aux | grep rsyslog.conf | cut -d " " -f1` 2> /dev/null || true
+    #     endscript
+    # }
 
     # SOURCE: https://github.com/dcv-cloud/dcv-kubernetes/blob/50221c0fb3ee7b2f799930b336662ab1d896f871/kubeManifests/infra-repo-197/datafeed/addConfigMapDatafeed.yaml
-    {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/messages
+    {{boss__rsyslog__centralized__path_to_logs_inside_container}}/client_logs/*/messages.log
     {
         hourly
         rotate 5

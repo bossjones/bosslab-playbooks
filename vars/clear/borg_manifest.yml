@@ -14,6 +14,7 @@ nfs_server_ip_override: 192.168.1.174
 k8_admin_config_dir: ~/dev/bossjones/bosslab-playbooks
 k8_admin_config_path: "{{k8_admin_config_dir}}/borg-admin.conf"
 queen_host: "borg-queen-01"
+memory_host: "borg-worker-01"
 
 #      .########..######..##.....##..#######...######..########.########..##.....##.########.########.
 #      .##.......##....##.##.....##.##.....##.##....##.##.......##.....##.##.....##.##.......##.....##
@@ -2664,7 +2665,7 @@ boss__fluentd__centralized__deployment_spec_template_spec_hostPID: False
 
 boss__fluentd__centralized__deployment_spec_template_spec_nodeSelector: |-
   beta.kubernetes.io/os: linux
-  kubernetes.io/hostname: "{{queen_host}}"
+  kubernetes.io/hostname: "{{memory_host}}"
 
 # boss__fluentd__centralized__deployment_spec_template_spec_securityContext: "disabled"
 boss__fluentd__centralized__deployment_spec_template_spec_securityContext: |-
@@ -4017,28 +4018,28 @@ boss__rsyslog__centralized__rsyslog_conf_config_map: |-
             stop
         }
     } else {
-        if prifilt("kern.*") and ($msg contains "iptables") then {
-            action(
-                name     = "REMOTE_IptablesToFile"
-                type     = "omfile"
-                dynaFile = "REMOTE_IptablesFileTemplate"
-                template = "RSYSLOG_TraditionalFileFormat"
-            )
-            action(type="omstdout"
-                   template="RSYSLOG_TraditionalFileFormat")
-            stop
-        }
-        if prifilt("kern.*") then {
-            action(
-                name     = "REMOTE_KernelToFile"
-                type     = "omfile"
-                dynaFile = "REMOTE_KernelFileTemplate"
-                template = "RSYSLOG_TraditionalFileFormat"
-            )
-            action(type="omstdout"
-                   template="RSYSLOG_TraditionalFileFormat")
-            stop
-        }
+        # if prifilt("kern.*") and ($msg contains "iptables") then {
+        #     action(
+        #         name     = "REMOTE_IptablesToFile"
+        #         type     = "omfile"
+        #         dynaFile = "REMOTE_IptablesFileTemplate"
+        #         template = "RSYSLOG_TraditionalFileFormat"
+        #     )
+        #     action(type="omstdout"
+        #            template="RSYSLOG_TraditionalFileFormat")
+        #     stop
+        # }
+        # if prifilt("kern.*") then {
+        #     action(
+        #         name     = "REMOTE_KernelToFile"
+        #         type     = "omfile"
+        #         dynaFile = "REMOTE_KernelFileTemplate"
+        #         template = "RSYSLOG_TraditionalFileFormat"
+        #     )
+        #     action(type="omstdout"
+        #            template="RSYSLOG_TraditionalFileFormat")
+        #     stop
+        # }
         # Log anything (except mail) of level info or higher.
         # Don't log private authentication messages!
         if prifilt("*.info;mail.none;authpriv.none;cron.none") then {
