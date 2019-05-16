@@ -943,7 +943,7 @@ data:
 
 
     <filter unifi.syslog.**>
-      @type record_transformer
+      @type record_modifier
       enable_ruby true
       <record>
         # NOTE: If null, set default value to 127.0.0.1
@@ -1087,7 +1087,7 @@ data:
 
     <match unifi.syslog.**>
       @type copy
-
+    
       <store>
         @id elasticsearch
         @type elasticsearch

@@ -9,7 +9,8 @@ metadata:
     kubernetes.io/cluster-service: "true"
 spec:
   replicas: 1
-
+  strategy:
+    type: Recreate
   # selector:
   #  matchLabels:
   template:
@@ -20,6 +21,8 @@ spec:
         kubernetes.io/cluster-service: "true"
 
       annotations:
+        prometheus.io/port: "24231"
+        prometheus.io/scrape: "true"
         # This annotation ensures that fluentd does not get evicted if the node
         # supports critical pod annotation based priority scheme.
         # Note that this does not guarantee admission on the nodes (#40573).
