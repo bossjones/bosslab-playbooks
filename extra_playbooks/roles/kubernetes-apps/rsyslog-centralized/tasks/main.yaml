@@ -16,7 +16,7 @@
     - "2rsyslog-centralized-role.yaml"
     - "3rsyslog-centralized-role-binding.yaml"
     - "4rsyslog-centralized-configmap{{boss__rsyslog__centralized__configmap_suffix}}.yaml"
-    - "5rsyslog-centralized.deploy.yaml"
+    - "5rsyslog-centralized.{{boss__rsyslog__centralized__feature_flag_workload_type}}.yaml"
     - "6rsyslog-centralized.svc.yaml"
     - "7rsyslog-centralized.ingress.yaml"
 
@@ -32,3 +32,16 @@
     state: "{{boss__rsyslog__centralized__create_ingress}}"
     path: "{{ boss__rsyslog__centralized__manifest_path }}/7rsyslog-centralized.ingress.yaml"
   when: boss__rsyslog__centralized__create_ingress is defined and boss__rsyslog__centralized__create_ingress == "absent"
+
+
+- name: Clean deploy when statefulset is defined
+  file:
+    state: "{{boss__rsyslog__centralized__create_namespace}}"
+    path: "{{ boss__rsyslog__centralized__manifest_path }}/5rsyslog-centralized.deploy.yaml"
+  when: boss__rsyslog__centralized__feature_flag_workload_type is defined and boss__rsyslog__centralized__feature_flag_workload_type == "statefulset"
+
+- name: Clean statefulset when deploy is defined
+  file:
+    state: "{{boss__rsyslog__centralized__create_namespace}}"
+    path: "{{ boss__rsyslog__centralized__manifest_path }}/5rsyslog-centralized.statefulset.yaml"
+  when: boss__rsyslog__centralized__feature_flag_workload_type is defined and boss__rsyslog__centralized__feature_flag_workload_type == "deploy"

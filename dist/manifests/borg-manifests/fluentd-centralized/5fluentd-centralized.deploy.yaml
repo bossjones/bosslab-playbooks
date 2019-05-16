@@ -9,7 +9,8 @@ metadata:
     kubernetes.io/cluster-service: "true"
 spec:
   replicas: 1
-
+  strategy:
+    type: Recreate
   # selector:
   #  matchLabels:
   template:
@@ -20,6 +21,8 @@ spec:
         kubernetes.io/cluster-service: "true"
 
       annotations:
+        prometheus.io/port: "24231"
+        prometheus.io/scrape: "true"
         # This annotation ensures that fluentd does not get evicted if the node
         # supports critical pod annotation based priority scheme.
         # Note that this does not guarantee admission on the nodes (#40573).
@@ -111,14 +114,20 @@ spec:
         - name: templates-d
           mountPath: /templates.d
         
+        - name: buffers-d
+          mountPath: /buffers.d
+        
+        - name: position-d
+          mountPath: /position.d
+        
 
         resources:
           limits:
-            cpu: "200m"
+            cpu: "2000m"
             memory: "900Mi"
           requests:
             # cpu: "0.05"
-            cpu: "100m"
+            cpu: "1000m"
             memory: "200Mi"
           
 
@@ -167,6 +176,18 @@ spec:
       - name: templates-d
         configMap:
           name: fluentd-centralized-elasticseach-template
+      
+      - name: buffers-d
+        hostPath:
+          # directory location on host
+          path: /buffers.d
+          type: DirectoryOrCreate
+      
+      - name: position-d
+        hostPath:
+          # directory location on host
+          path: /position.d
+          type: DirectoryOrCreate
       
 
       hostNetwork: False

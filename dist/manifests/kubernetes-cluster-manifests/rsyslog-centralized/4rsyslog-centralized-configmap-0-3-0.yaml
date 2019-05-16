@@ -1,4 +1,4 @@
-# Ansible managed | /Users/malcolm/dev/bossjones/bossjones-playbook-suite/bosslab-playbooks/extra_playbooks/roles/kubernetes-apps/rsyslog-centralized/templates/4rsyslog-centralized-configmap-0-3-0.yaml.j2
+#
 apiVersion: v1
 kind: ConfigMap
 metadata:

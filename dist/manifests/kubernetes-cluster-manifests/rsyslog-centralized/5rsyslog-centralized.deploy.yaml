@@ -1,4 +1,4 @@
-# Ansible managed | /Users/malcolm/dev/bossjones/bossjones-playbook-suite/bosslab-playbooks/extra_playbooks/roles/kubernetes-apps/rsyslog-centralized/templates/5rsyslog-centralized.deploy.yaml.j2
+#
 # apiVersion: apps/v1
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -10,7 +10,9 @@ metadata:
     version: 0.2.0
     kubernetes.io/cluster-service: "true"
 spec:
-  replicas: 3
+  replicas: 1
+  strategy:
+    type: Recreate
 
   # selector:
   #  matchLabels:
@@ -234,6 +236,7 @@ spec:
 
       nodeSelector:
         beta.kubernetes.io/os: linux
+        kubernetes.io/hostname: "k8s-head"
 
 
 # SOURCE: https://github.com/alonana/kubernetes/blob/b98cd3e7cf413f2eb9eb0124b9e02099655dd224/envoy-logrotate/k8s/deployment.yaml

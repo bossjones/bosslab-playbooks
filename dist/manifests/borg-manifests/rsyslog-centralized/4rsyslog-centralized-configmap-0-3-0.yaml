@@ -1,4 +1,4 @@
-# Ansible managed | /Users/malcolm/dev/bossjones/bossjones-playbook-suite/bosslab-playbooks/extra_playbooks/roles/kubernetes-apps/rsyslog-centralized/templates/4rsyslog-centralized-configmap-0-3-0.yaml.j2
+#
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -178,17 +178,17 @@ data:
     template(
         name   = "LOCAL_SecureFileTemplate"
         type   = "string"
-        string = "/var/log/secure"
+        string = "/var/log/secure.log"
     )
     template(
         name   = "LOCAL_MailFileTemplate"
         type   = "string"
-        string = "/var/log/maillog"
+        string = "/var/log/maillog.log"
     )
     template(
         name   = "LOCAL_CronFileTemplate"
         type   = "string"
-        string = "/var/log/cron"
+        string = "/var/log/cron.log"
     )
     template(
         name   = "LOCAL_SpoolerFileTemplate"
@@ -227,12 +227,28 @@ data:
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     #########################################################################
     template(
+        name = "REMOTE_IptablesFileTemplate"
+        type = "list"
+    ) {
+        constant(value = "/log/client_logs/")
+        property(name  = "fromhost")
+        constant(value = "/iptables.log")
+    }
+    template(
         name = "REMOTE_MessagesFileTemplate"
         type = "list"
     ) {
         constant(value = "/log/client_logs/")
         property(name  = "fromhost")
         constant(value = "/messages.log")
+    }
+    template(
+        name = "REMOTE_KernelFileTemplate"
+        type = "list"
+    ) {
+        constant(value = "/log/client_logs/")
+        property(name  = "fromhost")
+        constant(value = "/kernel.log")
     }
     template(
         name = "REMOTE_SecureFileTemplate"
@@ -592,6 +608,30 @@ data:
             stop
         }
     } else {
+        # if prifilt("kern.*") and ($msg contains "iptables") then {
+        #     action(
+        #         name     = "REMOTE_IptablesToFile"
+        #         type     = "omfile"
+        #         dynaFile = "REMOTE_IptablesFileTemplate"
+        #         template = "RSYSLOG_TraditionalFileFormat"
+        #     )
+        #     action(type="omstdout"
+        #            template="RSYSLOG_TraditionalFileFormat")
+        #     stop
+        # }
+        # if prifilt("kern.*") then {
+        #     action(
+        #         name     = "REMOTE_KernelToFile"
+        #         type     = "omfile"
+        #         dynaFile = "REMOTE_KernelFileTemplate"
+        #         template = "RSYSLOG_TraditionalFileFormat"
+        #     )
+        #     action(type="omstdout"
+        #            template="RSYSLOG_TraditionalFileFormat")
+        #     stop
+        # }
+        # Log anything (except mail) of level info or higher.
+        # Don't log private authentication messages!
         if prifilt("*.info;mail.none;authpriv.none;cron.none") then {
             action(
                 name     = "REMOTE_MessagesToFile"
@@ -607,7 +647,7 @@ data:
         }
         if prifilt("syslog.*") then {
             action(
-                name     = "LOCAL_SyslogToFile"
+                name     = "REMOTE_SyslogToFile"
                 type     = "omfile"
                 dynaFile = "REMOTE_SyslogFileTemplate"
                 template = "RSYSLOG_TraditionalFileFormat"
@@ -617,6 +657,7 @@ data:
                    template="RSYSLOG_TraditionalFileFormat")
             stop
         }
+        # The authpriv file has restricted access.
         if prifilt("authpriv.*") then {
             action(
                 name     = "REMOTE_SecureToFile"
@@ -629,6 +670,7 @@ data:
                    template="RSYSLOG_TraditionalFileFormat")
             stop
         }
+        # Log all the mail messages in one place.
         if prifilt("mail.*") then {
             action(
                 name     = "REMOTE_MailToFile"
@@ -642,6 +684,7 @@ data:
                    template="RSYSLOG_TraditionalFileFormat")
             stop
         }
+        # Log cron stuff
         if prifilt("cron.*") then {
             action(
                 name     = "REMOTE_CronToFile"
@@ -654,6 +697,7 @@ data:
                    template="RSYSLOG_TraditionalFileFormat")
             stop
         }
+        # Save news errors of level crit and higher in a special file.
         if prifilt("uucp,news.crit") then {
             action(
                 name     = "REMOTE_SpoolToFile"
@@ -666,6 +710,7 @@ data:
                    template="RSYSLOG_TraditionalFileFormat")
             stop
         }
+        # Save boot messages also to boot.log
         if prifilt("local7.*") then {
             action(
                 name     = "REMOTE_BootToFile"
@@ -934,27 +979,27 @@ data:
     # This file created from k8s configmap
     # the mail log files are used by all syslog daemons
     # the news log files are used by all syslog daemons
-    /log/client_logs/*/warn /log/client_logs/*/allmessages /log/client_logs/*/localmessages
-    /log/client_logs/*/mail /log/client_logs/*/mail.info /log/client_logs/*/mail.warn /log/client_logs/*/mail.err
-    /log/client_logs/*/news/news.crit /log/client_logs/*/news/news.err /log/client_logs/*/news/news.notice
-    /log/client_logs/*/cron /log/client_logs/*/secure
-    {
-        compress
-        dateext
-        maxage 365
-        rotate 45
-        missingok
-        notifempty
-        size +4096k
-        create 640 root root
-        sharedscripts
-        postrotate
-            /bin/kill -HUP `ps aux | grep rsyslog.conf | cut -d " " -f1` 2> /dev/null || true
-        endscript
-    }
+    # /log/client_logs/*/warn /log/client_logs/*/allmessages /log/client_logs/*/localmessages
+    # /log/client_logs/*/mail /log/client_logs/*/mail.info /log/client_logs/*/mail.warn /log/client_logs/*/mail.err
+    # /log/client_logs/*/news/news.crit /log/client_logs/*/news/news.err /log/client_logs/*/news/news.notice
+    # /log/client_logs/*/cron /log/client_logs/*/secure
+    # {
+    #     compress
+    #     dateext
+    #     maxage 365
+    #     rotate 45
+    #     missingok
+    #     notifempty
+    #     size +4096k
+    #     create 640 root root
+    #     sharedscripts
+    #     postrotate
+    #         /bin/kill -HUP `ps aux | grep rsyslog.conf | cut -d " " -f1` 2> /dev/null || true
+    #     endscript
+    # }
 
     # SOURCE: https://github.com/dcv-cloud/dcv-kubernetes/blob/50221c0fb3ee7b2f799930b336662ab1d896f871/kubeManifests/infra-repo-197/datafeed/addConfigMapDatafeed.yaml
-    /log/client_logs/*/messages
+    /log/client_logs/*/messages.log
     {
         hourly
         rotate 5

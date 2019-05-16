@@ -11,7 +11,7 @@ metadata:
   # indent( width=4, indentfirst=True,blank=True)(indent=8)
   labels:
     run: nginx
-    
+
 spec:
   replicas: 2
   selector:
@@ -22,7 +22,7 @@ spec:
     metadata:
       labels:
             run: nginx
-    
+
         # app: echoserver
         # run: nginx
     spec:
@@ -31,10 +31,11 @@ spec:
         image: gcr.io/kubernetes-e2e-test-images/echoserver:2.1
         resources:
           limits:
-            memory: 55Mi
-            cpu: 100m
+            memory: 95Mi
+            cpu: 20m
           requests:
-            cpu: 100m
+            cpu: 10m
             memory: 20Mi
         ports:
         - containerPort: 8080
+          name: web
