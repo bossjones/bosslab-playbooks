@@ -192,9 +192,9 @@ spec:
           type: DirectoryOrCreate
       
 
-      hostNetwork: True
+      hostNetwork: False
 
-      hostPID: True
+      hostPID: False
 
       nodeSelector:
         beta.kubernetes.io/os: linux
