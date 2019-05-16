@@ -1091,52 +1091,9 @@ data:
     #   separator ""
     # </filter>
 
-    <match unifi.syslog.**>
-      @type copy
-
-      <store>
-        @id elasticsearch
-        @type elasticsearch
-        @log_level info
-        type_name fluentd
-        include_tag_key true
-        host elasticsearch-logging
-        port 9200
-        logstash_format true
-        logstash_prefix logstash-unifi
-        index_prefix logstash-unifi
-        reload_on_failure true
-        reconnect_on_error true
-        template_file {{boss__fluentd__centralized__path_to_es_templates_inside_container}}/elasticsearch-template-es5x.json
-        template_name elasticsearch-template-es5x.json
-        <buffer>
-          @type file
-          flush_thread_count 8
-          path /buffers.d/fluentd.centralized.system.buffer
-          flush_mode interval
-          retry_type exponential_backoff
-          # flush_thread_count 2
-          flush_interval 5s
-          retry_forever
-          retry_max_interval 30
-          chunk_limit_size 16M
-          queue_limit_length 256
-          overflow_action block
-        </buffer>
-      </store>
-      <store>
-        @type stdout
-        output_type json
-      </store>
-      # <store>
-      #   @type flowcounter
-      #   @id applog_high_metrics
-      #   tag fluentd.apploghigh.metrics
-      #   aggregate all
-      #   count_keys *
-      #   unit minute
-      # </store>
-    </match>
+{% if boss__fluentd__centralized_configmap_fluentd_outputs is defined %}
+{{ boss__fluentd__centralized_configmap_fluentd_outputs | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
 
 
     # SOURCE: https://github.com/adriansr/beats/blob/938b0322a993021d79ed2a8be24055a7f3e69300/x-pack/filebeat/module/iptables/log/test/ubiquiti.log
