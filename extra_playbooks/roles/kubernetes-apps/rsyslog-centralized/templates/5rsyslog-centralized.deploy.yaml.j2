@@ -11,6 +11,14 @@ metadata:
 {% endif %}
 spec:
   replicas: {{boss__rsyslog__centralized__deployment_spec_replicas}}
+{% if boss__rsyslog__centralized__deployment_spec_strategy is defined %}
+{% if boss__rsyslog__centralized__deployment_spec_strategy == "disabled" %}
+  # strategy:
+{% else %}
+  strategy:
+{{ boss__rsyslog__centralized__deployment_spec_strategy | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
 
 {% if boss__rsyslog__centralized__deployment_spec_matchLabels is defined %}
 {% if boss__rsyslog__centralized__deployment_spec_matchLabels == "disabled" %}

@@ -2292,11 +2292,16 @@ boss__rsyslog__centralized__path_to_logs_inside_container: "/log"
 boss__rsyslog__centralized__path_to_config_inside_container: "/config"
 boss__rsyslog__centralized__path_to_work_inside_container: "/work"
 boss__rsyslog__centralized__path_to_spool_inside_container: "/spool"
-boss__rsyslog__centralized__feature_flag_workload_type: "statefulset" # deploy,statefulset
+boss__rsyslog__centralized__feature_flag_workload_type: "deploy" # deploy,statefulset
 
 boss__rsyslog__centralized__logrotate_version: 1.3
 boss__rsyslog__centralized__logrotate_image_repo: "blacklabelops/logrotate"
 boss__rsyslog__centralized__logrotate_image_tag: "{{ boss__rsyslog__centralized__logrotate_version }}"
+
+# https://container-solutions.com/kubernetes-deployment-strategies/
+boss__rsyslog__centralized__deployment_spec_strategy: |-
+  type: Recreate
+
 
 
 ################# Persistent volume claims - begin #########################
@@ -2375,12 +2380,13 @@ boss__rsyslog__centralized__statefulset_labels: |-
   k8s-app: {{boss__rsyslog__centralized__shared_name}}
   version: {{boss__rsyslog__centralized__rsyslog_version}}
   kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
 
-boss__rsyslog__centralized__statefulset_spec_matchLabels: "disabled"
+# boss__rsyslog__centralized__statefulset_spec_matchLabels: "disabled"
 
-# boss__rsyslog__centralized__statefulset_spec_matchLabels: |-
-#   k8s-app: {{boss__rsyslog__centralized__shared_name}}
-#   version: {{boss__rsyslog__centralized__rsyslog_version}}
+boss__rsyslog__centralized__statefulset_spec_matchLabels: |-
+  k8s-app: {{boss__rsyslog__centralized__shared_name}}
+  version: {{boss__rsyslog__centralized__rsyslog_version}}
 
 boss__rsyslog__centralized__statefulset_spec_template_metadata_labels: |-
   k8s-app: {{boss__rsyslog__centralized__shared_name}}
@@ -2941,6 +2947,7 @@ boss__rsyslog__centralized__deployment_spec_template_spec_hostPID: True
 
 boss__rsyslog__centralized__deployment_spec_template_spec_nodeSelector: |-
   beta.kubernetes.io/os: linux
+  kubernetes.io/hostname: "{{queen_host}}"
 
 # boss__rsyslog__centralized__deployment_spec_template_spec_securityContext: "disabled"
 boss__rsyslog__centralized__deployment_spec_template_spec_securityContext: |-
