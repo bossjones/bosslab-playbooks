@@ -10,13 +10,21 @@ metadata:
 {{ boss__rsyslog__centralized__rsyslog_pvc_labels | indent( width=4, indentfirst=True,blank=True) }}
 {% endif %}
 spec:
+# SOURCE: https://akomljen.com/kubernetes-persistent-volumes-with-deployment-and-statefulset/
+# ReadWriteOnce - Mount a volume as read-write by a single node
+# ReadOnlyMany - Mount the volume as read-only by many nodes
+# ReadWriteMany - Mount the volume as read-write by many nodes
+# The rare case is ReadWriteMany because only a few storage providers have the support for it. Think of ReadWriteMany as NFS.
+{% if boss__rsyslog__centralized__rsyslog_pvc_spec_accessModes is defined %}
   accessModes:
-    - ReadWriteOnce
+{{ boss__rsyslog__centralized__rsyslog_pvc_spec_accessModes | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
   storageClassName: "{{ boss__rsyslog__centralized__rsyslog_pvc_spec_storageClassName }}"
   resources:
     requests:
       storage: "{{ boss__rsyslog__centralized__rsyslog_pvc_spec_resources_requests_storage }}"
 ---
+# FIXME: I don't think we need this, we should nuke it
 apiVersion: v1
 kind: PersistentVolume
 metadata:
