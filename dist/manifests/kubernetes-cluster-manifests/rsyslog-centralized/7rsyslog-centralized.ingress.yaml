@@ -1,4 +1,4 @@
-# Ansible managed | /Users/malcolm/dev/bossjones/bossjones-playbook-suite/bosslab-playbooks/extra_playbooks/roles/kubernetes-apps/rsyslog-centralized/templates/7rsyslog-centralized.ingress.yaml.j2
+#
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:

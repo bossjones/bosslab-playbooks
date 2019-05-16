@@ -1,7 +1,7 @@
-# Ansible managed | /Users/malcolm/dev/bossjones/bossjones-playbook-suite/bosslab-playbooks/extra_playbooks/roles/kubernetes-apps/rsyslog-centralized/templates/5rsyslog-centralized.deploy.yaml.j2
+#
 # apiVersion: apps/v1
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: apps/v1beta2
+kind: StatefulSet
 metadata:
   name: rsyslog-centralized
   namespace: kube-system
@@ -10,7 +10,8 @@ metadata:
     version: 0.2.0
     kubernetes.io/cluster-service: "true"
 spec:
-  replicas: 3
+  serviceName: rsyslog-centralized
+  replicas: 1
 
   # selector:
   #  matchLabels:
@@ -143,6 +144,8 @@ spec:
           initialDelaySeconds: 60
           timeoutSeconds: 10
 
+        # readinessProbe:
+
         ports:
         - containerPort: 6160
           name: in-udp
@@ -181,62 +184,36 @@ spec:
         - name: log
           mountPath: /log
 
-      volumes:
-      - name: work
-        emptyDir: {}
-      - name: spool
-        emptyDir: {}
-      # log file store (if used)
-      - name: log
-        # emptyDir: {}
-        persistentVolumeClaim:
-          claimName: rsyslog-centralized-pvc
-      - name: container-config
-        configMap:
-          name: rsyslog-centralized-container-config-0-3-0
-          # defaultMode: 0775
-      - name: rsyslog-centralized-config
-        configMap:
-          name: rsyslog-centralized-config-0-3-0
-          # defaultMode: 0775
-      
-      - name: rsyslog-centralized-config-dot-d
-        configMap:
-          name: rsyslog-centralized-config-dot-d-0-3-0
-          # defaultMode: 0775
-      
-      # - name: localtime
-      #   hostPath:
-      #     path: /etc/localtime
-      #     type: "FileOrCreate"
-      
-      # - name: logrotate
-      #   configMap:
-      #     name: rsyslog-centralized-logrotate-0-3-0
-      #     # defaultMode: 0775
-      
-      
-      # - name: rsyslog-centralized-pvc
-      # - name: rsyslog-centralized-pvc
-      #   persistentVolumeClaim:
-      #     claimName: rsyslog-centralized-pvc
-      
-      
-      # - name: crontab
-      #   configMap:
-      #     name: rsyslog-centralized-crontab-0-3-0
-      #     defaultMode: 0775
-      
-
       hostNetwork: True
 
       hostPID: True
 
       nodeSelector:
         beta.kubernetes.io/os: linux
+        kubernetes.io/hostname: "k8s-head"
+  volumeClaimTemplates:
+    - metadata:
+        name: rsyslog-centralized-pvc
+      spec:
+        accessModes:
+          - ReadWriteMany
+        resources:
+          requests:
+            storage: 100Mi
+        storageClassName: nfs-dynamic-class
+# volumeClaimTemplates:
+# - metadata:
+#     name: zookeeper-vol
+#   spec:
+#     accessModes:
+#       - ReadWriteOnce
+#     resources:
+#       requests:
+#         storage: 8Gi
+#     storageClassName: rbd
 
 
-# SOURCE: https://github.com/alonana/kubernetes/blob/b98cd3e7cf413f2eb9eb0124b9e02099655dd224/envoy-logrotate/k8s/deployment.yaml
+# SOURCE: https://github.com/alonana/kubernetes/blob/b98cd3e7cf413f2eb9eb0124b9e02099655dd224/envoy-logrotate/k8s/statefulset.yaml
 #       - name: logrotate
 #         image: AK8S_DOCKER_REPOSITORY/logrotate:1.0.0
 #         volumeMounts:

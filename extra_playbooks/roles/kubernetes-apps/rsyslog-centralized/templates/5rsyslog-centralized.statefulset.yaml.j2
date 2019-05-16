@@ -10,6 +10,7 @@ metadata:
 {{ boss__rsyslog__centralized__statefulset_labels | indent( width=4, indentfirst=True,blank=True) }}
 {% endif %}
 spec:
+  serviceName: {{boss__rsyslog__centralized__shared_name}}
   replicas: {{boss__rsyslog__centralized__statefulset_spec_replicas}}
 
 {% if boss__rsyslog__centralized__statefulset_spec_matchLabels is defined %}
