@@ -1,155 +1,172 @@
-# RBAC authn and authz
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: elasticsearch-logging
-  namespace: {{boss__efk__namespace_name}}
-{% if boss__efk__elasticsearch_service_account_labels is defined %}
-  labels:
-{{ boss__efk__elasticsearch_service_account_labels | indent( width=4, indentfirst=True,blank=True) }}
-{% endif %}
----
-kind: ClusterRole
-apiVersion: rbac.authorization.k8s.io/v1beta1
-metadata:
-  name: elasticsearch-logging
-{% if boss__efk__elasticsearch_cluster_role_labels is defined %}
-  labels:
-{{ boss__efk__elasticsearch_cluster_role_labels | indent( width=4, indentfirst=True,blank=True) }}
-{% endif %}
-rules:
-- apiGroups:
-  - ""
-  resources:
-  - "services"
-  - "namespaces"
-  - "endpoints"
-  verbs:
-  - "get"
----
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1beta1
-metadata:
-  namespace: {{boss__efk__namespace_name}}
-  name: elasticsearch-logging
-{% if boss__efk__elasticsearch_cluster_role_binding_labels is defined %}
-  labels:
-{{ boss__efk__elasticsearch_cluster_role_binding_labels | indent( width=4, indentfirst=True,blank=True) }}
-{% endif %}
-subjects:
-- kind: ServiceAccount
-  name: elasticsearch-logging
-  namespace: {{boss__efk__namespace_name}}
-  apiGroup: ""
-roleRef:
-  kind: ClusterRole
-  name: elasticsearch-logging
-  apiGroup: ""
----
 # Elasticsearch deployment itself
-apiVersion: apps/v1beta1
+apiVersion: apps/v1beta2
 kind: StatefulSet
 metadata:
-  name: elasticsearch-logging
+  name: {{boss__efk__shared_name}}-logging
   namespace: {{boss__efk__namespace_name}}
-{% if boss__efk__elasticsearch_stateful_set_labels is defined %}
+{% if boss__efk__elasticsearch_statefulset_labels is defined %}
   labels:
-{{ boss__efk__elasticsearch_stateful_set_labels | indent( width=4, indentfirst=True,blank=True) }}
+{{ boss__efk__elasticsearch_statefulset_labels | indent( width=4, indentfirst=True,blank=True) }}
 {% endif %}
 spec:
-  serviceName: elasticsearch-logging
-  # ORIG # replicas: 2
-  replicas: {{boss__efk__elasticsearch_stateful_set_spec_replicas}}
+  serviceName: {{boss__efk__shared_name}}-logging
+  replicas: {{boss__efk__elasticsearch_statefulset_spec_replicas}}
+
+{% if boss__efk__elasticsearch_statefulset_spec_matchLabels is defined %}
+{% if boss__efk__elasticsearch_statefulset_spec_matchLabels == "disabled" %}
+  # selector:
+  #  matchLabels:
+{% else %}
   selector:
-{% if boss__efk__elasticsearch_stateful_set_spec_selector_match_labels is defined %}
     matchLabels:
-{{ boss__efk__elasticsearch_stateful_set_spec_selector_match_labels | indent( width=8, indentfirst=True,blank=True) }}
+{{ boss__efk__elasticsearch_statefulset_spec_matchLabels | indent( width=6, indentfirst=True,blank=True) }}
 {% endif %}
-    # matchLabels:
-    #   k8s-app: elasticsearch-logging
-    #  version: v5.6.2
+{% endif %}
   template:
     metadata:
-{% if boss__efk__elasticsearch_stateful_set_spec_template_metadata_labels is defined %}
+{% if boss__efk__elasticsearch_statefulset_spec_template_metadata_labels is defined %}
       labels:
-{{ boss__efk__elasticsearch_stateful_set_spec_template_metadata_labels | indent( width=8, indentfirst=True,blank=True) }}
+{{ boss__efk__elasticsearch_statefulset_spec_template_metadata_labels | indent( width=8, indentfirst=True,blank=True) }}
+{% endif %}
+
+{% if boss__efk__elasticsearch_statefulset_spec_template_metadata_annotations is defined %}
+{% if boss__efk__elasticsearch_statefulset_spec_template_metadata_annotations == "disabled" %}
+      # annotations:
+{% else %}
+      annotations:
+{{ boss__efk__elasticsearch_statefulset_spec_template_metadata_annotations | indent( width=8, indentfirst=True,blank=True) }}
+{% endif %}
 {% endif %}
     spec:
-      volumes:
-      - name: elasticsearch-logging
-        persistentVolumeClaim:
-          claimName: elasticsearch-pvc
-      # SOURCE: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
-      # nodeSelector:
-      #   kubernetes.io/hostname: "borg-worker-02"
-      serviceAccountName: elasticsearch-logging
+      serviceAccountName: {{boss__efk__elasticsearch_serviceAccountName}}
+{% if boss__efk__elasticsearch_statefulset_spec_template_initContainers is defined %}
+{% if boss__efk__elasticsearch_statefulset_spec_template_initContainers == "disabled" %}
+      # initContainers:
+{% else %}
+      initContainers:
+{{ boss__efk__elasticsearch_statefulset_spec_template_initContainers | indent( width=6, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
       containers:
-      # - image: k8s.gcr.io/elasticsearch:v5.6.2
-      - image: {{boss__efk__elasticsearch_image_repo}}:{{boss__efk__elasticsearch_image_tag}}
-        imagePullPolicy: Always
-        securityContext:
-          # runAsNonRoot: true
-          # runAsUser: 65534
-          privileged: true
-        name: elasticsearch-logging
+      - name: {{boss__efk__shared_name}}
+        image: {{ boss__efk__elasticsearch_image_repo }}:{{ boss__efk__elasticsearch_image_tag }}
+        imagePullPolicy: {{boss__efk__elasticsearch_statefulset_spec_template_spec_container_imagePullPolicy}}
+        # command:
 
-{% if boss__efk__elasticsearch_stateful_set_spec_resources is defined %}
-{% if boss__efk__elasticsearch_stateful_set_spec_resources == False %}
+{% if boss__efk__elasticsearch_statefulset_spec_template_containers_env is defined %}
+{% if boss__efk__elasticsearch_statefulset_spec_template_containers_env == "disabled" %}
+        # env:
+{% else %}
+        env:
+{{ boss__efk__elasticsearch_statefulset_spec_template_containers_env | indent( width=8, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+
+{% if boss__efk__elasticsearch_statefulset_spec_template_spec_volumeMounts is defined %}
+{% if boss__efk__elasticsearch_statefulset_spec_template_spec_volumeMounts == "disabled" %}
+        # volumeMounts:
+{% else %}
+        volumeMounts:
+{{ boss__efk__elasticsearch_statefulset_spec_template_spec_volumeMounts | indent( width=8, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+
+{% if boss__efk__elasticsearch_statefulset_spec_template_containers_resources is defined %}
+{% if boss__efk__elasticsearch_statefulset_spec_template_containers_resources == "disabled" %}
         # resources:
 {% else %}
         resources:
-{{ boss__efk__elasticsearch_stateful_set_spec_resources | indent( width=10, indentfirst=True,blank=True) }}
+{{ boss__efk__elasticsearch_statefulset_spec_template_containers_resources | indent( width=10, indentfirst=True,blank=True) }}
 {% endif %}
 {% endif %}
-        ports:
-        - containerPort: 9200
-          name: db
-          protocol: TCP
-        - containerPort: 9300
-          name: transport
-          protocol: TCP
-        - containerPort: 1099
-          name: jmx
-          protocol: TCP
-        volumeMounts:
-        - name: elasticsearch-logging
-          mountPath: /data
-        env:
-        - name: "NAMESPACE"
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-          # http.cors.enabled: true
-          # http.cors.allow-origin
-          # NOTE: Needed for: https://github.com/mobz/elasticsearch-head
-        # - name: HTTP_CORS_ENABLED
-        #   value: "true"
-        # - name: HTTP_CORS_ALLOW_ORIGIN
-        #   value: "*"
-        - name: MINIMUM_MASTER_NODES
-          value: "1"
-        - name: ES_JAVA_OPTS
-          # value: "-Xms1024m -Xmx1024m"
-          # value: "-Xms4048m -Xmx4048m"
-          value: "{{boss__efk__elasticsearch_stateful_set_env_ES_JAVA_OPTS}}"
-          # value: "-Xms256m -Xmx256m"
-        # - name: ES_HEAP_SIZE
-        #   # value: "-Xms1024m -Xmx1024m"
-        #   value: "1g"
-        #   # chmod g+rwx esdatadir
-        #   # chgrp 1000 esdatadir
-      initContainers:
-      - image: alpine:3.6
-        command: ["/sbin/sysctl", "-w", "vm.max_map_count=262144"]
-        name: elasticsearch-logging-init
+
+{% if boss__efk__elasticsearch_statefulset_spec_template_spec_securityContext is defined %}
+{% if boss__efk__elasticsearch_statefulset_spec_template_spec_securityContext == "disabled" %}
+        # securityContext:
+{% else %}
         securityContext:
-          privileged: true
+{{ boss__efk__elasticsearch_statefulset_spec_template_spec_securityContext | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+
+{% if boss__efk__elasticsearch_statefulset_spec_template_spec_containers_livenessProbe is defined %}
+{% if boss__efk__elasticsearch_statefulset_spec_template_spec_containers_livenessProbe == "disabled" %}
+        # livenessProbe:
+{% else %}
+        livenessProbe:
+{{ boss__efk__elasticsearch_statefulset_spec_template_spec_containers_livenessProbe | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+
+{% if boss__efk__elasticsearch_statefulset_spec_template_spec_containers_readinessProbe is defined %}
+{% if boss__efk__elasticsearch_statefulset_spec_template_spec_containers_readinessProbe == "disabled" %}
+        # readinessProbe:
+{% else %}
+        readinessProbe:
+{{ boss__efk__elasticsearch_statefulset_spec_template_spec_containers_readinessProbe | indent( width=10, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+
+{% if boss__efk__elasticsearch_statefulset_spec_template_containers_ports is defined %}
+        ports:
+{{ boss__efk__elasticsearch_statefulset_spec_template_containers_ports | indent( width=8, indentfirst=True,blank=True) }}
+{% endif %}
+
+{% if boss__efk__elasticsearch_statefulset_spec_template_spec_sidcar_container is defined %}
+{% if boss__efk__elasticsearch_statefulset_spec_template_spec_sidcar_container == "disabled" %}
+      # sidecar disabled
+{% else %}
+{{ boss__efk__elasticsearch_statefulset_spec_template_spec_sidcar_container | indent( width=6, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+
+{% if boss__efk__elasticsearch_statefulset_spec_template_spec_hostNetwork is defined %}
+{% if boss__efk__elasticsearch_statefulset_spec_template_spec_hostNetwork == "disabled" %}
+      # hostNetwork:
+{% else %}
+      hostNetwork: {{boss__efk__elasticsearch_statefulset_spec_template_spec_hostNetwork}}
+{% endif %}
+{% endif %}
+
+{% if boss__efk__elasticsearch_statefulset_spec_template_spec_hostPID is defined %}
+{% if boss__efk__elasticsearch_statefulset_spec_template_spec_hostPID == "disabled" %}
+      # hostPID:
+{% else %}
+      hostPID: {{boss__efk__elasticsearch_statefulset_spec_template_spec_hostPID}}
+{% endif %}
+{% endif %}
+
+{% if boss__efk__elasticsearch_statefulset_spec_template_spec_nodeSelector is defined %}
+{% if boss__efk__elasticsearch_statefulset_spec_template_spec_nodeSelector == "disabled" %}
+      # nodeSelector:
+{% else %}
+      nodeSelector:
+{{ boss__efk__elasticsearch_statefulset_spec_template_spec_nodeSelector | indent( width=8, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+{% if boss__efk__elasticsearch_statefulset_spec_volumeClaimTemplates is defined %}
+{% if boss__efk__elasticsearch_statefulset_spec_volumeClaimTemplates == "disabled" %}
   # volumeClaimTemplates:
-  # - metadata:
-  #     name: elasticsearch-logging
-  #   spec:
-  #     accessModes: ["ReadWriteOnce"]
-  #     resources:
-  #       requests:
-  #         storage: 20Gi
+{% else %}
+  volumeClaimTemplates:
+{{ boss__efk__elasticsearch_statefulset_spec_volumeClaimTemplates | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
+# volumeClaimTemplates:
+# - metadata:
+#     name: zookeeper-vol
+#   spec:
+#     accessModes:
+#       - ReadWriteOnce
+#     resources:
+#       requests:
+#         storage: 8Gi
+#     storageClassName: rbd
+
+
+# SOURCE: https://github.com/alonana/kubernetes/blob/b98cd3e7cf413f2eb9eb0124b9e02099655dd224/envoy-logrotate/k8s/statefulset.yaml
+#       - name: logrotate
+#         image: AK8S_DOCKER_REPOSITORY/logrotate:1.0.0
+#         volumeMounts:
+#           - name: logs-volume
+#             mountPath: /logs
