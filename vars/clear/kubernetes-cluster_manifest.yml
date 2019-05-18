@@ -379,10 +379,10 @@ boss__efk__elasticsearch_statefulset_spec_template_containers_resources: |-
   # need more cpu upon initialization, therefore burstable class
   requests:
     cpu: 100m
-    memory: 2350Mi
+    memory: 3048Mi
   limits:
     cpu: 2
-    memory: 4048Mi
+    memory: 3048Mi
 
 boss__efk__elasticsearch_statefulset_spec_template_spec_securityContext: |-
   # runAsNonRoot: true

@@ -10,7 +10,7 @@ metadata:
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
     boss-part-of: efk
-    
+
 spec:
   serviceName: elasticsearch-logging
   replicas: 1
@@ -19,14 +19,14 @@ spec:
     matchLabels:
       k8s-app: elasticsearch-logging
       version: "v5.6.2"
-      
+
   template:
     metadata:
       labels:
         k8s-app: elasticsearch-logging
         version: "v5.6.2"
         kubernetes.io/cluster-service: "true"
-        
+
 
       # annotations:
     spec:
@@ -64,7 +64,8 @@ spec:
         - name: ES_JAVA_OPTS
           # value: "-Xms1024m -Xmx1024m"
           # value: "-Xms4048m -Xmx4048m"
-          value: "-Xms2048 -Xmx2048"
+          # value: "-Xms2048 -Xmx2048"
+          value: "-Xms1152M -Xmx1152M"
           # value: "-Xms256m -Xmx256m"
         # - name: ES_HEAP_SIZE
         #   # value: "-Xms1024m -Xmx1024m"
@@ -76,14 +77,14 @@ spec:
         - name: elasticsearch-logging
           mountPath: /data
 
-        resources:
-          # need more cpu upon initialization, therefore burstable class
-          requests:
-            cpu: 100m
-            memory: 2350Mi
-          limits:
-            cpu: 2
-            memory: 4048Mi
+        # resources:
+        #   # need more cpu upon initialization, therefore burstable class
+        #   requests:
+        #     cpu: 100m
+        #     # memory: 3048Mi
+        #   limits:
+        #     cpu: 2
+        #     # memory: 3048Mi
 
         securityContext:
           # runAsNonRoot: true
