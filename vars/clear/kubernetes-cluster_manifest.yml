@@ -238,6 +238,15 @@ boss__efk__elasticsearch_service_spec_ports: |
     port: 9200
     protocol: TCP
     targetPort: db
+  # NOTE: These 2 are new 5/18/2019
+  - name: transport
+    port: 9300
+    targetPort: transport
+    protocol: TCP
+  - name: jmx
+    port: 1099
+    targetPort: jmx
+    protocol: TCP
 
 boss__efk__elasticsearch_service_spec_selector: |-
   k8s-app: {{boss__efk__shared_name}}-logging

@@ -18,6 +18,15 @@ spec:
       port: 9200
       protocol: TCP
       targetPort: db
+    # NOTE: These 2 are new 5/18/2019
+    - name: transport
+      port: 9300
+      targetPort: transport
+      protocol: TCP
+    - name: jmx
+      port: 1099
+      targetPort: jmx
+      protocol: TCP
     
   selector:
     k8s-app: elasticsearch-logging
