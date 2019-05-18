@@ -38,12 +38,24 @@ spec:
       initContainers:
       - image: alpine:3.6
         command: ["/sbin/sysctl", "-w", "vm.max_map_count=262144"]
+        # Needed to enable memory_lock
+        # SOURCE: https://github.com/elastic/helm-charts/issues/7
+        # command:
+        #   - /bin/sh
+        #   - -cxe
+        #   - |
+        #     /sbin/sysctl -w vm.max_map_count=262144
+        #     ulimit -l unlimited
         name: elasticsearch-logging-init
         securityContext:
           privileged: true
+          # capabilities:
+          #   add:
+          #   - IPC_LOCK
+          #   - SYS_RESOURCE
       containers:
       - name: elasticsearch
-        image: bossjones/elasticsearch:v5.6.2
+        image: bossjones/elasticsearch:v5.6.2-mlockall
         imagePullPolicy: Always
         # command:
 
@@ -64,13 +76,16 @@ spec:
         - name: ES_JAVA_OPTS
           # value: "-Xms1024m -Xmx1024m"
           # value: "-Xms4048m -Xmx4048m"
-          # value: "-Xms2048 -Xmx2048"
-          value: "-Xms1152M -Xmx1152M"
+          value: "-Xms1152m -Xmx1152m"
+        # NOTE: This is what really works
         - name: DEFAULT_ES_JAVA_INITIAL_HEAP_SIZE
-          value: "-Xms1152M"
+          value: "-Xms1152m"
         - name: DEFAULT_ES_JAVA_MAX_HEAP_SIZE
-          value: "-Xmx1152M"
-
+          value: "-Xmx1152m"
+        # - name: bootstrap.memory_lock
+        #   value: "true"
+        # - name: MEMORY_LOCK
+        #   value: "true"
           # value: "-Xms256m -Xmx256m"
         # - name: ES_HEAP_SIZE
         #   # value: "-Xms1024m -Xmx1024m"
@@ -95,6 +110,10 @@ spec:
           # runAsNonRoot: true
           # runAsUser: 65534
           privileged: true
+          capabilities:
+            add:
+            - IPC_LOCK
+            - SYS_RESOURCE
 
         livenessProbe:
           httpGet:
