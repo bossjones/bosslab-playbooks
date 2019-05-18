@@ -66,6 +66,11 @@ spec:
           # value: "-Xms4048m -Xmx4048m"
           # value: "-Xms2048 -Xmx2048"
           value: "-Xms1152M -Xmx1152M"
+        - name: DEFAULT_ES_JAVA_INITIAL_HEAP_SIZE
+          value: "-Xms1152M"
+        - name: DEFAULT_ES_JAVA_MAX_HEAP_SIZE
+          value: "-Xmx1152M"
+
           # value: "-Xms256m -Xmx256m"
         # - name: ES_HEAP_SIZE
         #   # value: "-Xms1024m -Xmx1024m"

@@ -359,6 +359,11 @@ boss__efk__elasticsearch_statefulset_spec_template_containers_env: |-
     # value: "-Xms1024m -Xmx1024m"
     # value: "-Xms4048m -Xmx4048m"
     value: "{{boss__efk__elasticsearch_stateful_set_env_ES_JAVA_OPTS}}"
+  # NOTE: This is what really works
+  - name: DEFAULT_ES_JAVA_INITIAL_HEAP_SIZE
+    value: "-Xms1152M"
+  - name: DEFAULT_ES_JAVA_MAX_HEAP_SIZE
+    value: "-Xmx1152M"
     # value: "-Xms256m -Xmx256m"
   # - name: ES_HEAP_SIZE
   #   # value: "-Xms1024m -Xmx1024m"
