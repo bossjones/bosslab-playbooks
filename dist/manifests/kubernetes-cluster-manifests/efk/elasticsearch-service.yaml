@@ -10,10 +10,14 @@ metadata:
     kubernetes.io/name: "Elasticsearch"
     boss-part-of: efk
     
+  # annotations:
 spec:
+  type: ClusterIP
   ports:
-  - port: 9200
-    protocol: TCP
-    targetPort: db
+    - name: http
+      port: 9200
+      protocol: TCP
+      targetPort: db
+    
   selector:
     k8s-app: elasticsearch-logging

@@ -377,14 +377,14 @@ boss__efk__elasticsearch_statefulset_spec_template_spec_securityContext: |-
 
 boss__efk__elasticsearch_statefulset_spec_template_spec_container_imagePullPolicy: "Always"
 
-boss__efk__elasticsearch_statefulset_spec_template_spec_containers_livenessProbe: "disabled"
+# boss__efk__elasticsearch_statefulset_spec_template_spec_containers_livenessProbe: "disabled"
 
-# boss__efk__elasticsearch_statefulset_spec_template_spec_containers_livenessProbe: |-
-#   httpGet:
-#     path: /
-#     port: 9200
-#   initialDelaySeconds: 120
-#   timeoutSeconds: 10
+boss__efk__elasticsearch_statefulset_spec_template_spec_containers_livenessProbe: |-
+  httpGet:
+    path: /
+    port: 9200
+  initialDelaySeconds: 300
+  timeoutSeconds: 10
 
 boss__efk__elasticsearch_statefulset_spec_template_spec_containers_readinessProbe: "disabled"
 
@@ -403,7 +403,11 @@ boss__efk__elasticsearch_statefulset_spec_template_spec_sidcar_container: "disab
 
 boss__efk__elasticsearch_statefulset_spec_template_spec_hostNetwork: "disabled"
 boss__efk__elasticsearch_statefulset_spec_template_spec_hostPID: "disabled"
-boss__efk__elasticsearch_statefulset_spec_template_spec_nodeSelector: "disabled"
+
+boss__efk__elasticsearch_statefulset_spec_template_spec_nodeSelector: |-
+  beta.kubernetes.io/os: linux
+  # kubernetes.io/hostname: "{{queen_host}}"
+
 boss__efk__elasticsearch_statefulset_spec_volumeClaimTemplates: "disabled"
 
 

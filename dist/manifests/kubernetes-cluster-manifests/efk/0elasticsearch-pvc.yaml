@@ -11,9 +11,14 @@ metadata:
     boss-part-of: efk
     
 spec:
+# SOURCE: https://akomljen.com/kubernetes-persistent-volumes-with-deployment-and-statefulset/
+# ReadWriteOnce - Mount a volume as read-write by a single node
+# ReadOnlyMany - Mount the volume as read-only by many nodes
+# ReadWriteMany - Mount the volume as read-write by many nodes
+# The rare case is ReadWriteMany because only a few storage providers have the support for it. Think of ReadWriteMany as NFS.
   accessModes:
-    - ReadWriteOnce
-  storageClassName: "nfs-dynamic-class"
+    - ReadWriteMany
+  storageClassName: nfs-dynamic-class
   resources:
     requests:
       storage: "1Gi"
@@ -33,6 +38,11 @@ metadata:
 spec:
   capacity:
     storage: 2Gi
+# SOURCE: https://akomljen.com/kubernetes-persistent-volumes-with-deployment-and-statefulset/
+# ReadWriteOnce - Mount a volume as read-write by a single node
+# ReadOnlyMany - Mount the volume as read-only by many nodes
+# ReadWriteMany - Mount the volume as read-write by many nodes
+# The rare case is ReadWriteMany because only a few storage providers have the support for it. Think of ReadWriteMany as NFS.
   accessModes:
     - ReadWriteMany
   nfs:

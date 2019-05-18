@@ -16,7 +16,7 @@ spec:
 # The rare case is ReadWriteMany because only a few storage providers have the support for it. Think of ReadWriteMany as NFS.
 {% if boss__efk__centralized__elasticsearch_pvc_spec_accessModes is defined %}
   accessModes:
-{{ boss__elasticsearch__centralized__efk_pvc_spec_accessModes | indent( width=4, indentfirst=True,blank=True) }}
+{{ boss__efk__centralized__elasticsearch_pvc_spec_accessModes | indent( width=4, indentfirst=True,blank=True) }}
 {% endif %}
   storageClassName: {{boss__efk__elasticsearch_pvc_spec_storageClassName}}
   resources:
@@ -43,7 +43,7 @@ spec:
 # The rare case is ReadWriteMany because only a few storage providers have the support for it. Think of ReadWriteMany as NFS.
 {% if boss__efk__centralized__elasticsearch_pvc_spec_accessModes is defined %}
   accessModes:
-{{ boss__elasticsearch__centralized__efk_pvc_spec_accessModes | indent( width=4, indentfirst=True,blank=True) }}
+{{ boss__efk__centralized__elasticsearch_pvc_spec_accessModes | indent( width=4, indentfirst=True,blank=True) }}
 {% endif %}
   nfs:
     server: {{boss__efk__nfs_master_node_ip}}

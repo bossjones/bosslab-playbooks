@@ -2,8 +2,8 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{boss__efk__elasticsearch_subdomain}}
-  namespace: {{boss__efk__centralized__namespace_name}}
+  name: {{boss__efk__elasticsearch_subdomain}}-ingress
+  namespace: {{boss__efk__namespace_name}}
 {% if boss__efk__elasticsearch_ingress_labels is defined %}
 {% if boss__efk__elasticsearch_ingress_labels == "disabled" %}
   # labels:
@@ -24,11 +24,11 @@ spec:
   rules:
   - host: {{boss__efk__elasticsearch_subdomain}}.{{ domain_root }}
     http:
-{% if boss__efk__ingress_spec_rules_http_paths is defined %}
-{% if boss__efk__ingress_spec_rules_http_paths == "disabled" %}
+{% if boss__efk__elasticsearch_ingress_spec_rules_http_paths is defined %}
+{% if boss__efk__elasticsearch_ingress_spec_rules_http_paths == "disabled" %}
       # paths:
 {% else %}
       paths:
-{{ boss__efk__ingress_spec_rules_http_paths | indent( width=6, indentfirst=True,blank=True) }}
+{{ boss__efk__elasticsearch_ingress_spec_rules_http_paths | indent( width=6, indentfirst=True,blank=True) }}
 {% endif %}
 {% endif %}
