@@ -39,6 +39,14 @@ spec:
 {% endif %}
     spec:
       serviceAccountName: {{boss__efk__elasticsearch_serviceAccountName}}
+{% if boss__efk__elasticsearch_statefulset_spec_template_volumes is defined %}
+{% if boss__efk__elasticsearch_statefulset_spec_template_volumes == "disabled" %}
+      # volumes:
+{% else %}
+      volumes:
+{{ boss__efk__elasticsearch_statefulset_spec_template_volumes | indent( width=6, indentfirst=True,blank=True) }}
+{% endif %}
+{% endif %}
 {% if boss__efk__elasticsearch_statefulset_spec_template_initContainers is defined %}
 {% if boss__efk__elasticsearch_statefulset_spec_template_initContainers == "disabled" %}
       # initContainers:

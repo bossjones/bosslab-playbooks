@@ -366,6 +366,11 @@ boss__efk__elasticsearch_statefulset_spec_template_containers_env: |-
   #   # chmod g+rwx esdatadir
   #   # chgrp 1000 esdatadir
 
+boss__efk__elasticsearch_statefulset_spec_template_volumes: |-
+  - name: {{boss__efk__shared_name}}-logging
+    persistentVolumeClaim:
+      claimName: {{boss__efk__shared_name}}-pvc
+
 boss__efk__elasticsearch_statefulset_spec_template_spec_volumeMounts: |-
   - name: {{boss__efk__shared_name}}-logging
     mountPath: /data
@@ -376,7 +381,7 @@ boss__efk__elasticsearch_statefulset_spec_template_containers_resources: |-
     cpu: 100m
     memory: 2350Mi
   limits:
-    cpu: 1000m
+    cpu: 2
     memory: 4048Mi
 
 boss__efk__elasticsearch_statefulset_spec_template_spec_securityContext: |-
