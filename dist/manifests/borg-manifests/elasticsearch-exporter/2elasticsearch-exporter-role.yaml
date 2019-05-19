@@ -2,7 +2,7 @@
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRole
 metadata:
-  name: p8s-elastic-exporter-read
+  name: p8s-elastic-exporter
 rules:
   - apiGroups:
     - ""

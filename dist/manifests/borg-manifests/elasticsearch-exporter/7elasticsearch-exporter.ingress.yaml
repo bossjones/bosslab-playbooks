@@ -16,5 +16,12 @@ spec:
       - path: /
         backend:
           serviceName: p8s-elastic-exporter
-          servicePort: 5140
-      
+          servicePort: 9108
+  - host: elasticsearch-exporter.hyenaclan.org
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: p8s-elastic-exporter
+          servicePort: 9108
+

@@ -369,6 +369,9 @@ On an Ubuntu install the path for the .json file is: /usr/lib/unifi/data/sites/[
                 "elasticsearch.borglab.scarlettlab.home": {
                     "inet": "192.168.1.172"
                 },
+                "elasticsearch-exporter.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
                 "kibana.borglab.scarlettlab.home": {
                     "inet": "192.168.1.172"
                 },
