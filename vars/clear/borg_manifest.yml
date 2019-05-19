@@ -2848,10 +2848,11 @@ boss__fluentd__centralized_configmap_fluentd_outputs: |-
   <match unifi.syslog.**>
     @type copy
 
+    # Configured specifically for low resource elasticsearch instances that can't take too many requests at once
     <store>
       @id elasticsearch
       @type elasticsearch
-      @log_level info
+      @log_level debug
       type_name fluentd
       include_tag_key true
       host elasticsearch-logging
@@ -2863,25 +2864,36 @@ boss__fluentd__centralized_configmap_fluentd_outputs: |-
       reconnect_on_error true
       template_file {{boss__fluentd__centralized__path_to_es_templates_inside_container}}/elasticsearch-template-es5x.json
       template_name elasticsearch-template-es5x.json
+      with_transporter_log true
       <buffer>
         @type file
+        @log_level debug
         flush_thread_count 8
         path /buffers.d/fluentd.centralized.system.buffer
         flush_mode interval
-        retry_type exponential_backoff
+        # retry_type exponential_backoff
+        retry_type periodic
         # flush_thread_count 2
-        flush_interval 5s
-        retry_forever
+        flush_interval 30s
+        request_timeout 120s
+        # retry_forever true
+        # retry_limit 17
+        # num_threads 8
+        retry_max_times 5
+        retry_wait 1.0
         retry_max_interval 30
-        chunk_limit_size 16M
+        # chunk_limit_size 16M
+        chunk_limit_size 256MB
+        queued_chunks_limit_size 5
         queue_limit_length 256
-        overflow_action block
+        # overflow_action block
+        overflow_action drop_oldest_chunk
       </buffer>
     </store>
-    <store>
-      @type stdout
-      output_type json
-    </store>
+    # <store>
+    #   @type stdout
+    #   output_type json
+    # </store>
     # <store>
     #   @type flowcounter
     #   @id applog_high_metrics
