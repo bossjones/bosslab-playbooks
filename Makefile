@@ -1311,4 +1311,7 @@ groktoregex-standard:
 
 # cd ~/dev/bossjones/bosslab-playbooks/scripts/boards; python ../../scripts/grafana_import.py http://grafana.scarlettlab.com "$(pwd)" -k "${GRAFANA_TOOLS_AUTH}"
 
+get-all-available-prometheus-metrics:
+	curl 'http://prometheus.borglab.scarlettlab.home/api/v1/label/__name__/values'
+
 include *.mk
