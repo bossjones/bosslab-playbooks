@@ -20,14 +20,11 @@ metadata:
 {% endif %}
 {% endif %}
 spec:
-  rules:
-  - host: {{boss__elasticsearch__exporter__subdomain}}.{{ domain_root }}
-    http:
-{% if boss__elasticsearch__exporter__ingress_spec_rules_http_paths is defined %}
-{% if boss__elasticsearch__exporter__ingress_spec_rules_http_paths == "disabled" %}
-      # paths:
+{% if boss__elasticsearch__exporter__ingress_spec_rules is defined %}
+{% if boss__elasticsearch__exporter__ingress_spec_rules == "disabled" %}
+  # rules:
 {% else %}
-      paths:
-{{ boss__elasticsearch__exporter__ingress_spec_rules_http_paths | indent( width=6, indentfirst=True,blank=True) }}
+  rules:
+{{ boss__elasticsearch__exporter__ingress_spec_rules | indent( width=4, indentfirst=True,blank=True) }}
 {% endif %}
 {% endif %}

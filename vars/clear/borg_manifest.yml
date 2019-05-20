@@ -1,6 +1,7 @@
 # domain_root: hyenaclan.org
 # domain_root: borglab.duckdns.org
 domain_root: borglab.scarlettlab.home
+alt_domain: hyenaclan.org
 
 base_dir_path: ~/dev/bossjones/bosslab-playbooks
 dist_dir_path: "{{base_dir_path}}/dist"
@@ -2298,11 +2299,22 @@ boss__elasticsearch__exporter__service_spec_ports: |-
 boss__elasticsearch__exporter__service_spec_selector: |-
   k8s-app: {{boss__elasticsearch__exporter__shared_name}}
 
-boss__elasticsearch__exporter__ingress_spec_rules_http_paths: |
-  - path: /
-    backend:
-      serviceName: {{boss__elasticsearch__exporter__shared_name}}
-      servicePort: 5140
+boss__elasticsearch__exporter__ingress_spec_rules: |-
+  rules:
+  - host: {{boss__elasticsearch__exporter__subdomain}}.{{ domain_root }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{boss__elasticsearch__exporter__shared_name}}
+          servicePort: 9108
+  - host: {{boss__elasticsearch__exporter__subdomain}}.{{ alt_domain }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{boss__elasticsearch__exporter__shared_name}}
+          servicePort: 9108
 
 boss__elasticsearch__exporter__ingress_labels: |-
   k8s-app: {{boss__elasticsearch__exporter__shared_name}}
