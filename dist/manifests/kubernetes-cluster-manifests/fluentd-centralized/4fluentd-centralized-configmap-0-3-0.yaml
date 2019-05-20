@@ -1087,36 +1087,36 @@ data:
 
     <match unifi.syslog.**>
       @type copy
-    
-      # <store>
-      #   @id elasticsearch
-      #   @type elasticsearch
-      #   @log_level info
-      #   type_name fluentd
-      #   include_tag_key true
-      #   host elasticsearch-logging
-      #   port 9200
-      #   logstash_format true
-      #   logstash_prefix logstash-unifi
-      #   index_prefix logstash-unifi
-      #   reload_on_failure true
-      #   reconnect_on_error true
-      #   template_file /templates.d/elasticsearch-template-es5x.json
-      #   template_name elasticsearch-template-es5x.json
-      #   <buffer>
-      #     @type file
-      #     flush_thread_count 8
-      #     path /buffers.d/fluentd.centralized.system.buffer
-      #     flush_mode interval
-      #     retry_type exponential_backoff
-      #     flush_interval 5s
-      #     retry_forever
-      #     retry_max_interval 30
-      #     chunk_limit_size 2M
-      #     queue_limit_length 8
-      #     overflow_action block
-      #   </buffer>
-      # </store>
+
+      <store>
+        @id elasticsearch
+        @type elasticsearch
+        @log_level info
+        type_name fluentd
+        include_tag_key true
+        host elasticsearch-logging
+        port 9200
+        logstash_format true
+        logstash_prefix logstash-unifi
+        index_prefix logstash-unifi
+        reload_on_failure true
+        reconnect_on_error true
+        template_file /templates.d/elasticsearch-template-es5x.json
+        template_name elasticsearch-template-es5x.json
+        <buffer>
+          @type file
+          flush_thread_count 8
+          path /buffers.d/fluentd.centralized.system.buffer
+          flush_mode interval
+          retry_type exponential_backoff
+          flush_interval 5s
+          retry_forever
+          retry_max_interval 30
+          chunk_limit_size 2M
+          queue_limit_length 8
+          overflow_action block
+        </buffer>
+      </store>
       <store>
         @type stdout
         output_type json

@@ -2,11 +2,11 @@
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
 metadata:
-  name: {{boss__elasticsearch__exporter__shared_name}}-read
+  name: {{boss__elasticsearch__exporter__shared_name}}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: {{boss__elasticsearch__exporter__shared_name}}-read
+  name: {{boss__elasticsearch__exporter__shared_name}}
 subjects:
 - kind: ServiceAccount
   name: {{boss__elasticsearch__exporter__shared_name}}

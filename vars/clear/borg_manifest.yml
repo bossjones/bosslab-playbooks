@@ -1,6 +1,7 @@
 # domain_root: hyenaclan.org
 # domain_root: borglab.duckdns.org
 domain_root: borglab.scarlettlab.home
+alt_domain: hyenaclan.org
 
 base_dir_path: ~/dev/bossjones/bosslab-playbooks
 dist_dir_path: "{{base_dir_path}}/dist"
@@ -191,6 +192,9 @@ boss__efk__manifest_path: "{{manifest_dir_path}}/efk"
 boss__efk__namespace_name: kube-system
 boss__efk__deployment_name: efk
 
+boss__efk__centralized__elasticsearch_pvc_spec_accessModes: |-
+  - ReadWriteMany
+
 
 ##########################################################################################################
 #    .########.##..........###.....######..########.####..######...######..########....###....########...######..##.....##
@@ -201,40 +205,77 @@ boss__efk__deployment_name: efk
 #    .##.......##.......##.....##.##....##....##.....##..##....##.##....##.##.......##.....##.##....##..##....##.##.....##
 #    .########.########.##.....##..######.....##....####..######...######..########.##.....##.##.....##..######..##.....##
 ##########################################################################################################
+
+boss__efk__elasticsearch_ingress_spec_rules_http_paths: |
+  - path: /
+    backend:
+      serviceName: {{boss__efk__shared_name}}-logging
+      servicePort: 9200
+
 boss__efk__elasticsearch_ingress_annotations: |
   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
   traefik.frontend.rule.type: PathPrefix
+
 boss__efk__elasticsearch_ingress_labels: |
-  k8s-app: elasticsearch-logging
+  k8s-app: {{boss__efk__shared_name}}-logging
   kubernetes.io/cluster-service: "true"
   addonmanager.kubernetes.io/mode: Reconcile
   boss-part-of: efk
+
 boss__efk__elasticsearch_service_labels: |
-  k8s-app: elasticsearch-logging
+  k8s-app: {{boss__efk__shared_name}}-logging
   kubernetes.io/cluster-service: "true"
   addonmanager.kubernetes.io/mode: Reconcile
   kubernetes.io/name: "Elasticsearch"
   boss-part-of: efk
+
+boss__efk__elasticsearch_service_annotations: "disabled"
+
+boss__efk__elasticsearch_service_spec_type: ClusterIP
+
+boss__efk__elasticsearch_service_spec_ports: |
+  - name: http
+    port: 9200
+    protocol: TCP
+    targetPort: db
+  # NOTE: These 2 are new 5/18/2019
+  - name: transport
+    port: 9300
+    targetPort: transport
+    protocol: TCP
+  - name: jmx
+    port: 1099
+    targetPort: jmx
+    protocol: TCP
+
+boss__efk__elasticsearch_service_spec_selector: |-
+  k8s-app: {{boss__efk__shared_name}}-logging
+
 boss__efk__elasticsearch_persistent_volume_claim_labels: |
   kubernetes.io/cluster-service: "true"
   addonmanager.kubernetes.io/mode: Reconcile
-  k8s-app: elasticsearch-logging
+  k8s-app: {{boss__efk__shared_name}}-logging
   boss-part-of: efk
-boss__efk__elasticsearch_persistent_volume_claim_spec_resources_requests_storage: "2Gi"
+
+boss__efk__elasticsearch_pvc_spec_storageClassName: "nfs-dynamic-class"
+boss__efk__elasticsearch_persistent_volume_claim_spec_resources_requests_storage: "1Gi"
+
 boss__efk__elasticsearch_persistent_volume_labels: |
   kubernetes.io/cluster-service: "true"
   addonmanager.kubernetes.io/mode: Reconcile
-  k8s-app: elasticsearch-logging
+  k8s-app: {{boss__efk__shared_name}}-logging
   boss-part-of: efk
+
 boss__efk__elasticsearch_version: v5.6.2
 boss__efk__elasticsearch_image_repo: "bossjones/elasticsearch"
 boss__efk__elasticsearch_image_tag: "{{ boss__efk__elasticsearch_version }}"
-boss__efk__elasticsearch_cpu_limit: 1000m # same as 2 CPU
-boss__efk__elasticsearch_mem_limit: 4048Mi
-boss__efk__elasticsearch_cpu_requests: 250m # 0.5 cpu
+boss__efk__elasticsearch_cpu_limit: 1000m
+boss__efk__elasticsearch_mem_limit: 3048Mi
+boss__efk__elasticsearch_cpu_requests: 100m
 boss__efk__elasticsearch_mem_requests: 2350Mi
 
-boss__efk__elasticsearch_stateful_set_env_ES_JAVA_OPTS: "-Xms2048m -Xmx2048m"
+
+boss__efk__elasticsearch_stateful_set_env_ES_JAVA_OPTS: "-Xms2048 -Xmx2048"
 
 # boss__efk__elasticsearch_stateful_set_spec_resources: False
 boss__efk__elasticsearch_stateful_set_spec_resources: |
@@ -243,40 +284,164 @@ boss__efk__elasticsearch_stateful_set_spec_resources: |
     cpu: 100m
     memory: 2350Mi
   limits:
-    cpu: 1000m
+    cpu: 2
     memory: 4048Mi
 
 boss__efk__elasticsearch_service_account_labels: |
-    k8s-app: elasticsearch-logging
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: efk
+  k8s-app: elasticsearch-logging
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  boss-part-of: efk
+
 boss__efk__elasticsearch_cluster_role_labels: |
-    k8s-app: elasticsearch-logging
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: efk
+  k8s-app: elasticsearch-logging
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  boss-part-of: efk
 
 boss__efk__elasticsearch_cluster_role_binding_labels: |
-    k8s-app: elasticsearch-logging
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: efk
+  k8s-app: elasticsearch-logging
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  boss-part-of: efk
 
 boss__efk__elasticsearch_stateful_set_labels: |
-    k8s-app: elasticsearch-logging
-    version: "{{boss__efk__elasticsearch_version}}"
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
-    boss-part-of: efk
-boss__efk__elasticsearch_stateful_set_spec_replicas: 1
-boss__efk__elasticsearch_stateful_set_spec_selector_match_labels: |
-        k8s-app: elasticsearch-logging
-        version: "{{ boss__efk__elasticsearch_version }}"
-boss__efk__elasticsearch_stateful_set_spec_template_metadata_labels: |
-        k8s-app: elasticsearch-logging
-        version: "{{ boss__efk__elasticsearch_version }}"
-        kubernetes.io/cluster-service: "true"
+  k8s-app: elasticsearch-logging
+  version: "{{boss__efk__elasticsearch_version}}"
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  boss-part-of: efk
+
+boss__efk__elasticsearch_statefulset_labels: |
+  k8s-app: elasticsearch-logging
+  version: "{{boss__efk__elasticsearch_version}}"
+  kubernetes.io/cluster-service: "true"
+  addonmanager.kubernetes.io/mode: Reconcile
+  boss-part-of: efk
+
+boss__efk__elasticsearch_statefulset_spec_replicas: 1
+
+boss__efk__elasticsearch_statefulset_spec_matchLabels: |
+  k8s-app: elasticsearch-logging
+  version: "{{boss__efk__elasticsearch_version}}"
+
+boss__efk__elasticsearch_statefulset_spec_template_metadata_labels: |
+  k8s-app: elasticsearch-logging
+  version: "{{boss__efk__elasticsearch_version}}"
+  kubernetes.io/cluster-service: "true"
+
+boss__efk__elasticsearch_statefulset_spec_template_metadata_annotations: "disabled"
+
+boss__efk__elasticsearch_serviceAccountName: "{{boss__efk__shared_name}}-logging"
+
+boss__efk__elasticsearch_statefulset_spec_template_initContainers: |-
+  - image: alpine:3.6
+    command:
+      - /bin/sh
+      - -cxe
+      - |
+        /sbin/sysctl -w vm.max_map_count=262144
+        ulimit -l unlimited
+
+    name: {{boss__efk__shared_name}}-logging-init
+    securityContext:
+      privileged: true
+      capabilities:
+        add:
+        - IPC_LOCK
+        - SYS_RESOURCE
+
+boss__efk__elasticsearch_statefulset_spec_template_containers_env: |-
+  - name: "NAMESPACE"
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.namespace
+    # http.cors.enabled: true
+    # http.cors.allow-origin
+    # NOTE: Needed for: https://github.com/mobz/elasticsearch-head
+  # - name: HTTP_CORS_ENABLED
+  #   value: "true"
+  # - name: HTTP_CORS_ALLOW_ORIGIN
+  #   value: "*"
+  - name: MINIMUM_MASTER_NODES
+    value: "1"
+  - name: ES_JAVA_OPTS
+    # value: "-Xms1024m -Xmx1024m"
+    # value: "-Xms4048m -Xmx4048m"
+    value: "{{boss__efk__elasticsearch_stateful_set_env_ES_JAVA_OPTS}}"
+  # NOTE: This is what really works
+  - name: DEFAULT_ES_JAVA_INITIAL_HEAP_SIZE
+    value: "-Xms2048M"
+  - name: DEFAULT_ES_JAVA_MAX_HEAP_SIZE
+    value: "-Xmx2048M"
+    # value: "-Xms256m -Xmx256m"
+  # - name: ES_HEAP_SIZE
+  #   # value: "-Xms1024m -Xmx1024m"
+  #   value: "1g"
+  #   # chmod g+rwx esdatadir
+  #   # chgrp 1000 esdatadir
+
+boss__efk__elasticsearch_statefulset_spec_template_volumes: |-
+  - name: {{boss__efk__shared_name}}-logging
+    persistentVolumeClaim:
+      claimName: {{boss__efk__shared_name}}-pvc
+
+boss__efk__elasticsearch_statefulset_spec_template_spec_volumeMounts: |-
+  - name: {{boss__efk__shared_name}}-logging
+    mountPath: /data
+
+boss__efk__elasticsearch_statefulset_spec_template_containers_resources: |-
+  # need more cpu upon initialization, therefore burstable class
+  requests:
+    cpu: 100m
+    memory: 3048Mi
+  limits:
+    cpu: 2
+    memory: 3048Mi
+
+boss__efk__elasticsearch_statefulset_spec_template_spec_securityContext: |-
+  # runAsNonRoot: true
+  # runAsUser: 65534
+  privileged: true
+  capabilities:
+    add:
+    - IPC_LOCK
+    - SYS_RESOURCE
+
+boss__efk__elasticsearch_statefulset_spec_template_spec_container_imagePullPolicy: "Always"
+
+# boss__efk__elasticsearch_statefulset_spec_template_spec_containers_livenessProbe: "disabled"
+
+boss__efk__elasticsearch_statefulset_spec_template_spec_containers_livenessProbe: |-
+  httpGet:
+    path: /
+    port: 9200
+  initialDelaySeconds: 300
+  timeoutSeconds: 10
+
+boss__efk__elasticsearch_statefulset_spec_template_spec_containers_readinessProbe: "disabled"
+
+boss__efk__elasticsearch_statefulset_spec_template_containers_ports: |-
+  - containerPort: 9200
+    name: db
+    protocol: TCP
+  - containerPort: 9300
+    name: transport
+    protocol: TCP
+  - containerPort: 1099
+    name: jmx
+    protocol: TCP
+
+boss__efk__elasticsearch_statefulset_spec_template_spec_sidcar_container: "disabled"
+
+boss__efk__elasticsearch_statefulset_spec_template_spec_hostNetwork: "disabled"
+boss__efk__elasticsearch_statefulset_spec_template_spec_hostPID: "disabled"
+
+boss__efk__elasticsearch_statefulset_spec_template_spec_nodeSelector: |-
+  beta.kubernetes.io/os: linux
+  # kubernetes.io/hostname: "{{queen_host}}"
+
+boss__efk__elasticsearch_statefulset_spec_volumeClaimTemplates: "disabled"
 
 #########################
 
@@ -1888,7 +2053,7 @@ boss__fluent__bit__centralized__deployment_spec_template_metadata_annotations: |
 
 boss__fluent__bit__centralized__deployment_spec_template_containers_ports: |-
   - containerPort: 2020
-    name: http-metrics
+    name: es-metrics
   - containerPort: 5140
     name: syslog
     protocol: UDP
@@ -1965,7 +2130,7 @@ boss__fluent__bit__centralized__service_spec_ports: |-
   # - port: 2020
   #   targetPort: 2020
   #   protocol: TCP
-  #   name: http-metrics
+  #   name: es-metrics
   - port: 5140
     targetPort: 5140
     protocol: UDP
@@ -2067,6 +2232,8 @@ boss__elasticsearch__exporter__deployment_spec_template_containers_command: |-
   - /bin/elasticsearch_exporter
   - -es.uri=http://elasticsearch-logging:9200
   - -es.all=true
+  # - -es.timeout=60s
+  # - -log.level=debug
 
 boss__elasticsearch__exporter__deployment_labels: |-
   k8s-app: {{boss__elasticsearch__exporter__shared_name}}
@@ -2082,7 +2249,7 @@ boss__elasticsearch__exporter__deployment_spec_template_metadata_annotations: |
 
 boss__elasticsearch__exporter__deployment_spec_template_containers_ports: |-
   - containerPort: 9108
-    name: http-metrics
+    name: es-metrics
 
 boss__elasticsearch__exporter__deployment_spec_template_containers_env: |-
   - name: NODE_IP
@@ -2129,16 +2296,26 @@ boss__elasticsearch__exporter__service_spec_ports: |-
   - port: 9108
     targetPort: 9108
     protocol: TCP
-    name: http-metrics
+    name: es-metrics
 
 boss__elasticsearch__exporter__service_spec_selector: |-
   k8s-app: {{boss__elasticsearch__exporter__shared_name}}
 
-boss__elasticsearch__exporter__ingress_spec_rules_http_paths: |
-  - path: /
-    backend:
-      serviceName: {{boss__elasticsearch__exporter__shared_name}}
-      servicePort: 5140
+boss__elasticsearch__exporter__ingress_spec_rules: |-
+  - host: {{boss__elasticsearch__exporter__subdomain}}.{{ domain_root }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{boss__elasticsearch__exporter__shared_name}}
+          servicePort: 9108
+  - host: {{boss__elasticsearch__exporter__subdomain}}.{{ alt_domain }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{boss__elasticsearch__exporter__shared_name}}
+          servicePort: 9108
 
 boss__elasticsearch__exporter__ingress_labels: |-
   k8s-app: {{boss__elasticsearch__exporter__shared_name}}
@@ -2147,8 +2324,10 @@ boss__elasticsearch__exporter__ingress_annotations: |-
   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
   traefik.frontend.rule.type: PathPrefix
 
-boss__elasticsearch__exporter__deployment_spec_template_spec_hostNetwork: False
-boss__elasticsearch__exporter__deployment_spec_template_spec_hostPID: False
+# boss__elasticsearch__exporter__deployment_spec_template_spec_hostNetwork: false
+# boss__elasticsearch__exporter__deployment_spec_template_spec_hostPID: false
+boss__elasticsearch__exporter__deployment_spec_template_spec_hostNetwork: "disabled"
+boss__elasticsearch__exporter__deployment_spec_template_spec_hostPID: "disabled"
 
 boss__elasticsearch__exporter__deployment_spec_template_spec_nodeSelector: |-
   beta.kubernetes.io/os: linux
@@ -2187,7 +2366,7 @@ boss__elasticsearch__exporter__deployment_spec_template_spec_containers_readines
   httpGet:
     path: /health
     port: 9108
-  initialDelaySeconds: 10
+  initialDelaySeconds: 40
   timeoutSeconds: 10
 
 boss__elasticsearch__exporter__cluster_role_rules: |-
@@ -2684,10 +2863,11 @@ boss__fluentd__centralized_configmap_fluentd_outputs: |-
   <match unifi.syslog.**>
     @type copy
 
+    # Configured specifically for low resource elasticsearch instances that can't take too many requests at once
     <store>
       @id elasticsearch
       @type elasticsearch
-      @log_level info
+      @log_level debug
       type_name fluentd
       include_tag_key true
       host elasticsearch-logging
@@ -2699,25 +2879,36 @@ boss__fluentd__centralized_configmap_fluentd_outputs: |-
       reconnect_on_error true
       template_file {{boss__fluentd__centralized__path_to_es_templates_inside_container}}/elasticsearch-template-es5x.json
       template_name elasticsearch-template-es5x.json
+      with_transporter_log true
       <buffer>
         @type file
+        @log_level debug
         flush_thread_count 8
         path /buffers.d/fluentd.centralized.system.buffer
         flush_mode interval
-        retry_type exponential_backoff
+        # retry_type exponential_backoff
+        retry_type periodic
         # flush_thread_count 2
-        flush_interval 5s
-        retry_forever
+        flush_interval 30s
+        request_timeout 120s
+        # retry_forever true
+        # retry_limit 17
+        # num_threads 8
+        retry_max_times 5
+        retry_wait 1.0
         retry_max_interval 30
-        chunk_limit_size 16M
+        # chunk_limit_size 16M
+        chunk_limit_size 256MB
+        queued_chunks_limit_size 5
         queue_limit_length 256
-        overflow_action block
+        # overflow_action block
+        overflow_action drop_oldest_chunk
       </buffer>
     </store>
-    <store>
-      @type stdout
-      output_type json
-    </store>
+    # <store>
+    #   @type stdout
+    #   output_type json
+    # </store>
     # <store>
     #   @type flowcounter
     #   @id applog_high_metrics

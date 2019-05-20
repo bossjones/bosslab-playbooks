@@ -2,16 +2,23 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: elasticsearch-pvc
+  name: {{boss__efk__shared_name}}-pvc
   namespace: {{boss__efk__namespace_name}}
 {% if boss__efk__elasticsearch_persistent_volume_claim_labels is defined %}
   labels:
 {{ boss__efk__elasticsearch_persistent_volume_claim_labels | indent( width=4, indentfirst=True,blank=True) }}
 {% endif %}
 spec:
+# SOURCE: https://akomljen.com/kubernetes-persistent-volumes-with-deployment-and-statefulset/
+# ReadWriteOnce - Mount a volume as read-write by a single node
+# ReadOnlyMany - Mount the volume as read-only by many nodes
+# ReadWriteMany - Mount the volume as read-write by many nodes
+# The rare case is ReadWriteMany because only a few storage providers have the support for it. Think of ReadWriteMany as NFS.
+{% if boss__efk__centralized__elasticsearch_pvc_spec_accessModes is defined %}
   accessModes:
-    - ReadWriteOnce
-  storageClassName: "nfs-dynamic-class"
+{{ boss__efk__centralized__elasticsearch_pvc_spec_accessModes | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+  storageClassName: {{boss__efk__elasticsearch_pvc_spec_storageClassName}}
   resources:
     requests:
       storage: "{{boss__efk__elasticsearch_persistent_volume_claim_spec_resources_requests_storage}}"
@@ -20,7 +27,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: elasticsearch-pv
+  name: {{boss__efk__shared_name}}-pv
   namespace: {{boss__efk__namespace_name}}
 {% if boss__efk__elasticsearch_persistent_volume_labels is defined %}
   labels:
@@ -29,8 +36,15 @@ metadata:
 spec:
   capacity:
     storage: {{boss__efk__elasticsearch_persistent_volume_spec_capacity_storage}}
+# SOURCE: https://akomljen.com/kubernetes-persistent-volumes-with-deployment-and-statefulset/
+# ReadWriteOnce - Mount a volume as read-write by a single node
+# ReadOnlyMany - Mount the volume as read-only by many nodes
+# ReadWriteMany - Mount the volume as read-write by many nodes
+# The rare case is ReadWriteMany because only a few storage providers have the support for it. Think of ReadWriteMany as NFS.
+{% if boss__efk__centralized__elasticsearch_pvc_spec_accessModes is defined %}
   accessModes:
-    - ReadWriteMany
+{{ boss__efk__centralized__elasticsearch_pvc_spec_accessModes | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
   nfs:
     server: {{boss__efk__nfs_master_node_ip}}
     path: "{{boss__efk__elasticsearch_persistent_volume_spec_nfs_path}}"

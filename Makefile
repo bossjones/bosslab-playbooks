@@ -686,11 +686,11 @@ run-ansible-module-kube-facts:
 
 generate-ssh-config:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/generate_ssh_config.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/generate_ssh_config.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 
 render-manifest-echoserver:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_echoserver.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_echoserver.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@printf "lint echoserver manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint echoserver manifest$$NC\n"
@@ -699,7 +699,7 @@ render-manifest-echoserver:
 
 render-manifest-calico:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_calico.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_calico.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@printf "lint calico manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint calico manifest$$NC\n"
@@ -708,7 +708,7 @@ render-manifest-calico:
 
 render-manifest-dashboard:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_dashboard.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_dashboard.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@printf "lint dashboard manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint dashboard manifest$$NC\n"
@@ -717,7 +717,7 @@ render-manifest-dashboard:
 
 render-manifest-dashboard-ssl:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_dashboard_ssl.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_dashboard_ssl.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@printf "lint dashboard-ssl manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint dashboard-ssl manifest$$NC\n"
@@ -726,7 +726,7 @@ render-manifest-dashboard-ssl:
 
 render-manifest-dashboard-admin:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_dashboard_admin.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_dashboard_admin.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@printf "lint dashboard-admin manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint dashboard-admin manifest$$NC\n"
@@ -735,17 +735,18 @@ render-manifest-dashboard-admin:
 
 render-manifest-efk:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_efk.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_efk.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@printf "lint efk manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint efk manifest$$NC\n"
 	@printf "=======================================\n"
 	bash -c "find dist/manifests/$(cluster)-manifests/efk -type f -name '*.y*ml' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 yamllint FILE"
+	kubeval-part-lint $(cluster) efk
 
 
 render-manifest-registry:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_registry.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_registry.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@printf "lint registry manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint registry manifest$$NC\n"
@@ -754,7 +755,7 @@ render-manifest-registry:
 
 render-manifest-registry-ui:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_registry_ui.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_registry_ui.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@printf "lint registry-ui manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint registry-ui manifest$$NC\n"
@@ -763,8 +764,8 @@ render-manifest-registry-ui:
 
 render-manifest-registry-all:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_registry.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
-	ansible-playbook -c local -vvvvv playbooks/render_registry_ui.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_registry.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_registry_ui.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@printf "lint registry manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint registry manifest$$NC\n"
@@ -778,7 +779,7 @@ render-manifest-registry-all:
 
 render-manifest-cert-manager:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_cert_manager.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_cert_manager.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@printf "lint cert-manager manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint cert-manager manifest$$NC\n"
@@ -787,7 +788,7 @@ render-manifest-cert-manager:
 
 render-manifest-jenkins:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_jenkins.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_jenkins.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@printf "lint jenkins manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint jenkins manifest$$NC\n"
@@ -797,7 +798,7 @@ render-manifest-jenkins:
 
 render-manifest-heapster2:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_heapster2.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_heapster2.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@printf "lint heapster2 manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint heapster2 manifest$$NC\n"
@@ -807,7 +808,7 @@ render-manifest-heapster2:
 
 render-manifest-metrics-server:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_metrics_server.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_metrics_server.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@echo 'FIXME: USE THIS GUY HERE - https://github.com/kubernetes-incubator/metrics-server/issues/77'
 	@echo 'FIXME: USE THIS GUY HERE - https://github.com/kubernetes-incubator/metrics-server/issues/77'
 	@echo 'FIXME: USE THIS GUY HERE - https://github.com/kubernetes-incubator/metrics-server/issues/77'
@@ -823,7 +824,7 @@ render-manifest-metrics-server:
 
 render-manifest-external-dns:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_external_dns.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_external_dns.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@printf "lint external-dns manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint external-dns manifest$$NC\n"
@@ -832,7 +833,7 @@ render-manifest-external-dns:
 
 render-manifest-helm:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_helm.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_helm.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@printf "lint helm manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint helm manifest$$NC\n"
@@ -841,7 +842,7 @@ render-manifest-helm:
 
 render-manifest-metallb:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_metallb.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_metallb.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@printf "lint metallb manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint metallb manifest$$NC\n"
@@ -851,7 +852,7 @@ render-manifest-metallb:
 
 render-manifest-ingress-nginx:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_ingress_nginx.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_ingress_nginx.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@printf "lint ingress-nginx manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint ingress-nginx manifest$$NC\n"
@@ -861,7 +862,7 @@ render-manifest-ingress-nginx:
 
 render-manifest-markdownrender:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_markdownrender.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_markdownrender.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@printf "lint markdownrender manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint markdownrender manifest$$NC\n"
@@ -871,7 +872,7 @@ render-manifest-markdownrender:
 
 render-manifest-traefik-internal:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_traefik_internal.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_traefik_internal.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@printf "lint traefik-internal manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint traefik-internal manifest$$NC\n"
@@ -881,7 +882,7 @@ render-manifest-traefik-internal:
 
 render-manifest-weave-scope:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_weave_scope.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_weave_scope.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@printf "lint weave-scope manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint weave-scope manifest$$NC\n"
@@ -891,7 +892,7 @@ render-manifest-weave-scope:
 
 render-manifest-prometheus-operator:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_prometheus_operator.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_prometheus_operator.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@printf "lint prometheus-operator-v0-27-0 manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint prometheus-operator-v0-27-0 manifest$$NC\n"
@@ -900,7 +901,7 @@ render-manifest-prometheus-operator:
 
 render-manifest-prometheus-operator-custom:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_prometheus_operator_custom.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_prometheus_operator_custom.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@printf "lint prometheus-operator-v0-27-0 manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint prometheus-operator-v0-27-0 manifest$$NC\n"
@@ -910,7 +911,7 @@ render-manifest-prometheus-operator-custom:
 
 render-manifest-unifi-exporter:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_unifi_exporter.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause" --vault-password-file ./vault_password
+	ansible-playbook -c local playbooks/render_unifi_exporter.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause" --vault-password-file ./vault_password
 	@printf "lint unifi-exporter manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint unifi-exporter manifest$$NC\n"
@@ -920,7 +921,7 @@ render-manifest-unifi-exporter:
 
 render-manifest-influxdb-operator:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_influxdb_operator.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_influxdb_operator.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	@printf "lint influxdb-operator manifest:\n"
 	@printf "=======================================\n"
 	@printf "$$GREEN lint influxdb-operator manifest$$NC\n"
@@ -981,24 +982,24 @@ render-manifest-fluentd-centralized:
 
 render-manifest:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -c local -vvvvv playbooks/render_echoserver.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
-	ansible-playbook -c local -vvvvv playbooks/render_calico.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
-	ansible-playbook -c local -vvvvv playbooks/render_dashboard.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
-	ansible-playbook -c local -vvvvv playbooks/render_dashboard_admin.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
-	ansible-playbook -c local -vvvvv playbooks/render_efk.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
-	ansible-playbook -c local -vvvvv playbooks/render_registry.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
-	ansible-playbook -c local -vvvvv playbooks/render_cert_manager.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
-	ansible-playbook -c local -vvvvv playbooks/render_registry_ui.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
-	ansible-playbook -c local -vvvvv playbooks/render_jenkins.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
-	ansible-playbook -c local -vvvvv playbooks/render_heapster2.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
-	ansible-playbook -c local -vvvvv playbooks/render_metrics_server.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
-	ansible-playbook -c local -vvvvv playbooks/render_helm.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
-	ansible-playbook -c local -vvvvv playbooks/render_ingress_nginx.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
-	ansible-playbook -c local -vvvvv playbooks/render_markdownrender.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
-	ansible-playbook -c local -vvvvv playbooks/render_weave_scope.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
-	ansible-playbook -c local -vvvvv playbooks/render_prometheus_operator.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
-	ansible-playbook -c local -vvvvv playbooks/render_unifi_exporter.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause" --vault-password-file ./vault_password
-	ansible-playbook -c local -vvvvv playbooks/render_influxdb_operator.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_echoserver.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_calico.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_dashboard.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_dashboard_admin.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_efk.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_registry.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_cert_manager.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_registry_ui.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_jenkins.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_heapster2.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_metrics_server.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_helm.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_ingress_nginx.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_markdownrender.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_weave_scope.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_prometheus_operator.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
+	ansible-playbook -c local playbooks/render_unifi_exporter.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause" --vault-password-file ./vault_password
+	ansible-playbook -c local playbooks/render_influxdb_operator.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	ansible-playbook -c local playbooks/render_fluent_bit_centralized.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	ansible-playbook -c local playbooks/render_elasticsearch_exporter.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
 	ansible-playbook -c local playbooks/render_rsyslog_centralized.yaml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause"
@@ -1065,7 +1066,7 @@ scarlett-k8-ssh: multi-ssh-scarlett-k8
 
 install-rpi-monitoring:
 	$(call check_defined, cluster, Please set cluster)
-	ansible-playbook -vvvvv playbooks/install_rpi_monitoring.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause" -f 10
+	ansible-playbook playbooks/install_rpi_monitoring.yml -i contrib/inventory_builder/inventory/$(cluster)/inventory.ini --extra-vars "cluster=$(cluster)" --skip-tags "pause" -f 10
 
 ansible-ping:
 	$(call check_defined, cluster, Please set cluster)
@@ -1309,5 +1310,8 @@ groktoregex-standard:
 	./scripts/run_grok_to_regex.sh standard "$(GROK_PATTERN)"
 
 # cd ~/dev/bossjones/bosslab-playbooks/scripts/boards; python ../../scripts/grafana_import.py http://grafana.scarlettlab.com "$(pwd)" -k "${GRAFANA_TOOLS_AUTH}"
+
+get-all-available-prometheus-metrics:
+	curl 'http://prometheus.borglab.scarlettlab.home/api/v1/label/__name__/values'
 
 include *.mk

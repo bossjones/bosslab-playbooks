@@ -10,11 +10,17 @@ metadata:
     traefik.frontend.rule.type: PathPrefix
 spec:
   rules:
-  - host: elasticsearch-exporter.borglab.scarlettlab.home
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: p8s-elastic-exporter
-          servicePort: 5140
-      
+    - host: elasticsearch-exporter.borglab.scarlettlab.home
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: p8s-elastic-exporter
+            servicePort: 9108
+    - host: elasticsearch-exporter.hyenaclan.org
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: p8s-elastic-exporter
+            servicePort: 9108

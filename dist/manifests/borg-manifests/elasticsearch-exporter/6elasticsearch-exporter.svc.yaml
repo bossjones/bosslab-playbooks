@@ -12,6 +12,6 @@ spec:
     - port: 9108
       targetPort: 9108
       protocol: TCP
-      name: http-metrics
+      name: es-metrics
   selector:
     k8s-app: p8s-elastic-exporter

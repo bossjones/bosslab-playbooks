@@ -2,7 +2,7 @@
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRole
 metadata:
-  name: {{boss__elasticsearch__exporter__shared_name}}-read
+  name: {{boss__elasticsearch__exporter__shared_name}}
 {% if boss__elasticsearch__exporter__cluster_role_rules is defined %}
 {% if boss__elasticsearch__exporter__cluster_role_rules == "disabled" %}
 # rules:

@@ -33,6 +33,8 @@ spec:
         - /bin/elasticsearch_exporter
         - -es.uri=http://elasticsearch-logging:9200
         - -es.all=true
+        # - -es.timeout=60s
+        # - -log.level=debug
         securityContext:
           capabilities:
             drop:
@@ -61,7 +63,7 @@ spec:
           httpGet:
             path: /health
             port: 9108
-          initialDelaySeconds: 10
+          initialDelaySeconds: 40
           timeoutSeconds: 10
 
         env:
@@ -107,13 +109,13 @@ spec:
 
         ports:
         - containerPort: 9108
-          name: http-metrics
+          name: es-metrics
 
       # volumes:
 
-      hostNetwork: False
+      # hostNetwork:
 
-      hostPID: False
+      # hostPID:
 
       nodeSelector:
         beta.kubernetes.io/os: linux

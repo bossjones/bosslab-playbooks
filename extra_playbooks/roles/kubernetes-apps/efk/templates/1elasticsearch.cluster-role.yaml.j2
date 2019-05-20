@@ -1,0 +1,17 @@
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: {{boss__efk__shared_name}}-logging
+{% if boss__efk__elasticsearch_cluster_role_labels is defined %}
+  labels:
+{{ boss__efk__elasticsearch_cluster_role_labels | indent( width=4, indentfirst=True,blank=True) }}
+{% endif %}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - "services"
+  - "namespaces"
+  - "endpoints"
+  verbs:
+  - "get"

@@ -41,6 +41,9 @@
                 "elasticsearch.borglab.scarlettlab.home": {
                     "inet": "192.168.1.172"
                 },
+                "elasticsearch-exporter.borglab.scarlettlab.home": {
+                    "inet": "192.168.1.172"
+                },
                 "kibana.borglab.scarlettlab.home": {
                     "inet": "192.168.1.172"
                 },
