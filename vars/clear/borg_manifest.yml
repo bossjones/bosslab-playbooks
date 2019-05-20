@@ -2053,7 +2053,7 @@ boss__fluent__bit__centralized__deployment_spec_template_metadata_annotations: |
 
 boss__fluent__bit__centralized__deployment_spec_template_containers_ports: |-
   - containerPort: 2020
-    name: http-metrics
+    name: es-metrics
   - containerPort: 5140
     name: syslog
     protocol: UDP
@@ -2130,7 +2130,7 @@ boss__fluent__bit__centralized__service_spec_ports: |-
   # - port: 2020
   #   targetPort: 2020
   #   protocol: TCP
-  #   name: http-metrics
+  #   name: es-metrics
   - port: 5140
     targetPort: 5140
     protocol: UDP
@@ -2232,6 +2232,8 @@ boss__elasticsearch__exporter__deployment_spec_template_containers_command: |-
   - /bin/elasticsearch_exporter
   - -es.uri=http://elasticsearch-logging:9200
   - -es.all=true
+  # - -es.timeout=60s
+  # - -log.level=debug
 
 boss__elasticsearch__exporter__deployment_labels: |-
   k8s-app: {{boss__elasticsearch__exporter__shared_name}}
@@ -2247,7 +2249,7 @@ boss__elasticsearch__exporter__deployment_spec_template_metadata_annotations: |
 
 boss__elasticsearch__exporter__deployment_spec_template_containers_ports: |-
   - containerPort: 9108
-    name: http-metrics
+    name: es-metrics
 
 boss__elasticsearch__exporter__deployment_spec_template_containers_env: |-
   - name: NODE_IP
@@ -2294,13 +2296,12 @@ boss__elasticsearch__exporter__service_spec_ports: |-
   - port: 9108
     targetPort: 9108
     protocol: TCP
-    name: http-metrics
+    name: es-metrics
 
 boss__elasticsearch__exporter__service_spec_selector: |-
   k8s-app: {{boss__elasticsearch__exporter__shared_name}}
 
 boss__elasticsearch__exporter__ingress_spec_rules: |-
-  rules:
   - host: {{boss__elasticsearch__exporter__subdomain}}.{{ domain_root }}
     http:
       paths:
@@ -2323,8 +2324,10 @@ boss__elasticsearch__exporter__ingress_annotations: |-
   nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
   traefik.frontend.rule.type: PathPrefix
 
-boss__elasticsearch__exporter__deployment_spec_template_spec_hostNetwork: False
-boss__elasticsearch__exporter__deployment_spec_template_spec_hostPID: False
+# boss__elasticsearch__exporter__deployment_spec_template_spec_hostNetwork: false
+# boss__elasticsearch__exporter__deployment_spec_template_spec_hostPID: false
+boss__elasticsearch__exporter__deployment_spec_template_spec_hostNetwork: "disabled"
+boss__elasticsearch__exporter__deployment_spec_template_spec_hostPID: "disabled"
 
 boss__elasticsearch__exporter__deployment_spec_template_spec_nodeSelector: |-
   beta.kubernetes.io/os: linux
@@ -2363,7 +2366,7 @@ boss__elasticsearch__exporter__deployment_spec_template_spec_containers_readines
   httpGet:
     path: /health
     port: 9108
-  initialDelaySeconds: 10
+  initialDelaySeconds: 40
   timeoutSeconds: 10
 
 boss__elasticsearch__exporter__cluster_role_rules: |-
