@@ -250,7 +250,8 @@ GEM
       activesupport (>= 4.2.0)
       multi_json (>= 1.2)
     jmespath (1.4.0)
-    kramdown (2.1.0)
+    kramdown (2.3.0)
+      rexml
     kramdown-haml (0.0.3)
       haml
     loofah (2.3.1)
@@ -341,6 +342,7 @@ GEM
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
+    rexml (3.2.4)
     ruby-progressbar (1.10.0)
     ruby_parser (3.13.1)
       sexp_processor (~> 4.9)
