@@ -4,80 +4,211 @@
 #
 #    pip-compile --output-file requirements-dev.txt requirements-dev.in
 #
-ansible-lint==3.4.23      # via molecule
-ansible==2.6.18
-anyconfig==0.9.7          # via molecule
-arrow==0.13.0             # via jinja2-time
-asn1crypto==0.24.0        # via cryptography
-atomicwrites==1.2.1       # via pytest
-attrs==18.2.0             # via pytest
+ansible-base==2.10.7
+    # via ansible
+ansible-lint==3.4.23
+    # via molecule
+ansible==2.10.0
+    # via
+    #   -r requirements-dev.in
+    #   ansible-lint
+anyconfig==0.9.7
+    # via molecule
+arrow==0.13.0
+    # via jinja2-time
+asn1crypto==0.24.0
+    # via cryptography
+atomicwrites==1.2.1
+    # via pytest
+attrs==18.2.0
+    # via pytest
 awscli==1.16.96
-bcrypt==3.1.6             # via paramiko
-binaryornot==0.4.4        # via cookiecutter
-botocore==1.12.86         # via awscli, s3transfer
-cerberus==1.2             # via molecule
-certifi==2018.11.29       # via requests
-cffi==1.11.5              # via bcrypt, cryptography, pynacl
-chardet==3.0.4            # via binaryornot, requests
-click-completion==0.3.1   # via molecule
-click==6.7                # via click-completion, cookiecutter, molecule, python-gilt
-colorama==0.3.9           # via awscli, molecule, python-gilt
-cookiecutter==1.6.0       # via molecule
-cryptography==2.5         # via ansible, paramiko
+    # via -r requirements-dev.in
+binaryornot==0.4.4
+    # via cookiecutter
+botocore==1.12.86
+    # via
+    #   awscli
+    #   s3transfer
+cerberus==1.2
+    # via molecule
+certifi==2018.11.29
+    # via requests
+cffi==1.11.5
+    # via cryptography
+chardet==3.0.4
+    # via
+    #   binaryornot
+    #   requests
+click-completion==0.3.1
+    # via molecule
+click==6.7
+    # via
+    #   click-completion
+    #   cookiecutter
+    #   molecule
+    #   python-gilt
+colorama==0.3.9
+    # via
+    #   awscli
+    #   molecule
+    #   python-gilt
+cookiecutter==1.6.0
+    # via molecule
+cryptography==2.5
+    # via ansible-base
 docker-py==1.10.6
-docker-pycreds==0.4.0     # via docker-py
-docopt==0.6.2             # via ptpython
-docutils==0.14            # via awscli, botocore
-fancycompleter==0.8       # via pdbpp
-fasteners==0.14.1         # via python-gilt
-flake8==3.5.0             # via molecule
-future==0.17.1            # via cookiecutter
-git-url-parse==1.1.0      # via python-gilt
-idna==2.8                 # via requests
-jedi==0.13.2              # via ptpython
-jinja2-time==0.2.0        # via cookiecutter
-jinja2==2.10              # via ansible, click-completion, cookiecutter, jinja2-time, molecule
-jmespath==0.9.3           # via botocore
-markupsafe==1.1.0         # via jinja2
-mccabe==0.6.1             # via flake8
+    # via -r requirements-dev.in
+docker-pycreds==0.4.0
+    # via docker-py
+docopt==0.6.2
+    # via ptpython
+docutils==0.14
+    # via
+    #   awscli
+    #   botocore
+fancycompleter==0.8
+    # via pdbpp
+fasteners==0.14.1
+    # via python-gilt
+flake8==3.5.0
+    # via molecule
+future==0.17.1
+    # via cookiecutter
+git-url-parse==1.1.0
+    # via python-gilt
+idna==2.8
+    # via requests
+jedi==0.13.2
+    # via ptpython
+jinja2-time==0.2.0
+    # via cookiecutter
+jinja2==2.10
+    # via
+    #   ansible-base
+    #   click-completion
+    #   cookiecutter
+    #   jinja2-time
+    #   molecule
+jmespath==0.9.3
+    # via botocore
+markupsafe==1.1.0
+    # via jinja2
+mccabe==0.6.1
+    # via flake8
 molecule==2.18.1
-monotonic==1.5            # via fasteners
-more-itertools==5.0.0     # via pytest
-paramiko==2.4.2           # via ansible
-parso==0.3.2              # via jedi
-pathspec==0.5.9           # via yamllint
-pbr==4.1.0                # via git-url-parse, molecule, python-gilt
+    # via -r requirements-dev.in
+monotonic==1.5
+    # via fasteners
+more-itertools==5.0.0
+    # via pytest
+packaging==20.9
+    # via ansible-base
+parso==0.3.2
+    # via jedi
+pathspec==0.5.9
+    # via yamllint
+pbr==4.1.0
+    # via
+    #   git-url-parse
+    #   molecule
+    #   python-gilt
 pdbpp==0.9.3
-pexpect==4.6.0            # via molecule
-pluggy==0.8.1             # via pytest
-poyo==0.4.2               # via cookiecutter
-prompt-toolkit==2.0.8     # via ptpython
-psutil==5.4.6             # via molecule
+    # via -r requirements-dev.in
+pexpect==4.6.0
+    # via molecule
+pluggy==0.8.1
+    # via pytest
+poyo==0.4.2
+    # via cookiecutter
+prompt-toolkit==2.0.8
+    # via ptpython
+psutil==5.4.6
+    # via molecule
 ptpython==2.0.4
-ptyprocess==0.6.0         # via pexpect
-py==1.7.0                 # via pytest
+    # via -r requirements-dev.in
+ptyprocess==0.6.0
+    # via pexpect
+py==1.7.0
+    # via pytest
 pyaml==18.11.0
-pyasn1==0.4.5             # via paramiko, rsa
-pycodestyle==2.3.1        # via flake8
-pycparser==2.19           # via cffi
-pyflakes==1.6.0           # via flake8
-pygments==2.3.1           # via pdbpp, ptpython
-pynacl==1.3.0             # via paramiko
-pytest==4.1.1             # via testinfra
-python-dateutil==2.7.5    # via arrow, botocore
-python-gilt==1.2.1        # via molecule
+    # via -r requirements-dev.in
+pyasn1==0.4.5
+    # via rsa
+pycodestyle==2.3.1
+    # via flake8
+pycparser==2.19
+    # via cffi
+pyflakes==1.6.0
+    # via flake8
+pygments==2.3.1
+    # via
+    #   pdbpp
+    #   ptpython
+pyparsing==2.4.7
+    # via packaging
+pytest==4.1.1
+    # via testinfra
+python-dateutil==2.7.5
+    # via
+    #   arrow
+    #   botocore
+python-gilt==1.2.1
+    # via molecule
 pyyaml==3.13
-requests==2.21.0          # via cookiecutter, docker-py
-rsa==3.4.2                # via awscli
-s3transfer==0.1.13        # via awscli
-sh==1.12.14               # via molecule, python-gilt
-six==1.11.0               # via ansible-lint, bcrypt, click-completion, cryptography, docker-py, docker-pycreds, fasteners, molecule, more-itertools, prompt-toolkit, pynacl, pytest, python-dateutil, testinfra, websocket-client
-tabulate==0.8.2           # via molecule
-testinfra==1.14.1         # via molecule
-tree-format==0.1.2        # via molecule
-urllib3==1.24.1           # via botocore, requests
-wcwidth==0.1.7            # via prompt-toolkit
-websocket-client==0.54.0  # via docker-py
-whichcraft==0.5.2         # via cookiecutter
-wmctrl==0.3               # via pdbpp
-yamllint==1.11.1          # via molecule
+    # via
+    #   -r requirements-dev.in
+    #   ansible-base
+    #   ansible-lint
+    #   awscli
+    #   molecule
+    #   pyaml
+    #   python-gilt
+    #   yamllint
+requests==2.21.0
+    # via
+    #   cookiecutter
+    #   docker-py
+rsa==3.4.2
+    # via awscli
+s3transfer==0.1.13
+    # via awscli
+sh==1.12.14
+    # via
+    #   molecule
+    #   python-gilt
+six==1.11.0
+    # via
+    #   ansible-lint
+    #   click-completion
+    #   cryptography
+    #   docker-py
+    #   docker-pycreds
+    #   fasteners
+    #   molecule
+    #   more-itertools
+    #   prompt-toolkit
+    #   pytest
+    #   python-dateutil
+    #   testinfra
+    #   websocket-client
+tabulate==0.8.2
+    # via molecule
+testinfra==1.14.1
+    # via molecule
+tree-format==0.1.2
+    # via molecule
+urllib3==1.24.1
+    # via
+    #   botocore
+    #   requests
+wcwidth==0.1.7
+    # via prompt-toolkit
+websocket-client==0.54.0
+    # via docker-py
+whichcraft==0.5.2
+    # via cookiecutter
+wmctrl==0.3
+    # via pdbpp
+yamllint==1.11.1
+    # via molecule
