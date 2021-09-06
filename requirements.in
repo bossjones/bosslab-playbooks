@@ -1,33 +1,23 @@
-ansible>=2.5,<2.7
-yolk3k
-ansible-lint
-pyaml
-PyYAML
-autopep8
-mitogen
-yamllint
-ansigenome
-pylint
-isort
-jinja2-cli[yaml]
-autopep8
-netaddr
-pretty
-python-slugify
-six
-simplejson
-shade
-awscli
-boto
-boto3
-botocore
-ansible-inventory-grapher
-ansible-playbook-grapher
+ansible>=2.5,<2.10
 awacs
+awscli
 bcdoc
+boto3
+jinja2-cli[yaml]
 jsonschema
-pep8
+mitogen
+netaddr
+# openshift
+pretty
+pyaml
+python-slugify
+PyYAML
 requests
-yamlreader
+# shade
+simplejson
+six
 subprocess32
-openshift
+# yamllint
+# yamlreader
+# yolk3k
+pbr

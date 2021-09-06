@@ -1,3 +1,5 @@
+# USAGE: ansible-playbook --ask-become-pass --check -i "localhost," -c local vagrant_playbook.yml --extra-vars="bossjones__user=pi bossjones__group=pi boss__update__hosts__networking_interface=ens33"
+# USAGE: ansible-playbook -i "localhost," -c local vagrant_playbook.yml --extra-vars="bossjones__user=pi bossjones__group=pi boss__update__hosts__networking_interface=ens33"
 ---
 ##############################################################################
 # SERVERS: Install and configure rsyslogd
@@ -8,8 +10,8 @@
   become: yes
   become_method: sudo
   vars:
-    bossjones__user: vagrant
-    bossjones__group: vagrant
+    bossjones__user: {{bossjones__user}}
+    bossjones__group: {{bossjones__group}}
     timezone: 'America/New_York'
   environment:
     DEBIAN_FRONTEND: noninteractive
@@ -23,7 +25,7 @@
       # ansible group to use when finding ip addresses
       boss__update__hosts__ansible_group: "servers"
 
-      boss__update__hosts__networking_interface: "enp0s8" # enp0s8 (if vagrant)
+      boss__update__hosts__networking_interface: "{{boss__update__hosts__networking_interface}}" # enp0s8 (if vagrant)
 
       ### NEW vars
       # SOURCE: https://github.com/bertvv/ansible-role-hosts/blob/master/defaults/main.yml
@@ -102,8 +104,8 @@
 
     - role: boss-ansible-role-ntp
       task: install
-      bossjones__user: vagrant
-      bossjones__group: vagrant
+      bossjones__user: {{bossjones__user}}
+      bossjones__group: {{bossjones__group}}
       timezone: 'America/New_York'
       timezone_update_hardware_clock: False
       # defaults file for ansible-ntp
@@ -129,14 +131,14 @@
 
     - role: boss-ansible-role-tools
       task: tools
-      bossjones__user: vagrant
-      bossjones__group: vagrant
+      bossjones__user: {{bossjones__user}}
+      bossjones__group: {{bossjones__group}}
       tags:
         - boss-ansible-role-tools
 
     - role: boss-ansible-role-journald
-      bossjones__user: vagrant
-      bossjones__group: vagrant
+      bossjones__user: {{bossjones__user}}
+      bossjones__group: {{bossjones__group}}
       tags:
         - boss-ansible-role-journald
 
@@ -167,9 +169,9 @@
       # version: 1.1.3
       # graphite_install_version: "{{ version }}"
       # graphite_cache_graphite_url: 'http://127.0.0.1:8080'
-      # bossjones__user: vagrant
-      # bossjones__group: vagrant
-      boss__netdata__netdata_interface: 'enp0s8'
+      # bossjones__user: {{bossjones__user}}
+      # bossjones__group: {{bossjones__group}}
+      boss__netdata__netdata_interface: "{{boss__update__hosts__networking_interface}}"
 
       netdata_registry_enabled: True
       netdata_registry_to_announce: "http://{{ netdata_stream_master_node }}:{{ netdata_default_port }}"
@@ -247,7 +249,7 @@
     - role: boss-ansible-role-netdata
       boss__netdata__netdata_proxy_enabled: False
       boss__netdata__netdata_nginx_enabled: False
-      boss__netdata__netdata_interface: 'enp0s8'
+      boss__netdata__netdata_interface: "{{boss__update__hosts__networking_interface}}"
       netdata_registry_enabled: False
       netdata_registry_to_announce: "http://{{ netdata_stream_master_node }}:{{ netdata_default_port }}"
       pri_domain_name: scarlett-office.local
@@ -335,7 +337,7 @@
       boss__nfs__nfs_server_group: nfs_masters
       boss__nfs__nfs_client_group: nfs_clients
       task: master
-      boss__nfs__nfs_interface: 'enp0s8'
+      boss__nfs__nfs_interface: "{{boss__update__hosts__networking_interface}}"
       boss__nfs__master_node_ip: "{{ hostvars[groups[boss__nfs__nfs_server_group][0]]['ansible_' + boss__nfs__nfs_interface].ipv4.address }}"
       tags:
         - boss-ansible-role-nfs
@@ -361,7 +363,7 @@
       boss__nfs__nfs_server_group: nfs_masters
       boss__nfs__nfs_client_group: nfs_clients
       task: client
-      boss__nfs__nfs_interface: 'enp0s8'
+      boss__nfs__nfs_interface: "{{boss__update__hosts__networking_interface}}"
       boss__nfs__master_node_ip: "{{ hostvars[groups[boss__nfs__nfs_server_group][0]]['ansible_' + boss__nfs__nfs_interface].ipv4.address }}"
       # boss__nfs__nfs_interface: 'enp0s3'
       tags:
@@ -386,7 +388,7 @@
       boss__rsyslogd__rsyslog_install_bleeding_edge: True
       # boss__rsyslogd__rsyslog_force_remove_before_provision: True
       boss__rsyslogd__default_task: 'master'
-      boss__rsyslogd__rsyslog_interface: 'enp0s8'
+      boss__rsyslogd__rsyslog_interface: "{{boss__update__hosts__networking_interface}}"
       # NOTE: https://docs.debops.org/en/master/ansible/roles/debops.rsyslog/getting-started.html
       # Enable network input channels and storage of remote logs in filesystem
       boss__rsyslogd__rsyslog_capabilities: [ 'network', 'remote-files' ]
@@ -453,7 +455,7 @@
       boss__rsyslogd__rsyslog_install_bleeding_edge: True
       # boss__rsyslogd__rsyslog_force_remove_before_provision: True
       boss__rsyslogd__default_task: 'client'
-      boss__rsyslogd__rsyslog_interface: 'enp0s8'
+      boss__rsyslogd__rsyslog_interface: "{{boss__update__hosts__networking_interface}}"
       # boss__rsyslogd__rsyslog_capabilities: [ 'network', 'remote-files', 'debug' ]
       boss__rsyslogd__rsyslog_forward:
         - '*.*  action(type="omfwd" target="{{boss__rsyslogd__rsyslog_master_ip}}" port="{{boss__rsyslogd__rsyslog_tcp_port}}" protocol="tcp" action.resumeRetryCount="100" queue.type="linkedList" queue.size="10000")'

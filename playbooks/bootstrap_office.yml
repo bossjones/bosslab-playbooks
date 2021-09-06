@@ -1473,86 +1473,86 @@
       file:
         path: "/etc/profile.d"
         state: directory
-  tasks:
-    - name: check nvm versions installed for system
-      shell: $SHELL -lc "command -v nvm"
-      register: nvm_exists
-      changed_when: false
-      ignore_errors: yes
-      failed_when: false
-      check_mode: no
+  # tasks:
+  #   - name: check nvm versions installed for system
+  #     shell: $SHELL -lc "command -v nvm"
+  #     register: nvm_exists
+  #     changed_when: false
+  #     ignore_errors: yes
+  #     failed_when: false
+  #     check_mode: no
 
-    - name: If nvm does not exist, call the nvm installer script
-      shell: |
-            curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
-      register: nvm_installed
-      become: yes
-      become_user: "{{bossjones__user}}"
+  #   - name: If nvm does not exist, call the nvm installer script
+  #     shell: |
+  #           curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
+  #     register: nvm_installed
+  #     become: yes
+  #     become_user: "{{bossjones__user}}"
 
-    - name: check nvm versions installed for system
-      shell: $SHELL -lc "nvm install {{node_version}}"
-      register: nvm_install
-      changed_when: false
-      ignore_errors: yes
-      failed_when: false
-      check_mode: no
-      become: yes
-      become_user: "{{bossjones__user}}"
+  #   - name: check nvm versions installed for system
+  #     shell: $SHELL -lc "nvm install {{node_version}}"
+  #     register: nvm_install
+  #     changed_when: false
+  #     ignore_errors: yes
+  #     failed_when: false
+  #     check_mode: no
+  #     become: yes
+  #     become_user: "{{bossjones__user}}"
 
-    - name: check nvm versions installed for system
-      shell: $SHELL -lc "nvm use {{node_version}}; npm install npm@latest -g"
-      register: npm_upgrade
-      changed_when: false
-      ignore_errors: yes
-      failed_when: false
-      check_mode: no
-      become: yes
-      become_user: "{{bossjones__user}}"
+  #   - name: check nvm versions installed for system
+  #     shell: $SHELL -lc "nvm use {{node_version}}; npm install npm@latest -g"
+  #     register: npm_upgrade
+  #     changed_when: false
+  #     ignore_errors: yes
+  #     failed_when: false
+  #     check_mode: no
+  #     become: yes
+  #     become_user: "{{bossjones__user}}"
 
-    - name: check nvm versions installed for system
-      shell: $SHELL -lc "nvm use {{node_version}}; npm install {{item}}"
-      register: npm_install_global
-      changed_when: false
-      ignore_errors: yes
-      failed_when: false
-      check_mode: no
-      with_items:
-        - vtop
-        - whereami
-        - figlet-cli
-        - get-port-cli
-        - getmac
-        - speed-test
-        - spoof
-        - wireless-tools
-        - yaml-lint
-        - pathogen-pm
-        - gtop
-        - npm
-        - diff-so-fancy
-        - docker-enter
-        - jsonlint
-        - docker-enter
-        - vtop
-        - yaml-lint
-        - tldr
-        - speed-test
-        - jsonlint
-        - gtop
-        - docker-loghose
-        - device-discovery-cli
-      become: yes
-      become_user: "{{bossjones__user}}"
+  #   - name: check nvm versions installed for system
+  #     shell: $SHELL -lc "nvm use {{node_version}}; npm install {{item}}"
+  #     register: npm_install_global
+  #     changed_when: false
+  #     ignore_errors: yes
+  #     failed_when: false
+  #     check_mode: no
+  #     with_items:
+  #       - vtop
+  #       - whereami
+  #       - figlet-cli
+  #       - get-port-cli
+  #       - getmac
+  #       - speed-test
+  #       - spoof
+  #       - wireless-tools
+  #       - yaml-lint
+  #       - pathogen-pm
+  #       - gtop
+  #       - npm
+  #       - diff-so-fancy
+  #       - docker-enter
+  #       - jsonlint
+  #       - docker-enter
+  #       - vtop
+  #       - yaml-lint
+  #       - tldr
+  #       - speed-test
+  #       - jsonlint
+  #       - gtop
+  #       - docker-loghose
+  #       - device-discovery-cli
+  #     become: yes
+  #     become_user: "{{bossjones__user}}"
 
-    - name: check nvm versions installed for system
-      shell: $SHELL -lc "nvm alias default {{node_version}}"
-      register: nvm_install
-      changed_when: false
-      ignore_errors: yes
-      failed_when: false
-      check_mode: no
-      become: yes
-      become_user: "{{bossjones__user}}"
+  #   - name: check nvm versions installed for system
+  #     shell: $SHELL -lc "nvm alias default {{node_version}}"
+  #     register: nvm_install
+  #     changed_when: false
+  #     ignore_errors: yes
+  #     failed_when: false
+  #     check_mode: no
+  #     become: yes
+  #     become_user: "{{bossjones__user}}"
 
 ####################################################################################################
 # raspbian - COMPILE nvm SETUP
@@ -1578,99 +1578,99 @@
         path: "/etc/profile.d"
         state: directory
 
-    - name: "create /etc/profile.d/nvm.sh"
-      copy:
-        content: |
-          export NVM_DIR="$HOME/.nvm"
-          if [ -d "$HOME/.nvm" ]; then
-            \. $HOME/.nvm/nvm.sh
-          fi
-          if [ -s "$NVM_DIR/bash_completion" ]; then
-            \. $NVM_DIR/bash_completion
-          fi
-        dest: /etc/profile.d/nvm.sh
-        owner: root
-        group: root
-        mode: 0755
-      become: true
+    # - name: "create /etc/profile.d/nvm.sh"
+    #   copy:
+    #     content: |
+    #       export NVM_DIR="$HOME/.nvm"
+    #       if [ -d "$HOME/.nvm" ]; then
+    #         \. $HOME/.nvm/nvm.sh
+    #       fi
+    #       if [ -s "$NVM_DIR/bash_completion" ]; then
+    #         \. $NVM_DIR/bash_completion
+    #       fi
+    #     dest: /etc/profile.d/nvm.sh
+    #     owner: root
+    #     group: root
+    #     mode: 0755
+    #   become: true
 
-  tasks:
-    - name: check nvm versions installed for system
-      shell: $SHELL -lc "command -v nvm"
-      register: nvm_exists
-      changed_when: false
-      ignore_errors: yes
-      failed_when: false
-      check_mode: no
+  # tasks:
+  #   - name: check nvm versions installed for system
+  #     shell: $SHELL -lc "command -v nvm"
+  #     register: nvm_exists
+  #     changed_when: false
+  #     ignore_errors: yes
+  #     failed_when: false
+  #     check_mode: no
 
-    - name: If nvm does not exist, call the nvm installer script
-      shell: |
-            curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
-      register: nvm_installed
-      become: yes
-      become_user: "{{bossjones__user}}"
+  #   - name: If nvm does not exist, call the nvm installer script
+  #     shell: |
+  #           curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
+  #     register: nvm_installed
+  #     become: yes
+  #     become_user: "{{bossjones__user}}"
 
-    - name: check nvm versions installed for system
-      shell: $SHELL -lc "nvm install {{node_version}}"
-      register: nvm_install
-      changed_when: false
-      ignore_errors: yes
-      failed_when: false
-      check_mode: no
-      become: yes
-      become_user: "{{bossjones__user}}"
+  #   - name: check nvm versions installed for system
+  #     shell: $SHELL -lc "nvm install {{node_version}}"
+  #     register: nvm_install
+  #     changed_when: false
+  #     ignore_errors: yes
+  #     failed_when: false
+  #     check_mode: no
+  #     become: yes
+  #     become_user: "{{bossjones__user}}"
 
-    - name: check nvm versions installed for system
-      shell: $SHELL -lc "nvm use {{node_version}}; npm install npm@latest -g"
-      register: npm_upgrade
-      changed_when: false
-      ignore_errors: yes
-      failed_when: false
-      check_mode: no
-      become: yes
-      become_user: "{{bossjones__user}}"
+  #   - name: check nvm versions installed for system
+  #     shell: $SHELL -lc "nvm use {{node_version}}; npm install npm@latest -g"
+  #     register: npm_upgrade
+  #     changed_when: false
+  #     ignore_errors: yes
+  #     failed_when: false
+  #     check_mode: no
+  #     become: yes
+  #     become_user: "{{bossjones__user}}"
 
-    - name: check nvm versions installed for system
-      shell: $SHELL -lc "nvm use {{node_version}}; npm install {{item}}"
-      register: npm_install_global
-      changed_when: false
-      ignore_errors: yes
-      failed_when: false
-      check_mode: no
-      with_items:
-        - vtop
-        - whereami
-        - figlet-cli
-        - get-port-cli
-        - getmac
-        - speed-test
-        - spoof
-        - wireless-tools
-        - yaml-lint
-        - pathogen-pm
-        - gtop
-        - npm
-        - diff-so-fancy
-        - docker-enter
-        - jsonlint
-        - docker-enter
-        - vtop
-        - yaml-lint
-        - tldr
-        - speed-test
-        - jsonlint
-        - gtop
-        - docker-loghose
-        - device-discovery-cli
-      become: yes
-      become_user: "{{bossjones__user}}"
+  #   - name: check nvm versions installed for system
+  #     shell: $SHELL -lc "nvm use {{node_version}}; npm install {{item}}"
+  #     register: npm_install_global
+  #     changed_when: false
+  #     ignore_errors: yes
+  #     failed_when: false
+  #     check_mode: no
+  #     with_items:
+  #       - vtop
+  #       - whereami
+  #       - figlet-cli
+  #       - get-port-cli
+  #       - getmac
+  #       - speed-test
+  #       - spoof
+  #       - wireless-tools
+  #       - yaml-lint
+  #       - pathogen-pm
+  #       - gtop
+  #       - npm
+  #       - diff-so-fancy
+  #       - docker-enter
+  #       - jsonlint
+  #       - docker-enter
+  #       - vtop
+  #       - yaml-lint
+  #       - tldr
+  #       - speed-test
+  #       - jsonlint
+  #       - gtop
+  #       - docker-loghose
+  #       - device-discovery-cli
+  #     become: yes
+  #     become_user: "{{bossjones__user}}"
 
-    - name: check nvm versions installed for system
-      shell: $SHELL -lc "nvm alias default {{node_version}}"
-      register: nvm_install
-      changed_when: false
-      ignore_errors: yes
-      failed_when: false
-      check_mode: no
-      become: yes
-      become_user: "{{bossjones__user}}"
+  #   - name: check nvm versions installed for system
+  #     shell: $SHELL -lc "nvm alias default {{node_version}}"
+  #     register: nvm_install
+  #     changed_when: false
+  #     ignore_errors: yes
+  #     failed_when: false
+  #     check_mode: no
+  #     become: yes
+  #     become_user: "{{bossjones__user}}"

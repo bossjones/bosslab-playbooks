@@ -1,9 +1,19 @@
-docker-py
-molecule==2.18.1
-ansible>=2.5,<2.7
-pyaml
-PyYAML
-awscli
-pdbpp
-ptpython
+-c requirements.txt
 # ipython
+# molecule[ec2]
+autopep8
+awscli
+bumplus
+bumpversion
+docker-py
+isort
+# molecule
+pdbpp
+# pre-commit
+pyaml
+pylint
+pytest-testinfra
+PyYAML
+yamllint
+bpython
+pep8

@@ -1,6 +1,7 @@
+-c requirements.txt
 docker-py
-molecule==2.18.1
-ansible>=2.5,<2.7
-pyaml
-PyYAML
-awscli
+# molecule
+# ansible
+# pyaml
+# PyYAML
+# awscli
