@@ -229,7 +229,7 @@ run-ansible:
 	@ansible-playbook -i inventory.ini playbooks/vagrant_playbook.yml -v
 
 run-ansible-nfs:
-	@ansible-playbook -i inventory.ini playbooks/vagrant_nfs.yml -v
+	@ansible-playbook -i inventory-vmware-lab/vmware playbooks/vagrant_nfs.yml -v
 
 run-ansible-influxdb:
 	@ansible-playbook -i inventory.ini playbooks/vagrant_influxdb_opentsdb.yml -v
@@ -241,7 +241,7 @@ run-ansible-rsyslogd:
 	@ansible-playbook -i inventory.ini rsyslogd_playbook.yml -v
 
 run-ansible-etckeeper:
-	@ansible-playbook -i inventory.ini vagrant_playbook.yml -v -f 10 --tags etckeeper
+	@ansible-playbook -i inventory-vmware-lab/vmware vagrant_playbook.yml -v -f 10 --tags etckeeper
 
 run-ansible-rvm:
 	@ansible-playbook -i inventory.ini vagrant_playbook.yml -v -f 10 --tags 'ruby'

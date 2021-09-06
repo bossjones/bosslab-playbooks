@@ -50,15 +50,10 @@ master
 node
 
 [servers:children]
-masters
+k3s_cluster
 
 [all:children]
 k3s_cluster
-
-
-
-
-
 
 [proxy:children]
 lab2
