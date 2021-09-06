@@ -8,8 +8,8 @@
   become: yes
   become_method: sudo
   vars:
-    bossjones__user: vagrant
-    bossjones__group: vagrant
+    bossjones__user: pi
+    bossjones__group: pi
     timezone: 'America/New_York'
   environment:
     DEBIAN_FRONTEND: noninteractive

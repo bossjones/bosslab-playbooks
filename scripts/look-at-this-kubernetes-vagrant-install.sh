@@ -129,7 +129,7 @@ echo ""
 echo "Your dashboard url is:"
 
 DASHBOARDPORT=`kubectl get services --all-namespaces | grep kubernetes-dashboard | awk '{print $6}' | cut -f 2 -d ':' | cut -f 1 -d '/'`
-IPADDR=`ifconfig enp0s8 | grep mask | awk '{print $2}'`
+IPADDR=`ifconfig ens33 | grep mask | awk '{print $2}'`
 
 echo ""
 echo " https://$IPADDR:$DASHBOARDPORT"
