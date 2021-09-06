@@ -407,9 +407,9 @@ get-local-facts:
 PACKAGE_NAME="bosslab-playbooks"
 
 # Python version Used for Development
-PY_VER_MAJOR="2"
-PY_VER_MINOR="7"
-PY_VER_MICRO="14"
+PY_VER_MAJOR="3"
+PY_VER_MINOR="9"
+PY_VER_MICRO="0"
 
 #  Other Python Version You Want to Test With
 # (Only useful when you use tox locally)

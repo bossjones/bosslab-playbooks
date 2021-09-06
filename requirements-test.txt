@@ -4,11 +4,11 @@
 #
 #    pip-compile --output-file=requirements-test.txt requirements-test.in
 #
-certifi==2018.11.29
+certifi==2021.5.30
     # via
     #   -c requirements.txt
     #   requests
-chardet==3.0.4
+charset-normalizer==2.0.4
     # via
     #   -c requirements.txt
     #   requests
@@ -16,23 +16,22 @@ docker-py==1.10.6
     # via -r requirements-test.in
 docker-pycreds==0.4.0
     # via docker-py
-idna==2.8
+idna==3.2
     # via
     #   -c requirements.txt
     #   requests
-requests==2.21.0
+requests==2.26.0
     # via
     #   -c requirements.txt
     #   docker-py
-six==1.12.0
+six==1.16.0
     # via
     #   -c requirements.txt
     #   docker-py
     #   docker-pycreds
-    #   websocket-client
-urllib3==1.24.1
+urllib3==1.26.6
     # via
     #   -c requirements.txt
     #   requests
-websocket-client==0.54.0
+websocket-client==1.2.1
     # via docker-py

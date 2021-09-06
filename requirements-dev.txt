@@ -6,19 +6,19 @@
 #
 astroid==2.7.3
     # via pylint
-atomicwrites==1.2.1
-    # via pytest
-attrs==18.2.0
-    # via pytest
+attrs==21.2.0
+    # via
+    #   -c requirements.txt
+    #   pytest
 autopep8==1.5.7
     # via -r requirements-dev.in
-awscli==1.16.96
+awscli==1.20.36
     # via
     #   -c requirements.txt
     #   -r requirements-dev.in
 blessings==1.7
     # via curtsies
-botocore==1.12.86
+botocore==1.21.36
     # via
     #   -c requirements.txt
     #   awscli
@@ -31,15 +31,15 @@ bumplus==0.3.2
     # via -r requirements-dev.in
 bumpversion==0.6.0
     # via -r requirements-dev.in
-certifi==2018.11.29
+certifi==2021.5.30
     # via
     #   -c requirements.txt
     #   requests
-chardet==3.0.4
+charset-normalizer==2.0.4
     # via
     #   -c requirements.txt
     #   requests
-colorama==0.3.9
+colorama==0.4.3
     # via
     #   -c requirements.txt
     #   awscli
@@ -53,74 +53,79 @@ docker-py==1.10.6
     # via -r requirements-dev.in
 docker-pycreds==0.4.0
     # via docker-py
-docutils==0.14
+docutils==0.15.2
     # via
     #   -c requirements.txt
     #   awscli
-    #   botocore
-fancycompleter==0.8
+fancycompleter==0.9.1
     # via pdbpp
 greenlet==1.1.1
     # via bpython
-idna==2.8
+idna==3.2
     # via
     #   -c requirements.txt
     #   requests
+iniconfig==1.1.1
+    # via pytest
 isort==5.9.3
     # via
     #   -r requirements-dev.in
     #   pylint
-jinja2==2.10
+jinja2==3.0.1
     # via
     #   -c requirements.txt
     #   bumplus
-jmespath==0.9.3
+jmespath==0.10.0
     # via
     #   -c requirements.txt
     #   botocore
 lazy-object-proxy==1.6.0
     # via astroid
-markupsafe==1.1.0
+markupsafe==2.0.1
     # via
     #   -c requirements.txt
     #   jinja2
 mccabe==0.6.1
     # via pylint
-more-itertools==5.0.0
+packaging==21.0
     # via pytest
-pathspec==0.5.9
+pathspec==0.9.0
     # via yamllint
-pdbpp==0.9.3
+pdbpp==0.10.3
     # via -r requirements-dev.in
 pep8==1.7.1
     # via -r requirements-dev.in
 platformdirs==2.3.0
     # via pylint
-pluggy==0.8.1
+pluggy==1.0.0
     # via pytest
 py==1.10.0
     # via pytest
-pyaml==18.11.0
+pyaml==21.8.3
     # via
     #   -c requirements.txt
     #   -r requirements-dev.in
-pyasn1==0.4.5
+pyasn1==0.4.8
     # via
     #   -c requirements.txt
     #   rsa
 pycodestyle==2.7.0
     # via autopep8
-pygments==2.3.1
+pygments==2.10.0
     # via
     #   bpython
     #   pdbpp
 pylint==2.10.2
     # via -r requirements-dev.in
-pytest==4.1.1
+pyparsing==2.4.7
+    # via packaging
+pyrepl==0.9.0
+    # via fancycompleter
+pytest==6.2.5
     # via pytest-testinfra
 pytest-testinfra==6.4.0
     # via -r requirements-dev.in
-python-dateutil==2.7.5
+python-dateutil==2.8.2
     # via
     #   -c requirements.txt
     #   botocore
@@ -128,52 +133,50 @@ pytoml==0.1.21
     # via bumplus
 pyxdg==0.27
     # via bpython
-pyyaml==3.13
+pyyaml==5.4.1
     # via
     #   -c requirements.txt
     #   -r requirements-dev.in
     #   awscli
     #   pyaml
     #   yamllint
-requests==2.21.0
+requests==2.26.0
     # via
     #   -c requirements.txt
     #   bpython
     #   docker-py
-rsa==3.4.2
+rsa==4.7.2
     # via
     #   -c requirements.txt
     #   awscli
-s3transfer==0.1.13
+s3transfer==0.5.0
     # via
     #   -c requirements.txt
     #   awscli
-six==1.12.0
+six==1.16.0
     # via
     #   -c requirements.txt
     #   blessings
     #   docker-py
     #   docker-pycreds
-    #   more-itertools
-    #   pytest
     #   python-dateutil
-    #   websocket-client
 toml==0.10.2
     # via
     #   autopep8
     #   pylint
-urllib3==1.24.1
+    #   pytest
+urllib3==1.26.6
     # via
     #   -c requirements.txt
     #   botocore
     #   requests
-websocket-client==0.54.0
+websocket-client==1.2.1
     # via docker-py
-wmctrl==0.3
+wmctrl==0.4
     # via pdbpp
 wrapt==1.12.1
     # via astroid
-yamllint==1.11.1
+yamllint==1.26.3
     # via -r requirements-dev.in
 
 # The following packages are considered to be unsafe in a requirements file:
