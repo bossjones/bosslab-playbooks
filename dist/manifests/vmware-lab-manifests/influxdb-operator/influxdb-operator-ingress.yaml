@@ -1,0 +1,25 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: influxdata-operator
+  namespace: monitoring
+  labels:
+    k8s-app: influxdata-operator
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: influxdb
+    app: influxdata-operator
+    
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+    traefik.frontend.rule.type: PathPrefix
+    
+spec:
+  rules:
+  - host: influxdb.vmlab.scarlettlab.home
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: influxdata-operator
+          servicePort: 60000

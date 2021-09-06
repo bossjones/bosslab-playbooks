@@ -1,0 +1,62 @@
+---
+# boss__registry__enable_tls
+# SOURCE: https://cert-manager.readthedocs.io/en/latest/tutorials/ca/creating-ca-issuer.html
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: docker-registry-crt
+  namespace: kube-system
+spec:
+  secretName: docker-registry-tls
+  issuerRef:
+    name: selfsigning-issuer
+    # We can reference ClusterIssuers by changing the kind here.
+    # The default value is Issuer (i.e. a locally namespaced Issuer)
+    kind: ClusterIssuer
+  commonName: registry.vmlab.scarlettlab.home
+  organization:
+  - Hyena Labs
+  dnsNames:
+  - registry.vmlab.scarlettlab.home
+  - www.registry.vmlab.scarlettlab.home
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: docker-registry
+  namespace: kube-system
+type: Opaque
+data:
+  HTPASSWD: YWRtaW46JDJ5JDA1JFVXTHVxc241cEpHeGVXL01xL2FrVmVRSUpZTUFiS1BMaFFyT0x1QnV5dW5YMTIyblRQVC9l
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: docker-registry
+  namespace: kube-system
+data:
+  registry-config.yml: |
+    version: 0.1
+    log:
+      fields:
+        service: registry
+    storage:
+      cache:
+        blobdescriptor: inmemory
+      filesystem:
+        rootdirectory: /var/lib/registry
+    http:
+      addr: :5000
+      headers:
+        X-Content-Type-Options: [nosniff]
+    auth:
+      htpasswd:
+        realm: basic-realm
+        path: /auth/htpasswd
+    health:
+      storagedriver:
+        enabled: true
+        interval: 10s
+        threshold: 3

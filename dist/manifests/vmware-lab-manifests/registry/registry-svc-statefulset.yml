@@ -1,0 +1,150 @@
+# RBAC authn and authz
+# SOURCE: https://www.nearform.com/blog/how-to-run-a-public-docker-registry-in-kubernetes/
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: registry-svc-account
+  namespace: kube-system
+  labels:
+    k8s-app: registry
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: registry
+    version: "2.6"
+    
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: registry-cr
+  labels:
+    k8s-app: registry
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: registry
+    version: "2.6"
+    
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - "services"
+  - "namespaces"
+  - "endpoints"
+  verbs:
+  - "get"
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  namespace: kube-system
+  name: registry-crb
+  labels:
+    k8s-app: registry
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: registry
+    version: "2.6"
+    
+subjects:
+- kind: ServiceAccount
+  name: registry-svc-account
+  namespace: kube-system
+  apiGroup: ""
+roleRef:
+  kind: ClusterRole
+  name: registry-cr
+  apiGroup: ""
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: registry-statefulset
+  namespace: kube-system
+  labels:
+    k8s-app: registry
+    version: "2.6"
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: registry
+    
+spec:
+  serviceName: registry-svc-account
+  replicas: 1
+  selector:
+    matchLabels:
+        k8s-app: registry
+        version: "2.6"
+        
+  template:
+    metadata:
+      labels:
+        k8s-app: registry
+        version: "2.6"
+        kubernetes.io/cluster-service: "true"
+        
+    spec:
+      volumes:
+        - name: registry-vol
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: docker-registry
+            items:
+              - key: registry-config.yml
+                path: config.yml
+        - name: htpasswd
+          secret:
+            secretName: docker-registry
+            items:
+            - key: HTPASSWD
+              path: htpasswd
+      serviceAccountName: registry-svc-account
+      containers:
+      - image: registry:2.6
+        securityContext:
+          # runAsNonRoot: true
+          # runAsUser: 65534
+          privileged: true
+        name: registry
+        resources:
+          # need more cpu upon initialization, therefore burstable class
+          limits:
+            cpu: 1000m
+            memory: 500Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        ports:
+        - containerPort: 5000
+          name: registry
+          protocol: TCP
+        volumeMounts:
+        - name: registry-vol
+          mountPath: /var/lib/registry
+        - name: config
+          mountPath: /etc/docker/registry
+          readOnly: true
+        - name: htpasswd
+          mountPath: /auth
+          readOnly: true
+
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: "NAMESPACE"
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: REGISTRY_HTTP_ADDR
+            value: :5000
+          - name: REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY
+            value: /var/lib/registry
+
+      initContainers:
+      - image: alpine:3.6
+        command: ["/sbin/sysctl", "-w", "vm.max_map_count=262144"]
+        name: registry-logging-init
+        securityContext:
+          privileged: true
+

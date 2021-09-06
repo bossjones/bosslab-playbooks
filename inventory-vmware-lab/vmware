@@ -36,11 +36,14 @@ lab1
 [masters:children]
 lab1
 
+[workers:children]
+lab2
+lab3
+
 [node:children]
 lab2
 lab3
-; k3lab-node-03
-; k3lab-node-04
+
 
 [k3s_cluster:children]
 master
@@ -50,27 +53,43 @@ node
 masters
 
 [all:children]
+k3s_cluster
+
+
+
+
+
+
+[proxy:children]
+lab2
+
+[servers:children]
+masters
+workers
+proxy
+
+[all:children]
 servers
 
 [rsyslogd_masters:children]
-lab1
+lab3
 
 [rsyslogd_clients:children]
 lab1
-
+lab2
 
 [nfs_masters:children]
-lab1
+lab3
 
 [nfs_clients:children]
 lab1
-
+lab2
 
 [influxdb:children]
-lab1
+lab2
 
 [graphite-master1:children]
-lab1
+lab2
 
 # groups of groups = children
 [graphite-master-servers:children]
@@ -80,4 +99,57 @@ graphite-master1
 masters
 
 [netdata_nodes:children]
-lab1
+lab2
+lab3
+
+[graphite_master:children]
+graphite-master1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# [rsyslogd_masters:children]
+# lab1
+#
+# [rsyslogd_clients:children]
+# lab1
+#
+#
+# [nfs_masters:children]
+# lab1
+#
+# [nfs_clients:children]
+# lab1
+#
+#
+# [influxdb:children]
+# lab1
+#
+# [graphite-master1:children]
+# lab1
+#
+# # groups of groups = children
+# [graphite-master-servers:children]
+# graphite-master1
+#
+# [netdata_registry:children]
+# masters
+#
+# [netdata_nodes:children]
+# lab1
+#

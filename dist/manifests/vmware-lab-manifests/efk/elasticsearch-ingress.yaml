@@ -1,0 +1,26 @@
+#
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: elasticsearch-ingress
+  namespace: kube-system
+  labels:
+    k8s-app: elasticsearch-logging
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    boss-part-of: efk
+    
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+    traefik.frontend.rule.type: PathPrefix
+    
+spec:
+  rules:
+  - host: elasticsearch.vmlab.scarlettlab.home
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: elasticsearch-logging
+          servicePort: 9200
+      
