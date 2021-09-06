@@ -1782,7 +1782,7 @@ boss__prometheus__operator__prometheus_additional_scrape_configs: |
     honor_labels: true
 
     static_configs:
-      - targets: ['192.168.1.172:19999','192.168.1.173:19999','192.168.1.62:19999', '192.168.1.218:19999']
+      - targets: ['192.168.1.62:19999','192.168.1.63:19999', '192.168.1.64:19999']
 
   # - job_name: 'elasticsearch_exporter'
   #   scrape_interval: 30s
