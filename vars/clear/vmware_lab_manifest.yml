@@ -16,6 +16,7 @@ k8_admin_config_dir: ~/dev/bossjones/bosslab-playbooks
 k8_admin_config_path: "{{k8_admin_config_dir}}/vmware-lab-admin.conf"
 queen_host: "lab1"
 memory_host: "lab2"
+boss__rsyslogd__rsyslog_force_remove_before_provision: True
 
 #      .########..######..##.....##..#######...######..########.########..##.....##.########.########.
 #      .##.......##....##.##.....##.##.....##.##....##.##.......##.....##.##.....##.##.......##.....##

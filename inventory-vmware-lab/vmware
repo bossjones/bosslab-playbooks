@@ -22,13 +22,6 @@ localhost ansible_connection=local
 [lab3]
 192.168.1.64
 
-; [k3lab-node-03]
-; k3lab-node-03.dev.home
-
-; [k3lab-node-04]
-; k3lab-node-04.dev.home
-
-
 # CHILDREN
 [master:children]
 lab1
@@ -43,7 +36,6 @@ lab3
 [node:children]
 lab2
 lab3
-
 
 [k3s_cluster:children]
 master
@@ -83,12 +75,12 @@ lab2
 [influxdb:children]
 lab2
 
-[graphite-master1:children]
+[graphite_master1:children]
 lab2
 
 # groups of groups = children
-[graphite-master-servers:children]
-graphite-master1
+[graphite_master_servers:children]
+graphite_master1
 
 [netdata_registry:children]
 masters
@@ -98,7 +90,7 @@ lab2
 lab3
 
 [graphite_master:children]
-graphite-master1
+graphite_master1
 
 
 
@@ -135,12 +127,12 @@ graphite-master1
 # [influxdb:children]
 # lab1
 #
-# [graphite-master1:children]
+# [graphite_master1:children]
 # lab1
 #
 # # groups of groups = children
-# [graphite-master-servers:children]
-# graphite-master1
+# [graphite_master_servers:children]
+# graphite_master1
 #
 # [netdata_registry:children]
 # masters
