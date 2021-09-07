@@ -403,6 +403,12 @@
       boss__rsyslogd__rsyslog_capabilities: [ 'network', 'remote-files' ]
       # boss__rsyslogd__rsyslog_capabilities: [ 'network', 'remote-files', 'debug' ]
 
+      boss__rsyslogd__rsyslog_tls_packages: [ 'rsyslog-gnutls', 'ca-certificates' ]
+
+      boss__rsyslogd__rsyslog_default_packages: ['librelp-dev', 'librelp0', 'rsyslog-relp']
+
+      boss__rsyslogd__rsyslog_bleeding_edge_packages: ['liblognorm5', 'librelp0', 'rsyslog', 'libfastjson4']
+
       # Specify which subnets can send remote logs through the firewall
       # FIXME: https://blog.webernetz.net/2001db8-32-in-the-wild/
       # boss__rsyslogd__host_allow: [ '192.0.2.0/24', '2001:db8::/32' ]
@@ -460,6 +466,12 @@
 
   roles:
     - role: boss-ansible-role-rsyslogd
+
+      boss__rsyslogd__rsyslog_tls_packages: [ 'rsyslog-gnutls', 'ca-certificates' ]
+
+      boss__rsyslogd__rsyslog_default_packages: ['librelp-dev', 'librelp0', 'rsyslog-relp']
+
+      boss__rsyslogd__rsyslog_bleeding_edge_packages: ['liblognorm5', 'librelp0', 'rsyslog', 'libfastjson4']
       boss__rsyslogd__rsyslog_enable_debug: False
       boss__rsyslogd__master_group_label: 'rsyslogd_masters'
       boss__rsyslogd__rsyslog_install_bleeding_edge: True

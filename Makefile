@@ -227,6 +227,7 @@ destroy:
 
 run-base: download-roles
 	@ansible-playbook -i inventory-vmware-lab/vmware base_tasks.yml --extra-vars="bossjones__user=pi bossjones__group=pi boss__update__hosts__networking_interface=ens33" -vvvvv
+#	@ansible-playbook -i inventory-vmware-lab/vmware base_tasks.yml --extra-vars="bossjones__user=pi bossjones__group=pi boss__update__hosts__networking_interface=ens33" -vvvvv --tags boss-ansible-role-ntp
 
 run-ansible:
 	@ansible-playbook -i inventory.ini playbooks/vagrant_playbook.yml -v
