@@ -1,8 +1,8 @@
-192.168.1.62 ansible_ssh_host=192.168.1.62 ansible_ssh_private_key_file=~/.ssh/id_rsa ip=192.168.1.62 ansible_ssh_port=22 ansible_ssh_user='pi' ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s -o ControlPath=~/.ansible/cp/ansible-ssh-%h-%p-%r' boss__kubernetes__kubeadm__server_type=master is_master=true
+192.168.1.67 ansible_ssh_host=192.168.1.67 ansible_ssh_private_key_file=~/.ssh/id_rsa ip=192.168.1.67 ansible_ssh_port=22 ansible_ssh_user='pi' ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s -o ControlPath=~/.ansible/cp/ansible-ssh-%h-%p-%r' boss__kubernetes__kubeadm__server_type=master is_master=true
 
-192.168.1.63 ansible_ssh_host=192.168.1.63 ansible_ssh_private_key_file=~/.ssh/id_rsa ip=192.168.1.63 ansible_ssh_port=22 ansible_ssh_user='pi' ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s -o ControlPath=~/.ansible/cp/ansible-ssh-%h-%p-%r' boss__kubernetes__kubeadm__server_type=master is_master=true
+192.168.1.68 ansible_ssh_host=192.168.1.68 ansible_ssh_private_key_file=~/.ssh/id_rsa ip=192.168.1.68 ansible_ssh_port=22 ansible_ssh_user='pi' ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s -o ControlPath=~/.ansible/cp/ansible-ssh-%h-%p-%r' boss__kubernetes__kubeadm__server_type=master is_master=true
 
-192.168.1.64 ansible_ssh_host=192.168.1.64 ansible_ssh_private_key_file=~/.ssh/id_rsa ip=192.168.1.64 ansible_ssh_port=22 ansible_ssh_user='pi' ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s -o ControlPath=~/.ansible/cp/ansible-ssh-%h-%p-%r' boss__kubernetes__kubeadm__server_type=master is_master=true
+192.168.1.69 ansible_ssh_host=192.168.1.69 ansible_ssh_private_key_file=~/.ssh/id_rsa ip=192.168.1.69 ansible_ssh_port=22 ansible_ssh_user='pi' ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s -o ControlPath=~/.ansible/cp/ansible-ssh-%h-%p-%r' boss__kubernetes__kubeadm__server_type=master is_master=true
 
 ; k3lab-node-03.dev.home ansible_ssh_host=k3lab-node-03 ansible_ssh_private_key_file=~/.ssh/id_rsa ip=192.168.1.16 ansible_ssh_port=22 ansible_ssh_user='pi' ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s -o ControlPath=~/.ansible/cp/ansible-ssh-%h-%p-%r' boss__kubernetes__kubeadm__server_type=master is_master=true
 
@@ -14,13 +14,13 @@ localhost ansible_connection=local
 localhost ansible_connection=local
 
 [lab1]
-192.168.1.62
+192.168.1.67
 
 [lab2]
-192.168.1.63
+192.168.1.68
 
 [lab3]
-192.168.1.64
+192.168.1.69
 
 # CHILDREN
 [master:children]

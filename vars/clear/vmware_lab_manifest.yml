@@ -11,7 +11,7 @@ path_to_network_disk: "/mnt/publicdata"
 main_network_interface: 'ens33'
 nfs_server_group: nfs_masters
 nfs_client_group: nfs_clients
-nfs_server_ip_override: 192.168.1.62
+nfs_server_ip_override: 192.168.1.67
 k8_admin_config_dir: ~/dev/bossjones/bosslab-playbooks
 k8_admin_config_path: "{{k8_admin_config_dir}}/vmware-lab-admin.conf"
 queen_host: "lab1"
@@ -1802,7 +1802,7 @@ boss__prometheus__operator__prometheus_additional_scrape_configs: |
     honor_labels: true
 
     static_configs:
-      - targets: ['192.168.1.62:19999','192.168.1.63:19999', '192.168.1.64:19999']
+      - targets: ['192.168.1.67:19999','192.168.1.68:19999', '192.168.1.69:19999']
 
   # - job_name: 'elasticsearch_exporter'
   #   scrape_interval: 30s

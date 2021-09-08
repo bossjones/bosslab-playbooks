@@ -222,7 +222,7 @@ metadata:
     k8s-app: jenkins
     boss-part-of: jenkins
     version: "lts"
-    
+
 spec:
   capacity:
     storage: 2Gi
@@ -231,7 +231,7 @@ spec:
   persistentVolumeReclaimPolicy: Delete
   volumeMode: Filesystem
   nfs:
-    server: 192.168.1.62
+    server: 192.168.1.67
     path: "/mnt/publicdata/jenkins"
 
 ---

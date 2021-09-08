@@ -9,7 +9,7 @@ metadata:
     addonmanager.kubernetes.io/mode: Reconcile
     k8s-app: elasticsearch-logging
     boss-part-of: efk
-    
+
 spec:
 # SOURCE: https://akomljen.com/kubernetes-persistent-volumes-with-deployment-and-statefulset/
 # ReadWriteOnce - Mount a volume as read-write by a single node
@@ -34,7 +34,7 @@ metadata:
     addonmanager.kubernetes.io/mode: Reconcile
     k8s-app: elasticsearch-logging
     boss-part-of: efk
-    
+
 spec:
   capacity:
     storage: 5Gi
@@ -46,5 +46,5 @@ spec:
   accessModes:
     - ReadWriteMany
   nfs:
-    server: 192.168.1.62
+    server: 192.168.1.67
     path: "/mnt/publicdata/elasticsearch"
