@@ -17,7 +17,7 @@ metadata:
     name: influxdata-operator
     boss-part-of: influxdb
     app: influxdata-operator
-
+    
 spec:
   accessModes:
     - ReadWriteOnce
@@ -40,7 +40,7 @@ metadata:
     name: influxdata-operator
     boss-part-of: influxdb
     app: influxdata-operator
-
+    
 spec:
   capacity:
     storage: 1Gi

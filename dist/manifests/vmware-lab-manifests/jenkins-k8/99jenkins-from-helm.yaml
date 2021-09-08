@@ -222,7 +222,7 @@ metadata:
     k8s-app: jenkins
     boss-part-of: jenkins
     version: "lts"
-
+    
 spec:
   capacity:
     storage: 2Gi

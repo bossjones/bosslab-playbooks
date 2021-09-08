@@ -135,12 +135,12 @@
       tags:
         - boss-ansible-role-debug
 
-    - role: boss-ansible-role-tools
-      task: tools
-      bossjones__user: "pi"
-      bossjones__group: "pi"
-      tags:
-        - boss-ansible-role-tools
+    # - role: boss-ansible-role-tools
+    #   task: tools
+    #   bossjones__user: "pi"
+    #   bossjones__group: "pi"
+    #   tags:
+    #     - boss-ansible-role-tools
 
     - role: boss-ansible-role-journald
       bossjones__user: "pi"
