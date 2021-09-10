@@ -26,7 +26,8 @@
       boss__nfs__nfs_client_group: nfs_clients
       task: master
       boss__nfs__nfs_interface: 'ens33'
-      boss__nfs__master_node_ip: "{{ hostvars[groups[boss__nfs__nfs_server_group][0]]['ansible_' + boss__nfs__nfs_interface].ipv4.address }}"
+      # boss__nfs__master_node_ip: "{{ hostvars[groups[boss__nfs__nfs_server_group][0]]['ansible_' + boss__nfs__nfs_interface].ipv4.address }}"
+      boss__nfs__master_node_ip: "192.168.1.67"
       tags:
         - boss-ansible-role-nfs
 
@@ -55,7 +56,8 @@
       boss__nfs__nfs_client_group: nfs_clients
       task: client
       boss__nfs__nfs_interface: 'ens33'
-      boss__nfs__master_node_ip: "{{ hostvars[groups[boss__nfs__nfs_server_group][0]]['ansible_' + boss__nfs__nfs_interface].ipv4.address }}"
+      # boss__nfs__master_node_ip: "{{ hostvars[groups[boss__nfs__nfs_server_group][0]]['ansible_' + boss__nfs__nfs_interface].ipv4.address }}"
+      boss__nfs__master_node_ip: "192.168.1.67"
       # boss__nfs__nfs_interface: 'enp0s3'
       tags:
         - boss-ansible-role-nfs
