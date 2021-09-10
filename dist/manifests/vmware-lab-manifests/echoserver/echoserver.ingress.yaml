@@ -35,5 +35,7 @@ spec:
       # - path: /echoserver
       - path: /
         backend:
-          serviceName: echoserver-svc
-          servicePort: 80
+          service:
+            name: echoserver-svc
+            port:
+              number: 80
