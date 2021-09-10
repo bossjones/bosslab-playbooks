@@ -34,6 +34,7 @@ spec:
       paths:
       # - path: /echoserver
       - path: /
+        pathType: Prefix
         backend:
           service:
             name: echoserver-svc
