@@ -1,5 +1,5 @@
 cryptography
-ansible>=2.8,<2.10
+ansible>=2.8,<4.3
 awacs
 awscli
 bcdoc

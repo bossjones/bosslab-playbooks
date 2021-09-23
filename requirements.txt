@@ -4,8 +4,10 @@
 #
 #    pip-compile --output-file=requirements.txt requirements.in
 #
-ansible==2.9.25
+ansible==4.2.0
     # via -r requirements.in
+ansible-core==2.11.5
+    # via ansible
 attrs==21.2.0
     # via jsonschema
 awacs==2.0.1
@@ -32,7 +34,7 @@ colorama==0.4.3
 cryptography==3.4.8
     # via
     #   -r requirements.in
-    #   ansible
+    #   ansible-core
 docutils==0.15.2
     # via
     #   awscli
@@ -41,7 +43,7 @@ idna==3.2
     # via requests
 jinja2==3.0.1
     # via
-    #   ansible
+    #   ansible-core
     #   jinja2-cli
 jinja2-cli[yaml]==0.7.0
     # via -r requirements.in
@@ -57,6 +59,8 @@ mitogen==0.2.9
     # via -r requirements.in
 netaddr==0.8.0
     # via -r requirements.in
+packaging==21.0
+    # via ansible-core
 pbr==5.6.0
     # via -r requirements.in
 pretty==0.1
@@ -67,6 +71,8 @@ pyasn1==0.4.8
     # via rsa
 pycparser==2.20
     # via cffi
+pyparsing==2.4.7
+    # via packaging
 pyrsistent==0.18.0
     # via jsonschema
 python-dateutil==2.8.2
@@ -76,12 +82,14 @@ python-slugify==5.0.2
 pyyaml==5.4.1
     # via
     #   -r requirements.in
-    #   ansible
+    #   ansible-core
     #   awscli
     #   jinja2-cli
     #   pyaml
 requests==2.26.0
     # via -r requirements.in
+resolvelib==0.5.4
+    # via ansible-core
 rsa==4.7.2
     # via awscli
 s3transfer==0.5.0
