@@ -271,7 +271,7 @@ GEM
       nokogiri (~> 1)
       rake
     mini_mime (1.0.1)
-    mini_portile2 (2.5.1)
+    mini_portile2 (2.8.0)
     minitest (5.11.3)
     mixlib-cli (1.7.0)
     mixlib-config (2.2.4)
@@ -284,8 +284,8 @@ GEM
     multipart-post (2.1.0)
     netrc (0.11.0)
     nio4r (2.3.1)
-    nokogiri (1.11.5)
-      mini_portile2 (~> 2.5.0)
+    nokogiri (1.13.3)
+      mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
     ohai (6.20.0)
       ipaddress
@@ -306,7 +306,7 @@ GEM
     puma (5.4.0)
       nio4r (~> 2.0)
     quantile (0.2.1)
-    racc (1.5.2)
+    racc (1.6.0)
     rack (2.2.2)
     rack-proxy (0.6.5)
       rack
