@@ -1,6 +1,6 @@
 -c requirements.txt
-docker-py
-# molecule
+# docker-py
+molecule[docker]
 # ansible
 # pyaml
 # PyYAML

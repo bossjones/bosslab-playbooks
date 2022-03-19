@@ -31,6 +31,7 @@ URL_PATH_DASHBOARD         := "http://localhost:8001/api/v1/namespaces/kube-syst
 
 # SOURCE: https://github.com/wk8838299/bullcoin/blob/8182e2f19c1f93c9578a2b66de6a9cce0506d1a7/LMN/src/makefile.osx
 HAVE_BREW=$(shell brew --prefix >/dev/null 2>&1; echo $$? )
+MACHINE_ARCH=$(shell uname -p)
 
 .PHONY: list help default all check fail-when-git-dirty
 
@@ -125,7 +126,7 @@ list-ansible-modules: get-ansible-modules
 # OS X's older openssl version will fail against certain python modules, namely "cryptography"
 # Taken from this git issue pyca/cryptography#2692
 install-virtualenv-osx:
-	ARCHFLAGS="-arch x86_64" LDFLAGS="-L/usr/local/opt/openssl/lib" CFLAGS="-I/usr/local/opt/openssl/include" pip install -r requirements.txt
+	ARCHFLAGS="-arch $(MACHINE_ARCH)" LDFLAGS="-L/usr/local/opt/openssl/lib" CFLAGS="-I/usr/local/opt/openssl/include" pip install -r requirements.txt
 
 docker-run:
 	@virtualization/docker/docker-run.sh
@@ -162,7 +163,7 @@ travis:
 .PHONY: pip-tools
 pip-tools:
 ifeq (${DETECTED_OS}, Darwin)
-	ARCHFLAGS="-arch x86_64" LDFLAGS="-L/usr/local/opt/openssl/lib" CFLAGS="-I/usr/local/opt/openssl/include" pip install pip-tools pipdeptree
+	ARCHFLAGS="-arch $(MACHINE_ARCH)" LDFLAGS="-L/usr/local/opt/openssl/lib" CFLAGS="-I/usr/local/opt/openssl/include" pip install pip-tools pipdeptree
 else
 	pip install pip-tools pipdeptree
 endif
@@ -174,7 +175,7 @@ pip-tools-osx: pip-tools
 .PHONY: pip-tools-upgrade
 pip-tools-upgrade:
 ifeq (${DETECTED_OS}, Darwin)
-	ARCHFLAGS="-arch x86_64" LDFLAGS="-L/usr/local/opt/openssl/lib" CFLAGS="-I/usr/local/opt/openssl/include" pip install pip-tools pipdeptree --upgrade
+	ARCHFLAGS="-arch $(MACHINE_ARCH)" LDFLAGS="-L/usr/local/opt/openssl/lib" CFLAGS="-I/usr/local/opt/openssl/include" pip install pip-tools pipdeptree --upgrade
 else
 	pip install pip-tools pipdeptree --upgrade
 endif
@@ -383,6 +384,9 @@ open: open-netdata-registry open-netdata-node
 
 open-vagrant: open-netdata-vagrant
 
+install-editable:
+	pip install -e .
+
 open-all-in-browser:
 	$(call check_defined, cluster, Please set cluster)
 	./scripts/open-all-in-browser.sh $(cluster)
@@ -409,7 +413,7 @@ PACKAGE_NAME="bosslab-playbooks"
 # Python version Used for Development
 PY_VER_MAJOR="3"
 PY_VER_MINOR="9"
-PY_VER_MICRO="0"
+PY_VER_MICRO="10"
 
 #  Other Python Version You Want to Test With
 # (Only useful when you use tox locally)
@@ -458,7 +462,7 @@ endif
 ifeq (${DETECTED_OS}, Darwin)
 
 ifeq ($(USE_PYENV), "Y")
-    ARCHFLAGS="-arch x86_64"
+    ARCHFLAGS="-arch $(MACHINE_ARCH)"
     LDFLAGS="-L/usr/local/opt/openssl/lib"
     CFLAGS="-I/usr/local/opt/openssl/include"
     VENV_DIR_REAL="${HOME}/.pyenv/versions/${PY_VERSION}/envs/${VENV_NAME}"
@@ -467,7 +471,7 @@ ifeq ($(USE_PYENV), "Y")
     SITE_PACKAGES="${VENV_DIR_REAL}/lib/python${PY_VER_MAJOR}.${PY_VER_MINOR}/site-packages"
     SITE_PACKAGES64="${VENV_DIR_REAL}/lib64/python${PY_VER_MAJOR}.${PY_VER_MINOR}/site-packages"
 else
-    ARCHFLAGS="-arch x86_64"
+    ARCHFLAGS="-arch $(MACHINE_ARCH)"
     LDFLAGS="-L/usr/local/opt/openssl/lib"
     CFLAGS="-I/usr/local/opt/openssl/include"
     VENV_DIR_REAL="${PROJECT_ROOT_DIR}/${VENV_NAME}"
@@ -476,7 +480,7 @@ else
     SITE_PACKAGES="${VENV_DIR_REAL}/lib/python${PY_VER_MAJOR}.${PY_VER_MINOR}/site-packages"
     SITE_PACKAGES64="${VENV_DIR_REAL}/lib64/python${PY_VER_MAJOR}.${PY_VER_MINOR}/site-packages"
 endif
-    ARCHFLAGS="-arch x86_64"
+    ARCHFLAGS="-arch $(MACHINE_ARCH)"
     LDFLAGS="-L/usr/local/opt/openssl/lib"
     CFLAGS="-I/usr/local/opt/openssl/include"
 
@@ -585,7 +589,7 @@ ifeq (${USE_PYENV}, "Y")
 else
 
 ifeq ($(HAVE_BREW), 0)
-	DEPSDIR='ARCHFLAGS="-arch x86_64" LDFLAGS="-L/usr/local/opt/openssl/lib" CFLAGS="-I/usr/local/opt/openssl/include"'
+	DEPSDIR='ARCHFLAGS="-arch $(MACHINE_ARCH)" LDFLAGS="-L/usr/local/opt/openssl/lib" CFLAGS="-I/usr/local/opt/openssl/include"'
 	$(DEPSDIR) virtualenv -p ${GLOBAL_PYTHON} ${VENV_NAME}
 endif
 
@@ -617,7 +621,7 @@ uninstall: ## ** Uninstall This Package
 # install: uninstall ## ** Install This Package via setup.py
 install: ## ** Install This Package via setup.py
 ifeq ($(HAVE_BREW), 0)
-	DEPSDIR='ARCHFLAGS="-arch x86_64" LDFLAGS="-L/usr/local/opt/openssl/lib" CFLAGS="-I/usr/local/opt/openssl/include"'
+	DEPSDIR='ARCHFLAGS="-arch $(MACHINE_ARCH)" LDFLAGS="-L/usr/local/opt/openssl/lib" CFLAGS="-I/usr/local/opt/openssl/include"'
 	$(DEPSDIR) ${BIN_PIP} install -r requirements.txt
 else
 	${BIN_PIP} install -r requirements.txt
@@ -630,7 +634,7 @@ dev_dep: ## ** Install Development Dependencies
 ifeq ($(HAVE_BREW), 0)
 	( \
 		cd ${PROJECT_ROOT_DIR}; \
-		ARCHFLAGS="-arch x86_64" LDFLAGS="-L/usr/local/opt/openssl/lib" CFLAGS="-I/usr/local/opt/openssl/include" ${BIN_PIP} install -r requirements.txt; \
+		ARCHFLAGS="-arch $(MACHINE_ARCH)" LDFLAGS="-L/usr/local/opt/openssl/lib" CFLAGS="-I/usr/local/opt/openssl/include" ${BIN_PIP} install -r requirements.txt; \
 	)
 else
 	( \

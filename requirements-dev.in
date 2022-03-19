@@ -5,7 +5,7 @@ autopep8
 awscli
 bumplus
 bumpversion
-docker-py
+# docker-py
 isort
 # molecule
 pdbpp
@@ -17,3 +17,4 @@ PyYAML
 yamllint
 bpython
 pep8
+better_exceptions
