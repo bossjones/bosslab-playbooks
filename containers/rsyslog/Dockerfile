@@ -48,17 +48,24 @@ RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/
     -p https://github.com/zsh-users/zsh-autosuggestions \
     -p https://github.com/zsh-users/zsh-completions
 
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    && apt-get update \
-    && apt-get install -y sudo wget \
-    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME \
-    #
-    # Clean up
-    && apt-get autoremove -y \
-    && apt-get clean -y \
-    && rm -rf /var/lib/apt/lists/*
+# RUN groupadd --gid $USER_GID $USERNAME \
+#     && useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME \
+#     && apt-get update \
+#     && apt-get install -y sudo wget \
+#     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+#     && chmod 0440 /etc/sudoers.d/$USERNAME \
+#     #
+#     # Clean up
+#     && apt-get autoremove -y \
+#     && apt-get clean -y \
+#     && rm -rf /var/lib/apt/lists/*
+# RUN echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+#     && chmod 0440 /etc/sudoers.d/$USERNAME \
+#     #
+#     # Clean up
+#     && apt-get autoremove -y \
+#     && apt-get clean -y \
+#     && rm -rf /var/lib/apt/lists/*
 
 
 # RUN	adduser -s /bin/bash -D rsyslog rsyslog \
