@@ -84,7 +84,7 @@ COPY	starter.sh CONTAINER.* ./
 COPY	internal/* ./internal/
 COPY	tools/* ./tools/
 RUN	echo "`date +%F` (`date +%s`)" > CONTAINER.release \
-	&& chown -R $USER_UID:USER_GID *
+	&& chown -R $USER_UID:$USER_GID *
 
 # SOURCE: https://hub.docker.com/r/jumanjiman/rsyslog/dockerfile
 
