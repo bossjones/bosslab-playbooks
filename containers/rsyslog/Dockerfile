@@ -20,6 +20,8 @@ RUN	apt-get update && \
     rsyslog-doc \
     rsyslog-elasticsearch \
     rsyslog-openssl \
+    rsyslog-imptcp \
+    cron \
     rsyslog-relp sudo curl htop tree net-tools psmisc xz-utils logrotate zsh vim fonts-powerline fonts-firacode git wget \
     build-essential pkg-config libestr-dev libfastjson-dev zlib1g-dev uuid-dev libgcrypt20-dev libhiredis-dev uuid-dev liblogger-syslog-perl flex bison \
     libdbi-dev libmysqlclient-dev postgresql-client libpq-dev libnet-dev librdkafka-dev libgrok-dev libgrok1 libgrok-dev libpcre3-dev libtokyocabinet-dev libglib2.0-dev libmongo-client-dev neovim
