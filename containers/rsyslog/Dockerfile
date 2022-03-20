@@ -8,7 +8,8 @@ ENV USER_UID=101
 ENV USER_GID=102
 
 # COPY	rsyslog@lists.adiscon.com-5a55e598.rsa.pub /etc/apk/keys/rsyslog@lists.adiscon.com-5a55e598.rsa.pub
-RUN	apt install software-properties-common -y && \
+RUN	apt-get update && \
+    apt install software-properties-common -y && \
     add-apt-repository ppa:adiscon/v8-stable -y && \
     sudo add-apt-repository ppa:neovim-ppa/stable -y && \
     apt-get update && \
