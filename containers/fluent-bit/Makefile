@@ -29,7 +29,7 @@
 # image: gcr.io/google-containers/fluent-bit:v2.0.1
 
 
-username := bossjones
+username := index.docker.io/bossjones
 container_name := fluent-bit
 
 GIT_BRANCH  = $(shell git rev-parse --abbrev-ref HEAD)
