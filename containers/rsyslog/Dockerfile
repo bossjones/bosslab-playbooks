@@ -11,7 +11,7 @@ ENV USER_GID=102
 RUN	apt-get update && \
     apt install software-properties-common -y && \
     add-apt-repository ppa:adiscon/v8-stable -y && \
-    sudo add-apt-repository ppa:neovim-ppa/stable -y && \
+    add-apt-repository ppa:neovim-ppa/stable -y && \
     apt-get update && \
     apt-get install sudo curl wget -y && \
     apt-get upgrade -yqq && \
