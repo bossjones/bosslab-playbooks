@@ -2,6 +2,7 @@
 # SOURCE: https://github.com/rsyslog/rsyslog-docker/blob/master/appliance/alpine/Dockerfile
 FROM ubuntu:impish
 
+ENV	DEBIAN_FRONTEND=noninteractive
 ENV USERNAME=syslog
 ENV USER_UID=101
 ENV USER_GID=102
