@@ -1,6 +1,6 @@
 #syntax=docker/dockerfile:1.3
 # SOURCE: https://github.com/rsyslog/rsyslog-docker/blob/master/appliance/alpine/Dockerfile
-FROM ubuntu:impish
+FROM ubuntu:focal
 
 ENV	DEBIAN_FRONTEND=noninteractive
 ENV USERNAME=syslog
@@ -8,14 +8,19 @@ ENV USER_UID=101
 ENV USER_GID=102
 
 # COPY	rsyslog@lists.adiscon.com-5a55e598.rsa.pub /etc/apk/keys/rsyslog@lists.adiscon.com-5a55e598.rsa.pub
-RUN	apt-get update && \
+RUN	apt install software-properties-common -y && \
+    add-apt-repository ppa:adiscon/v8-stable -y && \
+    sudo add-apt-repository ppa:neovim-ppa/stable -y && \
+    apt-get update && \
     apt-get upgrade -yqq && \
     apt-get install -y gzip tar rsyslog \
     rsyslog-czmq \
     rsyslog-doc \
     rsyslog-elasticsearch \
     rsyslog-openssl \
-    rsyslog-relp sudo curl htop tree net-tools psmisc xz-utils logrotate zsh vim fonts-powerline fonts-firacode git wget
+    rsyslog-relp sudo curl htop tree net-tools psmisc xz-utils logrotate zsh vim fonts-powerline fonts-firacode git wget \
+    build-essential pkg-config libestr-dev libfastjson-dev zlib1g-dev uuid-dev libgcrypt20-dev libhiredis-dev uuid-dev liblogger-syslog-perl flex bison \
+    libdbi-dev libmysqlclient-dev postgresql-client libpq-dev libnet-dev librdkafka-dev libgrok-dev libgrok1 libgrok-dev libpcre3-dev libtokyocabinet-dev libglib2.0-dev libmongo-client-dev neovim
     # psmisc xz-utils logrotate rsyslog
     # echo "http://alpine.rsyslog.com/3.7/stable" >> /etc/apk/repositories \
     # && apk --no-cache update  \
