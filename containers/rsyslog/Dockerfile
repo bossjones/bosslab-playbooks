@@ -36,7 +36,7 @@ RUN	apt-get update && \
     # net-tools \
     # ngrep
 
-RUN bash <(curl -sS https://raw.githubusercontent.com/nickjj/dotfiles/master/install)
+# RUN bash <(curl -sS https://raw.githubusercontent.com/nickjj/dotfiles/master/install)
     
 
 # RUN	adduser -s /bin/bash -D rsyslog rsyslog \
