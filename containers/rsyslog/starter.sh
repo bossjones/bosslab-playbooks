@@ -1,6 +1,9 @@
 #!/bin/bash
 
-
+set -x
+mkdir -p /var/spool/rsyslog || true; 
+mkdir -p /log/client_logs || true; 
+install -o syslog /dev/null -m 640 /var/log/rsyslog-debug || true
 mkdir -p /config || true
 mkdir -p /work || true
 mkdir -p /logs || true
@@ -8,6 +11,7 @@ mkdir -p /logs || true
 chown -R ${USER_UID}:${USER_GID} * /config /work /logs || true
 
 tree
+set +x
 
 source internal/set-defaults
 source /config/container_config
