@@ -34,7 +34,7 @@ bash:
 	-it \
 	--rm \
 	--name rsyslog.bash \
-	-w / \
+	-w /home/appliance \
 	-h $(shell hostname) \
 	-v /etc/localtime:/etc/localtime:ro \
 	-p "5140:5140" \
@@ -52,7 +52,7 @@ run:
 	-it \
 	--rm \
 	--name rsyslog.service \
-	-w / \
+	-w /home/appliance \
 	-v /etc/localtime:/etc/localtime:ro \
 	-p "5140:5140" \
 	-p "5140:5140/udp" \
