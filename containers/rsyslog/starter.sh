@@ -5,7 +5,7 @@ mkdir -p /config || true
 mkdir -p /work || true
 mkdir -p /logs || true
 
-chown -R rsyslog:rsyslog * /config /work /logs || true
+chown -R ${USER_UID}:${USER_GID} * /config /work /logs || true
 
 tree
 
