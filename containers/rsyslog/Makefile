@@ -35,7 +35,7 @@ bash:
 	--rm \
 	--name rsyslog.bash \
 	-w /home/appliance \
-	-h $(shell hostname) \
+	-h docker-$(shell hostname) \
 	-v /etc/localtime:/etc/localtime:ro \
 	-p "5140:5140" \
 	-p "5140:5140/udp" \
