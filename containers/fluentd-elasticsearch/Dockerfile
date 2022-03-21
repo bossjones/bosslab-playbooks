@@ -24,11 +24,12 @@ FROM debian:bullseye-slim
 
 # https://github.com/rbspy/rbspy/releases/download/v0.11.1/rbspy-x86_64-unknown-linux-gnu.tar.gz
 # https://github.com/rbspy/rbspy/releases/download/v0.11.1/rbspy-x86_64-musl.tar.gz
+# https://github.com/tianon/gosu/releases/download/1.14/gosu-amd64
 
 ENV RBSPY_RELEASE="https://github.com/rbspy/rbspy/releases/download/v0.11.1/rbspy-x86_64-musl.tar.gz" \
     RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR="1.2" \
-    GOSU_VERSION=1.10 \
-    JEMALLOC_VERSION=4.5.0
+    GOSU_VERSION=1.14 \
+    JEMALLOC_VERSION=5.2.1
 
 # RUN apt-get install -y sudo vim tar wget \
 #     && clean-apt && \
@@ -143,7 +144,7 @@ COPY Gemfile /Gemfile
 RUN set -x; BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gnupg dirmngr zlib1g-dev git" \
     && clean-install $BUILD_DEPS \
                      ca-certificates \
-                     libjemalloc1 \
+                     libjemalloc2 \
                      ruby \
                      sudo \
                      vim \
