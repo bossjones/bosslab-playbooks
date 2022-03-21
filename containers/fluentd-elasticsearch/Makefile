@@ -133,3 +133,9 @@ dc-pull:
 
 cleanup:
 	bash scripts/cleanup-docker
+
+bundle-install:
+	gem install bundler
+
+biv: bundle-install
+	bundle install --path .vendor
