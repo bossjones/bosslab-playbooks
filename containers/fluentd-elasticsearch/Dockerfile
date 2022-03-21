@@ -153,7 +153,7 @@ RUN set -x; BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gn
                      wget \
     && update-ca-certificates \
     && apt-get update \
-    && apt-get install -y build-essential \
+    && apt-get install -y shared-mime-info build-essential \
     && apt-get install -y autogen autoconf libtool libgeoip-dev gzip wget \
     && dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" \
     && wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch" \
