@@ -27,7 +27,7 @@ FROM debian:bullseye-slim
 # https://github.com/rbspy/rbspy/releases/download/v0.11.1/rbspy-x86_64-musl.tar.gz
 # https://github.com/tianon/gosu/releases/download/1.14/gosu-amd64
 
-ARG GEOLITE2_YOUR_LICENSE_KEY
+# ARG GEOLITE2_YOUR_LICENSE_KEY
 
 ENV RBSPY_RELEASE="https://github.com/rbspy/rbspy/releases/download/v0.11.1/rbspy-x86_64-musl.tar.gz" \
     RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR="1.2" \
