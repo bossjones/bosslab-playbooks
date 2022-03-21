@@ -140,11 +140,12 @@ rm-gem-lock:
 	rm -fv Gemfile.lock
 
 rm-vendor:
-	rm -fv .vendor || true
-	rm -fv .bundle || true
+	rm -rfv .vendor || true
+	rm -rfv .bundle || true
 
 bundle-install:
 	gem install bundler
 
-biv: bundle-install rm-gem-lock rm-vendor
+# rm-vendor
+biv: bundle-install rm-gem-lock
 	bundle install --path .vendor
