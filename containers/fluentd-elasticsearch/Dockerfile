@@ -27,6 +27,8 @@ FROM debian:bullseye-slim
 # https://github.com/rbspy/rbspy/releases/download/v0.11.1/rbspy-x86_64-musl.tar.gz
 # https://github.com/tianon/gosu/releases/download/1.14/gosu-amd64
 
+ARG GEOLITE2_YOUR_LICENSE_KEY
+
 ENV RBSPY_RELEASE="https://github.com/rbspy/rbspy/releases/download/v0.11.1/rbspy-x86_64-musl.tar.gz" \
     RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR="1.2" \
     GOSU_VERSION=1.14 \
@@ -171,11 +173,11 @@ RUN set -x; BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gn
     && echo 'gem: --no-document' >> /etc/gemrc \
     && gem install --file /Gemfile \
     && apt-get purge -y --auto-remove \
-                     -o APT::AutoRemove::RecommendsImportant=false \
-                     $BUILD_DEPS \
+                    -o APT::AutoRemove::RecommendsImportant=false \
+                    $BUILD_DEPS \
     && clean-apt \
-    # Ensure fluent has enough file descriptors
     && ulimit -n 65536
+    # Ensure fluent has enough file descriptors
 
 # Copy the Fluentd configuration file for logging Docker container logs.
 COPY fluent.conf /etc/fluent/fluent.conf
@@ -184,23 +186,6 @@ COPY run.sh /run.sh
 RUN apt-get update \
     && apt-get install supervisor net-tools procps tree tcpdump netcat bash-completion htop wget gzip curl -y \
     && clean-apt
-
-# SOURCE: https://dev.maxmind.com/geoip/geoip2/geolite2/
-RUN set -x; mkdir -p /geoip && \
-    cd /geoip && \
-    wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz && \
-    wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz && \
-    wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-ASN.tar.gz && \
-    gunzip GeoLite2-City.tar.gz && \
-    gunzip GeoLite2-Country.tar.gz && \
-    gunzip GeoLite2-ASN.tar.gz && \
-    tar -xvf GeoLite2-City.tar && \
-    tar -xvf GeoLite2-Country.tar && \
-    tar -xvf GeoLite2-ASN.tar && \
-    mv -v GeoLite2-*/*.mmdb . && \
-    rm -rfv GeoLite2-{ASN,City,Country}_* && \
-    rm -rfv *.tar && \
-    rm -rfv *.tar.gz
 
 ENV LD_PRELOAD="/usr/lib/libjemalloc.so.2"
 

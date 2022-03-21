@@ -22,6 +22,25 @@ mkdir -p /var/log/journal
 
 # /usr/local/bin/fluentd $@
 
+# SOURCE: https://dev.maxmind.com/geoip/geoip2/geolite2/
+set -x; mkdir -p /geoip || true && \
+cd /geoip && \
+wget "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=${GEOLITE2_YOUR_LICENSE_KEY}&suffix=tar.gz" && \
+wget "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key=${GEOLITE2_YOUR_LICENSE_KEY}&suffix=tar.gz" && \
+wget "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN&license_key=${GEOLITE2_YOUR_LICENSE_KEY}&suffix=tar.gz" && \
+gunzip GeoLite2-City.tar.gz && \
+gunzip GeoLite2-Country.tar.gz && \
+gunzip GeoLite2-ASN.tar.gz && \
+tar -xvf GeoLite2-City.tar && \
+tar -xvf GeoLite2-Country.tar && \
+tar -xvf GeoLite2-ASN.tar && \
+mv -v GeoLite2-*/*.mmdb . && \
+rm -rfv GeoLite2-{ASN,City,Country}_* && \
+rm -rfv *.tar && \
+rm -rfv *.tar.gz
+cd -
+set +x
+
 
 # # Start Fluentd-ui process
 # /usr/local/bin/fluentd-ui start --daemonize
