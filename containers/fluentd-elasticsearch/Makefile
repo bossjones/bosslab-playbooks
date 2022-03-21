@@ -139,8 +139,12 @@ cleanup:
 rm-gem-lock:
 	rm -fv Gemfile.lock
 
+rm-vendor:
+	rm -fv .vendor || true
+	rm -fv .bundle || true
+
 bundle-install:
 	gem install bundler
 
-biv: bundle-install rm-gem-lock
+biv: bundle-install rm-gem-lock rm-vendor
 	bundle install --path .vendor
