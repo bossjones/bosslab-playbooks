@@ -219,3 +219,5 @@ realunifilogs/
 popeye.txt
 updatedlogs.tar.gz
 vmware-lab-admin.conf
+.bundle
+.vendor
