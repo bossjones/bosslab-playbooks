@@ -29,13 +29,13 @@
 # image: gcr.io/google-containers/fluentd-elasticsearch:v2.0.1
 
 
-username := bossjones
+username := index.docker.io/bossjones
 container_name := fluentd-elasticsearch
 
 GIT_BRANCH  = $(shell git rev-parse --abbrev-ref HEAD)
 GIT_SHA     = $(shell git rev-parse HEAD)
 BUILD_DATE  = $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
-VERSION     ?= v3.0.0
+VERSION     ?= v4.0.0
 
 TAG ?= $(VERSION)
 ifeq ($(TAG),@branch)
@@ -84,6 +84,8 @@ build:
 	--build-arg BUILD_DATE=$(VERSION) \
 	--build-arg BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ') \
 	--tag $(username)/$(container_name):$(GIT_SHA) .
+	docker tag $(username)/$(container_name):$(GIT_SHA) $(username)/$(container_name):latest
+	docker tag $(username)/$(container_name):$(GIT_SHA) $(username)/$(container_name):$(TAG)
 
 build-force:
 	docker build --rm \
@@ -133,3 +135,17 @@ dc-pull:
 
 cleanup:
 	bash scripts/cleanup-docker
+
+rm-gem-lock:
+	rm -fv Gemfile.lock
+
+rm-vendor:
+	rm -rfv .vendor || true
+	rm -rfv .bundle || true
+
+bundle-install:
+	gem install bundler
+
+# rm-vendor
+biv: bundle-install rm-gem-lock
+	bundle install --path .vendor

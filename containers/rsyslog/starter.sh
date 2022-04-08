@@ -1,13 +1,18 @@
 #!/bin/bash
 
-
+set -x
+mkdir -p /var/spool/rsyslog || true;
+mkdir -p /log/client_logs || true;
+install -o syslog /dev/null -m 640 /var/log/rsyslog-debug || true
 mkdir -p /config || true
 mkdir -p /work || true
 mkdir -p /logs || true
 
-chown -R rsyslog:rsyslog * /config /work /logs || true
+chown -R ${USER_UID}:${USER_GID} * /config /work /logs || true
 
 tree
+tree /rsyslog-centralized/
+set +x
 
 source internal/set-defaults
 source /config/container_config
@@ -49,7 +54,7 @@ fi
 echo "Using rsyslog configuration file: $RSYSLOG_CONF"
 
 # SOURCE: https://github.com/instantlinux/docker-tools/blob/f4ce5659047cbf258908f8a090efa1a49688c337/images/rsyslogd/entrypoint.sh
-crond
+# crond
 # touch /var/log/cron && tail -f /var/log/cron
 sleep 5s
 

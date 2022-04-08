@@ -1,3 +1,4 @@
+#syntax=docker/dockerfile:1.3
 # Copyright 2017 The Kubernetes Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,13 +20,19 @@
 # Note that fluentd is run with root permssion to allow access to
 # log files with root only access under /var/log/containers/*
 
-FROM debian:stretch-slim
+FROM debian:bullseye-slim
 # FROM k8s.gcr.io/fluentd-elasticsearch:v2.2.0
 
-ENV RBSPY_RELEASE="https://github.com/rbspy/rbspy/releases/download/v0.3.3/rbspy-v0.3.3-x86_64-unknown-linux-musl.tar.gz" \
+# https://github.com/rbspy/rbspy/releases/download/v0.11.1/rbspy-x86_64-unknown-linux-gnu.tar.gz
+# https://github.com/rbspy/rbspy/releases/download/v0.11.1/rbspy-x86_64-musl.tar.gz
+# https://github.com/tianon/gosu/releases/download/1.14/gosu-amd64
+
+# ARG GEOLITE2_YOUR_LICENSE_KEY
+
+ENV RBSPY_RELEASE="https://github.com/rbspy/rbspy/releases/download/v0.11.1/rbspy-x86_64-musl.tar.gz" \
     RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR="1.2" \
-    GOSU_VERSION=1.10 \
-    JEMALLOC_VERSION=4.5.0
+    GOSU_VERSION=1.14 \
+    JEMALLOC_VERSION=5.2.1
 
 # RUN apt-get install -y sudo vim tar wget \
 #     && clean-apt && \
@@ -140,7 +147,7 @@ COPY Gemfile /Gemfile
 RUN set -x; BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gnupg dirmngr zlib1g-dev git" \
     && clean-install $BUILD_DEPS \
                      ca-certificates \
-                     libjemalloc1 \
+                     libjemalloc2 \
                      ruby \
                      sudo \
                      vim \
@@ -148,7 +155,7 @@ RUN set -x; BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gn
                      wget \
     && update-ca-certificates \
     && apt-get update \
-    && apt-get install -y build-essential \
+    && apt-get install -y shared-mime-info build-essential \
     && apt-get install -y autogen autoconf libtool libgeoip-dev gzip wget \
     && dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" \
     && wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch" \
@@ -166,11 +173,11 @@ RUN set -x; BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gn
     && echo 'gem: --no-document' >> /etc/gemrc \
     && gem install --file /Gemfile \
     && apt-get purge -y --auto-remove \
-                     -o APT::AutoRemove::RecommendsImportant=false \
-                     $BUILD_DEPS \
+                    -o APT::AutoRemove::RecommendsImportant=false \
+                    $BUILD_DEPS \
     && clean-apt \
-    # Ensure fluent has enough file descriptors
     && ulimit -n 65536
+    # Ensure fluent has enough file descriptors
 
 # Copy the Fluentd configuration file for logging Docker container logs.
 COPY fluent.conf /etc/fluent/fluent.conf
@@ -179,23 +186,6 @@ COPY run.sh /run.sh
 RUN apt-get update \
     && apt-get install supervisor net-tools procps tree tcpdump netcat bash-completion htop wget gzip curl -y \
     && clean-apt
-
-# SOURCE: https://dev.maxmind.com/geoip/geoip2/geolite2/
-RUN set -x; mkdir -p /geoip && \
-    cd /geoip && \
-    wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz && \
-    wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz && \
-    wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-ASN.tar.gz && \
-    gunzip GeoLite2-City.tar.gz && \
-    gunzip GeoLite2-Country.tar.gz && \
-    gunzip GeoLite2-ASN.tar.gz && \
-    tar -xvf GeoLite2-City.tar && \
-    tar -xvf GeoLite2-Country.tar && \
-    tar -xvf GeoLite2-ASN.tar && \
-    mv -v GeoLite2-*/*.mmdb . && \
-    rm -rfv GeoLite2-{ASN,City,Country}_* && \
-    rm -rfv *.tar && \
-    rm -rfv *.tar.gz
 
 ENV LD_PRELOAD="/usr/lib/libjemalloc.so.2"
 

@@ -22,6 +22,9 @@
 # FROM debian:stretch-slim
 FROM fluent/fluent-bit:1.0.4-debug
 
+RUN apt-get update && \
+    apt-get upgrade -y
+
 # ENV RBSPY_RELEASE="https://github.com/rbspy/rbspy/releases/download/v0.3.3/rbspy-v0.3.3-x86_64-unknown-linux-musl.tar.gz" \
 #     RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR="1.2" \
 #     GOSU_VERSION=1.10 \
