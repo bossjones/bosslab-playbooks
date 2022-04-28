@@ -244,7 +244,8 @@ GEM
       railties (>= 3.2, < 8.0)
     geoip-c (0.9.1)
     geoip2_c (0.3.3)
-    git (1.4.0)
+    git (1.11.0)
+      rchardet (~> 1.8)
     globalid (1.0.0)
       activesupport (>= 5.0)
     haml (5.2.2)
@@ -361,6 +362,7 @@ GEM
     rb-fsevent (0.11.1)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
+    rchardet (1.8.0)
     request_store (1.5.1)
       rack (>= 1.4)
     resolve-hostname (0.1.0)
@@ -489,7 +491,7 @@ DEPENDENCIES
   fluent-plugin-webhdfs
   fluentd
   fluentd-ui (= 1.0.0.alpha.2)
-  git (~> 1.4.0)
+  git (~> 1.11.0)
   lru_redux
   msgpack (~> 1.2.4)
   oj (~> 3.6.5)
