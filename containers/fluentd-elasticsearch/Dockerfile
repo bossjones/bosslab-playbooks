@@ -172,9 +172,6 @@ RUN set -x; BUILD_DEPS="make gcc g++ libc6-dev ruby-dev libffi-dev wget bzip2 gn
     && mv lib/libjemalloc.so.2 /usr/lib \
     && echo 'gem: --no-document' >> /etc/gemrc \
     && gem install --file /Gemfile \
-    && apt-get purge -y --auto-remove \
-                    -o APT::AutoRemove::RecommendsImportant=false \
-                    $BUILD_DEPS \
     && clean-apt \
     && ulimit -n 65536
     # Ensure fluent has enough file descriptors
@@ -211,6 +208,8 @@ EXPOSE 80 9292 24224 161 9880 5160 5170 24231 24220 5140
 #     && ln -sf /dev/stdout /var/log/supervisor/supervisord.log
 RUN mkdir -p /opt/supervisor/log/supervisor/ && \
     mkdir -p /opt/supervisor/run/
+
+RUN fluent-gem install fluent-plugin-grafana-loki
 
 # ENTRYPOINT ["/run.sh"]
 CMD ["/run.sh"]
