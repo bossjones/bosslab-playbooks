@@ -157,6 +157,8 @@ GEM
       fluentd (>= 0.14.8, < 2)
       geoip-c
       geoip2_c
+    fluent-plugin-grafana-loki (1.2.7)
+      fluentd (>= 0.14.10, < 2)
     fluent-plugin-grok-parser (2.6.2)
       fluentd (>= 0.14.6, < 2)
     fluent-plugin-ignore-filter (2.0.0)
@@ -306,7 +308,7 @@ GEM
     multipart-post (2.1.1)
     netrc (0.11.0)
     nio4r (2.5.8)
-    nokogiri (1.13.3-x86_64-linux)
+    nokogiri (1.13.9-x86_64-linux)
       racc (~> 1.4)
     ohai (6.20.0)
       ipaddress
@@ -471,6 +473,7 @@ DEPENDENCIES
   fluent-plugin-elasticsearch
   fluent-plugin-flowcounter
   fluent-plugin-geoip
+  fluent-plugin-grafana-loki
   fluent-plugin-grok-parser
   fluent-plugin-ignore-filter
   fluent-plugin-mongo
