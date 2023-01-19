@@ -157,6 +157,8 @@ GEM
       fluentd (>= 0.14.8, < 2)
       geoip-c
       geoip2_c
+    fluent-plugin-grafana-loki (1.2.7)
+      fluentd (>= 0.14.10, < 2)
     fluent-plugin-grok-parser (2.6.2)
       fluentd (>= 0.14.6, < 2)
     fluent-plugin-ignore-filter (2.0.0)
@@ -245,7 +247,7 @@ GEM
     geoip-c (0.9.1)
     geoip2_c (0.3.3)
     git (1.4.0)
-    globalid (1.0.0)
+    globalid (1.0.1)
       activesupport (>= 5.0)
     haml (5.2.2)
       temple (>= 0.8.0)
@@ -266,7 +268,7 @@ GEM
       domain_name (~> 0.5)
     http_parser.rb (0.6.0)
     httpclient (2.8.3)
-    i18n (1.10.0)
+    i18n (1.12.0)
       concurrent-ruby (~> 1.0)
     ipaddress (0.8.3)
     jbuilder (2.11.5)
@@ -294,7 +296,7 @@ GEM
       nokogiri (~> 1)
       rake
     mini_mime (1.1.2)
-    minitest (5.15.0)
+    minitest (5.17.0)
     mixlib-cli (1.7.0)
     mixlib-config (2.2.4)
     mixlib-log (1.7.1)
@@ -471,6 +473,7 @@ DEPENDENCIES
   fluent-plugin-elasticsearch
   fluent-plugin-flowcounter
   fluent-plugin-geoip
+  fluent-plugin-grafana-loki
   fluent-plugin-grok-parser
   fluent-plugin-ignore-filter
   fluent-plugin-mongo
