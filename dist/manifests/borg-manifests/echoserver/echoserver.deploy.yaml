@@ -3,7 +3,7 @@
 # USAGE: kubectl apply -f echoserver.deploy.yaml
 # kubectl get deploy
 # kubectl get pods
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: echoserver

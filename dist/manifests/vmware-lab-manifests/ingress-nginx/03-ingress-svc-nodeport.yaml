@@ -1,0 +1,48 @@
+# https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/provider/baremetal/service-nodeport.yaml
+# NOTE: This is a fix for -
+#   - Services "ingress-nginx" not found
+#   - Flood of ingress-nginx service error in controller
+# https://github.com/kubernetes/ingress-nginx/issues/2599
+# https://github.com/kubernetes-sigs/kubespray/issues/3005
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-nginx
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+    
+
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "10254"
+    
+spec:
+  type: NodePort
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
+    - name: https
+      port: 443
+      targetPort: 443
+      protocol: TCP
+    - name: stats
+      port: 18080
+      targetPort: 18080
+      protocol: TCP
+    - name: metrics
+      port: 10254
+      targetPort: 10254
+      protocol: TCP
+    
+  selector:
+    # app.kubernetes.io/name: ingress-nginx
+    # app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+    

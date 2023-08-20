@@ -25,7 +25,7 @@
       # ansible group to use when finding ip addresses
       boss__update__hosts__ansible_group: "servers"
 
-      boss__update__hosts__networking_interface: "{{boss__update__hosts__networking_interface}}" # enp0s8 (if vagrant)
+      boss__update__hosts__networking_interface: "{{boss__update__hosts__networking_interface}}" # ens33 (if vagrant)
 
       ### NEW vars
       # SOURCE: https://github.com/bertvv/ansible-role-hosts/blob/master/defaults/main.yml

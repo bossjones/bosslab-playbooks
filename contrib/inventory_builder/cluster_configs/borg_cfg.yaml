@@ -36,15 +36,15 @@ all:
     borg-worker-02:
       hosts:
         borg-worker-02.scarlettlab.home: {}
-    graphite-master-servers:
+    graphite_master_servers:
       children:
-        graphite-master1: {}
-    graphite-master1:
+        graphite_master1: {}
+    graphite_master1:
       children:
         borg-worker-01: {}
     graphite_master:
       children:
-        graphite-master1: {}
+        graphite_master1: {}
     influxdb:
       children:
         borg-worker-01: {}

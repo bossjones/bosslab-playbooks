@@ -1,0 +1,59 @@
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  labels:
+    prometheus: k8s
+  name: k8s
+  namespace: monitoring
+spec:
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: prometheus
+              operator: In
+              values:
+              - k8s
+          namespaces:
+          - monitoring
+          topologyKey: kubernetes.io/hostname
+        weight: 100
+  alerting:
+    alertmanagers:
+    - name: alertmanager-main
+      namespace: monitoring
+      port: web
+  baseImage: quay.io/prometheus/prometheus
+  nodeSelector:
+    beta.kubernetes.io/os: linux
+  replicas: 2
+  resources:
+    requests:
+      memory: 400Mi
+  ruleSelector:
+    matchLabels:
+      prometheus: k8s
+      role: alert-rules
+  securityContext:
+    fsGroup: 2000
+    runAsNonRoot: true
+    runAsUser: 1000
+  serviceAccountName: prometheus-k8s
+  # SOURCE: https://github.com/fromanirh/procwatch/blob/d8e83aebf619ba3088a9a5a2793df1efced11ed3/README.md
+  serviceMonitorNamespaceSelector: {}
+  # serviceMonitorNamespaceSelector:
+  #  matchLabels:
+  #    vmi.prometheus.kubevirt.io: ""
+  serviceMonitorSelector: {}
+  # serviceMonitorSelector:
+  #  matchLabels:
+  #    vmi.prometheus.kubevirt.io: ""
+  # serviceMonitorSelector:
+  #   matchLabels:
+  #     app.kubernetes.io/name: prometheus
+  #     app.kubernetes.io/part-of: ingress-nginx
+  #     prometheus: k8s
+
+  version: v2.5.0

@@ -1,8 +1,8 @@
-192.168.1.62 ansible_ssh_host=192.168.1.62 ansible_ssh_private_key_file=~/.ssh/id_rsa ip=192.168.1.62 ansible_ssh_port=22 ansible_ssh_user='pi' ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s -o ControlPath=~/.ansible/cp/ansible-ssh-%h-%p-%r' boss__kubernetes__kubeadm__server_type=master is_master=true
+192.168.1.67 ansible_ssh_host=192.168.1.67 ansible_ssh_private_key_file=~/.ssh/id_rsa ip=192.168.1.67 ansible_ssh_port=22 ansible_ssh_user='pi' ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s -o ControlPath=~/.ansible/cp/ansible-ssh-%h-%p-%r' boss__kubernetes__kubeadm__server_type=master is_master=true
 
-192.168.1.63 ansible_ssh_host=192.168.1.63 ansible_ssh_private_key_file=~/.ssh/id_rsa ip=192.168.1.63 ansible_ssh_port=22 ansible_ssh_user='pi' ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s -o ControlPath=~/.ansible/cp/ansible-ssh-%h-%p-%r' boss__kubernetes__kubeadm__server_type=master is_master=true
+192.168.1.68 ansible_ssh_host=192.168.1.68 ansible_ssh_private_key_file=~/.ssh/id_rsa ip=192.168.1.68 ansible_ssh_port=22 ansible_ssh_user='pi' ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s -o ControlPath=~/.ansible/cp/ansible-ssh-%h-%p-%r' boss__kubernetes__kubeadm__server_type=master is_master=true
 
-192.168.1.64 ansible_ssh_host=192.168.1.64 ansible_ssh_private_key_file=~/.ssh/id_rsa ip=192.168.1.64 ansible_ssh_port=22 ansible_ssh_user='pi' ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s -o ControlPath=~/.ansible/cp/ansible-ssh-%h-%p-%r' boss__kubernetes__kubeadm__server_type=master is_master=true
+192.168.1.69 ansible_ssh_host=192.168.1.69 ansible_ssh_private_key_file=~/.ssh/id_rsa ip=192.168.1.69 ansible_ssh_port=22 ansible_ssh_user='pi' ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s -o ControlPath=~/.ansible/cp/ansible-ssh-%h-%p-%r' boss__kubernetes__kubeadm__server_type=master is_master=true
 
 ; k3lab-node-03.dev.home ansible_ssh_host=k3lab-node-03 ansible_ssh_private_key_file=~/.ssh/id_rsa ip=192.168.1.16 ansible_ssh_port=22 ansible_ssh_user='pi' ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ControlMaster=auto -o ControlPersist=60s -o ControlPath=~/.ansible/cp/ansible-ssh-%h-%p-%r' boss__kubernetes__kubeadm__server_type=master is_master=true
 
@@ -14,20 +14,13 @@ localhost ansible_connection=local
 localhost ansible_connection=local
 
 [lab1]
-192.168.1.62
+192.168.1.67
 
 [lab2]
-192.168.1.63
+192.168.1.68
 
 [lab3]
-192.168.1.64
-
-; [k3lab-node-03]
-; k3lab-node-03.dev.home
-
-; [k3lab-node-04]
-; k3lab-node-04.dev.home
-
+192.168.1.69
 
 # CHILDREN
 [master:children]
@@ -36,48 +29,114 @@ lab1
 [masters:children]
 lab1
 
+[workers:children]
+lab2
+lab3
+
 [node:children]
 lab2
 lab3
-; k3lab-node-03
-; k3lab-node-04
 
 [k3s_cluster:children]
 master
 node
 
 [servers:children]
+k3s_cluster
+
+[all:children]
+k3s_cluster
+
+[proxy:children]
+lab2
+
+[servers:children]
 masters
+workers
+proxy
 
 [all:children]
 servers
 
 [rsyslogd_masters:children]
-lab1
+lab3
 
 [rsyslogd_clients:children]
 lab1
-
+lab2
 
 [nfs_masters:children]
-lab1
+lab3
 
 [nfs_clients:children]
 lab1
-
+lab2
 
 [influxdb:children]
-lab1
+lab2
 
-[graphite-master1:children]
-lab1
+[graphite_master1:children]
+lab2
 
 # groups of groups = children
-[graphite-master-servers:children]
-graphite-master1
+[graphite_master_servers:children]
+graphite_master1
 
 [netdata_registry:children]
 masters
 
 [netdata_nodes:children]
-lab1
+lab2
+lab3
+
+[graphite_master:children]
+graphite_master1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# [rsyslogd_masters:children]
+# lab1
+#
+# [rsyslogd_clients:children]
+# lab1
+#
+#
+# [nfs_masters:children]
+# lab1
+#
+# [nfs_clients:children]
+# lab1
+#
+#
+# [influxdb:children]
+# lab1
+#
+# [graphite_master1:children]
+# lab1
+#
+# # groups of groups = children
+# [graphite_master_servers:children]
+# graphite_master1
+#
+# [netdata_registry:children]
+# masters
+#
+# [netdata_nodes:children]
+# lab1
+#

@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: fluent-bit-centralized
+  namespace: kube-system
+  labels:
+    k8s-app: fluent-bit-centralized
+    version: v1
+    kubernetes.io/cluster-service: "true"
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: \"false\"
+    traefik.frontend.rule.type: PathPrefix
+spec:
+  rules:
+  - host: fluent-bit-centralized.vmlab.scarlettlab.home
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: fluent-bit-centralized
+          servicePort: 5140
+      

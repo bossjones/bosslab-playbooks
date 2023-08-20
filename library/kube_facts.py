@@ -38,7 +38,7 @@ except ImportError:
 import os
 import copy
 
-from ansible.module_utils.six import iteritems, string_types
+from ansible.module_utils.six import items, string_types
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.k8s.common import KubernetesAnsibleModule
 
@@ -254,7 +254,7 @@ class K8sAnsibleMixin(object):
         auth = copy.deepcopy(auth_params)
 
         # If authorization variables aren't defined, look for them in environment variables
-        for key, value in iteritems(auth_params):
+        for key, value in items(auth_params):
             if key in auth_args and value is None:
                 env_value = os.getenv('K8S_AUTH_{0}'.format(key.upper()), None)
                 if env_value is not None:
@@ -279,7 +279,7 @@ class K8sAnsibleMixin(object):
 
         # Override any values in the default configuration with Ansible parameters
         configuration = kubernetes.client.Configuration()
-        for key, value in iteritems(auth):
+        for key, value in items(auth):
             if key in auth_args and value is not None:
                 if key == 'api_key':
                     setattr(configuration, key, {
@@ -335,7 +335,7 @@ class K8sAnsibleMixin(object):
         """
         The helper doesn't know what to do with aliased keys
         """
-        for k, v in iteritems(self.argspec):
+        for k, v in items(self.argspec):
             if 'aliases' in v:
                 for alias in v['aliases']:
                     if alias in self.params:

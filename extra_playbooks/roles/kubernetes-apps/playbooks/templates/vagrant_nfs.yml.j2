@@ -9,8 +9,8 @@
   become_method: sudo
   environment:
     DEBIAN_FRONTEND: noninteractive
-    bossjones__user: vagrant
-    bossjones__group: vagrant
+    bossjones__user: pi
+    bossjones__group: pi
     timezone: 'UTC'
   vars:
     boss__ntp__timezone: 'UTC'
@@ -38,8 +38,8 @@
   become_method: sudo
   environment:
     DEBIAN_FRONTEND: noninteractive
-    bossjones__user: vagrant
-    bossjones__group: vagrant
+    bossjones__user: pi
+    bossjones__group: pi
     timezone: 'UTC'
   vars:
     boss__ntp__timezone: 'UTC'

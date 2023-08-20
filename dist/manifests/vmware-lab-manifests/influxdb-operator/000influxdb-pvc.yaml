@@ -1,0 +1,52 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: influxdb-data-pvc
+  namespace: monitoring
+  labels:
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    k8s-app: influxdata-operator
+    kubernetes.io/name: "influxdata-operator"
+    name: influxdata-operator
+    boss-part-of: influxdb
+    app: influxdata-operator
+    
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: "nfs-dynamic-class"
+  resources:
+    requests:
+      storage: "2Gi"
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: influxdb-data-pv
+  namespace: monitoring
+  labels:
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    k8s-app: influxdata-operator
+    kubernetes.io/name: "influxdata-operator"
+    name: influxdata-operator
+    boss-part-of: influxdb
+    app: influxdata-operator
+    
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  nfs:
+    server: 192.168.1.67
+    path: "/mnt/publicdata/influxdb-operator"
