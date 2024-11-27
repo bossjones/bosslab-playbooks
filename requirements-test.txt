@@ -41,12 +41,14 @@ click-help-colors==0.9.1
     # via molecule
 commonmark==0.9.1
     # via rich
-cookiecutter==1.7.3
+cookiecutter==2.1.1
     # via molecule
 cryptography==36.0.2
     # via
     #   -c requirements.txt
     #   paramiko
+distro==1.7.0
+    # via selinux
 docker==5.0.3
     # via molecule-docker
 enrich==1.2.7
@@ -81,8 +83,6 @@ paramiko==2.10.3
     # via molecule
 pluggy==1.0.0
     # via molecule
-poyo==0.5.0
-    # via cookiecutter
 pycparser==2.21
     # via
     #   -c requirements.txt
@@ -107,6 +107,7 @@ pyyaml==5.4.1
     # via
     #   -c requirements.txt
     #   ansible-compat
+    #   cookiecutter
     #   molecule
 requests==2.27.1
     # via
@@ -118,11 +119,12 @@ rich==12.0.0
     # via
     #   enrich
     #   molecule
+selinux==0.2.1
+    # via molecule-docker
 six==1.16.0
     # via
     #   -c requirements.txt
     #   bcrypt
-    #   cookiecutter
     #   paramiko
     #   python-dateutil
 subprocess-tee==0.3.5
