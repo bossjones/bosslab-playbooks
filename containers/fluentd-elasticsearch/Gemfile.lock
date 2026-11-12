@@ -157,6 +157,8 @@ GEM
       fluentd (>= 0.14.8, < 2)
       geoip-c
       geoip2_c
+    fluent-plugin-grafana-loki (1.2.7)
+      fluentd (>= 0.14.10, < 2)
     fluent-plugin-grok-parser (2.6.2)
       fluentd (>= 0.14.6, < 2)
     fluent-plugin-ignore-filter (2.0.0)
@@ -301,7 +303,7 @@ GEM
     mixlib-shellout (2.2.7)
     mongo (2.6.4)
       bson (>= 4.3.0, < 5.0.0)
-    msgpack (1.2.10)
+    msgpack (1.8.7)
     multi_json (1.15.0)
     multipart-post (2.1.1)
     netrc (0.11.0)
@@ -471,6 +473,7 @@ DEPENDENCIES
   fluent-plugin-elasticsearch
   fluent-plugin-flowcounter
   fluent-plugin-geoip
+  fluent-plugin-grafana-loki
   fluent-plugin-grok-parser
   fluent-plugin-ignore-filter
   fluent-plugin-mongo
@@ -491,7 +494,7 @@ DEPENDENCIES
   fluentd-ui (= 1.0.0.alpha.2)
   git (~> 1.4.0)
   lru_redux
-  msgpack (~> 1.2.4)
+  msgpack (~> 1.8.7)
   oj (~> 3.6.5)
   rails (= 5.2.1)
   rest-client (~> 2.0.2)

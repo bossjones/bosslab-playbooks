@@ -20,7 +20,7 @@ gem 'rest-client', '~>2.0.2'
 gem 'fluent-plugin-geoip'
 
 gem "git", "~>1.4.0"
-gem "msgpack", "~>1.2.4"
+gem "msgpack", "~>1.8.7"
 
 gem "fluent-logger"
 gem "fluent-mixin-config-placeholders"
